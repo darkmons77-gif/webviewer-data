@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-09-13",
+  "actors": {
+    "version": 1,
+    "url": "avwikidb_actors.json"
+  },
+  "works": {
+    "version": 1,
+    "index": "avwikidb_works_index.json"
+  }
+}
