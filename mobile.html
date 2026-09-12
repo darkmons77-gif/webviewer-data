@@ -1,0 +1,1783 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>웹뷰어 MOBILE</title>
+<meta name="theme-color" content="#07080d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="웹뷰어">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#07080d;
+  --panel:#10131a;
+  --line:#252b36;
+  --text:#f2f4f8;
+  --muted:#8f98a8;
+  --accent:#1688ff;
+  --nav-h:44px;
+  --nav-w:62px;
+  --gap:6px;
+  --pad:6px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+button,input,select,textarea{font:inherit}
+button{border:0;color:inherit}
+
+/* ===== 앱 전체 ===== */
+#mvApp{
+  position:fixed;
+  inset:0;
+  width:100dvw;
+  height:100dvh;
+  overflow:hidden;
+  background:var(--bg);
+}
+
+/* ===== 공통 네비 ===== */
+#mvNav{
+  position:absolute;
+  z-index:20;
+  background:var(--panel);
+  border-color:var(--line);
+}
+.mvNavBtn{
+  appearance:none;
+  background:transparent;
+  color:var(--muted);
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  min-width:0;
+  min-height:0;
+}
+.mvNavBtn.active{
+  color:#fff;
+  background:rgba(22,136,255,.16);
+  box-shadow:inset 0 -2px 0 var(--accent);
+}
+
+/* ===== 스타일 오버레이 =====
+   - 페이지를 바꾸지 않고 현재 리스트 위에 반투명하게 겹친다.
+   - 리스트를 보면서 즉시 포스터/제목 표시를 바꾸는 용도. */
+#mvStylePanel{
+  position:absolute;
+  z-index:35;
+  display:none;
+  width:min(326px,calc(100dvw - 12px));
+  padding:7px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:10px;
+  background:rgba(8,11,17,.64);
+  box-shadow:0 10px 30px rgba(0,0,0,.30);
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+}
+#mvStylePanel.open{display:block}
+.mvStyleRow{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  align-items:center;
+  gap:5px;
+}
+.mvStyleRow + .mvStyleRow{margin-top:5px}
+.mvStyleLabel{
+  color:#aeb8c7;
+  font-size:10px;
+  font-weight:800;
+  text-align:center;
+  white-space:nowrap;
+}
+.mvStyleBtns{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px;
+}
+.mvStyleBtn{
+  height:27px;
+  min-width:0;
+  padding:0 4px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:6px;
+  background:rgba(47,55,68,.78);
+  color:#e7edf5;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.mvStyleBtn.active,
+.mvStyleBtn[aria-pressed="true"]{
+  background:rgba(22,136,255,.72);
+  border-color:rgba(108,183,255,.95);
+  color:#fff;
+}
+#mvStyleStatus{
+  margin-top:5px;
+  min-height:14px;
+  color:#9ba8ba;
+  font-size:9px;
+  line-height:1.35;
+  text-align:center;
+  white-space:normal;
+}
+
+/* ===== 페이지 ===== */
+#mvPages{position:absolute;overflow:hidden}
+.mvPage{position:absolute;inset:0;display:none;overflow:hidden;background:var(--bg)}
+.mvPage.active{display:block}
+
+/* ===== 영상 리스트 ===== */
+#mvListScroll{
+  width:100%;height:100%;overflow:auto;overscroll-behavior:contain;
+  padding:var(--pad);
+  scrollbar-width:none;
+}
+#mvListScroll::-webkit-scrollbar{display:none}
+#mvList{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--gap);
+  align-content:start;
+  width:100%;
+}
+.mvCard{
+  min-width:0;
+  overflow:hidden;
+  border-radius:7px;
+  background:#11151d;
+  border:1px solid rgba(255,255,255,.05);
+}
+.mvPoster{
+  display:block;
+  width:100%;
+  aspect-ratio:1/1.43;
+  object-fit:cover;
+  object-position:right center;
+  background:#151923;
+}
+.mvCardText{padding:5px 6px 6px;min-width:0}
+.mvCardCode{font-size:11px;color:#b9c3d3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvCardTitle{margin-top:2px;font-size:12px;line-height:1.25;color:#f1f3f7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.mvEmpty{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+  padding:24px;
+}
+#mvListEmpty{grid-column:1/-1;min-height:180px}
+
+
+/* ===== 배우 ===== */
+#mvActressShell{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+#mvActressHead{
+  flex:0 0 42px;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;
+  gap:6px;
+  padding:5px 6px;
+  background:#0d1017;
+  border-bottom:1px solid var(--line);
+}
+#mvActressBack{
+  width:38px;height:32px;border-radius:7px;background:#171c26;color:#e8edf5;
+  font-size:18px;line-height:1;cursor:pointer;
+}
+#mvActressSearch{
+  width:100%;height:32px;min-width:0;border:1px solid #2a3240;border-radius:7px;
+  background:#111620;color:#fff;padding:0 9px;font-size:13px;outline:none;
+}
+#mvActressSearch:focus{border-color:var(--accent)}
+#mvActressCount{font-size:11px;color:#9ba6b7;white-space:nowrap;padding:0 2px}
+#mvActressScroll{
+  flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;
+  padding:6px;scrollbar-width:none;
+}
+#mvActressScroll::-webkit-scrollbar{display:none}
+#mvActressGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  align-content:start;
+}
+.mvActressCard{
+  min-width:0;overflow:hidden;border-radius:7px;background:#11151d;
+  border:1px solid rgba(255,255,255,.055);
+}
+.mvActressPhotoWrap{
+  position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#151923;
+  display:flex;align-items:center;justify-content:center;
+}
+.mvActressPhoto{display:block;width:100%;height:100%;object-fit:cover;background:#151923}
+.mvActressFallback{
+  display:flex;width:100%;height:100%;align-items:center;justify-content:center;
+  color:#6f7b8e;font-size:22px;font-weight:800;background:#121722;
+}
+.mvActressName{
+  padding:5px 3px 6px;text-align:center;color:#eef2f7;font-size:11px;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#mvActressStatus{
+  min-height:46px;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:12px;text-align:center;padding:8px;
+}
+#mvActressSentinel{height:2px;width:100%;grid-column:1/-1}
+
+/* ===== 작품 DB ===== */
+#mvWorksShell{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+#mvWorksHead{
+  flex:0 0 42px;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;
+  gap:6px;
+  padding:5px 6px;
+  background:#0d1017;
+  border-bottom:1px solid var(--line);
+}
+#mvWorksBack{
+  width:38px;height:32px;border-radius:7px;background:#171c26;color:#e8edf5;
+  font-size:18px;line-height:1;cursor:pointer;
+}
+#mvWorksTitle{font-size:13px;font-weight:800;color:#eef2f7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mvWorksCount{font-size:11px;color:#9ba6b7;white-space:nowrap;padding:0 2px}
+#mvWorksScroll{
+  flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;
+  padding:var(--pad);scrollbar-width:none;
+}
+#mvWorksScroll::-webkit-scrollbar{display:none}
+#mvWorksGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--gap);
+  align-content:start;
+  width:100%;
+}
+.mvWorkCard{
+  min-width:0;overflow:hidden;border-radius:7px;background:#11151d;
+  border:1px solid rgba(255,255,255,.05);
+}
+.mvWorkPosterWrap{position:relative;width:100%;aspect-ratio:1/1.43;background:#151923;overflow:hidden}
+.mvWorkPoster{display:block;width:100%;height:100%;object-fit:cover;object-position:right center;background:#151923}
+.mvWorkNoPoster{display:flex;width:100%;height:100%;align-items:center;justify-content:center;color:#677286;font-size:11px;background:#121722}
+.mvWorkText{padding:5px 6px 6px;min-width:0}
+.mvWorkCode{font-size:11px;color:#b9c3d3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvWorkTitle{margin-top:2px;font-size:12px;line-height:1.25;color:#f1f3f7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mvWorkActors{margin-top:2px;font-size:10px;line-height:1.2;color:#8f9aad;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mvWorksStatus{
+  grid-column:1/-1;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:12px;text-align:center;padding:8px;
+}
+
+
+/* ===== 공통 포스터 스타일 상태 ===== */
+#mvApp.mvPosterHorizontal .mvPoster,
+#mvApp.mvPosterHorizontal .mvWorkPosterWrap{
+  aspect-ratio:16/9;
+}
+#mvApp.mvPosterHorizontal .mvPoster,
+#mvApp.mvPosterHorizontal .mvWorkPoster{
+  object-position:center center;
+}
+#mvApp.mvPosterVertical .mvPoster,
+#mvApp.mvPosterVertical .mvWorkPosterWrap{
+  aspect-ratio:1/1.43;
+}
+#mvApp.mvPosterVertical.mvPosterAlignRight .mvPoster,
+#mvApp.mvPosterVertical.mvPosterAlignRight .mvWorkPoster{
+  object-position:right center;
+}
+#mvApp.mvPosterVertical.mvPosterAlignLeft .mvPoster,
+#mvApp.mvPosterVertical.mvPosterAlignLeft .mvWorkPoster{
+  object-position:left center;
+}
+
+/* ===== 메뉴 ===== */
+#mvMenuScroll{width:100%;height:100%;overflow:auto;padding:12px;scrollbar-width:none}
+#mvMenuScroll::-webkit-scrollbar{display:none}
+#mvMenuGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.mvMenuTile{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:62px;
+  border-radius:10px;
+  background:#131822;
+  border:1px solid rgba(255,255,255,.07);
+  color:#e6ebf3;
+  font-size:13px;
+  font-weight:700;
+}
+.mvMenuTile[disabled]{opacity:.38}
+#mvMenuEmpty{grid-column:1/-1;min-height:160px}
+
+/* ===== 세로 ===== */
+@media (orientation:portrait){
+  #mvNav{
+    left:0;top:0;right:0;height:var(--nav-h);
+    display:grid;grid-template-columns:10% 10% repeat(3,minmax(0,1fr));
+    border-bottom:1px solid var(--line);
+  }
+  .mvNavBtn{width:100%;height:var(--nav-h)}
+  .mvNavBtn.active{box-shadow:inset 0 -2px 0 var(--accent)}
+  #mvPages{left:0;right:0;top:var(--nav-h);bottom:0}
+  #mvStylePanel{top:calc(var(--nav-h) + 6px);right:6px}
+}
+
+/* ===== 가로 ===== */
+@media (orientation:landscape){
+  #mvNav{
+    left:0;top:0;bottom:0;width:var(--nav-w);
+    display:grid;grid-template-rows:10% 10% repeat(3,minmax(0,1fr));
+    border-right:1px solid var(--line);
+  }
+  .mvNavBtn{width:var(--nav-w);height:100%;writing-mode:horizontal-tb}
+  .mvNavBtn.active{box-shadow:inset -2px 0 0 var(--accent)}
+  #mvPages{left:var(--nav-w);right:0;top:0;bottom:0}
+  #mvStylePanel{left:calc(var(--nav-w) + 6px);top:6px}
+  #mvList{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #mvWorksGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #mvActressGrid{grid-template-columns:repeat(7,minmax(0,1fr))}
+  #mvMenuGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* 작은 가로 화면에서는 포스터 3열 */
+@media (orientation:landscape) and (max-height:430px){
+  #mvList{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #mvWorksGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #mvActressGrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<div id="mvApp">
+  <nav id="mvNav" aria-label="모바일 화면 전환">
+    <button id="mvTabMenu" class="mvNavBtn" type="button" data-page="menu">메뉴</button>
+    <button id="mvTabStyle" class="mvNavBtn" type="button" data-action="style" aria-pressed="false">스타일</button>
+    <button id="mvTabComic" class="mvNavBtn" type="button" data-page="comic">만화</button>
+    <button id="mvTabVideo" class="mvNavBtn active" type="button" data-page="video">영상</button>
+    <button id="mvTabMusic" class="mvNavBtn" type="button" data-page="music">음악</button>
+  </nav>
+
+  <aside id="mvStylePanel" aria-label="스타일 설정" aria-hidden="true">
+    <div class="mvStyleRow">
+      <div class="mvStyleLabel">포스터</div>
+      <div class="mvStyleBtns">
+        <button class="mvStyleBtn" id="mvStylePosterHorizontal" type="button" data-poster-view="horizontal">가로</button>
+        <button class="mvStyleBtn" id="mvStylePosterVertical" type="button" data-poster-view="vertical">세로</button>
+        <button class="mvStyleBtn" id="mvStylePosterSide" type="button" title="앞=오른쪽 · 뒤=왼쪽">앞</button>
+      </div>
+    </div>
+    <div class="mvStyleRow">
+      <div class="mvStyleLabel">번역</div>
+      <div class="mvStyleBtns">
+        <button class="mvStyleBtn mvStyleTitleBtn" type="button" data-title-mode="file">파일</button>
+        <button class="mvStyleBtn mvStyleTitleBtn" type="button" data-title-mode="ja">일</button>
+        <button class="mvStyleBtn mvStyleTitleBtn" type="button" data-title-mode="ko">한</button>
+      </div>
+    </div>
+    <div id="mvStyleStatus">세로 · 앞(오른쪽) · 일본어</div>
+  </aside>
+
+  <main id="mvPages">
+    <section id="mvPageMenu" class="mvPage" data-page="menu">
+      <div id="mvMenuScroll">
+        <div id="mvMenuGrid">
+          <button id="mvActressBtn" class="mvMenuTile" type="button">배우</button>
+          <button id="mvWorksBtn" class="mvMenuTile" type="button">작품</button>
+          <button id="mvInstallBtn" class="mvMenuTile" type="button">앱 설치</button>
+          <button id="mvFullscreenBtn" class="mvMenuTile" type="button">전체화면</button>
+          <div id="mvMenuEmpty" class="mvEmpty">모바일 메뉴 영역<br>필요한 기능만 하나씩 추가합니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mvPageComic" class="mvPage" data-page="comic">
+      <div class="mvEmpty">만화 화면<br>아직 연결된 기능이 없습니다.</div>
+    </section>
+
+    <section id="mvPageVideo" class="mvPage active" data-page="video">
+      <div id="mvListScroll">
+        <div id="mvList">
+          <div id="mvListEmpty" class="mvEmpty">영상 목록이 비어 있습니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mvPageWorks" class="mvPage" data-page="works">
+      <div id="mvWorksShell">
+        <div id="mvWorksHead">
+          <button id="mvWorksBack" type="button" aria-label="메뉴로 돌아가기">←</button>
+          <div id="mvWorksTitle">작품 DB</div>
+          <span id="mvWorksCount">0</span>
+        </div>
+        <div id="mvWorksScroll">
+          <div id="mvWorksGrid">
+            <div id="mvWorksStatus">작품 메뉴를 열면 캐시를 우선 확인하고 필요한 분할 DB만 받습니다.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mvPageActress" class="mvPage" data-page="actress">
+      <div id="mvActressShell">
+        <div id="mvActressHead">
+          <button id="mvActressBack" type="button" aria-label="메뉴로 돌아가기">←</button>
+          <input id="mvActressSearch" type="search" placeholder="배우 검색" autocomplete="off" spellcheck="false">
+          <span id="mvActressCount">0명</span>
+        </div>
+        <div id="mvActressScroll">
+          <div id="mvActressGrid"></div>
+          <div id="mvActressStatus">배우 메뉴를 열면 캐시를 우선 확인하고 필요할 때만 GitHub에서 받습니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mvPageMusic" class="mvPage" data-page="music">
+      <div class="mvEmpty">음악 화면<br>아직 연결된 기능이 없습니다.</div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==========================================================
+     MOBILE VIEWER PWA v1.7
+     - PC 웹뷰어와 완전히 독립
+     - UI / 상태 / 데이터 / 기능을 분리해서 확장
+     ========================================================== */
+
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+  const ACTRESS_DB_URL = './avwikidb_actors.json';
+  const ACTRESS_BATCH = 160;
+
+  const WORKS_INDEX_URL = './avwikidb_works_index.json';
+  const WORKS_BATCH = 160;
+
+  // GitHub에는 이 작은 파일만 항상 최신 여부 확인용으로 둔다.
+  const VERSION_URL = './version.json';
+
+  // ===== IndexedDB 영구 캐시 =====
+  // 배우 JSON / 작품 index / 각 작품 분할 JSON을 원문 Blob으로 저장한다.
+  // 새 HTML 파일을 열어도 같은 브라우저 origin이면 그대로 재사용한다.
+  const CACHE_DB_NAME = 'webviewer_mobile_cache_v1';
+  const CACHE_DB_VERSION = 1;
+  const CACHE_STORE = 'kv';
+  let cacheDbPromise = null;
+  let versionDocPromise = null;
+  let persistRequestPromise = null;
+
+  function openCacheDB(){
+    if (!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB 미지원'));
+    if (cacheDbPromise) return cacheDbPromise;
+
+    cacheDbPromise = new Promise((resolve, reject) => {
+      const req = indexedDB.open(CACHE_DB_NAME, CACHE_DB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(CACHE_STORE)) {
+          db.createObjectStore(CACHE_STORE, { keyPath:'key' });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('IndexedDB 열기 실패'));
+      req.onblocked = () => reject(new Error('IndexedDB가 다른 탭에 의해 잠겨 있습니다.'));
+    });
+    return cacheDbPromise;
+  }
+
+  async function cacheGet(key){
+    try {
+      const db = await openCacheDB();
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(CACHE_STORE, 'readonly');
+        const req = tx.objectStore(CACHE_STORE).get(key);
+        req.onsuccess = () => resolve(req.result?.value ?? null);
+        req.onerror = () => reject(req.error);
+      });
+    } catch (err) {
+      console.warn('[cacheGet]', key, err);
+      return null;
+    }
+  }
+
+  async function cacheSet(key, value){
+    try {
+      const db = await openCacheDB();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(CACHE_STORE, 'readwrite');
+        tx.objectStore(CACHE_STORE).put({ key, value, savedAt:Date.now() });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error || new Error('IndexedDB 저장 중단'));
+      });
+      return true;
+    } catch (err) {
+      // 저장 공간이 부족해도 화면 로딩 자체는 계속되어야 한다.
+      console.warn('[cacheSet]', key, err);
+      return false;
+    }
+  }
+
+  async function cacheDeletePrefix(prefix){
+    try {
+      const db = await openCacheDB();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(CACHE_STORE, 'readwrite');
+        const store = tx.objectStore(CACHE_STORE);
+        const req = store.openCursor();
+        req.onsuccess = () => {
+          const cursor = req.result;
+          if (!cursor) return;
+          const key = String(cursor.key ?? '');
+          if (key.startsWith(prefix)) cursor.delete();
+          cursor.continue();
+        };
+        req.onerror = () => reject(req.error);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+      return true;
+    } catch (err) {
+      console.warn('[cacheDeletePrefix]', prefix, err);
+      return false;
+    }
+  }
+
+  async function requestPersistentCache(){
+    if (persistRequestPromise) return persistRequestPromise;
+    persistRequestPromise = (async () => {
+      try {
+        if (!navigator.storage) return false;
+        if (typeof navigator.storage.persisted === 'function' && await navigator.storage.persisted()) return true;
+        if (typeof navigator.storage.persist === 'function') return !!(await navigator.storage.persist());
+      } catch (err) {
+        console.warn('[storage.persist]', err);
+      }
+      return false;
+    })();
+    return persistRequestPromise;
+  }
+
+  function versionAssetUrl(value, fallback){
+    const raw = String(value || '').trim();
+    if (!raw) return new URL(fallback, location.href).href;
+    try {
+      const versionBase = new URL(VERSION_URL, location.href);
+      return new URL(raw, versionBase).href;
+    } catch (_) {
+      try { return new URL(fallback, location.href).href; }
+      catch (_) { return fallback; }
+    }
+  }
+
+  async function jsonFromCachedValue(value){
+    if (value == null) return null;
+    if (value instanceof Blob) return JSON.parse(await value.text());
+    if (typeof value === 'string') return JSON.parse(value);
+    if (typeof value === 'object') return value;
+    return null;
+  }
+
+  async function fetchJsonWithBlob(url){
+    const res = await fetch(url, { method:'GET', cache:'no-store', mode:'cors' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const data = JSON.parse(text);
+    return { data, blob:new Blob([text], {type:'application/json;charset=utf-8'}) };
+  }
+
+  function fallbackVersionDoc(){
+    return {
+      schema:1,
+      actors:{ version:1, url:ACTRESS_DB_URL },
+      works:{ version:1, index:WORKS_INDEX_URL }
+    };
+  }
+
+  async function loadVersionDoc(force = false){
+    if (state.versionDoc && !force) return state.versionDoc;
+    if (versionDocPromise && !force) return versionDocPromise;
+
+    versionDocPromise = (async () => {
+      let remote = null;
+      try {
+        const {data} = await fetchJsonWithBlob(VERSION_URL);
+        remote = data && typeof data === 'object' ? data : null;
+      } catch (err) {
+        console.warn('[version.json] network failed', err);
+      }
+
+      if (remote) {
+        const old = await cacheGet('meta:version-doc');
+        const oldActors = Number(old?.actors?.version ?? 0);
+        const newActors = Number(remote?.actors?.version ?? 1);
+        const oldWorks = Number(old?.works?.version ?? 0);
+        const newWorks = Number(remote?.works?.version ?? 1);
+
+        // DB 버전이 올라간 종류만 이전 캐시를 제거한다.
+        if (old && oldActors !== newActors) await cacheDeletePrefix('actors:');
+        if (old && oldWorks !== newWorks) await cacheDeletePrefix('works:');
+
+        await cacheSet('meta:version-doc', remote);
+        state.versionDoc = remote;
+        state.versionOnline = true;
+        return remote;
+      }
+
+      const cached = await cacheGet('meta:version-doc');
+      state.versionDoc = cached || fallbackVersionDoc();
+      state.versionOnline = false;
+      return state.versionDoc;
+    })();
+
+    try { return await versionDocPromise; }
+    finally { versionDocPromise = null; }
+  }
+
+  async function clearMobileDataCache(){
+    await cacheDeletePrefix('actors:');
+    await cacheDeletePrefix('works:');
+    await cacheDeletePrefix('meta:');
+    state.versionDoc = null;
+    state.actressLoaded = false;
+    state.actresses = [];
+    state.actressFiltered = [];
+    state.worksIndexLoaded = false;
+    state.worksIndex = null;
+    state.worksFiles = [];
+    return true;
+  }
+
+  const STYLE_KEYS = Object.freeze({
+    posterView:'mv_style_poster_view_v1',
+    posterAlign:'mv_style_poster_align_v1',
+    titleMode:'mv_style_title_mode_v1'
+  });
+
+  function readStyleValue(key, fallback){
+    try { return localStorage.getItem(key) || fallback; }
+    catch (_) { return fallback; }
+  }
+
+  const styleState = {
+    open:false,
+    posterView: readStyleValue(STYLE_KEYS.posterView, 'vertical') === 'horizontal' ? 'horizontal' : 'vertical',
+    posterAlign: readStyleValue(STYLE_KEYS.posterAlign, 'right') === 'left' ? 'left' : 'right',
+    titleMode: ['file','ja','ko'].includes(readStyleValue(STYLE_KEYS.titleMode, 'ja'))
+      ? readStyleValue(STYLE_KEYS.titleMode, 'ja')
+      : 'ja'
+  };
+
+  const state = {
+    page: 'video',
+    items: [],
+
+    versionDoc: null,
+    versionOnline: false,
+    actressCacheVersion: 1,
+    worksCacheVersion: 1,
+    worksIndexUrl: WORKS_INDEX_URL,
+    actresses: [],
+    actressFiltered: [],
+    actressLoaded: false,
+    actressLoading: false,
+    actressRendered: 0,
+    actressQuery: '',
+
+    worksIndex: null,
+    worksFiles: [],
+    worksIndexLoaded: false,
+    worksIndexLoading: false,
+    worksPartLoading: false,
+    worksPartCursor: 0,
+    worksPartRows: [],
+    worksPartRendered: 0,
+    worksShown: 0,
+    worksTotal: 0,
+    worksDone: false
+  };
+
+  const refs = {
+    nav: $('#mvNav'),
+    tabs: $$('.mvNavBtn[data-page]'),
+    pages: $$('.mvPage'),
+    list: $('#mvList'),
+    menu: $('#mvMenuGrid'),
+    actressGrid: $('#mvActressGrid'),
+    actressScroll: $('#mvActressScroll'),
+    actressStatus: $('#mvActressStatus'),
+    actressSearch: $('#mvActressSearch'),
+    actressCount: $('#mvActressCount'),
+    worksGrid: $('#mvWorksGrid'),
+    worksScroll: $('#mvWorksScroll'),
+    worksStatus: $('#mvWorksStatus'),
+    worksCount: $('#mvWorksCount'),
+    stylePanel: $('#mvStylePanel'),
+    styleTab: $('#mvTabStyle'),
+    styleStatus: $('#mvStyleStatus')
+  };
+
+  /* ==========================================================
+     전체화면
+     - 모바일 브라우저는 로드 즉시 requestFullscreen()을 막는다.
+     - 첫 사용자 터치/클릭에서 한 번만 자동 진입을 시도한다.
+     ========================================================== */
+  function isFullscreen(){
+    return !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement
+    );
+  }
+
+  async function enterFullscreen(){
+    if (isFullscreen()) return true;
+
+    const el = document.documentElement;
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (typeof fn !== 'function') return false;
+
+    try {
+      if (el.requestFullscreen) {
+        await el.requestFullscreen({ navigationUI: 'hide' });
+      } else {
+        el.webkitRequestFullscreen();
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function exitFullscreen(){
+    if (!isFullscreen()) return true;
+    const fn = document.exitFullscreen || document.webkitExitFullscreen;
+    if (typeof fn !== 'function') return false;
+    try {
+      const ret = fn.call(document);
+      if (ret && typeof ret.then === 'function') await ret;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function syncFullscreenButton(){
+    const btn = $('#mvFullscreenBtn');
+    if (!btn) return;
+    btn.textContent = isFullscreen() ? '전체화면 끄기' : '전체화면';
+  }
+
+  // 브라우저 정책상 자동 진입 대신, 첫 사용자 입력을 그대로 사용한다.
+  function firstGestureFullscreen(){
+    enterFullscreen().finally(() => {
+      document.removeEventListener('pointerdown', firstGestureFullscreen, true);
+      document.removeEventListener('touchstart', firstGestureFullscreen, true);
+    });
+  }
+
+  document.addEventListener('pointerdown', firstGestureFullscreen, true);
+  document.addEventListener('touchstart', firstGestureFullscreen, true);
+  document.addEventListener('fullscreenchange', syncFullscreenButton);
+  document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
+
+  $('#mvFullscreenBtn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isFullscreen()) await exitFullscreen();
+    else await enterFullscreen();
+    syncFullscreenButton();
+  });
+
+  function setPage(page){
+    if (!['menu','comic','video','music','actress','works'].includes(page)) return;
+    state.page = page;
+
+    // 배우는 메뉴의 하위 화면이므로 상단/좌측 네비에서는 메뉴를 활성 상태로 둔다.
+    const navPage = (page === 'actress' || page === 'works') ? 'menu' : page;
+
+    refs.tabs.forEach(btn => {
+      const on = btn.dataset.page === navPage;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
+    refs.pages.forEach(el => {
+      el.classList.toggle('active', el.dataset.page === page);
+    });
+  }
+
+  /* ==========================================================
+     모바일 스타일 오버레이
+     - 화면 전환 없이 현재 리스트 위에서 즉시 스타일만 변경
+     - PC판의 핵심 2줄(가로/세로/앞뒤 + 파일/일/한)만 먼저 이식
+     ========================================================== */
+  let mobileJaKoTranslator = null;
+  let mobileJaKoTranslatorPromise = null;
+  const mobileTitleKoCache = new Map();
+  let mobileTranslateToken = 0;
+  let mobileTranslateTimer = 0;
+
+  function writeStyleValue(key, value){
+    try { localStorage.setItem(key, String(value)); } catch (_) {}
+  }
+
+  function styleModeLabel(){
+    const poster = styleState.posterView === 'horizontal' ? '가로' : '세로';
+    const side = styleState.posterAlign === 'right' ? '앞(오른쪽)' : '뒤(왼쪽)';
+    const title = styleState.titleMode === 'file' ? '파일' : styleState.titleMode === 'ko' ? '한국어' : '일본어';
+    return `${poster} · ${side} · ${title}`;
+  }
+
+  function setStyleStatus(text){
+    if (refs.styleStatus) refs.styleStatus.textContent = String(text || styleModeLabel());
+  }
+
+  function syncStyleUI(){
+    const app = $('#mvApp');
+    if (app){
+      app.classList.toggle('mvPosterHorizontal', styleState.posterView === 'horizontal');
+      app.classList.toggle('mvPosterVertical', styleState.posterView === 'vertical');
+      app.classList.toggle('mvPosterAlignRight', styleState.posterAlign === 'right');
+      app.classList.toggle('mvPosterAlignLeft', styleState.posterAlign === 'left');
+    }
+
+    $('#mvStylePosterHorizontal')?.classList.toggle('active', styleState.posterView === 'horizontal');
+    $('#mvStylePosterVertical')?.classList.toggle('active', styleState.posterView === 'vertical');
+    $('#mvStylePosterHorizontal')?.setAttribute('aria-pressed', styleState.posterView === 'horizontal' ? 'true' : 'false');
+    $('#mvStylePosterVertical')?.setAttribute('aria-pressed', styleState.posterView === 'vertical' ? 'true' : 'false');
+
+    const side = $('#mvStylePosterSide');
+    if (side){
+      const front = styleState.posterAlign === 'right';
+      side.textContent = front ? '앞' : '뒤';
+      side.title = front
+        ? '현재: 앞(오른쪽) · 누르면 뒤(왼쪽)'
+        : '현재: 뒤(왼쪽) · 누르면 앞(오른쪽)';
+      side.classList.add('active');
+      side.setAttribute('aria-pressed','true');
+    }
+
+    $$('.mvStyleTitleBtn').forEach(btn => {
+      const on = btn.dataset.titleMode === styleState.titleMode;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
+    refs.stylePanel?.classList.toggle('open', styleState.open);
+    refs.stylePanel?.setAttribute('aria-hidden', styleState.open ? 'false' : 'true');
+    refs.styleTab?.classList.toggle('active', styleState.open);
+    refs.styleTab?.setAttribute('aria-pressed', styleState.open ? 'true' : 'false');
+
+    setStyleStatus(styleModeLabel());
+  }
+
+  function toggleStylePanel(force){
+    styleState.open = typeof force === 'boolean' ? force : !styleState.open;
+    syncStyleUI();
+  }
+
+  function setPosterView(mode){
+    styleState.posterView = mode === 'horizontal' ? 'horizontal' : 'vertical';
+    writeStyleValue(STYLE_KEYS.posterView, styleState.posterView);
+    syncStyleUI();
+  }
+
+  function togglePosterSide(){
+    styleState.posterAlign = styleState.posterAlign === 'right' ? 'left' : 'right';
+    writeStyleValue(STYLE_KEYS.posterAlign, styleState.posterAlign);
+    syncStyleUI();
+  }
+
+  function titleForElement(el){
+    const file = String(el?.dataset?.titleFile || '').trim();
+    const ja = String(el?.dataset?.titleJa || '').trim();
+    const ko = String(el?.dataset?.titleKo || '').trim();
+    if (styleState.titleMode === 'file') return file || ja || ko;
+    if (styleState.titleMode === 'ko') return ko || ja || file;
+    return ja || file || ko;
+  }
+
+  function applyTitleModeToDOM(root=document){
+    $$('.mvWorkTitle[data-title-ja], .mvCardTitle[data-title-ja]', root).forEach(el => {
+      const text = titleForElement(el);
+      el.textContent = text;
+      el.title = text;
+    });
+  }
+
+  async function ensureMobileJaKoTranslator(userInitiated=false){
+    if (mobileJaKoTranslator) return mobileJaKoTranslator;
+    if (mobileJaKoTranslatorPromise) return mobileJaKoTranslatorPromise;
+
+    if (!('Translator' in globalThis)){
+      setStyleStatus('한국어 번역: 이 브라우저는 Chrome Translator API 미지원');
+      return null;
+    }
+
+    mobileJaKoTranslatorPromise = (async () => {
+      try {
+        const availability = await Translator.availability({sourceLanguage:'ja', targetLanguage:'ko'});
+        if (availability === 'unavailable'){
+          setStyleStatus('한국어 번역: 일본어→한국어 사용 불가');
+          return null;
+        }
+        if (!userInitiated && availability !== 'available'){
+          setStyleStatus('한국어 번역: 한 버튼을 눌러 언어팩 준비');
+          return null;
+        }
+
+        setStyleStatus(availability === 'available' ? '한국어 번역기 준비 중…' : '한국어 언어팩 준비 중…');
+        const tr = await Translator.create({
+          sourceLanguage:'ja',
+          targetLanguage:'ko',
+          monitor(m){
+            m.addEventListener('downloadprogress', e => {
+              const p = Math.round((Number(e.loaded) || 0) * 100);
+              setStyleStatus(`한국어 언어팩 ${p}%`);
+            });
+          }
+        });
+        mobileJaKoTranslator = tr;
+        setStyleStatus('한국어 번역 준비 완료');
+        return tr;
+      } catch (err){
+        setStyleStatus(`한국어 번역 준비 실패 · ${err?.message || err}`);
+        return null;
+      } finally {
+        mobileJaKoTranslatorPromise = null;
+      }
+    })();
+
+    return mobileJaKoTranslatorPromise;
+  }
+
+  function visibleTitleNodes(){
+    const h = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    return $$('.mvWorkTitle[data-title-ja], .mvCardTitle[data-title-ja]').filter(el => {
+      const ja = String(el.dataset.titleJa || '').trim();
+      if (!ja || String(el.dataset.titleKo || '').trim()) return false;
+      const r = el.getBoundingClientRect();
+      return r.bottom >= -120 && r.top <= h + 240;
+    });
+  }
+
+  async function translateVisibleTitles({userInitiated=false}={}){
+    if (styleState.titleMode !== 'ko') return;
+    const token = ++mobileTranslateToken;
+    const tr = await ensureMobileJaKoTranslator(userInitiated);
+    if (!tr || token !== mobileTranslateToken || styleState.titleMode !== 'ko'){
+      applyTitleModeToDOM();
+      return;
+    }
+
+    const nodes = visibleTitleNodes();
+    if (!nodes.length){
+      applyTitleModeToDOM();
+      setStyleStatus(styleModeLabel());
+      return;
+    }
+
+    let done = 0;
+    for (const el of nodes){
+      if (token !== mobileTranslateToken || styleState.titleMode !== 'ko') return;
+      const ja = String(el.dataset.titleJa || '').trim();
+      if (!ja) continue;
+      let ko = mobileTitleKoCache.get(ja) || '';
+      if (!ko){
+        try {
+          ko = String(await tr.translate(ja) || '').trim();
+          if (ko) mobileTitleKoCache.set(ja, ko);
+        } catch (_) {}
+      }
+      if (ko){
+        el.dataset.titleKo = ko;
+        el.textContent = ko;
+        el.title = ko;
+      }
+      done++;
+      if (done % 4 === 0 || done === nodes.length){
+        setStyleStatus(`한국어 번역 ${done}/${nodes.length}`);
+      }
+    }
+    setStyleStatus(styleModeLabel());
+  }
+
+  function scheduleVisibleTitleTranslation(){
+    if (styleState.titleMode !== 'ko') return;
+    clearTimeout(mobileTranslateTimer);
+    mobileTranslateTimer = setTimeout(() => translateVisibleTitles({userInitiated:false}), 120);
+  }
+
+  function setTitleMode(mode, userInitiated=false){
+    styleState.titleMode = ['file','ja','ko'].includes(mode) ? mode : 'ja';
+    writeStyleValue(STYLE_KEYS.titleMode, styleState.titleMode);
+    mobileTranslateToken++;
+    syncStyleUI();
+    applyTitleModeToDOM();
+    if (styleState.titleMode === 'ko'){
+      translateVisibleTitles({userInitiated});
+    }
+  }
+
+  $('#mvStylePosterHorizontal')?.addEventListener('click', () => setPosterView('horizontal'));
+  $('#mvStylePosterVertical')?.addEventListener('click', () => setPosterView('vertical'));
+  $('#mvStylePosterSide')?.addEventListener('click', togglePosterSide);
+  $$('.mvStyleTitleBtn').forEach(btn => {
+    btn.addEventListener('click', () => setTitleMode(String(btn.dataset.titleMode || 'ja'), true));
+  });
+
+  /* ==========================================================
+     작품 DB / 작품 화면
+     - index.json 하나만 알고 있으면 분할 파일 목록을 자동 확인
+     - 160MB 전체를 한꺼번에 받지 않고 20MB 파트 한 개씩 로드
+     - 현재 파트를 160개씩 화면에 추가하고, 끝나면 다음 파트 다운로드
+     ========================================================== */
+  function setWorksStatus(text){
+    if (refs.worksStatus) refs.worksStatus.textContent = String(text || '');
+  }
+
+  function syncWorksCount(){
+    if (!refs.worksCount) return;
+    const total = Number(state.worksTotal) || 0;
+    refs.worksCount.textContent = total
+      ? `${state.worksShown.toLocaleString()} / ${total.toLocaleString()}`
+      : `${state.worksShown.toLocaleString()}개`;
+  }
+
+  function resolveWorkImage(ref){
+    const raw = String(ref || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+
+    const m = raw.match(/^([damn]):(.*)$/i);
+    if (!m) return '';
+
+    const path = String(m[2] || '').replace(/^\/+/, '');
+    const base = {
+      d:'https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/',
+      a:'https://awsimgsrc.dmm.co.jp/pics_dig/digital/amateur/',
+      m:'https://avwikidb.com/mgsimg/images/',
+      n:'https://pics.dmm.co.jp/mono/movie/adult/'
+    }[String(m[1] || '').toLowerCase()] || '';
+
+    return base && path ? base + path : '';
+  }
+
+  function normalizeWork(row){
+    const src = row && typeof row === 'object' ? row : {};
+    const titleJa = String(src.t ?? src.titleJa ?? src.title ?? '').trim();
+    const titleKo = String(src.titleKo ?? src.koTitle ?? src.tk ?? '').trim();
+    const titleFile = String(src.fileTitle ?? src.displayTitle ?? src.fileName ?? titleJa).trim();
+    return {
+      code: String(src.c ?? src.code ?? '').trim(),
+      title: titleJa || titleFile || titleKo,
+      titleJa,
+      titleKo,
+      titleFile,
+      imageUrl: resolveWorkImage(src.i ?? src.image ?? src.imageUrl ?? ''),
+      date: String(src.d ?? src.date ?? '').trim(),
+      actresses: Array.isArray(src.a ?? src.actresses)
+        ? (src.a ?? src.actresses).map(v => String(v || '').trim()).filter(Boolean)
+        : []
+    };
+  }
+
+  function makeWorkCard(work){
+    const card = document.createElement('article');
+    card.className = 'mvWorkCard';
+    card.dataset.code = work.code;
+
+    const posterWrap = document.createElement('div');
+    posterWrap.className = 'mvWorkPosterWrap';
+
+    if (work.imageUrl){
+      const img = document.createElement('img');
+      img.className = 'mvWorkPoster';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.alt = work.code || work.title || 'poster';
+      img.src = work.imageUrl;
+      img.addEventListener('error', () => {
+        const no = document.createElement('div');
+        no.className = 'mvWorkNoPoster';
+        no.textContent = 'NO POSTER';
+        img.replaceWith(no);
+      }, { once:true });
+      posterWrap.appendChild(img);
+    } else {
+      const no = document.createElement('div');
+      no.className = 'mvWorkNoPoster';
+      no.textContent = 'NO POSTER';
+      posterWrap.appendChild(no);
+    }
+
+    const text = document.createElement('div');
+    text.className = 'mvWorkText';
+
+    const code = document.createElement('div');
+    code.className = 'mvWorkCode';
+    code.textContent = work.code || '-';
+
+    const title = document.createElement('div');
+    title.className = 'mvWorkTitle';
+    title.dataset.titleFile = work.titleFile || work.title || '';
+    title.dataset.titleJa = work.titleJa || work.title || '';
+    title.dataset.titleKo = work.titleKo || '';
+    title.textContent = titleForElement(title);
+    title.title = title.textContent;
+
+    text.append(code, title);
+
+    if (work.actresses.length){
+      const actors = document.createElement('div');
+      actors.className = 'mvWorkActors';
+      actors.textContent = work.actresses.join(' · ');
+      actors.title = actors.textContent;
+      text.appendChild(actors);
+    }
+
+    card.append(posterWrap, text);
+    return card;
+  }
+
+  function extractWorksRows(data){
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object' && Array.isArray(data.works)) return data.works;
+    return [];
+  }
+
+  function getWorksBaseUrl(){
+    const raw = state.worksIndexUrl || WORKS_INDEX_URL;
+    const url = new URL(raw, location.href).href;
+    return url.slice(0, url.lastIndexOf('/') + 1);
+  }
+
+  function normalizeIndexFiles(index){
+    const rows = Array.isArray(index?.files) ? index.files : [];
+    return rows.map((row, i) => {
+      if (typeof row === 'string') return { file:row, items:0, order:i };
+      if (!row || typeof row !== 'object') return null;
+      const file = String(row.file ?? row.name ?? row.path ?? '').trim();
+      if (!file) return null;
+      return { file, items:Number(row.items ?? row.count ?? 0) || 0, order:i };
+    }).filter(Boolean);
+  }
+
+  async function loadWorksIndex(force = false){
+    if (state.worksIndexLoaded && !force) return true;
+    if (state.worksIndexLoading) return false;
+
+    state.worksIndexLoading = true;
+    setWorksStatus('작품 DB 버전 확인 중…');
+
+    try {
+      await requestPersistentCache();
+      const versionDoc = await loadVersionDoc(false);
+      const worksVersion = Number(versionDoc?.works?.version ?? 1) || 1;
+      const indexUrl = versionAssetUrl(versionDoc?.works?.index, WORKS_INDEX_URL);
+      const cacheKey = `works:v${worksVersion}:index`;
+
+      state.worksCacheVersion = worksVersion;
+      state.worksIndexUrl = indexUrl;
+
+      let index = null;
+      let source = 'cache';
+
+      if (!force) {
+        const cached = await cacheGet(cacheKey);
+        if (cached) {
+          try { index = await jsonFromCachedValue(cached); }
+          catch (err) {
+            console.warn('[works index cache parse]', err);
+            index = null;
+          }
+        }
+      }
+
+      if (!index) {
+        source = 'GitHub';
+        setWorksStatus('GitHub에서 작품 index 다운로드 중…');
+        const fetched = await fetchJsonWithBlob(indexUrl);
+        index = fetched.data;
+        await cacheSet(cacheKey, fetched.blob);
+      }
+
+      const files = normalizeIndexFiles(index);
+      if (!files.length) throw new Error('index에 분할 작품 파일 목록이 없습니다.');
+
+      state.worksIndex = index;
+      state.worksFiles = files;
+      state.worksIndexLoaded = true;
+      state.worksPartCursor = 0;
+      state.worksPartRows = [];
+      state.worksPartRendered = 0;
+      state.worksShown = 0;
+      state.worksTotal = Number(index.totalItems ?? index.workCount ?? index.originalMeta?.workCount ?? 0) ||
+        files.reduce((sum, f) => sum + (Number(f.items) || 0), 0);
+      state.worksDone = false;
+      syncWorksCount();
+      setWorksStatus(`작품 index 준비 완료 · ${source} · ${files.length}개 파트`);
+      return true;
+    } catch (err) {
+      state.worksIndexLoaded = false;
+      setWorksStatus(`작품 index 불러오기 실패 · ${err?.message || err}`);
+      return false;
+    } finally {
+      state.worksIndexLoading = false;
+    }
+  }
+
+  async function loadNextWorksPart(){
+    if (state.worksPartLoading || state.worksDone) return false;
+    if (!state.worksIndexLoaded) return false;
+
+    const info = state.worksFiles[state.worksPartCursor];
+    if (!info){
+      state.worksDone = true;
+      setWorksStatus(`전체 ${state.worksShown.toLocaleString()}개 표시`);
+      return false;
+    }
+
+    state.worksPartLoading = true;
+    const partNo = state.worksPartCursor + 1;
+    const cacheKey = `works:v${state.worksCacheVersion}:part:${info.file}`;
+
+    try {
+      let data = null;
+      let source = 'cache';
+      const cached = await cacheGet(cacheKey);
+
+      if (cached) {
+        setWorksStatus(`작품 DB ${partNo}/${state.worksFiles.length} 캐시 불러오는 중…`);
+        try { data = await jsonFromCachedValue(cached); }
+        catch (err) {
+          console.warn('[works part cache parse]', info.file, err);
+          data = null;
+        }
+      }
+
+      if (!data) {
+        source = 'GitHub';
+        setWorksStatus(`작품 DB ${partNo}/${state.worksFiles.length} 다운로드 중…`);
+        const url = /^https?:\/\//i.test(info.file) ? info.file : getWorksBaseUrl() + info.file;
+        const fetched = await fetchJsonWithBlob(url);
+        data = fetched.data;
+        await cacheSet(cacheKey, fetched.blob);
+      }
+
+      const rows = extractWorksRows(data);
+      if (!rows.length) throw new Error(`${info.file}에 works 배열이 없습니다.`);
+
+      state.worksPartRows = rows;
+      state.worksPartRendered = 0;
+      state.worksPartCursor++;
+      setWorksStatus(`작품 DB ${partNo}/${state.worksFiles.length} · ${source}`);
+      renderNextWorksBatch();
+      return true;
+    } catch (err) {
+      setWorksStatus(`작품 DB 불러오기 실패 · ${err?.message || err}`);
+      return false;
+    } finally {
+      state.worksPartLoading = false;
+    }
+  }
+
+  function renderNextWorksBatch(){
+    if (!refs.worksGrid) return;
+    const rows = state.worksPartRows;
+
+    if (state.worksPartRendered >= rows.length){
+      // 현재 파트의 원본 객체를 버리고 다음 파트를 필요할 때 받는다.
+      state.worksPartRows = [];
+      state.worksPartRendered = 0;
+
+      if (state.worksPartCursor >= state.worksFiles.length){
+        state.worksDone = true;
+        setWorksStatus(`전체 ${state.worksShown.toLocaleString()}개 표시`);
+      } else {
+        setWorksStatus(`아래로 내리면 다음 작품 DB (${state.worksPartCursor + 1}/${state.worksFiles.length})를 받습니다.`);
+      }
+      return;
+    }
+
+    const end = Math.min(rows.length, state.worksPartRendered + WORKS_BATCH);
+    const frag = document.createDocumentFragment();
+    for (let i = state.worksPartRendered; i < end; i++){
+      frag.appendChild(makeWorkCard(normalizeWork(rows[i])));
+    }
+    const added = end - state.worksPartRendered;
+    state.worksPartRendered = end;
+    state.worksShown += added;
+    refs.worksGrid.insertBefore(frag, refs.worksStatus || null);
+    syncWorksCount();
+    applyTitleModeToDOM(refs.worksGrid);
+    scheduleVisibleTitleTranslation();
+
+    if (state.worksPartRendered < rows.length){
+      setWorksStatus(`${state.worksShown.toLocaleString()}개 표시 · 아래로 스크롤하면 계속 표시`);
+    } else {
+      // 현재 파트는 모두 DOM으로 넘겼으므로 JS 원본 배열은 즉시 비운다.
+      state.worksPartRows = [];
+      state.worksPartRendered = 0;
+      if (state.worksPartCursor >= state.worksFiles.length){
+        state.worksDone = true;
+        setWorksStatus(`전체 ${state.worksShown.toLocaleString()}개 표시`);
+      } else {
+        setWorksStatus(`아래로 내리면 다음 작품 DB (${state.worksPartCursor + 1}/${state.worksFiles.length})를 받습니다.`);
+      }
+    }
+  }
+
+  async function continueWorksIfNeeded(){
+    if (state.worksPartLoading) return;
+    if (state.worksPartRows.length){
+      renderNextWorksBatch();
+    } else if (!state.worksDone){
+      await loadNextWorksPart();
+    }
+  }
+
+  async function openWorksPage(){
+    setPage('works');
+    if (!state.worksIndexLoaded){
+      refs.worksGrid?.replaceChildren(refs.worksStatus);
+      const ok = await loadWorksIndex(false);
+      if (!ok) return;
+    }
+    if (!state.worksShown && !state.worksPartLoading){
+      await loadNextWorksPart();
+    }
+  }
+
+  $('#mvWorksBtn')?.addEventListener('click', openWorksPage);
+  $('#mvWorksBack')?.addEventListener('click', () => setPage('menu'));
+
+  refs.worksScroll?.addEventListener('scroll', () => {
+    const el = refs.worksScroll;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 700){
+      continueWorksIfNeeded();
+    }
+    scheduleVisibleTitleTranslation();
+  }, { passive:true });
+
+  /* ==========================================================
+     배우 DB / 배우 화면
+     - GitHub Raw JSON을 배우 화면을 처음 열 때 1회 다운로드
+     - AVWikiDB의 nameJa / imageUrl / actorId 형식 사용
+     - 한 번에 전부 DOM 생성하지 않고 160명씩 점진 렌더링
+     ========================================================== */
+  function extractActressRows(data){
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== 'object') return [];
+
+    const preferred = ['actors','actresses','items','data','rows','list'];
+    for (const key of preferred){
+      if (Array.isArray(data[key])) return data[key];
+    }
+
+    for (const value of Object.values(data)){
+      if (Array.isArray(value)) return value;
+    }
+
+    return [];
+  }
+
+  function normalizeActress(row, index){
+    const src = row && typeof row === 'object' ? row : {};
+    const name = String(
+      src.nameJa ?? src.mainName ?? src.name ?? src.nameJP ?? src.jpName ?? ''
+    ).trim();
+
+    if (!name) return null;
+
+    return {
+      id: String(src.actorId ?? src.actor_id ?? src.id ?? src.idx ?? index),
+      name,
+      imageUrl: String(
+        src.imageUrl ?? src.image_url ?? src.photoUrl ?? src.photo ?? src.image ?? ''
+      ).trim(),
+      profileUrl: String(src.profileUrl ?? src.profile_url ?? src.url ?? '').trim(),
+      raw: src
+    };
+  }
+
+  function setActressStatus(text){
+    if (refs.actressStatus) refs.actressStatus.textContent = String(text || '');
+  }
+
+  function updateActressCount(){
+    if (!refs.actressCount) return;
+    const shown = state.actressFiltered.length;
+    const total = state.actresses.length;
+    refs.actressCount.textContent = state.actressQuery
+      ? `${shown}/${total}명`
+      : `${total}명`;
+  }
+
+  function makeActressCard(actor){
+    const card = document.createElement('article');
+    card.className = 'mvActressCard';
+    card.dataset.actorId = actor.id;
+    card.dataset.name = actor.name;
+
+    const photoWrap = document.createElement('div');
+    photoWrap.className = 'mvActressPhotoWrap';
+
+    if (actor.imageUrl){
+      const img = document.createElement('img');
+      img.className = 'mvActressPhoto';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.alt = actor.name;
+      img.src = actor.imageUrl;
+      img.addEventListener('error', () => {
+        const fb = document.createElement('div');
+        fb.className = 'mvActressFallback';
+        fb.textContent = actor.name.slice(0, 1) || '?';
+        img.replaceWith(fb);
+      }, { once:true });
+      photoWrap.appendChild(img);
+    } else {
+      const fb = document.createElement('div');
+      fb.className = 'mvActressFallback';
+      fb.textContent = actor.name.slice(0, 1) || '?';
+      photoWrap.appendChild(fb);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'mvActressName';
+    name.textContent = actor.name;
+    name.title = actor.name;
+
+    card.append(photoWrap, name);
+    return card;
+  }
+
+  function renderNextActressBatch(){
+    if (!refs.actressGrid) return;
+    const list = state.actressFiltered;
+    if (state.actressRendered >= list.length){
+      setActressStatus(list.length ? `전체 ${list.length}명 표시` : '검색 결과가 없습니다.');
+      return;
+    }
+
+    const end = Math.min(list.length, state.actressRendered + ACTRESS_BATCH);
+    const frag = document.createDocumentFragment();
+    for (let i = state.actressRendered; i < end; i++){
+      frag.appendChild(makeActressCard(list[i]));
+    }
+    refs.actressGrid.appendChild(frag);
+    state.actressRendered = end;
+
+    setActressStatus(
+      state.actressRendered < list.length
+        ? `${state.actressRendered} / ${list.length}명 표시 중`
+        : `전체 ${list.length}명 표시`
+    );
+  }
+
+  function resetActressRender(){
+    refs.actressGrid?.replaceChildren();
+    state.actressRendered = 0;
+    renderNextActressBatch();
+  }
+
+  function applyActressFilter(){
+    const q = String(state.actressQuery || '').normalize('NFKC').trim().toLowerCase();
+    state.actressFiltered = !q
+      ? state.actresses.slice()
+      : state.actresses.filter(actor =>
+          actor.name.normalize('NFKC').toLowerCase().includes(q)
+        );
+    updateActressCount();
+    resetActressRender();
+  }
+
+  async function loadActressDB(force = false){
+    if (state.actressLoaded && !force) return true;
+    if (state.actressLoading) return false;
+
+    state.actressLoading = true;
+    setActressStatus('배우 DB 버전 확인 중…');
+
+    try {
+      await requestPersistentCache();
+      const versionDoc = await loadVersionDoc(false);
+      const actorVersion = Number(versionDoc?.actors?.version ?? 1) || 1;
+      const actorUrl = versionAssetUrl(versionDoc?.actors?.url, ACTRESS_DB_URL);
+      const cacheKey = `actors:v${actorVersion}:json`;
+      state.actressCacheVersion = actorVersion;
+
+      let data = null;
+      let source = 'cache';
+
+      if (!force) {
+        const cached = await cacheGet(cacheKey);
+        if (cached) {
+          setActressStatus('저장된 배우 DB 캐시 불러오는 중…');
+          try { data = await jsonFromCachedValue(cached); }
+          catch (err) {
+            console.warn('[actor cache parse]', err);
+            data = null;
+          }
+        }
+      }
+
+      if (!data) {
+        source = 'GitHub';
+        setActressStatus('GitHub에서 배우 DB 다운로드 중…');
+        const fetched = await fetchJsonWithBlob(actorUrl);
+        data = fetched.data;
+        await cacheSet(cacheKey, fetched.blob);
+      }
+
+      const rows = extractActressRows(data);
+      const normalized = [];
+      for (let i = 0; i < rows.length; i++){
+        const actor = normalizeActress(rows[i], i);
+        if (actor) normalized.push(actor);
+      }
+
+      if (!normalized.length) throw new Error('배우 항목을 찾지 못했습니다.');
+
+      state.actresses = normalized;
+      state.actressLoaded = true;
+      applyActressFilter();
+      setActressStatus(`${normalized.length.toLocaleString()}명 · ${source}`);
+      return true;
+    } catch (err) {
+      state.actressLoaded = false;
+      state.actresses = [];
+      state.actressFiltered = [];
+      refs.actressGrid?.replaceChildren();
+      updateActressCount();
+      setActressStatus(`배우 DB 불러오기 실패 · ${err?.message || err}`);
+      return false;
+    } finally {
+      state.actressLoading = false;
+    }
+  }
+
+  async function openActressPage(){
+    setPage('actress');
+    if (!state.actressLoaded) await loadActressDB(false);
+  }
+
+  $('#mvActressBtn')?.addEventListener('click', openActressPage);
+  $('#mvActressBack')?.addEventListener('click', () => setPage('menu'));
+
+  let actressSearchTimer = 0;
+  refs.actressSearch?.addEventListener('input', () => {
+    clearTimeout(actressSearchTimer);
+    actressSearchTimer = setTimeout(() => {
+      state.actressQuery = refs.actressSearch.value;
+      applyActressFilter();
+    }, 100);
+  });
+
+  // 배우 화면의 끝 근처에 오면 다음 묶음을 추가한다.
+  refs.actressScroll?.addEventListener('scroll', () => {
+    const el = refs.actressScroll;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 500){
+      renderNextActressBatch();
+    }
+  }, { passive:true });
+
+  function clearList(){
+    refs.list.replaceChildren();
+  }
+
+  function renderList(){
+    clearList();
+
+    if (!state.items.length){
+      const empty = document.createElement('div');
+      empty.id = 'mvListEmpty';
+      empty.className = 'mvEmpty';
+      empty.textContent = '영상 목록이 비어 있습니다.';
+      refs.list.appendChild(empty);
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+
+    for (const item of state.items){
+      const card = document.createElement('article');
+      card.className = 'mvCard';
+      card.dataset.id = String(item.id ?? item.code ?? '');
+
+      const img = document.createElement('img');
+      img.className = 'mvPoster';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.alt = String(item.title || item.code || 'poster');
+      if (item.posterUrl) img.src = item.posterUrl;
+
+      const text = document.createElement('div');
+      text.className = 'mvCardText';
+
+      const code = document.createElement('div');
+      code.className = 'mvCardCode';
+      code.textContent = String(item.code || '');
+
+      const title = document.createElement('div');
+      title.className = 'mvCardTitle';
+      title.dataset.titleFile = String(item.displayTitle ?? item.fileTitle ?? item.fileName ?? item.title ?? '');
+      title.dataset.titleJa = String(item.titleJa ?? item.jaTitle ?? item.title ?? '');
+      title.dataset.titleKo = String(item.titleKo ?? item.koTitle ?? '');
+      title.textContent = titleForElement(title);
+      title.title = title.textContent;
+
+      text.append(code, title);
+      card.append(img, text);
+      frag.appendChild(card);
+    }
+
+    refs.list.appendChild(frag);
+    applyTitleModeToDOM(refs.list);
+    scheduleVisibleTitleTranslation();
+  }
+
+  $('#mvListScroll')?.addEventListener('scroll', scheduleVisibleTitleTranslation, { passive:true });
+
+  refs.nav.addEventListener('click', (e) => {
+    const btn = e.target.closest('.mvNavBtn');
+    if (!btn) return;
+    if (btn.dataset.action === 'style'){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleStylePanel();
+      return;
+    }
+    setPage(btn.dataset.page);
+  });
+
+  /* ==========================================================
+     PWA 설치 / 오프라인 앱 셸
+     - GitHub Pages(HTTPS)에서 Service Worker 등록
+     - 설치형 PWA로 실행하면 주소창 없이 동일 origin을 계속 사용하므로
+       IndexedDB 배우/작품 캐시가 HTML 업데이트 뒤에도 유지된다.
+     ========================================================== */
+  let deferredInstallPrompt = null;
+  const installBtn = $('#mvInstallBtn');
+
+  function isPwaStandalone(){
+    return !!(
+      window.matchMedia?.('(display-mode: standalone)').matches ||
+      window.matchMedia?.('(display-mode: fullscreen)').matches ||
+      window.navigator.standalone === true
+    );
+  }
+
+  function syncInstallButton(){
+    if (!installBtn) return;
+    if (isPwaStandalone()) {
+      installBtn.textContent = '설치됨';
+      installBtn.disabled = true;
+      return;
+    }
+    installBtn.disabled = false;
+    installBtn.textContent = deferredInstallPrompt ? '앱 설치' : '홈화면 설치';
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    syncInstallButton();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    syncInstallButton();
+  });
+
+  installBtn?.addEventListener('click', async () => {
+    if (isPwaStandalone()) return;
+
+    if (deferredInstallPrompt) {
+      const prompt = deferredInstallPrompt;
+      deferredInstallPrompt = null;
+      try {
+        await prompt.prompt();
+        await prompt.userChoice;
+      } catch (err) {
+        console.warn('[PWA install]', err);
+      }
+      syncInstallButton();
+      return;
+    }
+
+    if (location.protocol !== 'https:') {
+      alert('앱 설치와 오프라인 실행은 GitHub Pages의 https:// 주소에서 열었을 때 사용할 수 있습니다.');
+      return;
+    }
+
+    alert('브라우저 메뉴에서 “앱 설치” 또는 “홈 화면에 추가”를 선택하세요. Chrome에서는 설치 조건이 충족되면 이 버튼이 자동 설치창을 엽니다.');
+  });
+
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope:'./' })
+        .then(() => console.log('[PWA] Service Worker ready'))
+        .catch(err => console.warn('[PWA] Service Worker failed', err));
+    }, { once:true });
+  }
+
+  syncInstallButton();
+
+  /* 앞으로 PC 데이터 형식 연결 시 이 API만 이용하면 됨 */
+  window.MobileViewer = Object.freeze({
+    get page(){ return state.page; },
+    get items(){ return state.items.slice(); },
+    setPage,
+    setItems(items){
+      state.items = Array.isArray(items) ? items.slice() : [];
+      renderList();
+    },
+    openActresses: openActressPage,
+    openWorks: openWorksPage,
+    clearDataCache: clearMobileDataCache,
+    refreshVersion: () => loadVersionDoc(true),
+    toggleStyle: toggleStylePanel,
+    get style(){ return {...styleState}; },
+    setPosterView,
+    setTitleMode(mode){ setTitleMode(mode, true); },
+    reloadActresses(){ return loadActressDB(true); },
+    clear(){
+      state.items = [];
+      renderList();
+    }
+  });
+
+  setPage('video');
+  syncStyleUI();
+  renderList();
+  syncFullscreenButton();
+})();
+</script>
+</body>
+</html>
