@@ -360,6 +360,7 @@ button{border:0;color:inherit}
 }
 .mvMenuTile[disabled]{opacity:.38}
 #mvMenuEmpty{grid-column:1/-1;min-height:110px}
+#mvAppVersion{grid-column:1/-1;text-align:center;color:var(--muted);font-size:11px;padding:4px 0 2px;letter-spacing:.02em}
 #mvVideoFolderInput{display:none}
 
 /* ===== 세로 ===== */
@@ -440,6 +441,7 @@ button{border:0;color:inherit}
           <button id="mvInstallBtn" class="mvMenuTile" type="button">앱 설치</button>
           <button id="mvFullscreenBtn" class="mvMenuTile" type="button">전체화면</button>
           <div id="mvMenuEmpty" class="mvEmpty">영상 폴더를 선택하면 하위 폴더까지 찾아 영상 목록에 표시합니다.</div>
+          <div id="mvAppVersion">WebViewer Mobile v1.10</div>
         </div>
         <input id="mvVideoFolderInput" type="file" multiple webkitdirectory directory accept="video/*">
       </div>
@@ -511,10 +513,12 @@ button{border:0;color:inherit}
   'use strict';
 
   /* ==========================================================
-     MOBILE VIEWER PWA v1.8
+     MOBILE VIEWER PWA v1.10
      - PC 웹뷰어와 완전히 독립
      - UI / 상태 / 데이터 / 기능을 분리해서 확장
      ========================================================== */
+
+  const APP_VERSION = '1.11';
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
@@ -526,6 +530,8 @@ button{border:0;color:inherit}
   const WORKS_BATCH = 160;
   const VIDEO_BATCH = 160;
   const VIDEO_EXT_RE = /\.(mp4|m4v|mkv|webm|avi|mov|wmv|flv|ts|m2ts|mts|mpg|mpeg|3gp|ogv)$/i;
+  const VIDEO_LIST_CACHE_KEY = 'video:list:v1';
+  const VIDEO_ROOT_HANDLE_CACHE_KEY = 'video:root-handle:v1';
 
   // GitHub에는 이 작은 파일만 항상 최신 여부 확인용으로 둔다.
   const VERSION_URL = './version.json';
@@ -748,6 +754,8 @@ button{border:0;color:inherit}
     videoRendered: 0,
     videoFolderName: '',
     videoFolderMode: '',
+    videoRootHandle: null,
+    videoListRestored: false,
     videoMatchRunning: false,
     videoMatched: 0,
     videoMatchToken: 0,
@@ -793,6 +801,7 @@ button{border:0;color:inherit}
     videoFolderBtn: $('#mvVideoFolderBtn'),
     videoFolderInput: $('#mvVideoFolderInput'),
     menuStatus: $('#mvMenuEmpty'),
+    appVersion: $('#mvAppVersion'),
     actressGrid: $('#mvActressGrid'),
     actressScroll: $('#mvActressScroll'),
     actressStatus: $('#mvActressStatus'),
@@ -806,6 +815,8 @@ button{border:0;color:inherit}
     styleTab: $('#mvTabStyle'),
     styleStatus: $('#mvStyleStatus')
   };
+
+  if (refs.appVersion) refs.appVersion.textContent = `WebViewer Mobile v${APP_VERSION}`;
 
   /* ==========================================================
      전체화면
@@ -1675,6 +1686,157 @@ button{border:0;color:inherit}
   }, { passive:true });
 
   /* ==========================================================
+     영상 폴더 목록 영구 저장
+     - File/Blob 자체는 절대 저장하지 않는다. 영상 원본이 IndexedDB에 복사되는 것을 방지한다.
+     - 파일명/상대경로/품번/작품DB 매칭 결과(포스터·제목·배우)만 저장한다.
+     - showDirectoryPicker로 받은 DirectoryHandle은 지원 브라우저에서 별도 저장해
+       다음 실행 때 실제 파일을 지연 해결한다.
+     - webkitdirectory 방식은 브라우저 보안상 새 실행에서 File 권한을 복원할 수 없으므로
+       목록은 복원되지만 재생 시 폴더를 다시 선택해야 한다.
+     ========================================================== */
+  function serializeVideoListItem(item){
+    if (!item || typeof item !== 'object') return null;
+    return {
+      id: String(item.id || ''),
+      code: String(item.code || ''),
+      ext: String(item.ext || ''),
+      title: String(item.title || ''),
+      displayTitle: String(item.displayTitle || ''),
+      fileTitle: String(item.fileTitle || ''),
+      titleJa: String(item.titleJa || ''),
+      titleKo: String(item.titleKo || ''),
+      actresses: Array.isArray(item.actresses) ? item.actresses.map(v => String(v || '')).filter(Boolean) : [],
+      fileName: String(item.fileName || ''),
+      relativePath: String(item.relativePath || ''),
+      localVideo: item.localVideo !== false,
+      posterUrl: String(item.posterUrl || ''),
+      workCode: String(item.workCode || ''),
+      workDate: String(item.workDate || ''),
+      _workMatchQuality: Number(item._workMatchQuality || 0)
+    };
+  }
+
+  function deserializeVideoListItem(raw, index){
+    if (!raw || typeof raw !== 'object') return null;
+    const fileName = String(raw.fileName || '').trim();
+    const relativePath = String(raw.relativePath || fileName || '').replace(/^\/+/, '');
+    if (!fileName && !relativePath) return null;
+    return {
+      id: String(raw.id || `saved:${relativePath || index}`),
+      code: String(raw.code || ''),
+      ext: String(raw.ext || videoExt(fileName)),
+      title: String(raw.title || videoTitle(fileName)),
+      displayTitle: String(raw.displayTitle || raw.fileTitle || videoTitle(fileName)),
+      fileTitle: String(raw.fileTitle || raw.displayTitle || videoTitle(fileName)),
+      titleJa: String(raw.titleJa || ''),
+      titleKo: String(raw.titleKo || ''),
+      actresses: Array.isArray(raw.actresses) ? raw.actresses.map(v => String(v || '')).filter(Boolean) : [],
+      fileName,
+      relativePath,
+      localFile: null,
+      localHandle: null,
+      localVideo: true,
+      posterUrl: String(raw.posterUrl || ''),
+      workCode: String(raw.workCode || ''),
+      workDate: String(raw.workDate || ''),
+      _workMatchQuality: Number(raw._workMatchQuality || 0)
+    };
+  }
+
+  async function saveVideoListSnapshot(){
+    if (!Array.isArray(state.items) || !state.items.length) return false;
+    const items = state.items.map(serializeVideoListItem).filter(Boolean);
+    const record = {
+      schema: 1,
+      folderName: String(state.videoFolderName || ''),
+      folderMode: String(state.videoFolderMode || ''),
+      worksVersion: Number(state.worksCacheVersion || state.versionDoc?.works?.version || 1),
+      savedAt: Date.now(),
+      items
+    };
+    const ok = await cacheSet(VIDEO_LIST_CACHE_KEY, record);
+    if (ok) await requestPersistentCache();
+    return ok;
+  }
+
+  async function saveVideoRootHandle(handle){
+    state.videoRootHandle = handle || null;
+    if (!handle){
+      await cacheSet(VIDEO_ROOT_HANDLE_CACHE_KEY, null);
+      return false;
+    }
+    // Chromium 계열에서는 FileSystemDirectoryHandle을 IndexedDB structured clone으로 저장할 수 있다.
+    return cacheSet(VIDEO_ROOT_HANDLE_CACHE_KEY, handle);
+  }
+
+  async function restoreSavedVideoList(){
+    const record = await cacheGet(VIDEO_LIST_CACHE_KEY);
+    if (!record || !Array.isArray(record.items) || !record.items.length) return false;
+
+    const restored = record.items
+      .map((raw, index) => deserializeVideoListItem(raw, index))
+      .filter(Boolean);
+    if (!restored.length) return false;
+
+    state.items = restored;
+    state.videoFolderName = String(record.folderName || '저장된 영상 목록');
+    state.videoFolderMode = String(record.folderMode || 'saved');
+    state.videoRendered = 0;
+    state.videoMatched = restored.reduce((n, item) => n + (Number(item._workMatchQuality || 0) > 0 ? 1 : 0), 0);
+    state.videoListRestored = true;
+    state.videoRootHandle = null;
+
+    if (state.videoFolderMode === 'directory-handle'){
+      const handle = await cacheGet(VIDEO_ROOT_HANDLE_CACHE_KEY);
+      if (handle && typeof handle === 'object' && handle.kind === 'directory'){
+        state.videoRootHandle = handle;
+      }
+    }
+
+    renderList();
+    const posters = restored.reduce((n, item) => n + (item.posterUrl ? 1 : 0), 0);
+    const accessText = state.videoRootHandle
+      ? ' · 저장된 폴더 연결 있음'
+      : ' · 재생 시 폴더 다시 선택 필요';
+    setVideoStatus(`${state.videoFolderName} · 저장 목록 ${restored.length.toLocaleString()}개 복원 · 포스터 ${posters.toLocaleString()}개${accessText}`);
+    setMenuStatus(`${state.videoFolderName} · 저장 목록 ${restored.length.toLocaleString()}개 복원`);
+    return true;
+  }
+
+  async function resolveVideoHandleFromSavedRoot(item){
+    const root = state.videoRootHandle;
+    if (!root || root.kind !== 'directory') return null;
+
+    try {
+      // 재생 클릭의 사용자 제스처가 살아 있을 때 requestPermission을 가장 먼저 호출한다.
+      // (IDB await 뒤에 호출하면 Chromium에서 권한 요청이 막힐 수 있다.)
+      let permission = 'granted';
+      if (typeof root.requestPermission === 'function'){
+        permission = await root.requestPermission({ mode:'read' });
+      } else if (typeof root.queryPermission === 'function'){
+        permission = await root.queryPermission({ mode:'read' });
+      }
+      if (permission !== 'granted') return null;
+
+      let rel = String(item?.relativePath || item?.fileName || '').replace(/\\/g, '/').replace(/^\/+/, '');
+      const rootName = String(state.videoFolderName || '').replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+      if (rootName && rel.toLocaleLowerCase().startsWith((rootName + '/').toLocaleLowerCase())){
+        rel = rel.slice(rootName.length + 1);
+      }
+      const parts = rel.split('/').filter(Boolean);
+      if (!parts.length) return null;
+      let dir = root;
+      for (let i = 0; i < parts.length - 1; i++){
+        dir = await dir.getDirectoryHandle(parts[i]);
+      }
+      return await dir.getFileHandle(parts[parts.length - 1]);
+    } catch (err){
+      console.warn('[saved video root resolve]', item?.relativePath, err);
+      return null;
+    }
+  }
+
+  /* ==========================================================
      로컬 영상 폴더 열기
      - HTTPS/PWA + 지원 브라우저: File System Access API 우선
      - 미지원 모바일 브라우저: webkitdirectory 입력으로 폴더 선택
@@ -1845,6 +2007,8 @@ button{border:0;color:inherit}
       setVideoStatus(
         `${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 · 작품DB ${state.videoMatched.toLocaleString()}개 연결 · 포스터 ${posters.toLocaleString()}개`
       );
+      // 포스터/제목/배우까지 매칭된 최종 상태를 다시 저장한다.
+      await saveVideoListSnapshot();
     } catch (err){
       if (token !== state.videoMatchToken) return;
       console.warn('[video work match]', err);
@@ -1869,6 +2033,16 @@ button{border:0;color:inherit}
       item.localFile = file;
       return file;
     }
+
+    // 저장 목록 복원 후에는 실제 영상 파일을 메모리에 보관하지 않고,
+    // 저장된 DirectoryHandle + 상대경로로 클릭한 파일만 지연 해결한다.
+    const restoredHandle = await resolveVideoHandleFromSavedRoot(item);
+    if (restoredHandle && typeof restoredHandle.getFile === 'function'){
+      item.localHandle = restoredHandle;
+      const file = await restoredHandle.getFile();
+      item.localFile = file;
+      return file;
+    }
     return null;
   }
 
@@ -1877,7 +2051,12 @@ button{border:0;color:inherit}
     try {
       setPlayerMessage('영상 준비 중…');
       const file = await getLocalVideoFile(item);
-      if (!file) throw new Error('선택한 영상 파일에 접근할 수 없습니다.');
+      if (!file) {
+        if (state.videoListRestored && !state.videoRootHandle) {
+          throw new Error('목록은 복원됐지만 영상 권한은 복원할 수 없습니다. 메뉴의 영상폴더 열기에서 같은 폴더를 다시 선택하세요.');
+        }
+        throw new Error('선택한 영상 파일에 접근할 수 없습니다.');
+      }
 
       if (activePlayerObjectUrl){
         URL.revokeObjectURL(activePlayerObjectUrl);
@@ -2017,12 +2196,16 @@ button{border:0;color:inherit}
     state.items = items;
     state.videoFolderName = String(folderName || '영상 폴더');
     state.videoFolderMode = String(mode || 'folder');
+    state.videoListRestored = false;
     state.videoRendered = 0;
     state.videoMatched = 0;
     renderList();
-    setMenuStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 불러옴`);
+    setMenuStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 불러옴 · 목록 저장 중…`);
     setVideoStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 · 작품DB 연결 시작…`);
     setPage('video');
+    saveVideoListSnapshot().then(ok => {
+      if (ok) setMenuStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 · 목록 저장됨`);
+    });
     matchVideoFolderToWorks();
   }
 
@@ -2038,6 +2221,7 @@ button{border:0;color:inherit}
           setMenuStatus(`${dirHandle.name} · 영상 파일을 찾지 못했습니다.`);
           return;
         }
+        await saveVideoRootHandle(dirHandle);
         finishVideoFolderLoad(items, dirHandle.name, 'directory-handle');
         return;
       } catch (err) {
@@ -2075,7 +2259,9 @@ button{border:0;color:inherit}
       setMenuStatus(`${folderName} · 영상 파일을 찾지 못했습니다.`);
       return;
     }
-    finishVideoFolderLoad(items, folderName, 'webkitdirectory');
+    saveVideoRootHandle(null).finally(() => {
+      finishVideoFolderLoad(items, folderName, 'webkitdirectory');
+    });
   });
 
   function clearList(){
@@ -2282,6 +2468,8 @@ button{border:0;color:inherit}
     openWorks: openWorksPage,
     openVideoFolder,
     matchVideoWorks: matchVideoFolderToWorks,
+    saveVideoList: saveVideoListSnapshot,
+    restoreVideoList: restoreSavedVideoList,
     playVideo: playLocalVideo,
     closeVideo: closeLocalVideoPlayer,
     clearDataCache: clearMobileDataCache,
@@ -2295,6 +2483,9 @@ button{border:0;color:inherit}
       state.items = [];
       state.videoRendered = 0;
       state.videoFolderName = '';
+      state.videoFolderMode = '';
+      state.videoRootHandle = null;
+      state.videoListRestored = false;
       state.videoMatchToken++;
       closeLocalVideoPlayer();
       renderList();
@@ -2305,6 +2496,9 @@ button{border:0;color:inherit}
   syncStyleUI();
   renderList();
   syncFullscreenButton();
+
+  // 같은 GitHub Pages origin에서 이전에 저장한 영상 목록을 자동 복원한다.
+  restoreSavedVideoList().catch(err => console.warn('[video list restore]', err));
 })();
 </script>
 </body>
