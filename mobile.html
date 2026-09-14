@@ -134,8 +134,14 @@ button{border:0;color:inherit}
 .mvPage.active{display:block}
 
 /* ===== 영상 리스트 ===== */
+#mvVideoShell{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+#mvVideoStatus{
+  flex:0 0 auto;min-height:28px;display:flex;align-items:center;justify-content:center;
+  padding:5px 8px;border-bottom:1px solid var(--line);background:#0d1017;
+  color:#9ba6b7;font-size:10px;line-height:1.25;text-align:center;white-space:normal;
+}
 #mvListScroll{
-  width:100%;height:100%;overflow:auto;overscroll-behavior:contain;
+  flex:1 1 auto;min-height:0;width:100%;overflow:auto;overscroll-behavior:contain;
   padding:var(--pad);
   scrollbar-width:none;
 }
@@ -170,6 +176,27 @@ button{border:0;color:inherit}
   color:#667286;font-size:12px;font-weight:800;letter-spacing:.05em;
   background:linear-gradient(145deg,#141a24,#0d1118);
 }
+.mvPlayablePoster{cursor:pointer}
+.mvPlayablePoster:active{filter:brightness(.78)}
+
+/* ===== 로컬 영상 플레이어 ===== */
+#mvPlayerOverlay{
+  position:absolute;inset:0;z-index:90;display:none;background:#000;overflow:hidden;
+}
+#mvPlayerOverlay.open{display:flex;flex-direction:column}
+#mvPlayerHead{
+  flex:0 0 42px;display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:center;
+  gap:6px;padding:4px 5px;background:rgba(7,8,13,.96);border-bottom:1px solid #202630;
+}
+#mvPlayerTitle{min-width:0;padding-left:5px;font-size:11px;color:#dfe5ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mvPlayerClose{width:38px;height:32px;border-radius:7px;background:#171c26;color:#fff;font-size:20px;cursor:pointer}
+#mvPlayerStage{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;background:#000}
+#mvPlayerVideo{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+#mvPlayerMessage{
+  position:absolute;left:8px;right:8px;bottom:48px;display:none;padding:7px 9px;border-radius:7px;
+  background:rgba(0,0,0,.72);color:#f3f5f8;font-size:11px;text-align:center;pointer-events:none;
+}
+#mvPlayerMessage.show{display:block}
 
 .mvEmpty{
   display:flex;
@@ -423,9 +450,12 @@ button{border:0;color:inherit}
     </section>
 
     <section id="mvPageVideo" class="mvPage active" data-page="video">
-      <div id="mvListScroll">
-        <div id="mvList">
-          <div id="mvListEmpty" class="mvEmpty">영상 목록이 비어 있습니다.</div>
+      <div id="mvVideoShell">
+        <div id="mvVideoStatus">영상 폴더를 열면 작품DB와 자동 연결합니다.</div>
+        <div id="mvListScroll">
+          <div id="mvList">
+            <div id="mvListEmpty" class="mvEmpty">영상 목록이 비어 있습니다.</div>
+          </div>
         </div>
       </div>
     </section>
@@ -463,6 +493,17 @@ button{border:0;color:inherit}
       <div class="mvEmpty">음악 화면<br>아직 연결된 기능이 없습니다.</div>
     </section>
   </main>
+
+  <div id="mvPlayerOverlay" aria-hidden="true">
+    <div id="mvPlayerHead">
+      <div id="mvPlayerTitle">영상 재생</div>
+      <button id="mvPlayerClose" type="button" aria-label="재생 닫기">×</button>
+    </div>
+    <div id="mvPlayerStage">
+      <video id="mvPlayerVideo" controls playsinline preload="metadata"></video>
+      <div id="mvPlayerMessage"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -707,6 +748,9 @@ button{border:0;color:inherit}
     videoRendered: 0,
     videoFolderName: '',
     videoFolderMode: '',
+    videoMatchRunning: false,
+    videoMatched: 0,
+    videoMatchToken: 0,
 
     versionDoc: null,
     versionOnline: false,
@@ -739,6 +783,12 @@ button{border:0;color:inherit}
     pages: $$('.mvPage'),
     list: $('#mvList'),
     listScroll: $('#mvListScroll'),
+    videoStatus: $('#mvVideoStatus'),
+    playerOverlay: $('#mvPlayerOverlay'),
+    playerVideo: $('#mvPlayerVideo'),
+    playerTitle: $('#mvPlayerTitle'),
+    playerMessage: $('#mvPlayerMessage'),
+    playerClose: $('#mvPlayerClose'),
     menu: $('#mvMenuGrid'),
     videoFolderBtn: $('#mvVideoFolderBtn'),
     videoFolderInput: $('#mvVideoFolderInput'),
@@ -1106,7 +1156,7 @@ button{border:0;color:inherit}
   function normalizeWork(row){
     const src = row && typeof row === 'object' ? row : {};
     const titleJa = String(src.t ?? src.titleJa ?? src.title ?? '').trim();
-    const titleKo = String(src.titleKo ?? src.koTitle ?? src.tk ?? '').trim();
+    const titleKo = String(src.k ?? src.titleKo ?? src.koTitle ?? src.tk ?? '').trim();
     const titleFile = String(src.fileTitle ?? src.displayTitle ?? src.fileName ?? titleJa).trim();
     return {
       code: String(src.c ?? src.code ?? '').trim(),
@@ -1631,6 +1681,247 @@ button{border:0;color:inherit}
      - 하위 폴더까지 재귀 검색하고 영상 파일만 자연정렬한다.
      - 대용량 폴더에서도 DOM은 VIDEO_BATCH 단위로만 추가한다.
      ========================================================== */
+  function setVideoStatus(text){
+    if (refs.videoStatus) refs.videoStatus.textContent = String(text || '');
+  }
+
+  // PC판 parseVideoFilename의 품번 핵심 규칙만 모바일용으로 독립 이식.
+  function extractVideoCodeFromFilename(fileName){
+    const baseName = String(fileName || '').replace(/\.[^.]+$/, '');
+    const forced = /{{\s*([^{}]+?)\s*}}/.exec(baseName);
+    if (forced?.[1]) return String(forced[1]).normalize('NFKC').trim().toUpperCase();
+
+    const dateRe = /(?<!\d)(?:(?:19|20)\d{2}|\d{2})([._-])(?:0?[1-9]|1[0-2])\1(?:0?[1-9]|[12]\d|3[01])(?!\d)/g;
+    const text = baseName.replace(dateRe, m => ' '.repeat(m.length));
+    const rules = [
+      [/(?<![A-Za-z0-9])(FC2[\s-]?PPV)[\s-]?(\d{5,8})(?![A-Za-z0-9])/i, m => `FC2-PPV-${m[2]}`],
+      [/(?<![A-Za-z0-9])([A-Za-z]\d{3,6}-[A-Za-z]{2,16}\d{2,7})(?![A-Za-z0-9])/i, m => m[1]],
+      [/(?<![A-Za-z0-9])([A-Za-z]{2,12}-[A-Za-z]{1,12}-\d{2,8})(?![A-Za-z0-9])/i, m => m[1]],
+      [/(?<![A-Za-z0-9])([A-Za-z][A-Za-z0-9]{1,24}-\d{6}[_-]\d{1,5})(?![A-Za-z0-9])/i, m => m[1]],
+      [/(?<![A-Za-z0-9])(GACHIP\d{2,7})(?![A-Za-z0-9])/i, m => m[1]],
+      [/(?<!\d)(\d{6}[_-]\d{1,5})(?!\d)/, m => m[1]],
+      [/(?<!\d)(\d{3,5}-\d{5,8})(?!\d)/, m => m[1]],
+      [/(?<![A-Za-z0-9])([A-Za-z]\d{4})(?![A-Za-z0-9])/i, m => m[1]],
+      [/(?<![A-Za-z0-9])((?:\d{3})?[A-Za-z][A-Za-z0-9]{0,11})[\s-]+(\d{2,7})(?![A-Za-z0-9])/, m => `${m[1]}-${m[2]}`],
+      [/(?<![A-Za-z0-9])((?:\d{3})?[A-Za-z]{2,12})(\d{2,7})(?![A-Za-z0-9])/, m => `${m[1]}-${m[2]}`],
+      [/(?<!\d)(\d{6})-(\d{2,5})(?=$|[\s._-]|-(?:carib(?:beancom)?|1pon(?:do)?|heyzo|pacopacomama|10musume|2160p|1440p|1080p|720p|480p|360p)\b)/i, m => `${m[1]}-${m[2]}`]
+    ];
+    for (const [re, make] of rules){
+      const m = text.match(re);
+      if (!m) continue;
+      return String(make(m) || '').normalize('NFKC').trim().toUpperCase();
+    }
+    return '';
+  }
+
+  function normalizeVideoCatalogKey(value){
+    return String(value || '').normalize('NFKC').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  function videoSecuritylessKey(value){
+    const strict = normalizeVideoCatalogKey(value);
+    const m = strict.match(/^\d+([A-Z].*)$/);
+    return m ? String(m[1] || '') : '';
+  }
+
+  function applyWorkRowToVideoItem(item, row, quality){
+    if (!item || !row || quality <= Number(item._workMatchQuality || 0)) return false;
+    const work = normalizeWork(row);
+    item._workMatchQuality = quality;
+    item.workCode = work.code;
+    item.titleJa = work.titleJa || item.title;
+    item.titleKo = work.titleKo || '';
+    item.posterUrl = work.imageUrl || '';
+    item.actresses = work.actresses || [];
+    item.workDate = work.date || '';
+    return true;
+  }
+
+  function refreshVideoCardAt(index){
+    if (index < 0 || index >= state.videoRendered) return;
+    const card = refs.list?.querySelector(`.mvCard[data-index="${index}"]`);
+    if (!card) return;
+    const next = createVideoCard(state.items[index], index);
+    card.replaceWith(next);
+    applyTitleModeToDOM(next);
+  }
+
+  async function getWorksPartDataForVideoMatch(info, partNo){
+    const cacheKey = `works:v${state.worksCacheVersion}:part:${info.file}`;
+    let data = null;
+    let source = 'cache';
+    const cached = await cacheGet(cacheKey);
+    if (cached){
+      try { data = await jsonFromCachedValue(cached); }
+      catch (err){ console.warn('[video match cache parse]', info.file, err); }
+    }
+    if (!data){
+      source = 'GitHub';
+      const url = /^https?:\/\//i.test(info.file) ? info.file : getWorksBaseUrl() + info.file;
+      const fetched = await fetchJsonWithBlob(url);
+      data = fetched.data;
+      await cacheSet(cacheKey, fetched.blob);
+    }
+    return { data, source, partNo };
+  }
+
+  async function matchVideoFolderToWorks(){
+    const token = ++state.videoMatchToken;
+    const items = state.items;
+    const targetMap = new Map();
+    let coded = 0;
+
+    for (let i = 0; i < items.length; i++){
+      const item = items[i];
+      const key = normalizeVideoCatalogKey(item.code);
+      if (!key) continue;
+      coded++;
+      if (!targetMap.has(key)) targetMap.set(key, []);
+      targetMap.get(key).push({ item, index:i });
+    }
+
+    state.videoMatched = 0;
+    if (!coded){
+      setVideoStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 · 파일명에서 품번을 찾지 못했습니다.`);
+      return;
+    }
+
+    state.videoMatchRunning = true;
+    setVideoStatus(`${state.videoFolderName} · 작품DB 연결 준비 · 품번 ${coded.toLocaleString()}개`);
+
+    try {
+      const ok = await loadWorksIndex(false);
+      if (!ok || token !== state.videoMatchToken) throw new Error('작품 index를 불러오지 못했습니다.');
+
+      let matchedSet = new Set();
+      const exactMatched = new Set();
+      for (let p = 0; p < state.worksFiles.length; p++){
+        if (token !== state.videoMatchToken) return;
+        const info = state.worksFiles[p];
+        setVideoStatus(`작품DB 연결 ${p + 1}/${state.worksFiles.length} · 매칭 ${matchedSet.size.toLocaleString()}/${coded.toLocaleString()}`);
+        const loaded = await getWorksPartDataForVideoMatch(info, p + 1);
+        const rows = extractWorksRows(loaded.data);
+        const changed = new Set();
+
+        for (const row of rows){
+          const workCode = String(row?.c ?? row?.code ?? '').trim();
+          if (!workCode) continue;
+          const strict = normalizeVideoCatalogKey(workCode);
+          if (!strict) continue;
+
+          const exactTargets = targetMap.get(strict);
+          if (exactTargets){
+            for (const t of exactTargets){
+              if (applyWorkRowToVideoItem(t.item, row, 2)) changed.add(t.index);
+              matchedSet.add(t.index);
+              exactMatched.add(t.index);
+            }
+          }
+
+          const securityless = videoSecuritylessKey(strict);
+          if (securityless){
+            const fallbackTargets = targetMap.get(securityless);
+            if (fallbackTargets){
+              for (const t of fallbackTargets){
+                if (exactMatched.has(t.index)) continue;
+                if (applyWorkRowToVideoItem(t.item, row, 1)) changed.add(t.index);
+                matchedSet.add(t.index);
+              }
+            }
+          }
+        }
+
+        for (const index of changed) refreshVideoCardAt(index);
+        state.videoMatched = matchedSet.size;
+        scheduleVisibleTitleTranslation();
+        await new Promise(requestAnimationFrame);
+
+        // 모든 품번이 exact로 잡혔으면 뒤 파트는 볼 이유가 없다.
+        if (exactMatched.size >= coded) break;
+      }
+
+      if (token !== state.videoMatchToken) return;
+      const posters = items.reduce((n, item) => n + (item.posterUrl ? 1 : 0), 0);
+      setVideoStatus(
+        `${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 · 작품DB ${state.videoMatched.toLocaleString()}개 연결 · 포스터 ${posters.toLocaleString()}개`
+      );
+    } catch (err){
+      if (token !== state.videoMatchToken) return;
+      console.warn('[video work match]', err);
+      setVideoStatus(`${state.videoFolderName} · 작품DB 연결 실패 · ${err?.message || err}`);
+    } finally {
+      if (token === state.videoMatchToken) state.videoMatchRunning = false;
+    }
+  }
+
+  let activePlayerObjectUrl = '';
+
+  function setPlayerMessage(text=''){
+    if (!refs.playerMessage) return;
+    refs.playerMessage.textContent = String(text || '');
+    refs.playerMessage.classList.toggle('show', !!text);
+  }
+
+  async function getLocalVideoFile(item){
+    if (item?.localFile instanceof File) return item.localFile;
+    if (item?.localHandle && typeof item.localHandle.getFile === 'function'){
+      const file = await item.localHandle.getFile();
+      item.localFile = file;
+      return file;
+    }
+    return null;
+  }
+
+  async function playLocalVideo(item){
+    if (!item?.localVideo) return;
+    try {
+      setPlayerMessage('영상 준비 중…');
+      const file = await getLocalVideoFile(item);
+      if (!file) throw new Error('선택한 영상 파일에 접근할 수 없습니다.');
+
+      if (activePlayerObjectUrl){
+        URL.revokeObjectURL(activePlayerObjectUrl);
+        activePlayerObjectUrl = '';
+      }
+      activePlayerObjectUrl = URL.createObjectURL(file);
+      refs.playerTitle.textContent = String(item.relativePath || item.fileName || item.code || '영상');
+      refs.playerOverlay.classList.add('open');
+      refs.playerOverlay.setAttribute('aria-hidden', 'false');
+      refs.playerVideo.src = activePlayerObjectUrl;
+      refs.playerVideo.load();
+      setPlayerMessage('');
+      try { await refs.playerVideo.play(); } catch (_) {}
+    } catch (err){
+      setPlayerMessage(`재생 준비 실패 · ${err?.message || err}`);
+      refs.playerOverlay?.classList.add('open');
+      refs.playerOverlay?.setAttribute('aria-hidden', 'false');
+    }
+  }
+
+  function closeLocalVideoPlayer(){
+    try { refs.playerVideo?.pause(); } catch (_) {}
+    if (refs.playerVideo){
+      refs.playerVideo.removeAttribute('src');
+      try { refs.playerVideo.load(); } catch (_) {}
+    }
+    if (activePlayerObjectUrl){
+      URL.revokeObjectURL(activePlayerObjectUrl);
+      activePlayerObjectUrl = '';
+    }
+    setPlayerMessage('');
+    refs.playerOverlay?.classList.remove('open');
+    refs.playerOverlay?.setAttribute('aria-hidden', 'true');
+  }
+
+  refs.playerClose?.addEventListener('click', closeLocalVideoPlayer);
+  refs.playerVideo?.addEventListener('error', () => {
+    if (!refs.playerOverlay?.classList.contains('open')) return;
+    setPlayerMessage('이 영상 형식/코덱은 현재 브라우저에서 직접 재생하지 못할 수 있습니다.');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && refs.playerOverlay?.classList.contains('open')) closeLocalVideoPlayer();
+  });
+
   function setMenuStatus(text){
     if (refs.menuStatus) refs.menuStatus.textContent = String(text || '');
   }
@@ -1659,18 +1950,24 @@ button{border:0;color:inherit}
   function makeLocalVideoItem({name, relativePath, file=null, handle=null}, index){
     const fileName = String(name || file?.name || '').trim();
     const rel = String(relativePath || file?.webkitRelativePath || fileName || '').replace(/^\/+/, '');
+    const code = extractVideoCodeFromFilename(fileName);
     return {
       id: `local:${rel || index}`,
-      code: videoExt(fileName),
+      code,
+      ext: videoExt(fileName),
       title: videoTitle(fileName),
       displayTitle: videoTitle(fileName),
       fileTitle: videoTitle(fileName),
+      titleJa: '',
+      titleKo: '',
+      actresses: [],
       fileName,
       relativePath: rel || fileName,
       localFile: file || null,
       localHandle: handle || null,
       localVideo: true,
-      posterUrl: ''
+      posterUrl: '',
+      _workMatchQuality: 0
     };
   }
 
@@ -1715,14 +2012,18 @@ button{border:0;color:inherit}
   }
 
   function finishVideoFolderLoad(items, folderName, mode){
+    state.videoMatchToken++;
     items.sort(naturalPathCompare);
     state.items = items;
     state.videoFolderName = String(folderName || '영상 폴더');
     state.videoFolderMode = String(mode || 'folder');
     state.videoRendered = 0;
+    state.videoMatched = 0;
     renderList();
     setMenuStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 불러옴`);
+    setVideoStatus(`${state.videoFolderName} · 영상 ${items.length.toLocaleString()}개 · 작품DB 연결 시작…`);
     setPage('video');
+    matchVideoFolderToWorks();
   }
 
   async function openVideoFolder(){
@@ -1781,10 +2082,11 @@ button{border:0;color:inherit}
     refs.list.replaceChildren();
   }
 
-  function createVideoCard(item){
+  function createVideoCard(item, index=-1){
     const card = document.createElement('article');
     card.className = 'mvCard';
     card.dataset.id = String(item.id ?? item.code ?? '');
+    if (index >= 0) card.dataset.index = String(index);
     if (item.relativePath) card.dataset.path = item.relativePath;
 
     let poster;
@@ -1793,14 +2095,33 @@ button{border:0;color:inherit}
       img.className = 'mvPoster';
       img.loading = 'lazy';
       img.decoding = 'async';
-      img.alt = String(item.title || item.code || 'poster');
+      img.referrerPolicy = 'no-referrer';
+      img.alt = String(item.code || item.title || 'poster');
       img.src = item.posterUrl;
+      img.addEventListener('error', () => {
+        const blank = document.createElement('div');
+        blank.className = 'mvPoster mvVideoNoPoster mvPlayablePoster';
+        blank.textContent = String(item.code || item.ext || 'VIDEO');
+        blank.addEventListener('click', () => playLocalVideo(item));
+        img.replaceWith(blank);
+      }, { once:true });
       poster = img;
     } else {
       const blank = document.createElement('div');
       blank.className = 'mvPoster mvVideoNoPoster';
-      blank.textContent = item.localVideo ? String(item.code || 'VIDEO') : 'NO POSTER';
+      blank.textContent = item.localVideo ? String(item.code || item.ext || 'VIDEO') : 'NO POSTER';
       poster = blank;
+    }
+
+    if (item.localVideo){
+      poster.classList.add('mvPlayablePoster');
+      poster.setAttribute('role', 'button');
+      poster.setAttribute('tabindex', '0');
+      poster.setAttribute('aria-label', `${item.code || item.fileName || '영상'} 재생`);
+      poster.addEventListener('click', () => playLocalVideo(item));
+      poster.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); playLocalVideo(item); }
+      });
     }
 
     const text = document.createElement('div');
@@ -1809,8 +2130,9 @@ button{border:0;color:inherit}
     const code = document.createElement('div');
     code.className = 'mvCardCode';
     code.textContent = item.localVideo
-      ? String(item.relativePath || item.fileName || item.code || '')
+      ? String(item.code || item.relativePath || item.fileName || item.ext || '')
       : String(item.code || '');
+    code.title = String(item.relativePath || item.fileName || item.code || '');
 
     const title = document.createElement('div');
     title.className = 'mvCardTitle';
@@ -1831,7 +2153,7 @@ button{border:0;color:inherit}
     if (start >= state.items.length) return;
     const end = Math.min(state.items.length, start + VIDEO_BATCH);
     const frag = document.createDocumentFragment();
-    for (let i = start; i < end; i++) frag.appendChild(createVideoCard(state.items[i]));
+    for (let i = start; i < end; i++) frag.appendChild(createVideoCard(state.items[i], i));
     refs.list.appendChild(frag);
     state.videoRendered = end;
     applyTitleModeToDOM(refs.list);
@@ -1843,6 +2165,7 @@ button{border:0;color:inherit}
     state.videoRendered = 0;
 
     if (!state.items.length){
+      setVideoStatus('영상 폴더를 열면 작품DB와 자동 연결합니다.');
       const empty = document.createElement('div');
       empty.id = 'mvListEmpty';
       empty.className = 'mvEmpty';
@@ -1958,6 +2281,9 @@ button{border:0;color:inherit}
     openActresses: openActressPage,
     openWorks: openWorksPage,
     openVideoFolder,
+    matchVideoWorks: matchVideoFolderToWorks,
+    playVideo: playLocalVideo,
+    closeVideo: closeLocalVideoPlayer,
     clearDataCache: clearMobileDataCache,
     refreshVersion: () => loadVersionDoc(true),
     toggleStyle: toggleStylePanel,
@@ -1969,6 +2295,8 @@ button{border:0;color:inherit}
       state.items = [];
       state.videoRendered = 0;
       state.videoFolderName = '';
+      state.videoMatchToken++;
+      closeLocalVideoPlayer();
       renderList();
     }
   });
