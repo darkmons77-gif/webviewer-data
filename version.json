@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "updatedAt": "2026-09-13",
+  "updatedAt": "2026-09-16",
   "actors": {
     "version": 1,
-    "url": "avwikidb_actors.json"
+    "url": "https://github.com/darkmons77-gif/webviewer-data/releases/download/db-v1/avwikidb_actors.json"
   },
   "works": {
     "version": 1,
-    "index": "avwikidb_works_index.json"
+    "index": "https://github.com/darkmons77-gif/webviewer-data/releases/download/db-v1/avwikidb_works_index.json"
   }
 }
