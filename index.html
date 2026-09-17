@@ -10402,7 +10402,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(808) 모드 : </span>
+<span>버전 4.1(809) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12107,7 +12107,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(808) 모드 :</span>
+        <span>버전 4.1(809) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -141617,11 +141617,14 @@ function ensureVideoCenterHoverPreviewTimeHud(
   restart.textContent = '처음';
   restart.title = '미리보기를 처음부터 재생';
   restart.setAttribute('aria-label', '미리보기를 처음부터 재생');
+  restart.className = 'videoCenterHoverPreviewControlBtnV809';
 
-  // 버튼 터치가 미리보기 0의 스와이프 제스처로 시작되지 않게 한다.
-  restart.addEventListener('pointerdown', event => {
+  const stopControlPointerV809 = event => {
     event.stopPropagation();
-  }, { passive: true });
+  };
+
+  // 하단 조작 버튼 터치가 미리보기 0 스와이프 제스처로 시작되지 않게 한다.
+  restart.addEventListener('pointerdown', stopControlPointerV809, { passive: true });
 
   restart.addEventListener('click', event => {
     event.preventDefault();
@@ -141635,6 +141638,7 @@ function ensureVideoCenterHoverPreviewTimeHud(
     try { Promise.resolve(preview.play()).catch(() => {}); } catch (_) {}
 
     updateVideoCenterHoverPreviewTimeHud(preview);
+    syncVideoCenterHoverPreviewControlStatusV809(preview);
   });
 
   const current =
@@ -141655,15 +141659,189 @@ function ensureVideoCenterHoverPreviewTimeHud(
     'videoCenterHoverPreviewTotalTime';
   total.textContent = '00:00';
 
+  const smaller =
+    document.createElement('button');
+  smaller.id = 'videoCenterHoverPreviewSmallerBtnV809';
+  smaller.type = 'button';
+  smaller.className = 'videoCenterHoverPreviewControlBtnV809';
+  smaller.textContent = '작게';
+  smaller.title = '미리보기 0 화면 작게 ([ 단축키와 동일)';
+  smaller.setAttribute('aria-label', '미리보기 화면 작게');
+  smaller.addEventListener('pointerdown', stopControlPointerV809, { passive: true });
+  smaller.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    if (!isVideoCenterHoverPreviewActive()) return;
+    const nextValue = stepVideoCenterPreviewWidth(-1);
+    showVideoCenterHoverPreviewOsd(
+      'size',
+      `미리보기 ${getVideoCenterPreviewWidthDisplayLabel(nextValue)}`,
+      '−'
+    );
+  });
+
+  const larger =
+    document.createElement('button');
+  larger.id = 'videoCenterHoverPreviewLargerBtnV809';
+  larger.type = 'button';
+  larger.className = 'videoCenterHoverPreviewControlBtnV809';
+  larger.textContent = '크게';
+  larger.title = '미리보기 0 화면 크게 (] 단축키와 동일)';
+  larger.setAttribute('aria-label', '미리보기 화면 크게');
+  larger.addEventListener('pointerdown', stopControlPointerV809, { passive: true });
+  larger.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    if (!isVideoCenterHoverPreviewActive()) return;
+    const nextValue = stepVideoCenterPreviewWidth(1);
+    showVideoCenterHoverPreviewOsd(
+      'size',
+      `미리보기 ${getVideoCenterPreviewWidthDisplayLabel(nextValue)}`,
+      '+'
+    );
+  });
+
+  const playPause =
+    document.createElement('button');
+  playPause.id = 'videoCenterHoverPreviewPlayPauseBtnV809';
+  playPause.type = 'button';
+  playPause.className = 'videoCenterHoverPreviewControlBtnV809';
+  playPause.textContent = '멈춤';
+  playPause.title = '미리보기 재생 / 멈춤 (Space와 동일)';
+  playPause.setAttribute('aria-label', '미리보기 재생 또는 멈춤');
+  playPause.addEventListener('pointerdown', stopControlPointerV809, { passive: true });
+  playPause.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    const preview = videoHoverElement;
+    if (!isVideoCenterHoverPreviewActive() || !preview) return;
+    toggleVideoCenterHoverPreviewPlaybackV809(preview, true);
+  });
+
+  const volume =
+    document.createElement('span');
+  volume.id = 'videoCenterHoverPreviewVolumeValueV809';
+  volume.textContent = '볼륨 0%';
+  volume.title = '미리보기 0 현재 볼륨';
+
   hud.append(
     restart,
     current,
     sep,
-    total
+    total,
+    smaller,
+    larger,
+    playPause,
+    volume
   );
 
   overlay.appendChild(hud);
+  syncVideoCenterHoverPreviewControlStatusV809(videoHoverElement);
   return hud;
+}
+
+function syncVideoCenterHoverPreviewControlStatusV809(
+  preview = videoHoverElement
+) {
+  const overlay =
+    document.getElementById(
+      'videoCenterHoverPreviewOverlay'
+    );
+
+  if (!overlay) return;
+
+  const playPause =
+    overlay.querySelector(
+      '#videoCenterHoverPreviewPlayPauseBtnV809'
+    );
+
+  const volumeValue =
+    overlay.querySelector(
+      '#videoCenterHoverPreviewVolumeValueV809'
+    );
+
+  if (playPause) {
+    const isPaused =
+      !preview ||
+      preview.paused ||
+      preview.ended;
+    playPause.textContent =
+      isPaused ? '재생' : '멈춤';
+    playPause.setAttribute(
+      'aria-label',
+      isPaused ? '미리보기 재생' : '미리보기 멈춤'
+    );
+  }
+
+  if (volumeValue) {
+    let pct = 0;
+
+    if (preview) {
+      const raw = Math.max(
+        0,
+        Math.min(
+          1,
+          Number(preview.volume) || 0
+        )
+      );
+      pct =
+        (preview.muted || videoCenterHoverPreviewMuted)
+          ? 0
+          : Math.round(raw * 100);
+    } else {
+      pct =
+        videoCenterHoverPreviewMuted
+          ? 0
+          : Math.round(
+              Math.max(
+                0,
+                Math.min(
+                  1,
+                  Number(videoCenterHoverPreviewVolume) || 0
+                )
+              ) * 100
+            );
+    }
+
+    volumeValue.textContent = `볼륨 ${pct}%`;
+  }
+}
+
+function toggleVideoCenterHoverPreviewPlaybackV809(
+  preview = videoHoverElement,
+  showOsd = false
+) {
+  if (!preview) return;
+
+  try {
+    if (preview.paused || preview.ended) {
+      Promise.resolve(preview.play()).catch(() => {});
+      if (showOsd) {
+        showVideoCenterHoverPreviewOsd(
+          'volume',
+          '재생',
+          '▶'
+        );
+      }
+    } else {
+      preview.pause();
+      if (showOsd) {
+        showVideoCenterHoverPreviewOsd(
+          'volume',
+          '일시정지',
+          '❚❚'
+        );
+      }
+    }
+  } catch (_) {}
+
+  syncVideoCenterHoverPreviewControlStatusV809(preview);
 }
 
 function updateVideoCenterHoverPreviewTimeHud(
@@ -141705,6 +141883,10 @@ function updateVideoCenterHoverPreviewTimeHud(
         preview.duration
       );
   }
+
+  syncVideoCenterHoverPreviewControlStatusV809(
+    preview
+  );
 }
 
 function bindVideoCenterHoverPreviewTimeHud(
@@ -141728,7 +141910,11 @@ function bindVideoCenterHoverPreviewTimeHud(
     'timeupdate',
     'seeking',
     'seeked',
-    'playing'
+    'playing',
+    'play',
+    'pause',
+    'ended',
+    'volumechange'
   ].forEach(name => {
     preview.addEventListener(
       name,
@@ -141788,6 +141974,10 @@ function applyVideoCenterHoverPreviewVolume(
     preview.muted = videoCenterHoverPreviewMuted;
     preview.defaultMuted = videoCenterHoverPreviewMuted;
   } catch (_) {}
+
+  syncVideoCenterHoverPreviewControlStatusV809(
+    preview
+  );
 }
 
 
@@ -142033,23 +142223,10 @@ function handleVideoCenterHoverPreviewKeydown(
     }
 
     case ' ': {
-      try {
-        if (preview.paused || preview.ended) {
-          preview.play().catch(() => {});
-          showVideoCenterHoverPreviewOsd(
-            'volume',
-            '재생',
-            '▶'
-          );
-        } else {
-          preview.pause();
-          showVideoCenterHoverPreviewOsd(
-            'volume',
-            '일시정지',
-            '❚❚'
-          );
-        }
-      } catch (_) {}
+      toggleVideoCenterHoverPreviewPlaybackV809(
+        preview,
+        true
+      );
       break;
     }
 
@@ -142843,9 +143020,13 @@ function isVideoPosterInteractiveControlTarget(target) {
 }
 
 function handleActiveVideoHoverPreviewClick(event) {
-  // v808: 하단 "처음" 버튼은 미리보기 내부 조작이므로
+  // v809: 미리보기 0 하단 조작버튼은 미리보기 내부 조작이므로
   // 일반 재생으로 넘기는 capture 클릭보다 우선한다.
-  if (event?.target?.closest?.('#videoCenterHoverPreviewRestartBtnV808')) {
+  if (
+    event?.target?.closest?.(
+      '#videoCenterHoverPreviewTimeHud button'
+    )
+  ) {
     return;
   }
 
@@ -161032,7 +161213,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 808;
+  const VIEWER_BUILD_V789 = 809;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161603,12 +161784,16 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 </style>
 
 <style id="videoCenterPreviewControlsV808Style">
-/* v808: 미리보기 0 하단 "처음" 버튼 */
-#videoCenterHoverPreviewRestartBtnV808 {
+/* v809: 미리보기 0 하단 조작바 — 처음 / 시간 / 작게 / 크게 / 재생·멈춤 / 볼륨 */
+#videoCenterHoverPreviewTimeHud {
+  max-width: calc(100% - 10px);
+}
+
+#videoCenterHoverPreviewTimeHud .videoCenterHoverPreviewControlBtnV809 {
   flex: 0 0 auto;
   height: 20px;
-  margin: -2px 3px -2px -5px;
-  padding: 0 7px;
+  margin: -2px 0;
+  padding: 0 6px;
   border: 1px solid rgba(255,255,255,.28);
   border-radius: 4px;
   background: rgba(45,45,45,.92);
@@ -161619,11 +161804,29 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   pointer-events: none;
   touch-action: manipulation;
 }
-#videoCenterHoverPreviewRestartBtnV808:active {
+
+#videoCenterHoverPreviewRestartBtnV808 {
+  margin-left: -5px;
+}
+
+#videoCenterHoverPreviewTimeHud .videoCenterHoverPreviewControlBtnV809:active {
   background: rgba(95,95,95,.96);
 }
+
+#videoCenterHoverPreviewVolumeValueV809 {
+  flex: 0 0 auto;
+  min-width: 58px;
+  padding-left: 3px;
+  color: #d9ecff;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+
 @media (hover: none) and (pointer: coarse) {
-  #videoCenterHoverPreviewRestartBtnV808 {
+  #videoCenterHoverPreviewTimeHud .videoCenterHoverPreviewControlBtnV809 {
     pointer-events: auto;
   }
 }
@@ -161893,6 +162096,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v806: PWA 복구 · Service Worker 등록을 updateViaCache:none으로 강제 갱신 · 설치 프롬프트 미발생 시 기존 설치앱 가능성 안내 · companion manifest/sw는 기존 PWA id 유지하면서 index.html 실행 · 화면 버전 4.1(807) -->
 <!-- v807: 태블릿 미리보기 0 전용 제스처 · 중앙 미리보기에서 좌우 스와이프 시간 탐색, 상하 스와이프 볼륨 조절 · 일반 재생화면 v805 제스처 감도 재사용 · 단순 탭은 기존 현재시점 일반재생 유지 · 스와이프 후 합성 click 차단 · PC hover 및 미리보기 1~5 영향 없음 · 화면 버전 4.1(807) -->
 <!-- v808: 미리보기 0 하단 시간표시 왼쪽에 처음 버튼 추가 · 터치하면 0초로 이동 후 즉시 재생 · 미리보기 0 시간/볼륨 스와이프 HUD를 일반 동영상 재생 v805와 같은 중앙 박스/시간 형식으로 통일 · 화면 버전 4.1(808) -->
+<!-- v809: 미리보기 0 하단 시간표시 오른쪽에 작게/크게 버튼 추가([ ] 단축키 동일) · 재생/멈춤 단일 버튼 추가(Space 동일) · 하단에 현재 볼륨 % 상시 표시 및 키보드/터치 제스처/음소거 변화 즉시 동기화 · 화면 버전 4.1(809) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
