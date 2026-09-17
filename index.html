@@ -10402,7 +10402,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(807) 모드 : </span>
+<span>버전 4.1(808) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12107,7 +12107,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(807) 모드 :</span>
+        <span>버전 4.1(808) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -141609,6 +141609,34 @@ function ensureVideoCenterHoverPreviewTimeHud(
   hud.id =
     'videoCenterHoverPreviewTimeHud';
 
+  const restart =
+    document.createElement('button');
+  restart.id =
+    'videoCenterHoverPreviewRestartBtnV808';
+  restart.type = 'button';
+  restart.textContent = '처음';
+  restart.title = '미리보기를 처음부터 재생';
+  restart.setAttribute('aria-label', '미리보기를 처음부터 재생');
+
+  // 버튼 터치가 미리보기 0의 스와이프 제스처로 시작되지 않게 한다.
+  restart.addEventListener('pointerdown', event => {
+    event.stopPropagation();
+  }, { passive: true });
+
+  restart.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    const preview = videoHoverElement;
+    if (!isVideoCenterHoverPreviewActive() || !preview) return;
+
+    try { preview.currentTime = 0; } catch (_) {}
+    try { Promise.resolve(preview.play()).catch(() => {}); } catch (_) {}
+
+    updateVideoCenterHoverPreviewTimeHud(preview);
+  });
+
   const current =
     document.createElement('span');
   current.id =
@@ -141628,6 +141656,7 @@ function ensureVideoCenterHoverPreviewTimeHud(
   total.textContent = '00:00';
 
   hud.append(
+    restart,
     current,
     sep,
     total
@@ -142186,6 +142215,41 @@ function bindVideoCenterHoverPreviewTouchGestureV807(overlay) {
   const clamp = (value, min, max) =>
     Math.max(min, Math.min(max, value));
 
+  // v808: 일반 동영상 재생(v805)의 제스처 HUD와 같은 시간 형식/표시를 사용한다.
+  const formatGestureTimeV808 = seconds => {
+    const total = Math.max(0, Math.floor(Number(seconds) || 0));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const sec = total % 60;
+    return h > 0
+      ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+      : `${m}:${String(sec).padStart(2, '0')}`;
+  };
+
+  let gestureHudHideTimerV808 = 0;
+  let gestureHudV808 = overlay.querySelector('#videoCenterPreviewTouchGestureHudV808');
+  if (!gestureHudV808) {
+    gestureHudV808 = document.createElement('div');
+    gestureHudV808.id = 'videoCenterPreviewTouchGestureHudV808';
+    gestureHudV808.setAttribute('aria-hidden', 'true');
+    overlay.appendChild(gestureHudV808);
+  }
+
+  const showGestureHudV808 = text => {
+    clearTimeout(gestureHudHideTimerV808);
+    gestureHudV808.textContent = String(text || '');
+    gestureHudV808.classList.add('show');
+    gestureHudV808.setAttribute('aria-hidden', 'false');
+  };
+
+  const hideGestureHudSoonV808 = (delay = 480) => {
+    clearTimeout(gestureHudHideTimerV808);
+    gestureHudHideTimerV808 = window.setTimeout(() => {
+      gestureHudV808.classList.remove('show');
+      gestureHudV808.setAttribute('aria-hidden', 'true');
+    }, delay);
+  };
+
   const getActivePreview = () => {
     if (!isVideoCenterHoverPreviewActive()) return null;
     const preview = videoHoverElement;
@@ -142281,18 +142345,13 @@ function bindVideoCenterHoverPreviewTouchGestureV807(overlay) {
       state.targetTime = target;
 
       const actualDelta = target - state.startTime;
-      const forward = actualDelta >= 0;
-      const sign = forward ? '+' : '-';
-      const deltaText = formatVideoCenterHoverPreviewTime(
-        Math.abs(actualDelta)
-      );
-      const targetText = formatVideoCenterHoverPreviewTime(target);
-      const durationText = formatVideoCenterHoverPreviewTime(duration);
+      const sign = actualDelta >= 0 ? '+' : '-';
+      const icon = actualDelta >= 0 ? '⏩' : '⏪';
 
-      showVideoCenterHoverPreviewOsd(
-        forward ? 'seek-right' : 'seek-left',
-        `${sign}${deltaText} · ${targetText} / ${durationText}`,
-        forward ? '▶' : '◀'
+      // 일반 동영상 재생의 시간 넘기기 HUD와 완전히 같은 2줄 형식.
+      showGestureHudV808(
+        `${icon} ${sign}${formatGestureTimeV808(Math.abs(actualDelta))}\n` +
+        `${formatGestureTimeV808(target)} / ${formatGestureTimeV808(duration)}`
       );
       return;
     }
@@ -142315,11 +142374,8 @@ function bindVideoCenterHoverPreviewTouchGestureV807(overlay) {
         videoCenterHoverPreviewVolume * 100
       );
 
-      showVideoCenterHoverPreviewOsd(
-        'volume',
-        `볼륨 ${pct}%`,
-        pct <= 0 ? '🔇' : (pct < 50 ? '🔉' : '🔊')
-      );
+      const icon = pct <= 0 ? '🔇' : (pct < 50 ? '🔉' : '🔊');
+      showGestureHudV808(`${icon} 볼륨 ${pct}%`);
     }
   }, { passive: false });
 
@@ -142351,6 +142407,9 @@ function bindVideoCenterHoverPreviewTouchGestureV807(overlay) {
         Date.now() + 550;
 
       event.preventDefault();
+      hideGestureHudSoonV808(520);
+    } else {
+      hideGestureHudSoonV808(120);
     }
 
     try {
@@ -142375,6 +142434,7 @@ function bindVideoCenterHoverPreviewTouchGestureV807(overlay) {
         overlay.releasePointerCapture(event.pointerId);
       } catch (_) {}
 
+      hideGestureHudSoonV808(120);
       reset();
     },
     { passive: false }
@@ -142783,6 +142843,12 @@ function isVideoPosterInteractiveControlTarget(target) {
 }
 
 function handleActiveVideoHoverPreviewClick(event) {
+  // v808: 하단 "처음" 버튼은 미리보기 내부 조작이므로
+  // 일반 재생으로 넘기는 capture 클릭보다 우선한다.
+  if (event?.target?.closest?.('#videoCenterHoverPreviewRestartBtnV808')) {
+    return;
+  }
+
   if (
     Date.now() <
     Number(videoCenterHoverPreviewTouchSuppressClickUntilV807 || 0)
@@ -160966,7 +161032,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 807;
+  const VIEWER_BUILD_V789 = 808;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161536,6 +161602,63 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 }
 </style>
 
+<style id="videoCenterPreviewControlsV808Style">
+/* v808: 미리보기 0 하단 "처음" 버튼 */
+#videoCenterHoverPreviewRestartBtnV808 {
+  flex: 0 0 auto;
+  height: 20px;
+  margin: -2px 3px -2px -5px;
+  padding: 0 7px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 4px;
+  background: rgba(45,45,45,.92);
+  color: #fff;
+  font: 800 11px/18px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: none;
+  touch-action: manipulation;
+}
+#videoCenterHoverPreviewRestartBtnV808:active {
+  background: rgba(95,95,95,.96);
+}
+@media (hover: none) and (pointer: coarse) {
+  #videoCenterHoverPreviewRestartBtnV808 {
+    pointer-events: auto;
+  }
+}
+
+/* v808: 미리보기 0 스와이프 HUD를 일반 재생(v805) HUD와 동일하게 표시 */
+#videoCenterPreviewTouchGestureHudV808 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 290;
+  transform: translate(-50%, -50%) scale(.96);
+  min-width: 128px;
+  max-width: min(82vw, 430px);
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.72);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 10px 34px rgba(0,0,0,.42);
+  color: #fff;
+  font: 800 15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  text-align: center;
+  white-space: pre-line;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .10s ease, transform .10s ease, visibility 0s linear .10s;
+}
+#videoCenterPreviewTouchGestureHudV808.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity .08s ease, transform .08s ease, visibility 0s;
+}
+</style>
+
 <!-- v805: 태블릿 동영상 재생 제스처 · 좌우 스와이프 시간 탐색 · 상하 스와이프 볼륨 조절 -->
 <style id="videoTouchGestureV805Style">
 #videoPlayer {
@@ -161769,6 +161892,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v805: 동영상 재생화면 태블릿 제스처 추가 · 좌우 스와이프는 시간 탐색(영상 길이에 따른 자동 감도), 상하 스와이프는 볼륨 0~100% 조절 · 제스처 HUD 표시 · 스와이프 직후 click 재생/일시정지 오작동 차단 · PC 마우스 동작 유지 · 화면 버전 4.1(805) -->
 <!-- v806: PWA 복구 · Service Worker 등록을 updateViaCache:none으로 강제 갱신 · 설치 프롬프트 미발생 시 기존 설치앱 가능성 안내 · companion manifest/sw는 기존 PWA id 유지하면서 index.html 실행 · 화면 버전 4.1(807) -->
 <!-- v807: 태블릿 미리보기 0 전용 제스처 · 중앙 미리보기에서 좌우 스와이프 시간 탐색, 상하 스와이프 볼륨 조절 · 일반 재생화면 v805 제스처 감도 재사용 · 단순 탭은 기존 현재시점 일반재생 유지 · 스와이프 후 합성 click 차단 · PC hover 및 미리보기 1~5 영향 없음 · 화면 버전 4.1(807) -->
+<!-- v808: 미리보기 0 하단 시간표시 왼쪽에 처음 버튼 추가 · 터치하면 0초로 이동 후 즉시 재생 · 미리보기 0 시간/볼륨 스와이프 HUD를 일반 동영상 재생 v805와 같은 중앙 박스/시간 형식으로 통일 · 화면 버전 4.1(808) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
