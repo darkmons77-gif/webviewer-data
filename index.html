@@ -10402,7 +10402,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(809) 모드 : </span>
+<span>버전 4.1(811) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12107,7 +12107,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(809) 모드 :</span>
+        <span>버전 4.1(811) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -141724,6 +141724,24 @@ function ensureVideoCenterHoverPreviewTimeHud(
     toggleVideoCenterHoverPreviewPlaybackV809(preview, true);
   });
 
+  const closePreview =
+    document.createElement('button');
+  closePreview.id = 'videoCenterHoverPreviewCloseBtnV810';
+  closePreview.type = 'button';
+  closePreview.className = 'videoCenterHoverPreviewControlBtnV809 videoCenterHoverPreviewCloseBtnV810';
+  closePreview.textContent = '닫기';
+  closePreview.title = '미리보기 0 닫기';
+  closePreview.setAttribute('aria-label', '미리보기 닫기');
+  closePreview.addEventListener('pointerdown', stopControlPointerV809, { passive: true });
+  closePreview.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    if (!isVideoCenterHoverPreviewActive()) return;
+    try { stopVideoHoverPreview(); } catch (_) {}
+  });
+
   const volume =
     document.createElement('span');
   volume.id = 'videoCenterHoverPreviewVolumeValueV809';
@@ -141732,12 +141750,13 @@ function ensureVideoCenterHoverPreviewTimeHud(
 
   hud.append(
     restart,
+    playPause,
+    closePreview,
     current,
     sep,
     total,
     smaller,
     larger,
-    playPause,
     volume
   );
 
@@ -148957,6 +148976,66 @@ async function getVideoWorldCupScenesDirectoryHandle() {
   }
 }
 
+// =========================================================
+// v811 장면 월드컵 RAM 캐시
+// 16강에서 한 번 준비된 실시간 장면 video/ObjectURL을 탈락할 때까지 유지한다.
+// 승자는 8강·4강·결승에서 같은 video 요소를 다시 붙여 즉시 재사용한다.
+// 월드컵 종료 또는 탈락 시에만 src/ObjectURL을 실제 해제한다.
+// =========================================================
+const videoWorldCupLiveSceneRamCacheV811 = new Map();
+
+function getVideoWorldCupLiveSceneRamCacheKeyV811(entry) {
+  const id = String(entry?.id || '').trim();
+  if (id) return id;
+  const parentId = String(entry?.parentId || entry?.__worldCupParent?.id || '').trim();
+  const timeMs = Math.max(0, Math.round((Number(entry?.sceneTime) || 0) * 1000));
+  return parentId ? `scene:ram:${parentId}:${timeMs}` : '';
+}
+
+function shouldUseVideoWorldCupLiveSceneRamCacheV811() {
+  const layer = document.getElementById('videoWorldCupLayer');
+  return !!(
+    videoWorldCupState?.mode === 'scene' &&
+    layer?.classList?.contains('on')
+  );
+}
+
+function releaseVideoWorldCupLiveSceneRamCacheEntryV811(entryOrKey) {
+  const key = typeof entryOrKey === 'string'
+    ? String(entryOrKey || '').trim()
+    : getVideoWorldCupLiveSceneRamCacheKeyV811(entryOrKey);
+  if (!key) return false;
+
+  const cached = videoWorldCupLiveSceneRamCacheV811.get(key);
+  if (!cached) return false;
+  videoWorldCupLiveSceneRamCacheV811.delete(key);
+
+  const video = cached.video;
+  const url = String(cached.url || video?.dataset?.worldcupSceneVideoUrl || '');
+  try { video?.pause?.(); } catch (_) {}
+  try { video?.remove?.(); } catch (_) {}
+  try {
+    video?.removeAttribute?.('src');
+    video?.load?.();
+  } catch (_) {}
+  if (url) {
+    try { URL.revokeObjectURL(url); } catch (_) {}
+  }
+  try {
+    if (video?.dataset) {
+      delete video.dataset.worldcupSceneVideoUrl;
+      delete video.dataset.worldcupSceneRamKeyV811;
+    }
+  } catch (_) {}
+  return true;
+}
+
+function clearVideoWorldCupLiveSceneRamCacheV811() {
+  for (const key of Array.from(videoWorldCupLiveSceneRamCacheV811.keys())) {
+    releaseVideoWorldCupLiveSceneRamCacheEntryV811(key);
+  }
+}
+
 function releaseVideoWorldCupSceneImages(root) {
   root?.querySelectorAll?.('img[data-worldcup-scene-url]')?.forEach(img => {
     const url = String(img.dataset.worldcupSceneUrl || '');
@@ -148967,6 +149046,17 @@ function releaseVideoWorldCupSceneImages(root) {
   });
 
   root?.querySelectorAll?.('video[data-worldcup-scene-video-url]')?.forEach(video => {
+    const ramKey = String(video.dataset.worldcupSceneRamKeyV811 || '').trim();
+    const cached = ramKey ? videoWorldCupLiveSceneRamCacheV811.get(ramKey) : null;
+
+    // v811: 장면 월드컵 승자 후보는 src/ObjectURL을 끊지 않고 DOM에서만 분리한다.
+    // 다음 라운드에서 같은 video 요소를 그대로 다시 붙인다.
+    if (cached && cached.video === video) {
+      try { video.pause?.(); } catch (_) {}
+      try { video.remove?.(); } catch (_) {}
+      return;
+    }
+
     const url = String(video.dataset.worldcupSceneVideoUrl || '');
     try { video.pause?.(); } catch (_) {}
     try {
@@ -148993,8 +149083,26 @@ function attachVideoWorldCupLiveSceneVideo(wrap, entry) {
   timeBadge.textContent = formatVideoSceneTime(entry?.sceneTime || 0);
   wrap.appendChild(timeBadge);
 
+  const useRamCache = shouldUseVideoWorldCupLiveSceneRamCacheV811();
+  const ramKey = useRamCache ? getVideoWorldCupLiveSceneRamCacheKeyV811(entry) : '';
+  const existing = ramKey ? videoWorldCupLiveSceneRamCacheV811.get(ramKey) : null;
+
+  if (existing?.video) {
+    existing.entry = entry;
+    existing.loading = loading;
+    existing.timeBadge = timeBadge;
+    timeBadge.textContent = formatVideoSceneTime(existing.segmentStart ?? entry?.sceneTime ?? 0);
+    try { wrap.insertBefore(existing.video, loading); } catch (_) {}
+
+    if (existing.video.readyState >= 2) loading.remove();
+    try { existing.jumpToStart?.(); } catch (_) {}
+    return;
+  }
+
   (async () => {
     let url = '';
+    let video = null;
+    let cacheEntry = null;
     try {
       const parent = entry?.__worldCupParent;
       if (!parent) throw new Error('원본 영상 없음');
@@ -149004,7 +149112,7 @@ function attachVideoWorldCupLiveSceneVideo(wrap, entry) {
       if (!wrap.isConnected) return;
 
       url = URL.createObjectURL(file);
-      const video = document.createElement('video');
+      video = document.createElement('video');
       video.className = 'videoWorldCupSceneVideo';
       video.muted = true;
       video.defaultMuted = true;
@@ -149014,49 +149122,85 @@ function attachVideoWorldCupLiveSceneVideo(wrap, entry) {
       video.controls = false;
       video.disablePictureInPicture = true;
       video.dataset.worldcupSceneVideoUrl = url;
+      if (ramKey) video.dataset.worldcupSceneRamKeyV811 = ramKey;
 
-      let segmentStart = Math.max(0, Number(entry?.sceneTime) || 0);
-      let segmentEnd = segmentStart + VIDEO_WORLD_CUP_SCENE_SECONDS;
-      let jumping = false;
+      cacheEntry = {
+        key: ramKey,
+        video,
+        url,
+        entry,
+        loading,
+        timeBadge,
+        segmentStart: Math.max(0, Number(entry?.sceneTime) || 0),
+        segmentEnd: Math.max(0, Number(entry?.sceneTime) || 0) + VIDEO_WORLD_CUP_SCENE_SECONDS,
+        jumping: false,
+        jumpToStart: null
+      };
 
       const jumpToStart = () => {
-        if (jumping) return;
-        jumping = true;
-        try { video.currentTime = segmentStart; } catch (_) {}
+        if (cacheEntry.jumping) return;
+        cacheEntry.jumping = true;
+        try { video.currentTime = cacheEntry.segmentStart; } catch (_) {}
         const done = () => {
-          jumping = false;
+          cacheEntry.jumping = false;
           video.play().catch(() => {});
         };
         if (video.readyState >= 2) done();
         else video.addEventListener('canplay', done, { once: true });
       };
+      cacheEntry.jumpToStart = jumpToStart;
+
+      if (ramKey) {
+        videoWorldCupLiveSceneRamCacheV811.set(ramKey, cacheEntry);
+      }
 
       video.addEventListener('loadedmetadata', () => {
         const duration = Number(video.duration) || 0;
-        segmentStart = Math.min(segmentStart, Math.max(0, duration - VIDEO_WORLD_CUP_SCENE_SECONDS));
-        segmentEnd = Math.min(duration, segmentStart + VIDEO_WORLD_CUP_SCENE_SECONDS);
-        entry.sceneTime = segmentStart;
-        timeBadge.textContent = formatVideoSceneTime(segmentStart);
+        cacheEntry.segmentStart = Math.min(
+          cacheEntry.segmentStart,
+          Math.max(0, duration - VIDEO_WORLD_CUP_SCENE_SECONDS)
+        );
+        cacheEntry.segmentEnd = Math.min(
+          duration,
+          cacheEntry.segmentStart + VIDEO_WORLD_CUP_SCENE_SECONDS
+        );
+        if (cacheEntry.entry) cacheEntry.entry.sceneTime = cacheEntry.segmentStart;
+        if (cacheEntry.timeBadge?.isConnected) {
+          cacheEntry.timeBadge.textContent = formatVideoSceneTime(cacheEntry.segmentStart);
+        }
         jumpToStart();
       }, { once: true });
 
       video.addEventListener('timeupdate', () => {
-        if (jumping) return;
-        if (video.currentTime >= segmentEnd - 0.035 || video.currentTime < segmentStart - 0.25) {
+        if (cacheEntry.jumping) return;
+        if (
+          video.currentTime >= cacheEntry.segmentEnd - 0.035 ||
+          video.currentTime < cacheEntry.segmentStart - 0.25
+        ) {
           jumpToStart();
         }
       });
 
       video.addEventListener('ended', jumpToStart);
-      video.addEventListener('playing', () => loading.remove(), { once: true });
+      video.addEventListener('playing', () => {
+        if (cacheEntry.loading?.isConnected) cacheEntry.loading.remove();
+      });
       video.addEventListener('error', () => {
-        loading.textContent = '장면 재생 실패';
+        if (cacheEntry.loading?.isConnected) {
+          cacheEntry.loading.textContent = '장면 재생 실패';
+        }
+        if (ramKey) {
+          releaseVideoWorldCupLiveSceneRamCacheEntryV811(ramKey);
+        }
       }, { once: true });
 
       video.src = url;
       wrap.insertBefore(video, loading);
       video.play().catch(() => {});
     } catch (_) {
+      if (ramKey) videoWorldCupLiveSceneRamCacheV811.delete(ramKey);
+      try { video?.pause?.(); } catch (_) {}
+      try { video?.remove?.(); } catch (_) {}
       if (url) {
         try { URL.revokeObjectURL(url); } catch (_) {}
       }
@@ -150595,6 +150739,7 @@ function closeVideoWorldCupOptionLayer() {
 function closeVideoWorldCupLayer() {
   const content = document.getElementById('videoWorldCupContent');
   releaseVideoWorldCupSceneImages(content);
+  clearVideoWorldCupLiveSceneRamCacheV811();
   document.getElementById('videoWorldCupLayer')?.classList.remove('on');
   videoWorldCupState = null;
 }
@@ -150634,6 +150779,7 @@ async function startVideoWorldCupSceneCycleTournament(tier, index) {
     return;
   }
   videoWorldCupMode='scene';
+  clearVideoWorldCupLiveSceneRamCacheV811();
   videoWorldCupState={
     mode:'scene', requestedRound:16, roundSize:16,
     selected:candidates.slice(), roundEntries:candidates.slice(), nextRound:[], pairIndex:0,
@@ -150720,6 +150866,7 @@ async function startVideoWorldCup(requestedRound, options = {}) {
     candidates=candidates.slice(0,16);
   }
   const selected=candidates.slice();
+  if (mode === 'scene') clearVideoWorldCupLiveSceneRamCacheV811();
   videoWorldCupState={
     mode, requestedRound:mode==='scene'?16:Number(requestedRound), roundSize:round,
     selected:selected.slice(), roundEntries:selected.slice(), nextRound:[], pairIndex:0,
@@ -150946,6 +151093,10 @@ async function chooseVideoWorldCupWinner(winner, loser) {
     if (state.mode==='scene' && state.roundEntries.length===4) {
       state.semiFinalLosers=Array.isArray(state.semiFinalLosers)?state.semiFinalLosers:[];
       state.semiFinalLosers.push(loser);
+    }
+    if (state.mode==='scene') {
+      // v811: 탈락 장면만 즉시 해제하고 승자는 RAM 캐시를 다음 라운드까지 유지.
+      releaseVideoWorldCupLiveSceneRamCacheEntryV811(loser);
     }
     state.nextRound.push(winner); state.pairIndex+=2;
     if (state.pairIndex<state.roundEntries.length) { state.locked=false; renderVideoWorldCupPair(); return; }
@@ -161213,7 +161364,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 809;
+  const VIEWER_BUILD_V789 = 811;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161784,7 +161935,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 </style>
 
 <style id="videoCenterPreviewControlsV808Style">
-/* v809: 미리보기 0 하단 조작바 — 처음 / 시간 / 작게 / 크게 / 재생·멈춤 / 볼륨 */
+/* v810: 미리보기 0 하단 조작바 — 처음 / 재생·멈춤 / 닫기 / 시간 / 작게 / 크게 / 볼륨 */
 #videoCenterHoverPreviewTimeHud {
   max-width: calc(100% - 10px);
 }
@@ -161807,6 +161958,15 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 
 #videoCenterHoverPreviewRestartBtnV808 {
   margin-left: -5px;
+}
+
+#videoCenterHoverPreviewCloseBtnV810 {
+  background: rgba(115,45,45,.88) !important;
+  border-color: rgba(255,145,145,.38) !important;
+}
+
+#videoCenterHoverPreviewCloseBtnV810:active {
+  background: rgba(150,52,52,.98) !important;
 }
 
 #videoCenterHoverPreviewTimeHud .videoCenterHoverPreviewControlBtnV809:active {
@@ -162097,6 +162257,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v807: 태블릿 미리보기 0 전용 제스처 · 중앙 미리보기에서 좌우 스와이프 시간 탐색, 상하 스와이프 볼륨 조절 · 일반 재생화면 v805 제스처 감도 재사용 · 단순 탭은 기존 현재시점 일반재생 유지 · 스와이프 후 합성 click 차단 · PC hover 및 미리보기 1~5 영향 없음 · 화면 버전 4.1(807) -->
 <!-- v808: 미리보기 0 하단 시간표시 왼쪽에 처음 버튼 추가 · 터치하면 0초로 이동 후 즉시 재생 · 미리보기 0 시간/볼륨 스와이프 HUD를 일반 동영상 재생 v805와 같은 중앙 박스/시간 형식으로 통일 · 화면 버전 4.1(808) -->
 <!-- v809: 미리보기 0 하단 시간표시 오른쪽에 작게/크게 버튼 추가([ ] 단축키 동일) · 재생/멈춤 단일 버튼 추가(Space 동일) · 하단에 현재 볼륨 % 상시 표시 및 키보드/터치 제스처/음소거 변화 즉시 동기화 · 화면 버전 4.1(809) -->
+<!-- v810: 미리보기 0 하단에서 재생·멈춤 버튼을 처음 바로 오른쪽으로 이동 · 그 옆 닫기 버튼 추가 · 닫기는 stopVideoHoverPreview 재사용 · 나머지 시간/작게/크게/볼륨 컨트롤 유지 · 화면 버전 4.1(810) -->
+<!-- v811: 장면 썸네일 월드컵 RAM 캐시 · 16강에서 준비한 실시간 장면 video/ObjectURL을 승자에게 유지해 8강·4강·결승에서 재사용 · 탈락/월드컵 종료 시에만 해제 · 화면 버전 4.1(811) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
