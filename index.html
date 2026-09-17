@@ -10402,7 +10402,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(806) 모드 : </span>
+<span>버전 4.1(807) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12107,7 +12107,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(806) 모드 :</span>
+        <span>버전 4.1(807) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -142157,14 +142157,243 @@ document.addEventListener(
 );
 
 
+
+// =========================================================
+// v807 태블릿 미리보기 0 전용 터치 제스처
+// 좌/우 스와이프 : 시간 탐색
+// 위/아래 스와이프 : 볼륨 조절
+// 단순 탭은 기존 "현재 미리보기 시점으로 일반 재생" 클릭 동작을 유지한다.
+// =========================================================
+let videoCenterHoverPreviewTouchSuppressClickUntilV807 = 0;
+
+function bindVideoCenterHoverPreviewTouchGestureV807(overlay) {
+  if (!overlay) return;
+  if (overlay.dataset.touchGestureV807 === '1') return;
+  overlay.dataset.touchGestureV807 = '1';
+
+  const state = {
+    pointerId: null,
+    preview: null,
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    startVolume: 0,
+    axis: '',
+    targetTime: null,
+    moved: false
+  };
+
+  const clamp = (value, min, max) =>
+    Math.max(min, Math.min(max, value));
+
+  const getActivePreview = () => {
+    if (!isVideoCenterHoverPreviewActive()) return null;
+    const preview = videoHoverElement;
+    if (!preview || !preview.isConnected) return null;
+    if (preview.parentElement !== overlay) return null;
+    return preview;
+  };
+
+  const reset = () => {
+    state.pointerId = null;
+    state.preview = null;
+    state.axis = '';
+    state.targetTime = null;
+    state.moved = false;
+  };
+
+  overlay.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'touch') return;
+    if (event.isPrimary === false) return;
+    if (state.pointerId !== null) return;
+
+    const preview = getActivePreview();
+    if (!preview) return;
+
+    state.pointerId = event.pointerId;
+    state.preview = preview;
+    state.startX = event.clientX;
+    state.startY = event.clientY;
+    state.startTime = Number(preview.currentTime) || 0;
+    state.startVolume = Math.max(
+      0,
+      Math.min(
+        1,
+        Number(videoCenterHoverPreviewVolume) ||
+        (preview.muted ? 0 : (Number(preview.volume) || 0))
+      )
+    );
+    state.axis = '';
+    state.targetTime = null;
+    state.moved = false;
+
+    try { overlay.setPointerCapture(event.pointerId); } catch (_) {}
+  }, { passive: true });
+
+  overlay.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'touch') return;
+    if (state.pointerId !== event.pointerId) return;
+
+    const preview = getActivePreview();
+    if (!preview || preview !== state.preview) {
+      reset();
+      return;
+    }
+
+    const dx = event.clientX - state.startX;
+    const dy = event.clientY - state.startY;
+    const ax = Math.abs(dx);
+    const ay = Math.abs(dy);
+
+    if (!state.axis) {
+      if (Math.max(ax, ay) < 14) return;
+
+      if (ax > ay * 1.12) {
+        state.axis = 'seek';
+      } else if (ay > ax * 1.12) {
+        state.axis = 'volume';
+      } else {
+        return;
+      }
+
+      state.moved = true;
+    }
+
+    event.preventDefault();
+
+    if (state.axis === 'seek') {
+      const duration = Number(preview.duration);
+      if (!(Number.isFinite(duration) && duration > 0)) return;
+
+      const rect = overlay.getBoundingClientRect();
+      const width = Math.max(240, rect.width || 0);
+
+      // 일반 재생화면(v805)과 같은 감도:
+      // 화면 전체 가로 스와이프 = 영상 길이의 약 8%, 최소 1분 ~ 최대 5분.
+      const fullSwipeSeconds = clamp(duration * 0.08, 60, 300);
+      const deltaSeconds = (dx / width) * fullSwipeSeconds;
+      const target = clamp(
+        state.startTime + deltaSeconds,
+        0,
+        duration
+      );
+
+      state.targetTime = target;
+
+      const actualDelta = target - state.startTime;
+      const forward = actualDelta >= 0;
+      const sign = forward ? '+' : '-';
+      const deltaText = formatVideoCenterHoverPreviewTime(
+        Math.abs(actualDelta)
+      );
+      const targetText = formatVideoCenterHoverPreviewTime(target);
+      const durationText = formatVideoCenterHoverPreviewTime(duration);
+
+      showVideoCenterHoverPreviewOsd(
+        forward ? 'seek-right' : 'seek-left',
+        `${sign}${deltaText} · ${targetText} / ${durationText}`,
+        forward ? '▶' : '◀'
+      );
+      return;
+    }
+
+    if (state.axis === 'volume') {
+      const rect = overlay.getBoundingClientRect();
+      const height = Math.max(180, rect.height || 0);
+      const next = clamp(
+        state.startVolume + ((-dy / height) * 1.15),
+        0,
+        1
+      );
+
+      applyVideoCenterHoverPreviewVolume(
+        preview,
+        next
+      );
+
+      const pct = Math.round(
+        videoCenterHoverPreviewVolume * 100
+      );
+
+      showVideoCenterHoverPreviewOsd(
+        'volume',
+        `볼륨 ${pct}%`,
+        pct <= 0 ? '🔇' : (pct < 50 ? '🔉' : '🔊')
+      );
+    }
+  }, { passive: false });
+
+  const finish = event => {
+    if (state.pointerId !== event.pointerId) return;
+
+    const usedGesture = !!state.axis && state.moved;
+    const preview = state.preview;
+
+    if (
+      usedGesture &&
+      state.axis === 'seek' &&
+      preview &&
+      Number.isFinite(state.targetTime)
+    ) {
+      try {
+        preview.currentTime = state.targetTime;
+      } catch (_) {}
+
+      updateVideoCenterHoverPreviewTimeHud(
+        preview
+      );
+    }
+
+    if (usedGesture) {
+      // 스와이프 직후 compatibility click이 기존 "미리보기 클릭 → 일반 재생"으로
+      // 이어지지 않게 짧게 차단한다.
+      videoCenterHoverPreviewTouchSuppressClickUntilV807 =
+        Date.now() + 550;
+
+      event.preventDefault();
+    }
+
+    try {
+      overlay.releasePointerCapture(event.pointerId);
+    } catch (_) {}
+
+    reset();
+  };
+
+  overlay.addEventListener(
+    'pointerup',
+    finish,
+    { passive: false }
+  );
+
+  overlay.addEventListener(
+    'pointercancel',
+    event => {
+      if (state.pointerId !== event.pointerId) return;
+
+      try {
+        overlay.releasePointerCapture(event.pointerId);
+      } catch (_) {}
+
+      reset();
+    },
+    { passive: false }
+  );
+}
+
 function ensureVideoCenterHoverPreviewOverlay() {
   let overlay = document.getElementById('videoCenterHoverPreviewOverlay');
-  if (overlay) return overlay;
+  if (overlay) {
+    bindVideoCenterHoverPreviewTouchGestureV807(overlay);
+    return overlay;
+  }
 
   overlay = document.createElement('div');
   overlay.id = 'videoCenterHoverPreviewOverlay';
   overlay.setAttribute('aria-hidden', 'true');
   document.body.appendChild(overlay);
+
+  bindVideoCenterHoverPreviewTouchGestureV807(overlay);
 
   // v563: 옵션의 0번 미리보기 폭을 새 overlay에도 즉시 반영
   applyVideoCenterPreviewWidth();
@@ -142554,6 +142783,16 @@ function isVideoPosterInteractiveControlTarget(target) {
 }
 
 function handleActiveVideoHoverPreviewClick(event) {
+  if (
+    Date.now() <
+    Number(videoCenterHoverPreviewTouchSuppressClickUntilV807 || 0)
+  ) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    event?.stopImmediatePropagation?.();
+    return;
+  }
+
   if (Number(event?.button) !== 0) return;
 
   // 포스터 위 조작 버튼 클릭은 원래 버튼 이벤트로 그대로 보낸다.
@@ -160727,7 +160966,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 806;
+  const VIEWER_BUILD_V789 = 807;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161276,6 +161515,27 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v797: DMM검색 인덱스 우선 최적화 · 품번/범위는 lookupKeys 그룹키로 선조회 · 배우는 actresses 인덱스 선조회 · 날짜는 DB v3 date 인덱스로 선조회 · 보유작 runtime 준비는 검색을 막지 않고 백그라운드 보정 · 신규 작품 레코드 dateKey 저장 · 화면 버전 4.1(798) -->
 
 <!-- v798: DMM 품번 범위검색에서 동일 접두어의 숫자 자릿수별 실제 작품군을 사전 확인 · 3자리/4자리 등 복수 계열이 실제로 함께 존재할 때 선택 안내창 표시 · 선택한 자릿수 계열만 후필터 · 단일 계열은 기존처럼 자동 검색 · exact start=end 검색은 lookupKeys 정확검색 유지 · 화면 버전 4.1(798) -->
+
+<style id="videoCenterPreviewTouchGestureV807Style">
+/* v807: 터치 전용 기기에서만 미리보기 0 중앙 오버레이가 제스처 입력을 받는다.
+   PC 마우스 환경은 기존 pointer-events:none을 유지해 hover가 끊기지 않는다. */
+@media (hover: none) and (pointer: coarse) {
+  #videoCenterHoverPreviewOverlay.on {
+    pointer-events: auto !important;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  #videoCenterHoverPreviewOverlay.on video {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+</style>
+
 <!-- v805: 태블릿 동영상 재생 제스처 · 좌우 스와이프 시간 탐색 · 상하 스와이프 볼륨 조절 -->
 <style id="videoTouchGestureV805Style">
 #videoPlayer {
@@ -161507,7 +161767,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v803: 태블릿 터치 포스터 조작 · 로컬 보유작은 1회 탭으로 기존 hover 미리보기, 같은 포스터 더블탭으로 재생 · 터치 스크롤은 이동거리로 구분 · touch-action manipulation으로 더블탭 확대 충돌 방지 · PC 마우스 동작 유지 · 화면 버전 4.1(803) -->
 <!-- v804: 최신버전 버튼 옆 PWA 앱설치 버튼 추가 · manifest.webmanifest 연결 · GitHub Pages HTTPS에서 sw.js 자동 등록 · beforeinstallprompt를 사용자 클릭까지 보관해 설치창 호출 · 설치 완료/PWA 실행 중에는 설치 버튼 숨김 · 로컬 file:// 및 설치 프롬프트 미제공 시 기존 내부 모달로 안내 · 화면 버전 4.1(805) -->
 <!-- v805: 동영상 재생화면 태블릿 제스처 추가 · 좌우 스와이프는 시간 탐색(영상 길이에 따른 자동 감도), 상하 스와이프는 볼륨 0~100% 조절 · 제스처 HUD 표시 · 스와이프 직후 click 재생/일시정지 오작동 차단 · PC 마우스 동작 유지 · 화면 버전 4.1(805) -->
-<!-- v806: PWA 복구 · Service Worker 등록을 updateViaCache:none으로 강제 갱신 · 설치 프롬프트 미발생 시 기존 설치앱 가능성 안내 · companion manifest/sw는 기존 PWA id 유지하면서 index.html 실행 · 화면 버전 4.1(806) -->
+<!-- v806: PWA 복구 · Service Worker 등록을 updateViaCache:none으로 강제 갱신 · 설치 프롬프트 미발생 시 기존 설치앱 가능성 안내 · companion manifest/sw는 기존 PWA id 유지하면서 index.html 실행 · 화면 버전 4.1(807) -->
+<!-- v807: 태블릿 미리보기 0 전용 제스처 · 중앙 미리보기에서 좌우 스와이프 시간 탐색, 상하 스와이프 볼륨 조절 · 일반 재생화면 v805 제스처 감도 재사용 · 단순 탭은 기존 현재시점 일반재생 유지 · 스와이프 후 합성 click 차단 · PC hover 및 미리보기 1~5 영향 없음 · 화면 버전 4.1(807) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
