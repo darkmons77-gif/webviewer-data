@@ -4927,6 +4927,25 @@ body.lightbox-open {
   box-shadow: 0 0 0 1px rgba(255,255,255,.16) inset;
 }
 
+/* v794: 배우정보 → 메타검색 배우명 다이렉트 검색 */
+.videoActressProfileDirectSearchBtn {
+  flex: 0 0 auto;
+  margin-left: 0;
+  padding: 1px 6px;
+  min-height: 18px;
+  line-height: 16px;
+  border: 1px solid rgba(91,203,149,.38);
+  background: rgba(48,160,108,.12);
+  color: #9ce1bd;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.videoActressProfileDirectSearchBtn:hover {
+  background: rgba(48,160,108,.28);
+  color: #fff;
+}
+
 .videoActressProfileFieldWide {
   margin-bottom: 8px;
 }
@@ -9776,6 +9795,116 @@ body.video-fullscreen-clean #wtHint{
   #videoSeriesAnalyzerLayer .vsa3-options #vsa3Search{flex-basis:220px}
 }
 </style>
+
+<style id="videoRandomStyleAuxV789Css">
+/* ============================================================
+   v789 스타일창 3열 보조기능
+   - 기존 1열/2열 내부 구성은 유지
+   - 오른쪽 3열은 보조 버튼 전용
+   - 각 줄은 cols-2 / cols-3 클래스로 2개 또는 3개 배치 가능
+   ============================================================ */
+#videoRandomStylePanel {
+  width: 488px;
+  max-width: calc(100vw - 12px);
+  overflow-x: auto;
+}
+#videoRandomStylePanel .videoRandomStyleColumnsV496 {
+  gap: 10px;
+  min-width: 473px;
+}
+#videoRandomStylePanel .videoRandomStyleColumnsV496::before,
+#videoRandomStylePanel .videoRandomStyleColumnsV496::after { display:none !important; }
+#videoRandomStylePanel .videoRandomStyleSecondaryColumn,
+#videoRandomStylePanel .videoRandomStyleTertiaryColumn {
+  border-left: 1px solid rgba(255,255,255,.12);
+}
+#videoRandomStylePanel .videoRandomStyleTertiaryColumn {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 151px;
+  width: 151px;
+  min-width: 151px;
+  align-self: flex-start;
+  box-sizing: border-box;
+  padding-left: 9px;
+}
+#videoRandomStylePanel .videoRandomAuxTitleV789 { margin-bottom:6px; }
+#videoRandomStylePanel .videoRandomAuxRowV789 {
+  display:grid; width:100%; gap:4px; margin:0 0 5px; align-items:stretch;
+}
+#videoRandomStylePanel .videoRandomAuxRowV789.cols-1,
+#videoRandomStylePanel .videoRandomAuxRowV789.cols-2,
+#videoRandomStylePanel .videoRandomAuxRowV789.cols-3 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#videoRandomStylePanel .videoRandomAuxRowV789[hidden],
+#videoRandomStylePanel .videoRandomAuxSlotV789[hidden],
+#videoRandomStylePanel .videoRandomAuxCountControlV789[hidden] { display:none !important; }
+#videoRandomStylePanel #videoRandomAuxResetSlotV790 > #viewerFullResetBtnWt {
+  background:#8f2525 !important;
+  color:#fff !important;
+  font-weight:700 !important;
+}
+/* 만화 모드에서는 영상 표시스타일 1·2열을 숨기고 공통/만화 도구 3열만 사용 */
+#videoRandomStylePanel.videoRandomAuxComicModeV790 {
+  width:165px !important;
+  overflow-x:hidden;
+}
+#videoRandomStylePanel.videoRandomAuxComicModeV790 .videoRandomStyleColumnsV496 {
+  min-width:151px !important;
+  gap:0 !important;
+}
+#videoRandomStylePanel.videoRandomAuxComicModeV790 .videoRandomStylePrimaryColumn,
+#videoRandomStylePanel.videoRandomAuxComicModeV790 .videoRandomStyleSecondaryColumn {
+  display:none !important;
+}
+#videoRandomStylePanel.videoRandomAuxComicModeV790 .videoRandomStyleTertiaryColumn {
+  border-left:0 !important;
+  padding-left:0 !important;
+}
+#videoRandomStylePanel .videoRandomAuxSlotV789 { min-width:0; min-height:24px; }
+#videoRandomStylePanel .videoRandomAuxSlotV789 > button,
+#videoRandomStylePanel .videoRandomAuxSlotV789 > .zoomBtn {
+  display:block !important; width:100%; min-width:0 !important; height:24px; box-sizing:border-box;
+  margin:0 !important; padding:0 3px !important; border:1px solid rgba(255,255,255,.12) !important;
+  border-radius:5px !important; background:#343b45 !important; color:#eaf3fc !important;
+  font-size:9px !important; line-height:22px !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;
+}
+#videoRandomStylePanel .videoRandomStyleTertiaryColumn .videoRandomAuxSlotV789 > button,
+#videoRandomStylePanel .videoRandomStyleTertiaryColumn .videoRandomAuxSlotV789 > .zoomBtn {
+  min-height:34px !important; height:34px !important;
+  display:flex !important; align-items:center; justify-content:center; text-align:center;
+  line-height:12px !important; white-space:normal !important; overflow:hidden !important;
+  text-overflow:clip !important; word-break:keep-all;
+}
+#videoRandomStylePanel .videoRandomStyleTertiaryColumn .videoRandomAuxCountControlV789 {
+  min-height:34px; height:34px;
+}
+#videoRandomStylePanel .videoRandomAuxSlotV789 > button:hover,
+#videoRandomStylePanel .videoRandomAuxSlotV789 > .zoomBtn:hover { background:#46515f !important; }
+#videoRandomStylePanel .videoRandomAuxSlotV789 > button.active,
+#videoRandomStylePanel .videoRandomAuxSlotV789 > button[aria-pressed="true"],
+#videoRandomStylePanel .videoRandomAuxSlotV789 > .zoomBtn.active,
+#videoRandomStylePanel .videoRandomAuxSlotV789 > .zoomBtn[aria-pressed="true"] {
+  background:#176fc4 !important; border-color:#58aaff !important; color:#fff !important;
+}
+#videoRandomStylePanel .videoRandomAuxSlotV789 > button:disabled,
+#videoRandomStylePanel .videoRandomAuxSlotV789 > .zoomBtn:disabled { opacity:.48; cursor:default; }
+#videoRandomStylePanel .videoRandomAuxCountControlV789 {
+  display:grid; grid-template-columns:minmax(0,1fr) 38px; align-items:center; gap:2px; min-width:0; height:24px;
+  box-sizing:border-box; padding:0 2px 0 5px; border:1px solid rgba(255,255,255,.12); border-radius:5px;
+  background:#343b45; color:#eaf3fc;
+}
+#videoRandomStylePanel .videoRandomAuxCountLabelV789 {
+  min-width:0; font-size:9px; line-height:22px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+#videoRandomStylePanel .videoRandomAuxCountSelectSlotV789 { min-width:0; }
+#videoRandomStylePanel #videoRandomAuxColsSlotV789 #wtColsThumb {
+  display:block !important; width:100% !important; min-width:0 !important; height:20px !important; margin:0 !important;
+  padding:0 1px !important; border:0 !important; border-radius:3px !important; background:#252c35 !important; color:#fff !important;
+  font-size:9px !important; line-height:18px !important; text-align:center;
+}
+@media (max-width:560px) { #videoRandomStylePanel { width:calc(100vw - 12px); } }
+</style>
+
 </head>
 <body>
 <div id="videoFullscreenHoverZone" aria-hidden="true"></div>
@@ -9873,7 +10002,7 @@ body.video-fullscreen-clean #wtHint{
     <div class="videoRandomRenderTitle">포스터 표현</div>
     <div id="videoRandomRenderStyleBox">
       <button class="videoRandomRenderModeBtn active" data-render-style="normal" type="button" title="원본 색상과 질감 그대로 표시">원본</button>
-      <button class="videoRandomRenderModeBtn" data-render-style="grayscale" type="button" title="원본 포스터를 단순 흑백으로 표시">흑백</button>
+      <button id="videoRandomCommonBwBtnV791" class="videoRandomRenderModeBtn" data-render-style="grayscale" data-common-bw="1" type="button" title="영상/만화 공통 흑백 전환">흑백</button>
       <button class="videoRandomRenderModeBtn" data-render-style="pencil-sketch" type="button" title="옵션의 흑백 스케치 세부값으로 표시">흑백스케치</button>
       <button class="videoRandomRenderModeBtn" data-render-style="colored-pencil" type="button" title="옵션의 컬러 스케치 세부값으로 표시">컬러스케치</button>
     </div>
@@ -10110,6 +10239,84 @@ body.video-fullscreen-clean #wtHint{
         <div id="videoRandomActressMultiSlot" class="videoRandomSecondarySlot"></div>
       </div>
     </div>
+
+    <!-- v792: 기존 1·2열은 유지하고 오른쪽 3열은 동일 폭 · 모든 행 2칸 고정 -->
+    <div class="videoRandomStyleTertiaryColumn" id="videoRandomStyleTertiaryColumn" aria-label="보조 기능">
+      <div class="videoRandomSecondaryTitle videoRandomAuxTitleV789">보조 기능</div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="캡처">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxFaceCaptureSlotV789" data-aux-mode="video"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxPosterCaptureSlotV789" data-aux-mode="video"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="배우정보 입력">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxWikiInputSlotV789" data-aux-mode="video"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxInputSlotV789" data-aux-mode="video"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="영상 썸네일과 제외목록">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxThumbSlotV789" data-aux-mode="video"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxBlacklistSlotV789" data-aux-mode="video"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="공통 폴더와 가로갯수">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxFolderSlotV789" data-aux-mode="common"></div>
+        <div class="videoRandomAuxCountControlV789" data-aux-mode="common" title="썸네일 가로 갯수">
+          <span class="videoRandomAuxCountLabelV789">가로갯수</span>
+          <span class="videoRandomAuxCountSelectSlotV789" id="videoRandomAuxColsSlotV789"></span>
+        </div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="배우 매칭">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxMatchSlotV789" data-aux-mode="video"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxAvdbsMatchSlotV789" data-aux-mode="video"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="포스터와 체형">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxPosterPlusSlotV789" data-aux-mode="video"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxBodyCalcSlotV789" data-aux-mode="video"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="목록 표시 보조">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxRailSlotV790" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxDeleteSlotV790" data-aux-mode="common"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="공통 화면 표시">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxBwSlotV791" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxRatingSlotV790" data-aux-mode="common"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="즐겨찾기와 음악">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxFavSlotV790" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxMusicSlotV790" data-aux-mode="common"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="옵션과 저장">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxOptionsSlotV790" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxLocalStorageSlotV790" data-aux-mode="common"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="단축키와 초기화">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxShortcutSlotV790" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxResetSlotV790" data-aux-mode="common"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="전체화면과 권한">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxFullSlotV792" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxPermissionSlotV792" data-aux-mode="common"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="라이트뷰와 썸네일 동기화">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxLightviewSlotV792" data-aux-mode="common"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxSceneSyncSlotV790" data-aux-mode="video"></div>
+      </div>
+
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="만화 읽기">
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxOrientationSlotV790" data-aux-mode="comic"></div>
+        <div class="videoRandomAuxSlotV789" id="videoRandomAuxLastPageSlotV790" data-aux-mode="comic"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -10193,7 +10400,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>v4.01 (787) 모드 : </span>
+<span>버전 4.1(803) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -10329,6 +10536,7 @@ body.video-fullscreen-clean #wtHint{
   <option value="random">랜덤</option>
   <option value="file">파일</option>
   <option value="actress">배우</option>
+  <option value="bookmarkOnly">북마크</option>
   <option value="noCode">품번X</option>
   <option value="noActress">배우X</option>
   <option value="duplicateOnly">중복만</option>
@@ -10347,10 +10555,10 @@ body.video-fullscreen-clean #wtHint{
   class="zoomBtn"
   id="videoRandomStyleBtn"
   type="button"
-  title="현재 정렬 순서를 유지한 채 표시 스타일 선택"
+  title="표시 설정과 보조 기능 열기"
   aria-pressed="false"
   style="display:none;"
->스타일</button>
+>기능</button>
 <button
   class="zoomBtn"
   id="videoChromeTranslatorPrepareBtn"
@@ -10368,13 +10576,6 @@ body.video-fullscreen-clean #wtHint{
   ↑
 </button>
 
-<button
-  class="zoomBtn"
-  id="videoBookmarkOnlyBtn"
-  title="북마크된 영상만 보기"
-  aria-pressed="false"
-  style="display:none;"
->♡</button>
 <button
   class="zoomBtn"
   id="videoNoCodeOnlyBtn"
@@ -10459,7 +10660,7 @@ body.video-fullscreen-clean #wtHint{
   title="현재 필터된 보유 영상 전체에 현재 썸넬 옵션으로 장면 WebP를 일괄 생성"
   aria-pressed="false"
   style="display:none;"
->썸넬</button>
+>썸네일</button>
 <button
   class="zoomBtn"
   id="videoBulkActressInfoBtn"
@@ -10712,6 +10913,7 @@ body.video-fullscreen-clean #wtHint{
       <button id="lsClearAll" title="로컬스토리지 전체 삭제(주의)">삭제</button>
 	  <button id="lsCleanup" title="목록에 없는 작품의 image_config_map_v1 / fav_v2 정리">정리</button>
       <button id="viewerFullResetBtn" title="초기화 범위 선택: 만화만 / 영상만 / 만화+영상">완전초기화</button>
+      <button id="viewerLatestVersionBtn" title="GitHub version.json을 확인하고 최신 웹뷰어 HTML 다운로드">최신버전</button>
       <button id="lsClose">닫기</button>
     </div>
   </header>
@@ -11902,14 +12104,12 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>v4.01 (787) 모드 :</span>
+        <span>버전 4.1(803) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
-        <button class="zoomBtn" id="videoActressNameLangCycleWt" type="button" title="배우 이름 표시 언어: 한글 · 클릭하면 영어로 변경" aria-label="배우 이름 표시 언어 변경">한</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
         <button class="zoomBtn" id="videoWorldCupRankingBtn" title="포스터 · 썸네일 · 태그매치 중 랭킹을 선택" style="display:none;">랭킹</button>
         <button class="zoomBtn" id="delUiToggleWt"  title="삭제 버튼 표시/숨기기">D</button>
-        <button class="zoomBtn" id="filterBWWt"     title="컬러를 흑백으로 볼수있게">B</button>
         <button class="zoomBtn" id="toggleFullWt"   title="전체화면 전환">V</button>
         <button class="zoomBtn" id="muPermFixWt"    title="로컬 폴더 사용권한 허용">P</button>
         <button class="zoomBtn" id="jumpLastWt"     title="마지막 읽은 페이지로 이동">C</button>
@@ -11955,6 +12155,11 @@ body.video-fullscreen-clean #wtHint{
         type="button"
         title="초기화 범위 선택: 만화만 / 영상만 / 만화+영상"
         style="background:#8f2525;color:#fff;font-weight:700;">완전초기화</button>
+<button id="viewerLatestVersionBtnWt"
+        class="zoomBtn"
+        type="button"
+        title="최신 웹뷰어 버전 확인 및 HTML 다운로드"
+        style="background:#236a45;color:#fff;font-weight:700;">최신버전</button>
 </div>
     </div>
   <!-- ✅ 추가: 헤더 아래 본문(가로로 레일 + wtBox) -->
@@ -12094,6 +12299,13 @@ body.video-fullscreen-clean #wtHint{
               aria-pressed="false"
               title="켜면 배우 레일에서 이 배우를 선택할 때 보유작과 미보유 품번을 한 목록에 같이 표시합니다."
             >같이보기</button>
+
+            <button
+              class="zoomBtn videoActressProfileDirectSearchBtn"
+              id="videoActressProfileDirectSearchBtn"
+              type="button"
+              title="이 배우 이름으로 메타검색 작품검색을 즉시 실행합니다. 검색 결과가 바로 표시되고 상단 메타검색 버튼도 활성화됩니다."
+            >바로검색</button>
 
             <span id="videoActressProfileMissingCount">0개</span>
           </div>
@@ -12372,13 +12584,13 @@ body.video-fullscreen-clean #wtHint{
         class="zoomBtn"
         id="videoRangeSearchClearBtn"
         type="button"
-        title="배우 직접입력 · 범위 최소/최대 · 작품 제목 입력을 한 번에 지웁니다."
+        title="배우 직접입력 · 범위 최소/최대 · 작품 날짜 · 작품 제목 입력을 한 번에 지웁니다."
       >지우기</button>
       <button
         class="zoomBtn"
         id="videoRangeDmmSearchBtn"
         type="button"
-        title="범위 품번 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 검색"
+        title="범위 품번 + 작품 날짜 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 검색"
       >작품검색</button>
       <button
         class="zoomBtn"
@@ -12394,6 +12606,35 @@ body.video-fullscreen-clean #wtHint{
         title="직전 메타검색 조건을 다시 불러옵니다."
         disabled
       >이전조건</button>
+    </div>
+
+    <!-- v793: 작품 날짜 범위 검색 -->
+    <div class="videoRangeDateSearchRow" id="videoRangeDateSearchRow" aria-label="작품 날짜 범위 검색">
+      <span class="videoRangeDateSearchLabel">작품날짜</span>
+      <input
+        class="zoomBtn videoRangeDateInput"
+        id="videoRangeDateMinInput"
+        type="text"
+        value=""
+        placeholder="예: 2020.01.01"
+        autocomplete="off"
+        spellcheck="false"
+        title="최소 작품날짜 · 2020.01.01 / 20.01.01 / 2020-01-01 / 2020/01/01 / 2020.01 / 2020 형식 지원 · 월/일 생략 시 1월 1일로 보정"
+        aria-label="최소 작품 날짜"
+      >
+      <span class="videoRangeDateSearchSep">~</span>
+      <input
+        class="zoomBtn videoRangeDateInput"
+        id="videoRangeDateMaxInput"
+        type="text"
+        value=""
+        placeholder="예: 2020.01.01"
+        autocomplete="off"
+        spellcheck="false"
+        title="최대 작품날짜 · 2020.01.01 / 20.01.01 / 2020-01-01 / 2020/01/01 / 2020.01 / 2020 형식 지원 · 연도만 입력하면 12월 31일, 연월만 입력하면 그 달 마지막 날로 보정"
+        aria-label="최대 작품 날짜"
+      >
+      <span class="videoRangeDateSearchHint">날짜 검색 · 최소의 생략 월/일은 1/1 · 최대의 생략 월/일은 연말/월말로 자동 보정</span>
     </div>
 
     <div class="videoRangeProfileConditionRow" id="videoRangeProfileConditionRow" aria-label="추가된 배우정보 교집합 조건" style="display:none;"></div>
@@ -19369,34 +19610,61 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === '0') zoomReset();
   else if (e.key.toLowerCase() === 'f') zoomFit();
 });
-// ✅ 흑백 토글
+// ✅ v791 흑백 통합: 기존 B 흑백 효과를 스타일의 "흑백" 버튼과 공유
 const filterBtn = document.getElementById('filterBWBtn');
+const styleCommonBwBtnV791 = document.getElementById('videoRandomCommonBwBtnV791');
 let bwEnabled = false;
+
+// 이전 버전에서 영상 전용 "grayscale" 스타일을 쓰고 있었다면
+// 공통 흑백 상태로 1회 승계하고 영상 전용 스타일 저장값은 원본으로 정리한다.
+try {
+  if (localStorage.getItem('video_poster_render_style_v1') === 'grayscale') {
+    bwEnabled = true;
+    localStorage.setItem('video_poster_render_style_v1', 'normal');
+  }
+} catch (_) {}
+
+function syncCommonBwButtonV791(btn) {
+  if (!btn) return;
+  btn.setAttribute('aria-pressed', bwEnabled ? 'true' : 'false');
+  btn.classList.toggle('active', bwEnabled);
+}
 
 function applyBW() {
   document.documentElement.style.setProperty(
     '--img-filter',
     bwEnabled ? 'grayscale(100%)' : 'none'
   );
-  filterBtn.textContent = bwEnabled ? '흑백' : '흑백';
-  setBtnPressed(filterBtn, bwEnabled);            //  활성 표시
+
+  if (filterBtn) filterBtn.textContent = '흑백';
+  syncCommonBwButtonV791(filterBtn);
+  syncCommonBwButtonV791(styleCommonBwBtnV791);
+  syncCommonBwButtonV791(document.getElementById('filterBWWt'));
+  syncCommonBwButtonV791(document.getElementById('filterBWLb'));
+  syncCommonBwButtonV791(document.getElementById('miniBWBtn'));
 }
 
-filterBtn.addEventListener('click', () => {
+function toggleCommonBWV791() {
   bwEnabled = !bwEnabled;
   applyBW();
-});
+}
 
-// (선택) 단축키: g 키로 토글 (입력 중엔 무시)
+filterBtn?.addEventListener('click', toggleCommonBWV791);
+styleCommonBwBtnV791?.addEventListener('click', toggleCommonBWV791);
+
+window.applyCommonBWV791 = applyBW;
+window.toggleCommonBWV791 = toggleCommonBWV791;
+window.getCommonBWV791 = () => bwEnabled;
+
+// 기존 g 단축키도 같은 공통 흑백 효과를 사용
 document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key.toLowerCase() === 'g') {
-    bwEnabled = !bwEnabled;
-    applyBW();
+    toggleCommonBWV791();
   }
 });
 
-// 초기 적용(기본 OFF)
+// 초기 적용(기본 OFF, 구버전 grayscale 승계 시 ON)
 applyBW();
 
 // ✅ 배경색 변경 기능
@@ -29382,7 +29650,7 @@ if (document.readyState !== 'loading') {
     ['delUiToggleBtn', 'delUiToggleWt', 'delUiToggleLb'].forEach(function(id){
       var b = document.getElementById(id);
       if (!b) return;
-      b.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+      b.setAttribute('aria-pressed', hidden ? 'false' : 'true');
       b.classList.toggle('active', !hidden);
     });
 
@@ -40221,9 +40489,52 @@ document.addEventListener('DOMContentLoaded', () => {
   cursor: default;
 }
 #videoRangeDmmActressCount:disabled { opacity:.42; }
+
+/* v793: 메타검색 작품날짜 범위 */
+.videoRangeDateSearchRow {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: -3px 0 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(111,204,170,.20);
+  border-radius: 8px;
+  background: rgba(15,35,31,.28);
+}
+.videoRangeDateSearchLabel {
+  color: #9fe2ca;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.videoRangeDateInput {
+  width: 138px;
+  min-width: 118px;
+  height: 30px;
+  box-sizing: border-box;
+  border: 1px solid rgba(133,224,191,.22);
+  border-radius: 6px;
+  background: rgba(8,11,16,.30);
+  color: #fff;
+  padding: 0 8px;
+}
+.videoRangeDateInput:focus {
+  outline: none;
+  border-color: rgba(133,224,191,.72);
+  box-shadow: 0 0 0 2px rgba(133,224,191,.10);
+}
+.videoRangeDateSearchSep { color:#aebbd0; font-weight:800; }
+.videoRangeDateSearchHint {
+  color: #8faea4;
+  font-size: 10px;
+  white-space: nowrap;
+}
 @media (max-width: 1180px) {
   .videoRangeSearchBar { flex-wrap: wrap; }
   .videoRangeSearchHint { flex: 1 1 100%; }
+  .videoRangeDateSearchRow { flex-wrap: wrap; }
+  .videoRangeDateSearchHint { flex: 1 1 100%; }
 }
 
 /* v383: 범위검색 아래 왼쪽 배우 / 오른쪽 제작사 레이블 */
@@ -41274,6 +41585,141 @@ document.addEventListener('DOMContentLoaded', () => {
   font-size: 10px;
   line-height: 1.45;
   text-align: center;
+}
+
+
+/* v799: DMM 품번군(보안코드/숫자 자릿수) 선택 · 브라우저 prompt 대신 웹뷰어 내부 모달 */
+#videoDmmRangeVariantChoiceLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 47170;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(0,0,0,.54);
+  backdrop-filter: blur(3px);
+}
+#videoDmmRangeVariantChoiceLayer.is-visible { display: flex; }
+#videoDmmRangeVariantChoiceLayer .videoMissingViewChoicePanel {
+  width: min(640px, calc(100vw - 40px));
+}
+#videoDmmRangeVariantChoiceLayer.is-visible .videoMissingViewChoicePanel {
+  transform: scale(1);
+  opacity: 1;
+}
+.videoDmmRangeVariantChoiceList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(52vh, 430px);
+  overflow-y: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+.videoDmmRangeVariantChoiceBtn {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(117,156,255,.24);
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: rgba(255,255,255,.045);
+  color: #eef3fb;
+  cursor: pointer;
+  text-align: left;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.videoDmmRangeVariantChoiceBtn:hover,
+.videoDmmRangeVariantChoiceBtn:focus {
+  outline: none;
+  transform: translateY(-1px);
+  background: rgba(76,145,255,.12);
+  border-color: rgba(117,156,255,.58);
+}
+.videoDmmRangeVariantChoiceBtn.is-preferred {
+  border-color: rgba(240,201,106,.48);
+  background: rgba(240,201,106,.075);
+}
+.videoDmmRangeVariantChoiceMain {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.videoDmmRangeVariantChoiceBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(240,201,106,.13);
+  border: 1px solid rgba(240,201,106,.28);
+  color: #f0c96a;
+  font-size: 9px;
+  font-weight: 800;
+}
+.videoDmmRangeVariantChoiceMeta {
+  margin-top: 4px;
+  color: #aeb9cb;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* v801: 품번군 선택지는 품번/설명을 왼쪽, 대표 포스터를 오른쪽에 배치한다.
+   대표 포스터는 DMM 샘플 이미지 비율에 맞춰 가로 400:269로 표시하고 hover 시 2배 확대한다. */
+.videoDmmRangeVariantChoiceInner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.videoDmmRangeVariantChoicePosterWrap {
+  position: relative;
+  flex: 0 0 120px;
+  width: 120px;
+  aspect-ratio: 400 / 269;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.24);
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.24);
+}
+.videoDmmRangeVariantChoicePoster {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 400 / 269;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #171b22;
+  transition: transform .14s ease, box-shadow .14s ease;
+  transform-origin: right center;
+}
+.videoDmmRangeVariantChoicePosterWrap:hover .videoDmmRangeVariantChoicePoster {
+  z-index: 8;
+  transform: scale(2);
+  box-shadow: 0 10px 30px rgba(0,0,0,.78);
+}
+.videoDmmRangeVariantChoicePosterFallback {
+  padding: 4px;
+  color: #6f7a8d;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  letter-spacing: .02em;
+}
+.videoDmmRangeVariantChoiceBody {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 
@@ -48308,24 +48754,26 @@ function syncVideoRandomStyleUI() {
     coverflowOn;
 
   if (styleBtn) {
-    // v476: 스타일 버튼은 영상 모드에서는 정렬 종류와 무관하게 항상 표시
-    styleBtn.style.display =
-      contentMode === 'video'
-        ? ''
-        : 'none';
+    // v790: 스타일 버튼은 영상/만화 모두 표시.
+    // 만화에서는 1·2열 영상 스타일 대신 3열의 공통/만화 도구만 보여준다.
+    styleBtn.style.display = '';
+
+    const auxVideoModeV790 = contentMode === 'video';
+    const auxStyleActiveV790 = auxVideoModeV790 && anyStyleOn;
 
     styleBtn.classList.toggle(
       'active',
-      anyStyleOn
+      auxStyleActiveV790
     );
 
     styleBtn.setAttribute(
       'aria-pressed',
-      anyStyleOn ? 'true' : 'false'
+      auxStyleActiveV790 ? 'true' : 'false'
     );
 
-    styleBtn.title =
-      coverflowOn
+    styleBtn.title = !auxVideoModeV790
+      ? '스타일 / 공통·만화 보조 기능'
+      : coverflowOn
         ? '표시 스타일: 커버플로우'
         : neatFullOn
           ? '표시 스타일: 꽉찬 스택'
@@ -48339,7 +48787,7 @@ function syncVideoRandomStyleUI() {
                   ? '표시 스타일: 살짝 콜라주'
                   : defaultOn
                     ? '표시 스타일: 기본 콜라주'
-                    : '현재 정렬 순서를 유지한 채 표시 스타일 선택';
+                    : '표시 설정과 보조 기능 열기';
   }
 
   const syncOption = (btn, active) => {
@@ -48468,6 +48916,9 @@ function initVideoRandomStyleControls() {
   };
 
   const openNearButton = () => {
+    // v789: BL처럼 뒤늦게 생성되는 버튼까지 열기 직전에 3열 슬롯으로 다시 정리한다.
+    try { window.syncVideoRandomAuxToolsV790?.(); } catch (_) {}
+
     const rect = btn.getBoundingClientRect();
 
     panel.style.display = 'block';
@@ -60385,7 +60836,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 따라서 26만 작품 전체를 JS Map으로 상주시켜 메모리를 낭비하지 않는다.
 // =========================================
 const VIDEO_WORK_INDEX_DB_NAME = 'video_work_index_db_v1';
-const VIDEO_WORK_INDEX_DB_VERSION = 2; // v694: 기존 actresses multiEntry 인덱스를 메타검색 고속경로에서도 직접 사용
+const VIDEO_WORK_INDEX_DB_VERSION = 3; // v797: date 인덱스 추가 · 기존 ISO date 필드를 즉시 범위검색에 사용
 const VIDEO_WORK_INDEX_STORE = 'works';
 const VIDEO_WORK_INDEX_META_STORE = 'meta';
 
@@ -61534,6 +61985,31 @@ function normalizeVideoDmmContentIdToCode(contentId) {
   return raw.toUpperCase();
 }
 
+// v797: 작품 레코드에 숫자형 날짜키도 함께 저장한다.
+// 기존 DB는 재등록 없이도 v3의 date(ISO YYYY-MM-DD) 인덱스로 즉시 고속검색하고,
+// 새로 등록되는 레코드는 dateKey도 함께 가져 이후 확장에 사용할 수 있다.
+function makeVideoWorkDateKeyV797(value) {
+  const raw = String(value || '').normalize('NFKC').trim();
+  if (!raw) return null;
+  const m = raw.match(/^(\d{4})\s*[.\/-]\s*(\d{1,2})\s*[.\/-]\s*(\d{1,2})$/);
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (year < 1900 || year > 2200 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const d = new Date(Date.UTC(year, month - 1, day));
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) return null;
+  return year * 10000 + month * 100 + day;
+}
+
+function formatVideoWorkDateKeyIsoV797(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  const text = String(Math.trunc(n)).padStart(8, '0');
+  if (!/^\d{8}$/.test(text)) return '';
+  return `${text.slice(0,4)}-${text.slice(4,6)}-${text.slice(6,8)}`;
+}
+
 function compactVideoWorkRowForIdb(row, source = 'dmm', options = null) {
   if (!row || typeof row !== 'object') return null;
 
@@ -61638,6 +62114,7 @@ function compactVideoWorkRowForIdb(row, source = 'dmm', options = null) {
     titleKo,
     actresses,
     date,
+    dateKey: makeVideoWorkDateKeyV797(date),
     imageRef,
     productUrl,
     posterAvailable: row.posterAvailable ?? row.p ?? null,
@@ -61772,6 +62249,17 @@ function openVideoWorkIndexDb() {
           'actresses',
           { unique: false, multiEntry: true }
         );
+      }
+
+      // v797: 기존 AVWikiDB 레코드는 date가 YYYY-MM-DD라 별도 52만건 재작성 없이
+      // createIndex만으로 기존 레코드까지 즉시 날짜 범위 인덱싱된다.
+      if (!works.indexNames.contains('date')) {
+        works.createIndex('date', 'date', { unique: false });
+      }
+      // 새로 등록되는 레코드에는 숫자형 dateKey도 저장한다.
+      // 기존 레코드는 date 인덱스를 사용하므로 재등록/대규모 migration이 필요 없다.
+      if (!works.indexNames.contains('dateKey')) {
+        works.createIndex('dateKey', 'dateKey', { unique: false });
       }
 
       if (!db.objectStoreNames.contains(VIDEO_WORK_INDEX_META_STORE)) {
@@ -62926,6 +63414,52 @@ async function queryVideoWorkRecordListsByActressKeys(keys) {
     }
 
     return result;
+  } finally {
+    try { db.close(); } catch (_) {}
+  }
+}
+
+// v797: 날짜 단독/우선 검색용. 기존 date 문자열 인덱스를 사용하므로
+// v2 DB를 v3으로 열기만 하면 기존 레코드도 재등록 없이 고속 범위검색된다.
+async function queryVideoWorkRowsByDateRangeV797(minKey, maxKey) {
+  const minBound = (minKey !== null && minKey !== undefined && minKey !== '' && Number.isFinite(Number(minKey)))
+    ? Number(minKey)
+    : null;
+  const maxBound = (maxKey !== null && maxKey !== undefined && maxKey !== '' && Number.isFinite(Number(maxKey)))
+    ? Number(maxKey)
+    : null;
+  const minIso = Number.isFinite(minBound) ? formatVideoWorkDateKeyIsoV797(minBound) : '';
+  const maxIso = Number.isFinite(maxBound) ? formatVideoWorkDateKeyIsoV797(maxBound) : '';
+  if (!minIso && !maxIso) return [];
+
+  const db = await openVideoWorkIndexDb();
+  try {
+    const rows = [];
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(VIDEO_WORK_INDEX_STORE, 'readonly');
+      const store = tx.objectStore(VIDEO_WORK_INDEX_STORE);
+      if (!store.indexNames.contains('date')) {
+        reject(new Error('작품DB 날짜 인덱스가 없습니다. DB를 다시 열어 업그레이드하세요.'));
+        return;
+      }
+      const index = store.index('date');
+      const range = minIso && maxIso
+        ? IDBKeyRange.bound(minIso, maxIso)
+        : (minIso ? IDBKeyRange.lowerBound(minIso) : IDBKeyRange.upperBound(maxIso));
+      const req = index.openCursor(range);
+      req.onsuccess = event => {
+        const cursor = event.target.result;
+        if (!cursor) return;
+        const row = cursor.value;
+        if (row?.source === 'dmm' && row?.id) rows.push(row);
+        cursor.continue();
+      };
+      req.onerror = () => reject(req.error || new Error('작품DB 날짜 인덱스 조회 실패'));
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error || new Error('작품DB 날짜 조회 transaction 실패'));
+      tx.onabort = () => reject(tx.error || new Error('작품DB 날짜 조회 중단'));
+    });
+    return rows;
   } finally {
     try { db.close(); } catch (_) {}
   }
@@ -87413,7 +87947,7 @@ function syncVideoBulkSceneThumbUI() {
     btn.setAttribute('aria-pressed', 'true');
     updateVideoBulkThumbProgressOverlay();
   } else {
-    btn.textContent = '썸넬';
+    btn.textContent = '썸네일';
     btn.title = '현재 필터된 보유 영상 전체에 현재 썸넬 옵션으로 장면 WebP를 일괄 생성';
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
@@ -92251,19 +92785,15 @@ function createVideoWorkBookmarkButton(entry) {
 }
 
 function syncVideoBookmarkOnlyUI() {
+  // v792: 독립 하트 버튼은 제거하고 영상 정렬 셀렉트의 "북마크만보기"로 통합.
   const btn = document.getElementById('videoBookmarkOnlyBtn');
-  if (!btn) return;
+  if (btn) {
+    btn.classList.toggle('active', videoBookmarkOnly);
+    btn.setAttribute('aria-pressed', videoBookmarkOnly ? 'true' : 'false');
+  }
 
-  // 모양 크기가 달라지지 않도록 활성/비활성 모두 빈 하트 유지
-  btn.textContent = '♡';
-  btn.classList.toggle('active', videoBookmarkOnly);
-  btn.setAttribute(
-    'aria-pressed',
-    videoBookmarkOnly ? 'true' : 'false'
-  );
-  btn.title = videoBookmarkOnly
-    ? '북마크된 영상만 표시 중 · 클릭하면 전체 보기'
-    : '북마크된 영상만 보기';
+  const select = document.getElementById('videoSortSel');
+  if (select) select.value = getVideoSortSelectDisplayValue();
 }
 
 function toggleVideoBookmarkOnly() {
@@ -92281,6 +92811,7 @@ function toggleVideoBookmarkOnly() {
 }
 
 function getVideoSortSelectDisplayValue() {
+  if (videoBookmarkOnly) return 'bookmarkOnly';
   if (videoNoCodeOnly) return 'noCode';
   if (videoNoActressOnly) return 'noActress';
   if (videoDuplicateOnly) return 'duplicateOnly';
@@ -94765,7 +95296,11 @@ let videoRangeQuickDmmFilter = {
   seriesTerms: [],
   seriesMode: 'OR',
   actressExpression: '',
-  actressExpressionGroups: []
+  actressExpressionGroups: [],
+  dateMinKey: null,
+  dateMaxKey: null,
+  dateMinText: '',
+  dateMaxText: ''
 };
 
 function captureVideoRangeQuickDmmFilterFromControls() {
@@ -94774,6 +95309,7 @@ function captureVideoRangeQuickDmmFilterFromControls() {
   const titleEl = document.getElementById('videoRangeDmmTitleInput');
   const directActressEl = document.getElementById('videoRangeActressDirectInput');
   const rawOp = String(opEl?.value || 'any');
+  const dateSpec = getVideoRangeDateSpecV793();
   const videoAgeCondition = getVideoRangeVideoAgeCondition();
   const videoAgeBounds = getVideoRangeVideoAgeBoundsFromCondition(videoAgeCondition);
   videoRangeQuickDmmFilter = {
@@ -94784,6 +95320,10 @@ function captureVideoRangeQuickDmmFilterFromControls() {
     seriesMode: videoRangeSeriesMatchMode === 'AND' ? 'AND' : 'OR',
     actressExpression: normalizeVideoRangeActressExpressionText(directActressEl?.value || ''),
     actressExpressionGroups: buildVideoRangeDirectActressExpressionGroups(directActressEl?.value || ''),
+    dateMinKey: dateSpec && !dateSpec.error ? dateSpec.minKey : null,
+    dateMaxKey: dateSpec && !dateSpec.error ? dateSpec.maxKey : null,
+    dateMinText: dateSpec && !dateSpec.error ? dateSpec.minText : '',
+    dateMaxText: dateSpec && !dateSpec.error ? dateSpec.maxText : '',
     videoAgeMin: videoAgeBounds.min,
     videoAgeMax: videoAgeBounds.max,
     videoAgeActressKeys: getVideoRangeActressSelectedKeys()
@@ -94798,6 +95338,8 @@ function hasVideoRangeQuickDmmFilter() {
     !!String(videoRangeQuickDmmFilter?.title || '').trim() ||
     (Array.isArray(videoRangeQuickDmmFilter?.seriesTerms) && videoRangeQuickDmmFilter.seriesTerms.length > 0) ||
     !!String(videoRangeQuickDmmFilter?.actressExpression || '').trim() ||
+    Number.isFinite(videoRangeQuickDmmFilter?.dateMinKey) ||
+    Number.isFinite(videoRangeQuickDmmFilter?.dateMaxKey) ||
     Number.isFinite(videoRangeQuickDmmFilter?.videoAgeMin) ||
     Number.isFinite(videoRangeQuickDmmFilter?.videoAgeMax);
 }
@@ -94842,6 +95384,11 @@ function videoRangeDmmWorkMatchesQuickFilters(work) {
     if (!ok) return false;
   }
 
+  if (!videoDmmWorkMatchesDateCriteriaV793(work, {
+    dateMinKey: c.dateMinKey,
+    dateMaxKey: c.dateMaxKey
+  })) return false;
+
   if (!videoDmmWorkMatchesVideoAgeCriteria(work, {
     videoAgeMin: c.videoAgeMin,
     videoAgeMax: c.videoAgeMax,
@@ -94866,6 +95413,15 @@ function getVideoRangeQuickDmmFilterLabel() {
   if (actressExpression) parts.push(`직접배우:${actressExpression}`);
   const title = String(videoRangeQuickDmmFilter?.title || '').trim();
   if (title) parts.push(`제목:${title}`);
+  if (Number.isFinite(videoRangeQuickDmmFilter?.dateMinKey) || Number.isFinite(videoRangeQuickDmmFilter?.dateMaxKey)) {
+    const min = Number.isFinite(videoRangeQuickDmmFilter?.dateMinKey)
+      ? (videoRangeQuickDmmFilter.dateMinText || formatVideoMetaDateKeyV793(videoRangeQuickDmmFilter.dateMinKey))
+      : '처음';
+    const max = Number.isFinite(videoRangeQuickDmmFilter?.dateMaxKey)
+      ? (videoRangeQuickDmmFilter.dateMaxText || formatVideoMetaDateKeyV793(videoRangeQuickDmmFilter.dateMaxKey))
+      : '최신';
+    parts.push(`날짜:${min}~${max}`);
+  }
   if (Number.isFinite(videoRangeQuickDmmFilter?.videoAgeMin) || Number.isFinite(videoRangeQuickDmmFilter?.videoAgeMax)) {
     const min = Number.isFinite(videoRangeQuickDmmFilter?.videoAgeMin) ? `${videoRangeQuickDmmFilter.videoAgeMin}세` : '최소';
     const max = Number.isFinite(videoRangeQuickDmmFilter?.videoAgeMax) ? `${videoRangeQuickDmmFilter.videoAgeMax}세` : '최대';
@@ -96920,6 +97476,8 @@ function captureVideoRangeConditionSnapshotV773() {
     actressDirect: getValue('videoRangeActressDirectInput'),
     minCode: getValue('videoRangeMinInput'),
     maxCode: getValue('videoRangeMaxInput'),
+    dateMin: getValue('videoRangeDateMinInput'),
+    dateMax: getValue('videoRangeDateMaxInput'),
 
     dmmCount: getValue('videoRangeDmmActressCount') || '1',
     dmmOp: getValue('videoRangeDmmActressOp') || 'any',
@@ -96964,6 +97522,8 @@ function hasMeaningfulVideoRangeConditionV773(snapshot) {
     String(s.actressDirect || '').trim() ||
     String(s.minCode || '').trim() ||
     String(s.maxCode || '').trim() ||
+    String(s.dateMin || '').trim() ||
+    String(s.dateMax || '').trim() ||
     String(s.title || '').trim() ||
     String(s.arbitraryInput || '').trim() ||
 
@@ -97018,6 +97578,8 @@ function resetVideoRangeSearchConditionsV773({ render = true } = {}) {
   setValue('videoRangeActressDirectInput', '');
   setValue('videoRangeMinInput', '');
   setValue('videoRangeMaxInput', '');
+  setValue('videoRangeDateMinInput', '');
+  setValue('videoRangeDateMaxInput', '');
 
   setValue('videoRangeDmmActressCount', '1');
   setValue('videoRangeDmmActressOp', 'any');
@@ -97033,7 +97595,11 @@ function resetVideoRangeSearchConditionsV773({ render = true } = {}) {
     seriesTerms: [],
     seriesMode: 'OR',
     actressExpression: '',
-    actressExpressionGroups: []
+    actressExpressionGroups: [],
+    dateMinKey: null,
+    dateMaxKey: null,
+    dateMinText: '',
+    dateMaxText: ''
   };
 
   const titleInput = setValue('videoRangeDmmTitleInput', '');
@@ -97115,6 +97681,8 @@ function restoreVideoRangePreviousConditionV773() {
   setValue('videoRangeActressDirectInput', snapshot.actressDirect || '');
   setValue('videoRangeMinInput', snapshot.minCode || '');
   setValue('videoRangeMaxInput', snapshot.maxCode || '');
+  setValue('videoRangeDateMinInput', snapshot.dateMin || '');
+  setValue('videoRangeDateMaxInput', snapshot.dateMax || '');
 
   setValue('videoRangeDmmActressCount', snapshot.dmmCount || '1');
   setValue('videoRangeDmmActressOp', snapshot.dmmOp || 'any');
@@ -97489,6 +98057,22 @@ function initVideoRangeLabelLayer() {
     event.stopPropagation();
     startVideoDmmWorkSearchFromRangePanel().catch(error => {
       console.error('[범위창 DMM검색] Enter 검색 실패', error);
+    });
+  });
+
+  ['videoRangeDateMinInput', 'videoRangeDateMaxInput'].forEach((id, index) => {
+    const el = document.getElementById(id);
+    el?.addEventListener('keydown', event => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      event.stopPropagation();
+      startVideoDmmWorkSearchFromRangePanel().catch(error => {
+        console.error('[범위창 작품날짜 검색] Enter 검색 실패', error);
+      });
+    });
+    el?.addEventListener('blur', () => {
+      const parsed = parseVideoMetaDateInputV793(el.value, index === 0 ? 'min' : 'max');
+      if (parsed && !parsed.empty && !parsed.error) el.value = parsed.text;
     });
   });
 
@@ -97907,7 +98491,16 @@ function activateVideoRangeViewFromInputs() {
     return false;
   }
 
-  // v389: 범위적용 시점의 인원수/제목 조건을 빠른 범위필터용으로 캡처한다.
+  // v793: 날짜 입력도 범위적용의 빠른 작품필터에 포함한다.
+  const dateSpecV793 = getVideoRangeDateSpecV793({ normalizeInputs:true });
+  if (dateSpecV793?.error) {
+    videoRangeViewOn = false;
+    syncVideoRangeViewUI();
+    if (typeof showToast === 'function') showToast(dateSpecV793.error, 2600);
+    return false;
+  }
+
+  // v389: 범위적용 시점의 인원수/제목/날짜 조건을 빠른 범위필터용으로 캡처한다.
   captureVideoRangeQuickDmmFilterFromControls();
 
   if (videoActressPosterWallOn) {
@@ -98052,7 +98645,7 @@ function syncVideoDmmWorkSearchUI() {
           ? `AVWikiDB 작품DB 검색 중단 · ${criteriaLabel} · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 부분결과 ${count.toLocaleString()}개 · 클릭하면 조건창을 다시 엽니다.`
           : `AVWikiDB 작품DB 검색 · ${criteriaLabel} · 결과 ${count.toLocaleString()}개 · 클릭하면 조건창을 다시 엽니다.`);
   } else {
-    btn.title = '범위 품번 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 검색';
+    btn.title = '범위 품번 + 작품 날짜 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 검색';
   }
 
   try { syncVideoRangeViewUI(); } catch (_) {}
@@ -98253,6 +98846,136 @@ function getVideoDmmPrimarySearchName(value) {
   return raw;
 }
 
+// ============================================================
+// v793: 메타검색 작품날짜 입력/검색
+// - 지원: 2020.01.01 / 20.01.01 / 2020-01-01 / 2020/01/01 / 2020.01 / 2020
+// - 최소값: 빠진 월/일은 1월 1일 방향으로 보정
+// - 최대값: 연도만 입력하면 12월 31일, 연월만 입력하면 해당 월 말일로 보정
+// ============================================================
+function expandVideoMetaTwoDigitYearV793(value) {
+  const text = String(value || '').trim();
+  const n = Number(text);
+  if (!Number.isFinite(n)) return NaN;
+  if (text.length === 2) return n >= 70 ? 1900 + n : 2000 + n;
+  return n;
+}
+
+function getVideoMetaDaysInMonthV793(year, month) {
+  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) return 0;
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+function formatVideoMetaDateKeyV793(key) {
+  const n = Number(key);
+  if (!Number.isFinite(n)) return '';
+  const year = Math.floor(n / 10000);
+  const month = Math.floor((n % 10000) / 100);
+  const day = n % 100;
+  return `${String(year).padStart(4, '0')}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`;
+}
+
+function parseVideoMetaDateInputV793(rawValue, bound = 'min') {
+  const raw = String(rawValue ?? '').normalize('NFKC').trim();
+  if (!raw) return { empty:true, raw:'', key:null, text:'' };
+
+  // 공백은 무시하고 점/하이픈/슬래시를 모두 같은 구분자로 취급한다.
+  const compact = raw.replace(/\s+/g, '');
+  const match = compact.match(/^(\d{2}|\d{4})(?:[.\/-](\d{1,2}))?(?:[.\/-](\d{1,2}))?$/);
+  if (!match) {
+    return {
+      error: `날짜 형식을 확인하세요: ${raw} · 예) 2020.01.01`,
+      raw
+    };
+  }
+
+  const year = expandVideoMetaTwoDigitYearV793(match[1]);
+  let month = match[2] ? Number(match[2]) : null;
+  let day = match[3] ? Number(match[3]) : null;
+  if (!Number.isInteger(year) || year < 1900 || year > 2099) {
+    return { error:`연도 범위를 확인하세요: ${raw}`, raw };
+  }
+
+  const isMax = String(bound || '').toLowerCase() === 'max';
+  if (month == null) month = isMax ? 12 : 1;
+  if (!Number.isInteger(month) || month < 1 || month > 12) {
+    return { error:`월 범위를 확인하세요: ${raw}`, raw };
+  }
+
+  const lastDay = getVideoMetaDaysInMonthV793(year, month);
+  if (day == null) day = isMax ? lastDay : 1;
+  if (!Number.isInteger(day) || day < 1 || day > lastDay) {
+    return { error:`일자를 확인하세요: ${raw}`, raw };
+  }
+
+  const key = year * 10000 + month * 100 + day;
+  return {
+    empty:false,
+    raw,
+    year,
+    month,
+    day,
+    key,
+    text: formatVideoMetaDateKeyV793(key)
+  };
+}
+
+function getVideoRangeDateSpecV793({ normalizeInputs = false } = {}) {
+  const minEl = document.getElementById('videoRangeDateMinInput');
+  const maxEl = document.getElementById('videoRangeDateMaxInput');
+  const min = parseVideoMetaDateInputV793(minEl?.value || '', 'min');
+  const max = parseVideoMetaDateInputV793(maxEl?.value || '', 'max');
+
+  if (min?.error) return { error:min.error };
+  if (max?.error) return { error:max.error };
+
+  const minKey = Number.isFinite(min?.key) ? min.key : null;
+  const maxKey = Number.isFinite(max?.key) ? max.key : null;
+  if (Number.isFinite(minKey) && Number.isFinite(maxKey) && minKey > maxKey) {
+    return { error:`최소 날짜가 최대 날짜보다 늦습니다: ${min.text} ~ ${max.text}` };
+  }
+
+  if (normalizeInputs) {
+    if (minEl && !min.empty) minEl.value = min.text;
+    if (maxEl && !max.empty) maxEl.value = max.text;
+  }
+
+  return {
+    minKey,
+    maxKey,
+    minText: Number.isFinite(minKey) ? min.text : '',
+    maxText: Number.isFinite(maxKey) ? max.text : ''
+  };
+}
+
+function getVideoDmmWorkDateKeyV793(row) {
+  const raw = String(row?.date ?? row?.d ?? '').normalize('NFKC').trim();
+  if (!raw) return null;
+  const parsed = parseVideoMetaDateInputV793(raw, 'min');
+  return parsed && !parsed.error && Number.isFinite(parsed.key) ? parsed.key : null;
+}
+
+// v796: 날짜 조건이 비어 있을 때 null을 Number(null)로 변환하면 0이 되어
+// 모든 작품이 0 이하 날짜 조건으로 잘못 필터링되던 문제 수정.
+// null / undefined / 빈문자열은 반드시 "날짜 조건 없음"으로 유지한다.
+function normalizeVideoMetaDateBoundKeyV796(value) {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'string' && !value.trim()) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function videoDmmWorkMatchesDateCriteriaV793(row, criteria = {}) {
+  const minKey = normalizeVideoMetaDateBoundKeyV796(criteria?.dateMinKey);
+  const maxKey = normalizeVideoMetaDateBoundKeyV796(criteria?.dateMaxKey);
+  if (!Number.isFinite(minKey) && !Number.isFinite(maxKey)) return true;
+
+  const workDateKey = getVideoDmmWorkDateKeyV793(row);
+  if (!Number.isFinite(workDateKey)) return false;
+  if (Number.isFinite(minKey) && workDateKey < minKey) return false;
+  if (Number.isFinite(maxKey) && workDateKey > maxKey) return false;
+  return true;
+}
+
 function normalizeVideoDmmWorkSearchCriteria(criteria = {}) {
   // 화면에 다시 열었을 때 사용자가 입력한 영문 대소문자는 최대한 유지한다.
   // 실제 비교할 때만 normalizeVideoDmmWorkSearchText()로 소문자 정규화한다.
@@ -98309,12 +99032,18 @@ function normalizeVideoDmmWorkSearchCriteria(criteria = {}) {
       const start = Number(item?.start);
       const end = Number(item?.end);
       if (!prefix || !Number.isFinite(start) || !Number.isFinite(end)) return null;
+      const widthRaw = Number(item?.width);
+      const selectedWidthRaw = Number(item?.selectedWidth);
+      const selectedPrefix = String(item?.selectedPrefix || '').normalize('NFKC').trim().toUpperCase();
       return {
         prefix,
         start,
         end,
         minCode: String(item?.minCode || '').trim(),
-        maxCode: String(item?.maxCode || '').trim()
+        maxCode: String(item?.maxCode || '').trim(),
+        width: Number.isFinite(widthRaw) && widthRaw > 0 ? Math.trunc(widthRaw) : null,
+        selectedPrefix: selectedPrefix || '',
+        selectedWidth: Number.isFinite(selectedWidthRaw) && selectedWidthRaw > 0 ? Math.trunc(selectedWidthRaw) : null
       };
     })
     .filter(Boolean);
@@ -98335,6 +99064,10 @@ function normalizeVideoDmmWorkSearchCriteria(criteria = {}) {
     rangeMin: String(criteria.rangeMin || '').normalize('NFKC').trim(),
     rangeMax: String(criteria.rangeMax || '').normalize('NFKC').trim(),
     ranges,
+    dateMinKey: (criteria.dateMinKey !== null && criteria.dateMinKey !== undefined && criteria.dateMinKey !== '' && Number.isFinite(Number(criteria.dateMinKey))) ? Number(criteria.dateMinKey) : null,
+    dateMaxKey: (criteria.dateMaxKey !== null && criteria.dateMaxKey !== undefined && criteria.dateMaxKey !== '' && Number.isFinite(Number(criteria.dateMaxKey))) ? Number(criteria.dateMaxKey) : null,
+    dateMinText: String(criteria.dateMinText || '').normalize('NFKC').trim(),
+    dateMaxText: String(criteria.dateMaxText || '').normalize('NFKC').trim(),
     videoAgeMin: (criteria.videoAgeMin !== null && criteria.videoAgeMin !== undefined && criteria.videoAgeMin !== '' && Number.isFinite(Number(criteria.videoAgeMin))) ? Number(criteria.videoAgeMin) : null,
     videoAgeMax: (criteria.videoAgeMax !== null && criteria.videoAgeMax !== undefined && criteria.videoAgeMax !== '' && Number.isFinite(Number(criteria.videoAgeMax))) ? Number(criteria.videoAgeMax) : null,
     videoAgeActressKeys: (Array.isArray(criteria.videoAgeActressKeys) ? criteria.videoAgeActressKeys : [])
@@ -98377,6 +99110,8 @@ function hasVideoDmmWorkSearchCriteria(criteria = videoDmmWorkSearchCriteria) {
     c.seriesTerms.length ||
     c.ranges.length ||
     (c.rangePrefix && c.rangeStart !== null && c.rangeEnd !== null) ||
+    Number.isFinite(c.dateMinKey) ||
+    Number.isFinite(c.dateMaxKey) ||
     Number.isFinite(c.videoAgeMin) ||
     Number.isFinite(c.videoAgeMax) ||
     String(videoDmmWorkActressCountOp || 'any') !== 'any'
@@ -98397,7 +99132,9 @@ function getVideoDmmWorkSearchCriteriaSignature(criteria = videoDmmWorkSearchCri
     rangePrefix: c.rangePrefix,
     rangeStart: c.rangeStart,
     rangeEnd: c.rangeEnd,
-    ranges: c.ranges.map(r => [r.prefix, r.start, r.end]),
+    ranges: c.ranges.map(r => [r.prefix, r.start, r.end, r.selectedPrefix || '', r.selectedWidth || null]),
+    dateMinKey: c.dateMinKey,
+    dateMaxKey: c.dateMaxKey,
     videoAgeMin: c.videoAgeMin,
     videoAgeMax: c.videoAgeMax,
     videoAgeActressKeys: c.videoAgeActressKeys.slice().sort(),
@@ -98419,11 +99156,32 @@ function getVideoDmmWorkSearchDisplayText(criteria = videoDmmWorkSearchCriteria)
   }
   if (c.actressExpression) parts.push(`직접배우:${c.actressExpression}`);
   if (c.ranges.length > 1) {
-    parts.push(`범위OR:${c.ranges.map(r => `${r.minCode || (r.prefix + '-' + r.start)}~${r.maxCode || (r.prefix + '-' + r.end)}`).join(' / ')}`);
+    parts.push(`범위OR:${c.ranges.map(r => {
+      const base = `${r.minCode || (r.prefix + '-' + r.start)}~${r.maxCode || (r.prefix + '-' + r.end)}`;
+      const chosenPrefix = String(r.selectedPrefix || '').trim();
+      const choice = chosenPrefix || r.selectedWidth
+        ? `→${chosenPrefix || r.prefix}${r.selectedWidth ? `(${r.selectedWidth}자리)` : ''}`
+        : '';
+      return `${base}${choice}`;
+    }).join(' / ')}`);
   } else if (c.rangePrefix && c.rangeStart !== null && c.rangeEnd !== null) {
-    parts.push(`범위:${c.rangeMin || (c.rangePrefix + '-' + c.rangeStart)}~${c.rangeMax || (c.rangePrefix + '-' + c.rangeEnd)}`);
+    const one = c.ranges[0];
+    const chosenPrefix = String(one?.selectedPrefix || '').trim();
+    const choice = chosenPrefix || one?.selectedWidth
+      ? `→${chosenPrefix || one?.prefix || c.rangePrefix}${one?.selectedWidth ? `(${one.selectedWidth}자리)` : ''}`
+      : '';
+    parts.push(`범위:${c.rangeMin || (c.rangePrefix + '-' + c.rangeStart)}~${c.rangeMax || (c.rangePrefix + '-' + c.rangeEnd)}${choice}`);
   }
   if (c.code) parts.push(`품번:${c.code}`);
+  if (Number.isFinite(c.dateMinKey) || Number.isFinite(c.dateMaxKey)) {
+    const min = Number.isFinite(c.dateMinKey)
+      ? (c.dateMinText || formatVideoMetaDateKeyV793(c.dateMinKey))
+      : '처음';
+    const max = Number.isFinite(c.dateMaxKey)
+      ? (c.dateMaxText || formatVideoMetaDateKeyV793(c.dateMaxKey))
+      : '최신';
+    parts.push(`날짜:${min}~${max}`);
+  }
   if (c.title) parts.push(`제목:${c.title}`);
   if (Number.isFinite(c.videoAgeMin) || Number.isFinite(c.videoAgeMax)) {
     const min = Number.isFinite(c.videoAgeMin) ? `${c.videoAgeMin}세` : '최소';
@@ -98508,7 +99266,14 @@ function videoDmmWorkMatchesRangeCriteria(row, criteria) {
     const parsed = parseVideoRangeCode(value);
     if (!parsed || parsed.unsupported) continue;
     const parsedPrefix = String(parsed.prefix || '').toUpperCase();
-    if (wantedRanges.some(r => parsedPrefix === r.prefix && parsed.number >= r.start && parsed.number <= r.end)) return true;
+    if (wantedRanges.some(r => {
+      const selectedPrefix = String(r?.selectedPrefix || r?.prefix || '').normalize('NFKC').trim().toUpperCase();
+      const selectedWidth = Number(r?.selectedWidth);
+      return parsedPrefix === selectedPrefix &&
+        parsed.number >= r.start &&
+        parsed.number <= r.end &&
+        (!Number.isFinite(selectedWidth) || selectedWidth <= 0 || parsed.width === selectedWidth);
+    })) return true;
   }
 
   return false;
@@ -98518,6 +99283,8 @@ function syncVideoRangeDmmSearchControls() {
   const countEl = document.getElementById('videoRangeDmmActressCount');
   const opEl = document.getElementById('videoRangeDmmActressOp');
   const titleEl = document.getElementById('videoRangeDmmTitleInput');
+  const dateMinEl = document.getElementById('videoRangeDateMinInput');
+  const dateMaxEl = document.getElementById('videoRangeDateMaxInput');
   const directActressEl = document.getElementById('videoRangeActressDirectInput');
 
   if (countEl) {
@@ -98532,6 +99299,22 @@ function syncVideoRangeDmmSearchControls() {
   // 활성 DMM검색 조건을 다시 열었을 때만 제목을 복원한다.
   if (titleEl && videoDmmWorkSearchOn) {
     titleEl.value = String(videoDmmWorkSearchCriteria?.title || '');
+  }
+  if (dateMinEl && videoDmmWorkSearchOn) {
+    dateMinEl.value = String(
+      videoDmmWorkSearchCriteria?.dateMinText ||
+      (Number.isFinite(videoDmmWorkSearchCriteria?.dateMinKey)
+        ? formatVideoMetaDateKeyV793(videoDmmWorkSearchCriteria.dateMinKey)
+        : '')
+    );
+  }
+  if (dateMaxEl && videoDmmWorkSearchOn) {
+    dateMaxEl.value = String(
+      videoDmmWorkSearchCriteria?.dateMaxText ||
+      (Number.isFinite(videoDmmWorkSearchCriteria?.dateMaxKey)
+        ? formatVideoMetaDateKeyV793(videoDmmWorkSearchCriteria.dateMaxKey)
+        : '')
+    );
   }
   if (directActressEl && videoDmmWorkSearchOn) {
     directActressEl.value = String(videoDmmWorkSearchCriteria?.actressExpression || '');
@@ -98568,6 +99351,12 @@ async function startVideoDmmWorkSearchFromRangePanel() {
     }
   }
 
+  const dateSpec = getVideoRangeDateSpecV793({ normalizeInputs:true });
+  if (dateSpec?.error) {
+    if (typeof showToast === 'function') showToast(dateSpec.error, 2800);
+    return false;
+  }
+
   const countEl = document.getElementById('videoRangeDmmActressCount');
   const opEl = document.getElementById('videoRangeDmmActressOp');
   const titleEl = document.getElementById('videoRangeDmmTitleInput');
@@ -98587,7 +99376,7 @@ async function startVideoDmmWorkSearchFromRangePanel() {
   const actressCriteria = getVideoRangeDmmSearchActressCriteria();
   const videoAgeCondition = getVideoRangeVideoAgeCondition();
   const videoAgeBounds = getVideoRangeVideoAgeBoundsFromCondition(videoAgeCondition);
-  const criteria = normalizeVideoDmmWorkSearchCriteria({
+  let criteria = normalizeVideoDmmWorkSearchCriteria({
     actresses: actressCriteria.actresses,
     actressGroups: actressCriteria.actressGroups,
     actressMode: videoRangeActressMatchMode === 'AND' ? 'AND' : 'OR',
@@ -98601,14 +99390,26 @@ async function startVideoDmmWorkSearchFromRangePanel() {
     rangeMin: rangeSpec && !rangeSpec.multi ? rangeSpec.minCode : '',
     rangeMax: rangeSpec && !rangeSpec.multi ? rangeSpec.maxCode : '',
     ranges: rangeSpec ? rangeSpec.ranges : [],
+    dateMinKey: dateSpec.minKey,
+    dateMaxKey: dateSpec.maxKey,
+    dateMinText: dateSpec.minText,
+    dateMaxText: dateSpec.maxText,
     videoAgeMin: videoAgeBounds.min,
     videoAgeMax: videoAgeBounds.max,
     videoAgeActressKeys: getVideoRangeActressSelectedKeys()
   });
 
+  // v799: 숫자 보안코드 유무(예: NTK / 300NTK)와 숫자 자릿수(001 / 0001)를
+  // 함께 검사해 실제 작품군이 둘 이상이면 웹뷰어 내부 선택창으로 하나를 고른다.
+  if (Array.isArray(criteria.ranges) && criteria.ranges.length) {
+    const variantResolved = await resolveVideoDmmRangeVariantAmbiguityV799(criteria);
+    if (variantResolved?.cancelled) return false;
+    criteria = variantResolved?.criteria || criteria;
+  }
+
   if (!hasVideoDmmWorkSearchCriteria(criteria)) {
     if (typeof showToast === 'function') {
-      showToast('범위 · 배우 · 제목 · 시리즈 · 영상나이 중 하나를 지정하거나 출연 인원 조건을 선택하세요.', 2400);
+      showToast('범위 · 작품날짜 · 배우 · 제목 · 시리즈 · 영상나이 중 하나를 지정하거나 출연 인원 조건을 선택하세요.', 2400);
     }
     return false;
   }
@@ -99105,6 +99906,11 @@ function videoDmmWorkMatchesSearch(row, criteria = videoDmmWorkSearchCriteria) {
     return false;
   }
 
+  // v793: 작품 날짜 범위 조건. 날짜가 없는 작품은 날짜 검색 중에는 제외한다.
+  if (!videoDmmWorkMatchesDateCriteriaV793(row, c)) {
+    return false;
+  }
+
   // v620: 작품 출시일 당시 배우 나이 조건.
   if (!videoDmmWorkMatchesVideoAgeCriteria(row, c)) {
     return false;
@@ -99586,6 +100392,430 @@ function finishVideoDmmIndexedSearchV694(rows, normalizedCriteria, ownedKeys, ow
   return result;
 }
 
+// v797: DMM검색의 품번 범위도 전체 source cursor를 돌지 않는다.
+// 범위의 품번그룹 lookupKey(예: 036GS)를 한 번 조회한 뒤 실제 숫자범위는 후필터한다.
+// 단일품번 범위(start=end)는 정확 품번 lookupKeys를 사용한다.
+function buildVideoDmmRangeIndexPlanV797(criteria) {
+  const c = criteria?.__videoDmmPrepared
+    ? criteria
+    : prepareVideoDmmWorkSearchCriteria(criteria || {});
+
+  const ranges = Array.isArray(c.ranges) && c.ranges.length
+    ? c.ranges
+    : (c.rangePrefix && c.rangeStart !== null && c.rangeEnd !== null
+        ? [{
+            prefix: c.rangePrefix,
+            start: c.rangeStart,
+            end: c.rangeEnd,
+            minCode: c.rangeMin || `${c.rangePrefix}-${c.rangeStart}`,
+            maxCode: c.rangeMax || `${c.rangePrefix}-${c.rangeEnd}`
+          }]
+        : []);
+
+  const keys = new Set();
+  for (const range of ranges) {
+    const start = Number(range?.start);
+    const end = Number(range?.end);
+    const prefix = String(range?.prefix || '').normalize('NFKC').trim().toUpperCase();
+    const selectedPrefix = String(range?.selectedPrefix || '').normalize('NFKC').trim().toUpperCase();
+    const searchPrefix = selectedPrefix || prefix;
+    const selectedWidthRaw = Number(range?.selectedWidth);
+    const widthRaw = Number(range?.width);
+    const searchWidth = Number.isFinite(selectedWidthRaw) && selectedWidthRaw > 0
+      ? Math.trunc(selectedWidthRaw)
+      : (Number.isFinite(widthRaw) && widthRaw > 0 ? Math.trunc(widthRaw) : 0);
+    const minCode = String(range?.minCode || '').normalize('NFKC').trim().toUpperCase();
+    if (!searchPrefix || !Number.isFinite(start) || !Number.isFinite(end)) continue;
+
+    if (start === end) {
+      const exactCode = `${searchPrefix}-${searchWidth > 0 ? String(start).padStart(searchWidth, '0') : String(start)}`;
+      for (const key of buildVideoWorkLookupKeys(exactCode)) {
+        if (key) keys.add(key);
+      }
+      continue;
+    }
+
+    const sampleCode = `${searchPrefix}-${searchWidth > 0 ? String(start).padStart(searchWidth, '0') : String(start)}`;
+    const groupKey = getVideoWorkCatalogGroupLookupKeyV762(sampleCode) || normalizeVideoWorkStrictKey(searchPrefix);
+    if (groupKey) keys.add(groupKey);
+  }
+
+  return {
+    hasRange: ranges.length > 0,
+    keys: Array.from(keys)
+  };
+}
+
+async function queryVideoDmmRangeCandidatesV797(criteria) {
+  const plan = buildVideoDmmRangeIndexPlanV797(criteria);
+  if (!plan.hasRange || !plan.keys.length) return null;
+  const map = await queryVideoWorkRecordListsByKeys(plan.keys);
+  return makeVideoWorkRowMapV694(flattenVideoWorkRecordLists(map));
+}
+
+
+// v799: 보안코드 유무와 숫자 자릿수를 하나의 "실제 품번군"으로 판정한다.
+// 예: NTK-001 / 300NTK-001 / NTK-0001 이 함께 있으면 각각 독립 선택지로 표시.
+function ensureVideoDmmRangeVariantChoiceLayerV799() {
+  let layer = document.getElementById('videoDmmRangeVariantChoiceLayer');
+  if (layer) return layer;
+
+  layer = document.createElement('div');
+  layer.id = 'videoDmmRangeVariantChoiceLayer';
+  layer.setAttribute('role', 'dialog');
+  layer.setAttribute('aria-modal', 'true');
+  layer.setAttribute('aria-labelledby', 'videoDmmRangeVariantChoiceTitle');
+  layer.innerHTML = `
+    <div class="videoMissingViewChoicePanel">
+      <div class="videoMissingViewChoiceHead">
+        <div class="videoMissingViewChoiceIcon">#</div>
+        <div>
+          <div class="videoMissingViewChoiceTitle" id="videoDmmRangeVariantChoiceTitle">품번 계열 선택</div>
+          <div class="videoMissingViewChoiceText" id="videoDmmRangeVariantChoiceText">같은 품번으로 연결될 수 있는 실제 작품군이 여러 개 있습니다.</div>
+        </div>
+      </div>
+      <div class="videoMissingViewChoiceCode" id="videoDmmRangeVariantChoiceCode"></div>
+      <div class="videoDmmRangeVariantChoiceList" id="videoDmmRangeVariantChoiceList"></div>
+      <div class="videoMissingViewChoiceCancelRow">
+        <button type="button" class="videoMissingViewChoiceBtn cancel" id="videoDmmRangeVariantChoiceCancelBtn">취소</button>
+      </div>
+      <div class="videoMissingViewChoiceHint">보안코드 유무와 작품번호 자릿수는 실제 DB에 존재하는 계열만 표시합니다.</div>
+    </div>`;
+  document.body.appendChild(layer);
+  return layer;
+}
+
+function getVideoDmmRangeVariantRepresentativePosterV800(option) {
+  const opt = option && typeof option === 'object' ? option : {};
+  const row = opt.representativeRow && typeof opt.representativeRow === 'object'
+    ? opt.representativeRow
+    : null;
+
+  // AVWikiDB 원본 i(imageRef)가 있으면 가장 정확하고 추가 조회도 필요 없다.
+  try {
+    const exact = resolveVideoAvwikidbWorkPosterUrl(String(row?.imageRef || '').trim());
+    if (exact) return exact;
+  } catch (_) {}
+
+  // i가 없는 예외 작품은 기존 포스터 후보 생성기를 그대로 재사용한다.
+  try {
+    const code = String(opt.firstCode || row?.code || '').trim();
+    if (code && typeof makeVideoAvdbsOnlinePosterCandidates === 'function') {
+      const candidates = makeVideoAvdbsOnlinePosterCandidates(code, row);
+      const first = Array.isArray(candidates)
+        ? candidates.find(url => String(url || '').trim())
+        : '';
+      if (first) return String(first).trim();
+    }
+  } catch (_) {}
+
+  return '';
+}
+
+function showVideoDmmRangeVariantChoiceV799(range, options) {
+  const list = Array.isArray(options) ? options : [];
+  if (!list.length) return Promise.resolve(null);
+  if (list.length === 1) return Promise.resolve(list[0]);
+
+  const layer = ensureVideoDmmRangeVariantChoiceLayerV799();
+  const codeEl = layer.querySelector('#videoDmmRangeVariantChoiceCode');
+  const textEl = layer.querySelector('#videoDmmRangeVariantChoiceText');
+  const listEl = layer.querySelector('#videoDmmRangeVariantChoiceList');
+  const cancelBtn = layer.querySelector('#videoDmmRangeVariantChoiceCancelBtn');
+  const inputPrefix = String(range?.prefix || '').normalize('NFKC').trim().toUpperCase();
+  const inputWidth = Number(range?.width);
+  const inputCode = String(range?.minCode || `${inputPrefix}-${range?.start ?? ''}`).trim();
+
+  if (codeEl) codeEl.textContent = inputCode;
+  if (textEl) {
+    textEl.textContent = '보안코드가 붙은 품번/없는 품번 또는 숫자 자릿수가 다른 작품군이 함께 있습니다. 검색할 계열을 선택하세요.';
+  }
+  if (listEl) {
+    listEl.innerHTML = '';
+    list.forEach((opt, index) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'videoDmmRangeVariantChoiceBtn';
+      btn.dataset.variantIndex = String(index);
+      const isPreferred = String(opt?.prefix || '') === inputPrefix && Number(opt?.width) === inputWidth;
+      if (isPreferred) btn.classList.add('is-preferred');
+
+      const sample = String(opt?.firstCode || `${opt?.prefix || inputPrefix}-${String(range?.start ?? '').padStart(Number(opt?.width) || 0, '0')}`);
+      const security = parseVideoSecurityCatalogGroupV762(String(opt?.prefix || ''));
+      const securityLabel = security ? `보안코드 ${security.s}` : '보안코드 없음';
+      const inner = document.createElement('div');
+      inner.className = 'videoDmmRangeVariantChoiceInner';
+
+      const posterWrap = document.createElement('div');
+      posterWrap.className = 'videoDmmRangeVariantChoicePosterWrap';
+      posterWrap.title = '대표 포스터 · 마우스를 올리면 확대';
+      const posterUrl = getVideoDmmRangeVariantRepresentativePosterV800(opt);
+      if (posterUrl) {
+        const img = document.createElement('img');
+        img.className = 'videoDmmRangeVariantChoicePoster';
+        img.alt = `${sample} 대표 포스터`;
+        img.src = posterUrl;
+        img.decoding = 'async';
+        img.addEventListener('error', () => {
+          img.remove();
+          if (!posterWrap.querySelector('.videoDmmRangeVariantChoicePosterFallback')) {
+            const fallback = document.createElement('span');
+            fallback.className = 'videoDmmRangeVariantChoicePosterFallback';
+            fallback.textContent = 'NO\nPOSTER';
+            fallback.style.whiteSpace = 'pre-line';
+            posterWrap.appendChild(fallback);
+          }
+        }, { once:true });
+        posterWrap.appendChild(img);
+      } else {
+        const fallback = document.createElement('span');
+        fallback.className = 'videoDmmRangeVariantChoicePosterFallback';
+        fallback.textContent = 'NO\nPOSTER';
+        fallback.style.whiteSpace = 'pre-line';
+        posterWrap.appendChild(fallback);
+      }
+
+      const body = document.createElement('div');
+      body.className = 'videoDmmRangeVariantChoiceBody';
+      const main = document.createElement('div');
+      main.className = 'videoDmmRangeVariantChoiceMain';
+      const title = document.createElement('span');
+      title.textContent = `${sample} 계열`;
+      main.appendChild(title);
+      if (isPreferred) {
+        const badge = document.createElement('span');
+        badge.className = 'videoDmmRangeVariantChoiceBadge';
+        badge.textContent = '입력과 동일';
+        main.appendChild(badge);
+      }
+      const meta = document.createElement('div');
+      meta.className = 'videoDmmRangeVariantChoiceMeta';
+      meta.textContent = `${securityLabel} · 숫자 ${opt.width}자리 · 현재 범위 ${Number(opt.count || 0).toLocaleString()}작품`;
+      body.append(main, meta);
+      // v801: 품번/설명 다음에 대표 포스터가 오도록 오른쪽 배치
+      inner.append(body, posterWrap);
+      btn.appendChild(inner);
+      listEl.appendChild(btn);
+    });
+  }
+
+  return new Promise(resolve => {
+    let settled = false;
+    const finish = value => {
+      if (settled) return;
+      settled = true;
+      layer.classList.remove('is-visible');
+      layer.onclick = null;
+      layer.onmousedown = null;
+      if (cancelBtn) cancelBtn.onclick = null;
+      document.removeEventListener('keydown', onKey, true);
+      resolve(value || null);
+    };
+    const onKey = event => {
+      if (!layer.classList.contains('is-visible')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        finish(null);
+      }
+    };
+
+    layer.onclick = event => {
+      const btn = event.target.closest('.videoDmmRangeVariantChoiceBtn');
+      if (!btn || !layer.contains(btn)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const index = Number(btn.dataset.variantIndex);
+      finish(Number.isInteger(index) ? list[index] : null);
+    };
+    layer.onmousedown = event => {
+      if (event.target === layer) finish(null);
+    };
+    if (cancelBtn) cancelBtn.onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      finish(null);
+    };
+    document.addEventListener('keydown', onKey, true);
+    layer.classList.add('is-visible');
+    requestAnimationFrame(() => {
+      (layer.querySelector('.videoDmmRangeVariantChoiceBtn.is-preferred') ||
+       layer.querySelector('.videoDmmRangeVariantChoiceBtn'))?.focus?.();
+    });
+  });
+}
+
+async function discoverVideoDmmRangeFamilyPrefixesV799(range) {
+  const prefix = String(range?.prefix || '').normalize('NFKC').trim().toUpperCase();
+  const start = Number(range?.start);
+  const width = Number(range?.width);
+  if (!prefix || !Number.isFinite(start)) return [prefix].filter(Boolean);
+
+  const groups = new Set([prefix]);
+  const sampleCode = String(range?.minCode || `${prefix}-${Number.isFinite(width) && width > 0 ? String(start).padStart(width, '0') : String(start)}`)
+    .normalize('NFKC').trim().toUpperCase();
+
+  // 1) 시작 품번 exact lookup. 보안코드 작품은 securityless exact key도 갖기 때문에
+  //    NTK-001 검색으로 300NTK-001을, 300NTK-001 검색으로 NTK-001을 서로 발견할 수 있다.
+  try {
+    const seedMap = await queryVideoWorkRecordListsByKeys(buildVideoWorkLookupKeys(sampleCode));
+    for (const row of flattenVideoWorkRecordLists(seedMap)) {
+      const code = getVideoDmmSafeExternalCode(row, row?.contentId || '');
+      const parsed = parseVideoRangeCode(code);
+      if (!parsed || parsed.unsupported || Number(parsed.number) !== start) continue;
+      const rowPrefix = String(parsed.prefix || '').normalize('NFKC').trim().toUpperCase();
+      if (rowPrefix) groups.add(rowPrefix);
+    }
+  } catch (error) {
+    console.warn('[v799 품번군 seed 조회 실패]', error);
+  }
+
+  // 2) 이미 만들어 둔 보안코드 중복그룹 인덱스도 합친다.
+  //    300NTK 입력이면 base NTK를, NTK 입력이면 300NTK/200NTK 같은 실제 중복그룹들을 포함한다.
+  const security = parseVideoSecurityCatalogGroupV762(prefix);
+  const base = String(security?.b || prefix).toUpperCase();
+  if (base) groups.add(base);
+  try {
+    await ensureVideoSecurityDuplicateGroupsV762();
+    const related = __videoAvwikiSecurityDuplicateGroupsByBaseV765.get(base);
+    for (const item of (Array.isArray(related) ? related : [])) {
+      const g = String(item?.g || '').normalize('NFKC').trim().toUpperCase();
+      if (g) groups.add(g);
+    }
+  } catch (error) {
+    console.warn('[v799 보안코드 품번군 인덱스 확인 실패]', error);
+  }
+
+  return Array.from(groups);
+}
+
+async function collectVideoDmmRangeVariantOptionsV799(range) {
+  const prefixes = await discoverVideoDmmRangeFamilyPrefixesV799(range);
+  if (!prefixes.length) return [];
+
+  const groupKeys = Array.from(new Set(prefixes.map(prefix => normalizeVideoWorkStrictKey(prefix)).filter(Boolean)));
+  let candidateMap = new Map();
+  try {
+    candidateMap = await queryVideoWorkRecordListsByKeys(groupKeys);
+  } catch (error) {
+    console.warn('[v799 품번군 그룹 조회 실패]', error);
+    return [];
+  }
+
+  const allowedPrefixes = new Set(prefixes.map(v => String(v || '').toUpperCase()));
+  const stats = new Map();
+  const start = Number(range?.start);
+  const end = Number(range?.end);
+  for (const row of flattenVideoWorkRecordLists(candidateMap)) {
+    const code = getVideoDmmSafeExternalCode(row, row?.contentId || '');
+    const parsed = parseVideoRangeCode(code);
+    if (!parsed || parsed.unsupported) continue;
+    const parsedPrefix = String(parsed.prefix || '').normalize('NFKC').trim().toUpperCase();
+    if (!allowedPrefixes.has(parsedPrefix)) continue;
+    if (Number(parsed.number) < start || Number(parsed.number) > end) continue;
+    const width = Number(parsed.width);
+    if (!Number.isFinite(width) || width <= 0) continue;
+
+    const key = `${parsedPrefix}\u0000${width}`;
+    if (!stats.has(key)) {
+      stats.set(key, {
+        prefix: parsedPrefix,
+        width: Math.trunc(width),
+        count: 0,
+        firstCode: '',
+        lastCode: '',
+        representativeNumber: null,
+        representativeRow: null
+      });
+    }
+    const st = stats.get(key);
+    st.count += 1;
+    const currentNumber = Number(parsed.number);
+    if (
+      !Number.isFinite(st.representativeNumber) ||
+      currentNumber < st.representativeNumber ||
+      (currentNumber === st.representativeNumber && String(code || '').localeCompare(String(st.firstCode || ''), 'en', { numeric:false, sensitivity:'base' }) < 0)
+    ) {
+      st.representativeNumber = currentNumber;
+      st.representativeRow = row;
+      st.firstCode = String(code || '');
+    }
+    if (!st.lastCode || currentNumber >= Number(st.lastNumber ?? -Infinity)) {
+      st.lastNumber = currentNumber;
+      st.lastCode = String(code || '');
+    }
+  }
+
+  const inputPrefix = String(range?.prefix || '').normalize('NFKC').trim().toUpperCase();
+  const inputWidth = Number(range?.width);
+  const options = Array.from(stats.values());
+  options.sort((a, b) => {
+    const aPrefix = a.prefix === inputPrefix ? 0 : 1;
+    const bPrefix = b.prefix === inputPrefix ? 0 : 1;
+    if (aPrefix !== bPrefix) return aPrefix - bPrefix;
+    const aWidth = Number(a.width) === inputWidth ? 0 : 1;
+    const bWidth = Number(b.width) === inputWidth ? 0 : 1;
+    if (aWidth !== bWidth) return aWidth - bWidth;
+    const prefixCmp = String(a.prefix).localeCompare(String(b.prefix), 'en', { numeric:true, sensitivity:'base' });
+    if (prefixCmp) return prefixCmp;
+    return Number(a.width) - Number(b.width);
+  });
+  return options;
+}
+
+async function resolveVideoDmmRangeVariantAmbiguityV799(criteria) {
+  const c = prepareVideoDmmWorkSearchCriteria(criteria || {});
+  const ranges = Array.isArray(c.ranges) ? c.ranges.map(r => ({ ...r })) : [];
+  if (!ranges.length) return { cancelled:false, criteria:c };
+
+  for (let i = 0; i < ranges.length; i++) {
+    const range = ranges[i];
+    if (!range?.prefix || range.start === null || range.end === null) continue;
+
+    const options = await collectVideoDmmRangeVariantOptionsV799(range);
+    if (!options.length) continue;
+
+    let chosen = options[0];
+    if (options.length > 1) {
+      chosen = await showVideoDmmRangeVariantChoiceV799(range, options);
+      if (!chosen) return { cancelled:true, criteria:c };
+    }
+
+    range.selectedPrefix = String(chosen.prefix || range.prefix).normalize('NFKC').trim().toUpperCase();
+    range.selectedWidth = Number(chosen.width) > 0 ? Math.trunc(Number(chosen.width)) : null;
+  }
+
+  const next = normalizeVideoDmmWorkSearchCriteria({ ...c, ranges });
+  return { cancelled:false, criteria:next };
+}
+
+// v798 이름을 외부에서 호출하던 코드가 있어도 새 웹뷰어 모달/보안코드 품번군 판정을 사용한다.
+async function resolveVideoDmmRangeWidthAmbiguityV798(criteria) {
+  return resolveVideoDmmRangeVariantAmbiguityV799(criteria);
+}
+
+// 보유작 workId 매칭 준비는 검색 자체를 막지 않고 백그라운드에서 마무리한다.
+// 초기 검색 결과는 품번 보유키로 표시하고, RAM 매칭이 끝나면 중복품번까지 정확한 workId 기준으로 갱신한다.
+function scheduleVideoDmmOwnedRefreshV797(refreshPromise, myToken, signature) {
+  if (!refreshPromise || typeof refreshPromise.then !== 'function') return;
+  Promise.resolve(refreshPromise).then(() => {
+    if (myToken !== videoDmmWorkSearchToken) return;
+    if (getVideoDmmWorkSearchCriteriaSignature(videoDmmWorkSearchCriteria) !== signature) return;
+    const ids = getOwnedVideoWorkIdSetV693();
+    let changed = false;
+    for (const item of (Array.isArray(videoDmmWorkSearchResults) ? videoDmmWorkSearchResults : [])) {
+      const next = ids.has(String(item?.workId || ''));
+      if (!!item?.owned !== next) {
+        item.owned = next;
+        changed = true;
+      }
+    }
+    if (changed && videoDmmWorkSearchOn) {
+      try { renderVideoList(); } catch (_) {}
+    }
+  }).catch(() => {});
+}
+
 async function runVideoDmmWorkSearch(criteria = videoDmmWorkSearchCriteria) {
   const normalizedCriteria = prepareVideoDmmWorkSearchCriteria(criteria);
   const signature = getVideoDmmWorkSearchCriteriaSignature(normalizedCriteria);
@@ -99609,43 +100839,63 @@ async function runVideoDmmWorkSearch(criteria = videoDmmWorkSearchCriteria) {
     return [];
   }
 
-  // v693: 메타검색의 보유 표시는 품번 문자열이 아니라 실제 확정 workId 기준.
-  try {
-    await refreshVideoWorkRuntimeIndex({ force: false, render: false });
-  } catch (_) {}
+  // v797: 보유작 workId RAM 준비는 검색 시작을 막지 않는다.
+  // 이미 준비돼 있으면 정확 workId를 즉시 사용하고, 아니면 품번 기준으로 먼저 결과를 표시한 뒤 백그라운드 보정한다.
+  let ownedRefreshPromise = null;
+  if (!__videoWorkRuntimeReady) {
+    try {
+      ownedRefreshPromise = refreshVideoWorkRuntimeIndex({ force: false, render: false });
+    } catch (_) {}
+  }
 
   const ownedKeys = getOwnedVideoCodeKeySet();
-  const ownedWorkIds = getOwnedVideoWorkIdSetV693();
+  const ownedWorkIds = __videoWorkRuntimeReady ? getOwnedVideoWorkIdSetV693() : null;
 
-  // v694: 품번/배우처럼 IndexedDB 인덱스로 바로 좁힐 수 있는 조건을 먼저 사용한다.
-  // 품번+배우가 같이 있으면 두 후보집합의 교집합만 후처리한다.
+  // v797 인덱스 우선순위:
+  // 1) 정확 품번 / 품번범위 lookupKeys -> 2) 배우 actresses -> 3) 날짜 date
+  // 먼저 가장 강한 한 조건으로 후보를 좁힌 뒤 제목/시리즈/인원/영상나이/나머지 조건은 후보에만 적용한다.
   try {
     let indexedCandidates = null;
-    let usedIndexedPath = false;
+    let indexedPathLabel = '';
 
     if (normalizedCriteria.code && isVideoDmmLikelyExactCodeQuery(normalizedCriteria.code)) {
       const codeMap = await queryVideoWorkRecordListsByKeys(
         buildVideoWorkLookupKeys(normalizedCriteria.code)
       );
       indexedCandidates = makeVideoWorkRowMapV694(flattenVideoWorkRecordLists(codeMap));
-      usedIndexedPath = true;
+      indexedPathLabel = 'code';
+    } else {
+      const rangePlan = buildVideoDmmRangeIndexPlanV797(normalizedCriteria);
+      if (rangePlan.hasRange && rangePlan.keys.length) {
+        indexedCandidates = await queryVideoDmmRangeCandidatesV797(normalizedCriteria);
+        indexedPathLabel = 'range';
+      }
     }
 
-    const actressPlan = buildVideoDmmActressIndexPlanV694(normalizedCriteria);
-    if (actressPlan.hasActressConstraints) {
-      const actressMap = await queryVideoWorkRecordListsByActressKeys(actressPlan.keys);
-      const actressCandidates = resolveVideoDmmActressIndexCandidatesV694(actressPlan, actressMap);
-      indexedCandidates = indexedCandidates instanceof Map
-        ? intersectVideoWorkRowMapsV694(indexedCandidates, actressCandidates)
-        : actressCandidates;
-      usedIndexedPath = true;
+    if (!(indexedCandidates instanceof Map)) {
+      const actressPlan = buildVideoDmmActressIndexPlanV694(normalizedCriteria);
+      if (actressPlan.hasActressConstraints) {
+        const actressMap = await queryVideoWorkRecordListsByActressKeys(actressPlan.keys);
+        indexedCandidates = resolveVideoDmmActressIndexCandidatesV694(actressPlan, actressMap);
+        indexedPathLabel = 'actress';
+      }
     }
 
-    if (usedIndexedPath) {
-      const rows = indexedCandidates instanceof Map
-        ? Array.from(indexedCandidates.values())
-        : [];
-      return finishVideoDmmIndexedSearchV694(
+    if (!(indexedCandidates instanceof Map)) {
+      const minDate = normalizeVideoMetaDateBoundKeyV796(normalizedCriteria.dateMinKey);
+      const maxDate = normalizeVideoMetaDateBoundKeyV796(normalizedCriteria.dateMaxKey);
+      if (Number.isFinite(minDate) || Number.isFinite(maxDate)) {
+        indexedCandidates = makeVideoWorkRowMapV694(
+          await queryVideoWorkRowsByDateRangeV797(minDate, maxDate)
+        );
+        indexedPathLabel = 'date';
+      }
+    }
+
+    if (indexedCandidates instanceof Map) {
+      const rows = Array.from(indexedCandidates.values());
+      console.info('[DMM 작품 검색 v797] 인덱스 우선조회:', indexedPathLabel, rows.length, '후보');
+      const result = finishVideoDmmIndexedSearchV694(
         rows,
         normalizedCriteria,
         ownedKeys,
@@ -99653,13 +100903,15 @@ async function runVideoDmmWorkSearch(criteria = videoDmmWorkSearchCriteria) {
         myToken,
         signature
       );
+      scheduleVideoDmmOwnedRefreshV797(ownedRefreshPromise, myToken, signature);
+      return result;
     }
   } catch (error) {
     console.warn('[DMM 작품 검색] 인덱스 고속조회 실패, 전체검색으로 전환', error);
   }
 
-  // 제목/시리즈/인원수/영상나이/범위처럼 단독으로는 별도 인덱스가 없는 조건만
-  // 전체 cursor 검색을 사용한다. 배우 조건이 있으면 위에서 이미 후보만 조회하고 끝난다.
+  // 품번/범위/배우/날짜처럼 인덱싱 가능한 조건이 전혀 없을 때만
+  // 제목/시리즈/인원수/영상나이 등의 조건을 위해 전체 source cursor 검색을 사용한다.
   const foundById = new Map();
   let db = null;
 
@@ -99763,6 +101015,7 @@ async function runVideoDmmWorkSearch(criteria = videoDmmWorkSearchCriteria) {
       renderVideoList();
     }
 
+    scheduleVideoDmmOwnedRefreshV797(ownedRefreshPromise, myToken, signature);
     return result;
 
   } catch (error) {
@@ -103587,6 +104840,18 @@ function appendVideoMissingCardsResolved(items, box) {
       }
     });
 
+    // v803: 메타검색/범위/배우월 canonical 카드 중 실제 보유작도 태블릿에서
+    // 1회 탭으로 로컬 미리보기, 더블탭으로 로컬 영상 재생.
+    if (item?.owned) {
+      const ownedEntryForTouchV803 = getVideoOwnedEntryForMetaItem(item);
+      if (ownedEntryForTouchV803) {
+        bindVideoTouchPreviewPlayV803(poster, {
+          preview: () => queueVideoCanonicalCardHoverPreview(item, poster),
+          play: event => playVideoEntryFromTouchPreviewV803(ownedEntryForTouchV803, event)
+        });
+      }
+    }
+
     // 모든 로컬/온라인 후보가 실패했을 때에도 어떤 품번인지 보이게 한다.
     const pending = poster.querySelector('.videoPosterPending');
     if (pending) {
@@ -104929,6 +106194,168 @@ function getVideoIndexedWorkDate(entry) {
   return String(work?.date || '').trim();
 }
 
+// ============================================================
+// v803: 태블릿/터치 포스터 조작
+// - 손가락 1회 탭: 기존 hover 미리보기 시작
+// - 같은 포스터를 짧게 2회 탭: 실제 영상 재생
+// - 손가락 이동이 있으면 스크롤로 보고 아무 동작도 하지 않는다.
+// - touch-action: manipulation으로 더블탭 브라우저 확대는 막고 스크롤/핀치줌은 유지한다.
+// - 마우스 hover/click 동작은 기존 그대로 둔다.
+// ============================================================
+function isVideoTouchPosterControlV803(target, root) {
+  if (!target || !root || target === root) return false;
+  const control = target.closest?.(
+    'button,a,input,select,textarea,[contenteditable="true"],' +
+    '.videoActualDeleteBadge,.videoCodeBadge,.videoPosterBadge,' +
+    '.videoTopRightMeta,.videoBottomLeftMeta,.videoOnlinePosterControls,' +
+    '.videoMissingViewBtn,.videoMissingTorrentBtn,.videoMissingFavoriteBtn,' +
+    '.videoDmmPreviewBtn,.videoWorkDuplicateBadgeV767'
+  );
+  return !!(control && control !== root && root.contains(control));
+}
+
+function getVideoPreviewCurrentTimeForEntryV803(entry) {
+  try {
+    if (
+      typeof videoHoverElement !== 'undefined' &&
+      typeof videoHoverEntry !== 'undefined' &&
+      videoHoverElement &&
+      videoHoverEntry === entry
+    ) {
+      const current = Number(videoHoverElement.currentTime);
+      if (Number.isFinite(current) && current >= 0) return current;
+    }
+  } catch (_) {}
+  return null;
+}
+
+function playVideoEntryFromTouchPreviewV803(entry, event = null) {
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const startTime = getVideoPreviewCurrentTimeForEntryV803(entry);
+  try { stopVideoHoverPreview?.(); } catch (_) {}
+  if (typeof playVideoEntry === 'function') {
+    playVideoEntry(entry, startTime);
+  }
+}
+
+function bindVideoTouchPreviewPlayV803(root, { preview, play } = {}) {
+  if (!root || root.dataset.videoTouchPreviewPlayV803 === '1') return;
+  root.dataset.videoTouchPreviewPlayV803 = '1';
+
+  // Android/iPad의 기본 더블탭 확대와 충돌하지 않게 하되 일반 스크롤/핀치줌은 허용.
+  root.style.touchAction = 'manipulation';
+
+  const TAP_MOVE_PX = 18;
+  const TAP_MAX_MS = 520;
+  const DOUBLE_TAP_MS = 360;
+  const DOUBLE_TAP_DIST_PX = 44;
+
+  let downX = 0;
+  let downY = 0;
+  let downAt = 0;
+  let moved = false;
+  let ignoreGesture = false;
+  let lastTapAt = 0;
+  let lastTapX = 0;
+  let lastTapY = 0;
+
+  const distance = (x1, y1, x2, y2) =>
+    Math.hypot(Number(x1) - Number(x2), Number(y1) - Number(y2));
+
+  root.addEventListener('touchstart', event => {
+    if (!event.touches || event.touches.length !== 1) {
+      ignoreGesture = true;
+      moved = true;
+      return;
+    }
+
+    if (isVideoTouchPosterControlV803(event.target, root)) {
+      ignoreGesture = true;
+      moved = true;
+      return;
+    }
+
+    const touch = event.touches[0];
+    ignoreGesture = false;
+    moved = false;
+    downX = touch.clientX;
+    downY = touch.clientY;
+    downAt = Date.now();
+  }, { passive: true });
+
+  root.addEventListener('touchmove', event => {
+    if (ignoreGesture || !event.touches || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    if (distance(downX, downY, touch.clientX, touch.clientY) > TAP_MOVE_PX) {
+      moved = true;
+    }
+  }, { passive: true });
+
+  root.addEventListener('touchend', event => {
+    if (ignoreGesture || moved || !downAt) {
+      ignoreGesture = false;
+      downAt = 0;
+      return;
+    }
+
+    if (isVideoTouchPosterControlV803(event.target, root)) {
+      ignoreGesture = false;
+      downAt = 0;
+      return;
+    }
+
+    const touch = event.changedTouches && event.changedTouches[0];
+    if (!touch) return;
+
+    const now = Date.now();
+    const elapsed = now - downAt;
+    const movedPx = distance(downX, downY, touch.clientX, touch.clientY);
+    downAt = 0;
+
+    if (elapsed > TAP_MAX_MS || movedPx > TAP_MOVE_PX) return;
+
+    // 이 탭 뒤 브라우저가 만드는 synthetic click이 기존 '한 번 클릭=재생'으로 이어지지 않게 한다.
+    root.__videoTouchSuppressClickUntilV803 = now + 700;
+    if (event.cancelable) event.preventDefault();
+
+    const isDoubleTap =
+      lastTapAt > 0 &&
+      (now - lastTapAt) <= DOUBLE_TAP_MS &&
+      distance(lastTapX, lastTapY, touch.clientX, touch.clientY) <= DOUBLE_TAP_DIST_PX;
+
+    if (isDoubleTap) {
+      lastTapAt = 0;
+      try { play?.(event); } catch (error) {
+        console.warn('[v803 터치 더블탭 재생] 실패', error);
+      }
+      return;
+    }
+
+    lastTapAt = now;
+    lastTapX = touch.clientX;
+    lastTapY = touch.clientY;
+    try { preview?.(event); } catch (error) {
+      console.warn('[v803 터치 1회 미리보기] 실패', error);
+    }
+  }, { passive: false });
+
+  root.addEventListener('touchcancel', () => {
+    ignoreGesture = false;
+    moved = false;
+    downAt = 0;
+  }, { passive: true });
+
+  // 일부 Chromium/WebView가 touch 뒤 compatibility click을 보내도 포스터 본체 재생만 차단.
+  root.addEventListener('click', event => {
+    if (isVideoTouchPosterControlV803(event.target, root)) return;
+    if (Date.now() >= Number(root.__videoTouchSuppressClickUntilV803 || 0)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+  }, true);
+}
+
 function appendVideoCards(list, box) {
 for (const entry of list) {
       const card = document.createElement('div');
@@ -105054,6 +106481,12 @@ posterWrap.addEventListener('mouseleave', () => {
   if (videoHoverWrap === posterWrap) {
     stopVideoHoverPreview();
   }
+});
+
+// v803: 태블릿은 1회 탭=미리보기, 같은 포스터 더블탭=재생.
+bindVideoTouchPreviewPlayV803(posterWrap, {
+  preview: () => queueVideoHoverPreview(entry, posterWrap),
+  play: event => playOwnedPoster(event)
 });
 // ─────────────────────────────
 // 왼쪽 아래: 노모 + 자막
@@ -109974,7 +111407,7 @@ function createVideoActressWallPosterItem(entry) {
     }
   });
 
-  poster.addEventListener('click', event => {
+  const playActressWallPosterV803 = event => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -110004,6 +111437,13 @@ function createVideoActressWallPosterItem(entry) {
     if (typeof playVideoEntry === 'function') {
       playVideoEntry(entry, startTime);
     }
+  };
+
+  poster.addEventListener('click', playActressWallPosterV803);
+
+  bindVideoTouchPreviewPlayV803(poster, {
+    preview: () => queueVideoHoverPreview(entry, poster),
+    play: event => playActressWallPosterV803(event)
   });
 
   const label = document.createElement('div');
@@ -112589,8 +114029,9 @@ if (videoSortReverseBtn) {
     isVideo ? '' : 'none';
 }
 
-// v438: 랜덤일 때만 스타일 버튼 표시
+// v790: 영상/만화 모두 스타일 버튼을 사용하고, 모드에 맞게 3열 도구를 다시 구성
 syncVideoRandomStyleUI();
+try { window.syncVideoRandomAuxToolsV790?.(); } catch (_) {}
 
 if (videoToolbarFoldBtn) {
   videoToolbarFoldBtn.style.display =
@@ -112799,6 +114240,9 @@ function setContentMode(mode) {
   );
 
   updateContentModeUI();
+
+  // v789: 영상에서는 스타일창 3열로 보조도구를 모으고, 만화로 돌아가면 공유 컨트롤을 원래 툴바 위치로 복원한다.
+  try { window.syncVideoRandomAuxToolsV789?.(); } catch (_) {}
 
   /*
     현재 모드에 맞게 필터를 다시 계산하면서
@@ -114284,6 +115728,76 @@ function toggleVideoActressMissingTogether() {
 
   // 현재 이 배우가 레일에 선택되어 있다면 목록에도 즉시 반영.
   try { renderVideoList?.(); } catch (_) {}
+}
+
+
+// ============================================================
+// v794: 배우정보창 [바로검색]
+// - 현재 배우의 작품검색용 대표이름(dmmSearchName)을 우선 사용
+// - 없으면 DMM/AVWiki 표시이름 → 배우정보 이름 → 현재 레이블 순으로 사용
+// - 메타검색의 다른 조건은 비우고 배우명 하나만 넣은 뒤 기존 작품검색 경로를 그대로 실행
+// - 기존 메타검색과 동일하게 videoDmmWorkSearchOn=true가 되어 상단 메타검색 버튼도 활성화
+// ============================================================
+async function runVideoActressProfileDirectMetaSearchV794() {
+  const st = videoActressProfileState;
+  if (!st?.key) return false;
+
+  const savedProfile = getVideoActressProfile(st.key) || {};
+  const dmmInput = document.getElementById('videoActressProfileDmmName');
+  const nameInput = document.getElementById('videoActressProfileName');
+
+  const searchName = String(
+    st.dmmSearchName ||
+    savedProfile.dmmSearchName ||
+    getVideoDmmPrimarySearchName(dmmInput?.value || '') ||
+    getVideoDmmPrimarySearchName(savedProfile.dmmName || '') ||
+    nameInput?.value ||
+    savedProfile.name ||
+    st.label ||
+    st.key ||
+    ''
+  ).normalize('NFKC').replace(/\s+/g, ' ').trim();
+
+  if (!searchName) {
+    if (typeof showToast === 'function') showToast('바로검색에 사용할 배우 이름이 없습니다.', 2200);
+    return false;
+  }
+
+  // 현재 메타검색 조건이 있으면 [이전조건]에서 다시 꺼낼 수 있게 보존한다.
+  try {
+    if (typeof captureVideoRangeConditionSnapshotV773 === 'function' &&
+        typeof saveVideoRangePreviousConditionV773 === 'function') {
+      saveVideoRangePreviousConditionV773(captureVideoRangeConditionSnapshotV773());
+    }
+  } catch (_) {}
+
+  // 배우 한 명만으로 검색하도록 메타검색 패널의 나머지 조건을 완전히 초기화한다.
+  try {
+    if (typeof resetVideoRangeSearchConditionsV773 === 'function') {
+      resetVideoRangeSearchConditionsV773({ render: false });
+    }
+  } catch (_) {}
+
+  const directInput = document.getElementById('videoRangeActressDirectInput');
+  if (!directInput) {
+    if (typeof showToast === 'function') showToast('메타검색 배우 입력칸을 찾지 못했습니다.', 2400);
+    return false;
+  }
+  directInput.value = searchName;
+
+  try { syncVideoRangeDmmSearchControls?.(); } catch (_) {}
+
+  const ok = await startVideoDmmWorkSearchFromRangePanel();
+  if (!ok) return false;
+
+  // 검색 결과가 가려지지 않도록 배우정보창을 닫는다.
+  try { closeVideoActressProfileLayer(); } catch (_) {}
+  try { syncVideoRangeViewUI?.(); } catch (_) {}
+
+  if (typeof showToast === 'function') {
+    showToast(`바로검색 · ${searchName}`, 1500);
+  }
+  return true;
 }
 
 function syncVideoActressMissingWorksMeta() {
@@ -120589,6 +122103,17 @@ function initVideoActressProfileLayer() {
       event.preventDefault();
       event.stopPropagation();
       toggleVideoActressMissingTogether();
+    });
+  document.getElementById('videoActressProfileDirectSearchBtn')
+    ?.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      runVideoActressProfileDirectMetaSearchV794().catch(error => {
+        console.error('[배우정보 바로검색] 실패', error);
+        if (typeof showToast === 'function') {
+          showToast(`바로검색 실패: ${error?.message || error}`, 2800);
+        }
+      });
     });
 
   document.getElementById('videoActressProfileBirth')
@@ -143697,6 +145222,29 @@ document
       // v592: 포스터 정렬 선택 뒤 select가 계속 키보드 포커스를 잡지 않게 한다.
       // 특수보기 항목은 중간 return이 많으므로 try/finally로 모든 경로에서 해제.
       try {
+        // v792: 북마크만보기를 독립 하트 버튼 대신 정렬 셀렉트의 특수보기로 사용한다.
+        if (value === 'bookmarkOnly') {
+          if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoPosterBadgeOnlyMode) {
+            videoNoCodeOnly = false;
+            videoNoActressOnly = false;
+            videoDuplicateOnly = false;
+            videoPosterBadgeOnlyMode = '';
+            syncVideoNoCodeOnlyUI();
+            syncVideoNoActressOnlyUI();
+            syncVideoPosterBadgeOnlyUI();
+          }
+          if (!videoBookmarkOnly) toggleVideoBookmarkOnly();
+          else syncVideoSortUI();
+          return;
+        }
+
+        // 정렬/다른 특수보기를 선택하면 북마크만보기는 자동 해제한다.
+        if (videoBookmarkOnly) {
+          videoBookmarkOnly = false;
+          try { VTLS.setRaw(VIDEO_BOOKMARK_ONLY_KEY, '0'); } catch (_) {}
+          syncVideoBookmarkOnlyUI();
+        }
+
         // v491: 품번X / 배우X는 기존 특수보기 필터 기능을 그대로 사용한다.
         if (value === 'noCode') {
           if (!videoNoCodeOnly) {
@@ -152949,14 +154497,12 @@ document.addEventListener(
   const ALLOWED =
     new Set([
       'normal',
-      'grayscale',
       'pencil-sketch',
       'colored-pencil'
     ]);
 
   const CLASS_MAP = {
     normal: '',
-    grayscale: 'videoPosterRenderGrayscale',
     'pencil-sketch': 'videoPosterRenderPencilSketch',
     'colored-pencil': 'videoPosterRenderColoredPencil'
   };
@@ -153284,7 +154830,7 @@ document.addEventListener(
 
     document
       .querySelectorAll(
-        '#videoPosterRenderStyleBox .videoPosterRenderStyleBtn, #videoRandomRenderStyleBox .videoRandomRenderModeBtn'
+        '#videoPosterRenderStyleBox .videoPosterRenderStyleBtn, #videoRandomRenderStyleBox .videoRandomRenderModeBtn:not([data-common-bw="1"])'
       )
       .forEach(btn => {
         const active =
@@ -153517,7 +155063,7 @@ document.addEventListener(
 
     document
       .querySelectorAll(
-        '#videoPosterRenderStyleBox .videoPosterRenderStyleBtn, #videoRandomRenderStyleBox .videoRandomRenderModeBtn'
+        '#videoPosterRenderStyleBox .videoPosterRenderStyleBtn, #videoRandomRenderStyleBox .videoRandomRenderModeBtn:not([data-common-bw="1"])'
       )
       .forEach(btn => {
         btn.addEventListener(
@@ -159167,7 +160713,434 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 })();
 </script>
 
+
+<!-- v788: 로컬 웹뷰어 최신버전 확인/알림/다운로드 -->
+<script>
+(function viewerLatestVersionV788(){
+  'use strict';
+
+  const VIEWER_BUILD_V789 = 803;
+  const VIEWER_VERSION_MANIFEST_URL_V789 =
+    'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
+  const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
+    'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/',
+    'https://darkmons77-gif.github.io/webviewer-data/'
+  ]);
+
+  let viewerLatestCheckPromiseV788 = null;
+  let viewerUpdateDialogOpenV788 = false;
+
+  function currentViewerFileNameV788(){
+    try {
+      const path = decodeURIComponent(String(location.pathname || ''));
+      const name = path.split('/').filter(Boolean).pop() || '';
+      if (/\.html?$/i.test(name)) return name;
+    } catch (_) {}
+    return 'index.html';
+  }
+
+  function isAllowedViewerDownloadUrlV789(urlValue){
+    const href = String(urlValue || '').trim();
+    return VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789.some(prefix => href.startsWith(prefix));
+  }
+
+  async function fetchViewerLatestInfoV789(){
+    if (viewerLatestCheckPromiseV788) return viewerLatestCheckPromiseV788;
+
+    viewerLatestCheckPromiseV788 = (async () => {
+      const url = VIEWER_VERSION_MANIFEST_URL_V789 + '?t=' + Date.now();
+      const response = await fetch(url, { cache:'no-store' });
+      if (!response.ok) throw new Error('version.json HTTP ' + response.status);
+
+      const manifest = await response.json();
+      if (!manifest || Number(manifest.schema) !== 1) {
+        throw new Error('지원하지 않는 version.json schema입니다.');
+      }
+
+      const viewer = manifest.viewer || null;
+      const version = Math.max(0, Number(viewer?.version) || 0);
+      const downloadUrl = String(viewer?.url || '').trim();
+
+      if (!version) throw new Error('version.json에 viewer.version이 없습니다.');
+      if (!downloadUrl) throw new Error('version.json에 viewer.url이 없습니다.');
+      if (!isAllowedViewerDownloadUrlV789(downloadUrl)) {
+        throw new Error('viewer.url이 허용된 webviewer-data 주소가 아닙니다.');
+      }
+
+      return {
+        version,
+        url: downloadUrl,
+        updatedAt: String(manifest.updatedAt || '')
+      };
+    })();
+
+    try {
+      return await viewerLatestCheckPromiseV788;
+    } finally {
+      viewerLatestCheckPromiseV788 = null;
+    }
+  }
+
+  function showViewerUpdateDialogV789(options){
+    if (viewerUpdateDialogOpenV788) return Promise.resolve(false);
+    viewerUpdateDialogOpenV788 = true;
+
+    const opt = options || {};
+    return new Promise(resolve => {
+      const layer = document.createElement('div');
+      layer.id = 'viewerUpdateLayerV788';
+      layer.style.cssText = [
+        'position:fixed','inset:0','z-index:2147483647','display:flex',
+        'align-items:center','justify-content:center','padding:18px',
+        'background:rgba(0,0,0,.62)'
+      ].join(';');
+
+      const box = document.createElement('div');
+      box.style.cssText = [
+        'width:min(520px,calc(100vw - 36px))','background:#1d1d1f','color:#fff',
+        'border:1px solid #666','border-radius:12px','box-shadow:0 18px 60px rgba(0,0,0,.5)',
+        'padding:18px','font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'
+      ].join(';');
+
+      const title = document.createElement('div');
+      title.textContent = String(opt.title || '웹뷰어 최신버전');
+      title.style.cssText = 'font-size:18px;font-weight:800;margin-bottom:12px;';
+
+      const body = document.createElement('div');
+      body.textContent = String(opt.message || '');
+      body.style.cssText = 'font-size:14px;line-height:1.65;white-space:pre-wrap;color:#eee;';
+
+      const notice = document.createElement('div');
+      notice.textContent = String(opt.notice || '');
+      notice.style.cssText = [
+        'margin-top:14px','padding:11px 12px','border-radius:8px',
+        'background:#3a2d12','border:1px solid #806524','color:#ffe9a6',
+        'font-size:13px','line-height:1.55','white-space:pre-wrap','font-weight:700'
+      ].join(';');
+
+      const buttons = document.createElement('div');
+      buttons.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;margin-top:16px;';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.textContent = String(opt.cancelText || '나중에');
+      cancelBtn.style.cssText = 'padding:8px 14px;border-radius:7px;border:1px solid #777;background:#333;color:#fff;cursor:pointer;';
+
+      const downloadBtn = document.createElement('button');
+      downloadBtn.type = 'button';
+      downloadBtn.textContent = String(opt.downloadText || '다운로드');
+      downloadBtn.style.cssText = 'padding:8px 14px;border-radius:7px;border:1px solid #3d9b67;background:#236a45;color:#fff;font-weight:800;cursor:pointer;';
+
+      const finish = value => {
+        viewerUpdateDialogOpenV788 = false;
+        try { layer.remove(); } catch (_) {}
+        resolve(Boolean(value));
+      };
+
+      cancelBtn.addEventListener('click', () => finish(false));
+      downloadBtn.addEventListener('click', () => finish(true));
+      layer.addEventListener('click', event => {
+        if (event.target === layer) finish(false);
+      });
+
+      // v802: 최신버전 기능의 단순 알림도 이 기존 내부 모달을 재사용한다.
+      // closeOnly=true이면 다운로드 버튼 없이 닫기/확인 버튼 하나만 표시한다.
+      if (opt.closeOnly === true) buttons.append(cancelBtn);
+      else buttons.append(cancelBtn, downloadBtn);
+      box.append(title, body);
+      if (opt.notice) box.append(notice);
+      box.append(buttons);
+      layer.append(box);
+      document.body.append(layer);
+      setTimeout(() => (opt.closeOnly === true ? cancelBtn : downloadBtn).focus(), 0);
+    });
+  }
+
+  async function downloadLatestViewerV789(info){
+    const currentName = currentViewerFileNameV788();
+    const fetchUrl = String(info.url) + (String(info.url).includes('?') ? '&' : '?') + 't=' + Date.now();
+    const response = await fetch(fetchUrl, { cache:'no-store' });
+    if (!response.ok) throw new Error('최신 웹뷰어 HTML HTTP ' + response.status);
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = '웹뷰어_최신_v' + info.version + '.html';
+    anchor.style.display = 'none';
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+
+    await showViewerUpdateDialogV789({
+      title: '다운로드를 시작했습니다',
+      message: '최신 웹뷰어 v' + info.version + ' 다운로드를 시작했습니다.',
+      notice:
+        '중요: 다운로드한 HTML은 반드시 지금 쓰던 파일 이름으로 변경한 뒤 사용하세요.\n' +
+        '현재 사용 중인 파일명: ' + currentName + '\n\n' +
+        '예) 현재 파일명이 "웹뷰어.html"이면 새 파일도 "웹뷰어.html"로 이름을 바꾼 뒤 기존 파일과 교체하세요.',
+      cancelText: '확인',
+      closeOnly: true
+    });
+  }
+
+  async function runViewerLatestCheckV789(options){
+    const opt = options || {};
+    const manual = opt.manual === true;
+    const button = opt.button || null;
+    const oldText = button ? button.textContent : '';
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = '확인중';
+    }
+
+    try {
+      const info = await fetchViewerLatestInfoV789();
+      const currentName = currentViewerFileNameV788();
+
+      if (info.version > VIEWER_BUILD_V789) {
+        if (!manual) {
+          const sessionKey = 'viewer_update_prompted_v788_' + info.version;
+          try {
+            if (sessionStorage.getItem(sessionKey) === '1') return;
+            sessionStorage.setItem(sessionKey, '1');
+          } catch (_) {}
+        }
+
+        const ok = await showViewerUpdateDialogV789({
+          title: '웹뷰어 새 버전이 있습니다',
+          message:
+            '현재 버전: ' + VIEWER_BUILD_V789 + '\n' +
+            '최신 버전: ' + info.version +
+            (info.updatedAt ? '\n업데이트: ' + info.updatedAt : ''),
+          notice:
+            '다운로드한 HTML은 반드시 지금 쓰던 파일 이름으로 변경한 뒤 사용하세요.\n' +
+            '현재 사용 중인 파일명: ' + currentName,
+          cancelText: '나중에',
+          downloadText: '최신버전 다운로드'
+        });
+
+        if (ok) await downloadLatestViewerV789(info);
+        return;
+      }
+
+      if (manual && info.version === VIEWER_BUILD_V789) {
+        const ok = await showViewerUpdateDialogV789({
+          title: '현재 최신버전입니다',
+          message: '현재 웹뷰어 v' + VIEWER_BUILD_V789 + '이 GitHub의 최신 버전과 같습니다.',
+          notice:
+            '최신 파일을 다시 다운로드할 수도 있습니다.\n' +
+            '다운로드한 HTML은 반드시 지금 쓰던 파일 이름으로 변경한 뒤 사용하세요.\n' +
+            '현재 사용 중인 파일명: ' + currentName,
+          cancelText: '닫기',
+          downloadText: '다시 다운로드'
+        });
+        if (ok) await downloadLatestViewerV789(info);
+        return;
+      }
+
+      if (manual && info.version < VIEWER_BUILD_V789) {
+        await showViewerUpdateDialogV789({
+          title: '현재 웹뷰어가 더 새 버전입니다',
+          message:
+            '현재 실행 중인 웹뷰어(v' + VIEWER_BUILD_V789 + ')가 version.json에 등록된 버전(v' +
+            info.version + ')보다 새 버전입니다.',
+          notice: 'GitHub index.html과 version.json의 viewer.version을 확인해주세요.',
+          cancelText: '닫기',
+          closeOnly: true
+        });
+      }
+    } catch (error) {
+      console.error('[Viewer latest v789]', error);
+      if (manual) {
+        await showViewerUpdateDialogV789({
+          title: '최신 웹뷰어 확인 실패',
+          message: '최신 웹뷰어 확인에 실패했습니다.',
+          notice: String(error?.message || error),
+          cancelText: '닫기',
+          closeOnly: true
+        });
+      }
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = oldText || '최신버전';
+      }
+    }
+  }
+
+  function bindViewerLatestButtonsV789(){
+    ['viewerLatestVersionBtnWt', 'viewerLatestVersionBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn || btn.dataset.viewerLatestBoundV789 === '1') return;
+      btn.dataset.viewerLatestBoundV789 = '1';
+      btn.addEventListener('click', () => runViewerLatestCheckV789({ manual:true, button:btn }));
+    });
+  }
+
+  function startViewerLatestV789(){
+    bindViewerLatestButtonsV789();
+
+    // 자동 알림은 로컬 file:// 사용자에게만 띄운다.
+    // GitHub Pages 사용자는 접속 자체가 최신 index.html이므로 수동 버튼만 제공한다.
+    if (location.protocol === 'file:') {
+      setTimeout(() => runViewerLatestCheckV789({ manual:false }), 2500);
+    }
+  }
+
+  window.checkViewerLatestVersionV789 = () => runViewerLatestCheckV789({ manual:true });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startViewerLatestV789, { once:true });
+  } else {
+    startViewerLatestV789();
+  }
+})();
+</script>
+
+
+<script id="videoRandomAuxToolsV790Script">
+(() => {
+  'use strict';
+  const sharedOriginalPlaces = new Map();
+
+  function rememberOriginalPlace(el) {
+    if (!el || sharedOriginalPlaces.has(el.id)) return;
+    const marker = document.createComment('v790-original-' + el.id);
+    el.parentNode?.insertBefore(marker, el);
+    sharedOriginalPlaces.set(el.id, marker);
+  }
+
+  function moveIntoSlot(id, slotId, remember = false) {
+    const el = document.getElementById(id);
+    const slot = document.getElementById(slotId);
+    if (!el || !slot) return false;
+    if (remember) rememberOriginalPlace(el);
+    if (el.parentNode !== slot) slot.appendChild(el);
+    return true;
+  }
+
+  function setPanelLabel(id, label) {
+    const el = document.getElementById(id);
+    if (el && el.textContent !== label) el.textContent = label;
+  }
+
+  function syncModeVisibilityV790(panel, isVideo) {
+    if (!panel) return;
+    panel.classList.toggle('videoRandomAuxComicModeV790', !isVideo);
+
+    panel.querySelectorAll('[data-aux-mode]').forEach(node => {
+      const mode = node.dataset.auxMode || 'common';
+      const modeHidden =
+        (mode === 'video' && !isVideo) ||
+        (mode === 'comic' && isVideo);
+      const emptySlot =
+        node.classList.contains('videoRandomAuxSlotV789') &&
+        !node.firstElementChild;
+      node.hidden = modeHidden || emptySlot;
+    });
+
+    panel.querySelectorAll('.videoRandomAuxRowV789').forEach(row => {
+      const visible = Array.from(row.children).filter(node => !node.hidden);
+      row.hidden = visible.length === 0;
+      row.classList.remove('cols-1', 'cols-2', 'cols-3');
+      if (visible.length) row.classList.add('cols-' + Math.min(3, visible.length));
+    });
+  }
+
+  function syncVideoRandomAuxToolsV790() {
+    const panel = document.getElementById('videoRandomStylePanel');
+    const isVideo = typeof contentMode === 'undefined' || contentMode === 'video';
+
+    // 영상 전용 도구
+    moveIntoSlot('videoBulkActressCaptureBtn', 'videoRandomAuxFaceCaptureSlotV789');
+    moveIntoSlot('videoBulkPosterCaptureBtn', 'videoRandomAuxPosterCaptureSlotV789');
+    moveIntoSlot('videoBulkActressWikiInfoBtn', 'videoRandomAuxWikiInputSlotV789');
+    moveIntoSlot('videoBulkActressInfoBtn', 'videoRandomAuxInputSlotV789');
+    moveIntoSlot('videoBulkSceneThumbBtn', 'videoRandomAuxThumbSlotV789');
+    moveIntoSlot('videoActressBulkMatchBtn', 'videoRandomAuxMatchSlotV789');
+    moveIntoSlot('videoActressAvdbsBulkMatchBtn', 'videoRandomAuxAvdbsMatchSlotV789');
+    moveIntoSlot('videoPosterCustomSourceBtn', 'videoRandomAuxPosterPlusSlotV789');
+    moveIntoSlot('videoBulkActressBodyTypeBtn', 'videoRandomAuxBodyCalcSlotV789');
+    moveIntoSlot('wtVideoBlacklistResetBtn', 'videoRandomAuxBlacklistSlotV789');
+    moveIntoSlot('videoSceneSyncBtnWt', 'videoRandomAuxSceneSyncSlotV790', true);
+
+    // 영상/만화 공통 도구
+    moveIntoSlot('fsComicLink', 'videoRandomAuxFolderSlotV789', true);
+    moveIntoSlot('wtColsThumb', 'videoRandomAuxColsSlotV789', true);
+    moveIntoSlot('wtRailToggleWt', 'videoRandomAuxRailSlotV790', true);
+    moveIntoSlot('delUiToggleWt', 'videoRandomAuxDeleteSlotV790', true);
+    moveIntoSlot('videoRandomCommonBwBtnV791', 'videoRandomAuxBwSlotV791', true);
+    moveIntoSlot('ratingToggleWt', 'videoRandomAuxRatingSlotV790', true);
+    moveIntoSlot('favOpenInWt', 'videoRandomAuxFavSlotV790', true);
+    moveIntoSlot('muOpenInWt', 'videoRandomAuxMusicSlotV790', true);
+    moveIntoSlot('optsOpenInWt', 'videoRandomAuxOptionsSlotV790', true);
+    moveIntoSlot('lsOpenInWt', 'videoRandomAuxLocalStorageSlotV790', true);
+    moveIntoSlot('videoPreviewShortcutBtnWt', 'videoRandomAuxShortcutSlotV790', true);
+    moveIntoSlot('viewerFullResetBtnWt', 'videoRandomAuxResetSlotV790', true);
+    moveIntoSlot('toggleFullWt', 'videoRandomAuxFullSlotV792', true);
+    moveIntoSlot('muPermFixWt', 'videoRandomAuxPermissionSlotV792', true);
+    moveIntoSlot('wtOpenInWt', 'videoRandomAuxLightviewSlotV792', true);
+
+    // 만화 전용 도구
+    moveIntoSlot('toggleOrientWt', 'videoRandomAuxOrientationSlotV790', true);
+    moveIntoSlot('jumpLastWt', 'videoRandomAuxLastPageSlotV790', true);
+
+    const thumbBtn = document.getElementById('videoBulkSceneThumbBtn');
+    if (thumbBtn && thumbBtn.textContent.trim() === '썸넬') thumbBtn.textContent = '썸네일';
+
+    // 3열에서는 단축키 문자뿐 아니라 기능명도 함께 보이게 한다.
+    setPanelLabel('delUiToggleWt', 'D 삭제버튼');
+    setPanelLabel('ratingToggleWt', 'R 평점보이기');
+    setPanelLabel('favOpenInWt', 'F 즐겨찾기');
+    setPanelLabel('muOpenInWt', 'M 음악목록');
+    setPanelLabel('optsOpenInWt', 'O 옵션');
+    setPanelLabel('lsOpenInWt', 'L 로컬스토리지');
+    setPanelLabel('toggleFullWt', 'V 전체');
+    setPanelLabel('muPermFixWt', 'P 권한');
+    setPanelLabel('wtOpenInWt', 'W 라이트뷰');
+    setPanelLabel('toggleOrientWt', 'H 좌우넘김');
+    setPanelLabel('jumpLastWt', 'C 마지막읽은페이지');
+
+    // 레일 버튼은 상태에 따라 "레일숨기기/레일보이기"로 자체 갱신되므로 문구를 덮지 않는다.
+    syncModeVisibilityV790(panel, isVideo);
+  }
+
+  window.syncVideoRandomAuxToolsV790 = syncVideoRandomAuxToolsV790;
+  // 구버전 내부 호출이 남아 있어도 같은 동작을 사용하도록 호환 별칭 유지.
+  window.syncVideoRandomAuxToolsV789 = syncVideoRandomAuxToolsV790;
+
+  const observer = new MutationObserver(() => {
+    syncVideoRandomAuxToolsV790();
+  });
+
+  function start() {
+    syncVideoRandomAuxToolsV790();
+    observer.observe(document.body, { childList:true, subtree:true });
+    setTimeout(syncVideoRandomAuxToolsV790, 0);
+    setTimeout(syncVideoRandomAuxToolsV790, 250);
+    setTimeout(syncVideoRandomAuxToolsV790, 1000);
+    setTimeout(() => observer.disconnect(), 5000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once:true });
+  } else {
+    start();
+  }
+})();
+</script>
+
+<!-- v797: DMM검색 인덱스 우선 최적화 · 품번/범위는 lookupKeys 그룹키로 선조회 · 배우는 actresses 인덱스 선조회 · 날짜는 DB v3 date 인덱스로 선조회 · 보유작 runtime 준비는 검색을 막지 않고 백그라운드 보정 · 신규 작품 레코드 dateKey 저장 · 화면 버전 4.1(798) -->
+
+<!-- v798: DMM 품번 범위검색에서 동일 접두어의 숫자 자릿수별 실제 작품군을 사전 확인 · 3자리/4자리 등 복수 계열이 실제로 함께 존재할 때 선택 안내창 표시 · 선택한 자릿수 계열만 후필터 · 단일 계열은 기존처럼 자동 검색 · exact start=end 검색은 lookupKeys 정확검색 유지 · 화면 버전 4.1(798) -->
 </body>
+
+<!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
+<!-- v802: v801 기준으로 최신버전 기능 안의 브라우저 기본 alert만 제거 · 기존 showViewerUpdateDialogV789 내부 모달을 closeOnly 단일버튼 알림으로 재사용 · 다운로드 시작/현재파일이 manifest보다 새 버전/확인 실패 알림만 커스텀화 · 화면 버전 4.1(803) -->
+<!-- v803: 태블릿 터치 포스터 조작 · 로컬 보유작은 1회 탭으로 기존 hover 미리보기, 같은 포스터 더블탭으로 재생 · 터치 스크롤은 이동거리로 구분 · touch-action manipulation으로 더블탭 확대 충돌 방지 · PC 마우스 동작 유지 · 화면 버전 4.1(803) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
@@ -159178,6 +161151,17 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v783: 시작시 GitHub 자동동기화 제거 · 배우/작품 DB 설치 질문에 JSON 선택 + GitHub 설치 추가 · 초기화 직후 DB 빈 상태 유지 -->
 <!-- v784: GitHub 배우/작품 설치 분리 · 작품 원격다운로드 메모리절감 · 작품 설치 상세오류 표시 -->
 
-<!-- v785: GitHub 작품 index(files[]) 분할 JSON 순차 설치 지원 · 초기화 후 첫 폴더 추가 시 배우DB 설치창 자동연결 · 화면 v4.01 (787) -->
+<!-- v785: GitHub 작품 index(files[]) 분할 JSON 순차 설치 지원 · 초기화 후 첫 폴더 추가 시 배우DB 설치창 자동연결 · 화면 버전 4.1(793) -->
 <!-- v786: version.json의 GitHub Release Asset 절대주소 허용 · Release index 기준 files[] 자동다운로드 · Raw→Release 동일버전 source 변경 시 1회 재설치 -->
-<!-- v787: GitHub Release Asset fetch를 avwikidb-proxy.darkmons77.workers.dev Worker 경유로 변경 · Raw version.json은 직접 확인 · 화면 v4.01 (787) -->
+<!-- v787: GitHub Release Asset fetch를 avwikidb-proxy.darkmons77.workers.dev Worker 경유로 변경 · Raw version.json은 직접 확인 · 화면 버전 4.1(793) -->
+
+<!-- v788: version.json viewer.version/viewer.url 확인 · 로컬 file:// 시작 시 새버전 알림 · 완전초기화 옆 최신버전 버튼 · 최신 HTML 다운로드 및 기존 파일명 변경 안내 · 화면 버전 4.1(793) -->
+
+<!-- v789: 스타일창 기존 1·2열 유지 + 오른쪽 3열 보조기능 추가 · F/P캡처, Wiki입력/입력, 썸네일/가로갯수, 폴더/BL, 매칭/AVDBS매칭, 포스터+/체형계산을 2개씩 한 줄 배치 · 3개 행 확장용 cols-3 지원 · 화면 버전 4.1(793) -->
+
+<!-- v790: 스타일 3열에 레일/D/썸동기화/단축키/완전초기화/F/M/O/L/R/H/C 이동 · 한 줄 2~3개 자동 재배치 · 만화에서도 스타일 버튼 표시 · 만화 모드에서는 영상 전용 1·2열/버튼 숨김, 공통+만화 도구만 표시 · 화면 버전 4.1(793) -->
+<!-- v791: 스타일의 영상 전용 흑백을 기존 B 공통 흑백 효과로 통합 · 라이트뷰 메인 B 버튼 제거 · 공통 흑백을 스타일 3열로 이동해 영상/만화 모두 사용 · 3열 긴 버튼명 2줄 표시 · D 삭제버튼은 기본 삭제UI 숨김 상태에서 비활성 표시되도록 aria 상태 수정 · 화면 버전 4.1(793) -->
+<!-- v792: W 모드 헤더 한 버튼 제거 · V 전체/P 권한/W 라이트뷰를 스타일 3열로 이동 · 스타일 3열을 1·2열과 같은 151px로 축소 · 모든 행 2버튼 고정 · 북마크만보기 하트 버튼 제거 후 영상 정렬에 통합 · 화면 버전 4.1(793) -->
+
+<!-- v793: 화면 표기를 버전 4.1(793)으로 변경 · 스타일 버튼명을 기능으로 변경 · 영상 정렬 북마크만보기를 북마크로 축약 · 메타검색에 작품날짜 최소~최대 검색 추가 · 2/4자리 연도와 .-/ 구분자 지원 · 최소 생략값은 1/1, 최대 생략값은 연말/월말 자동보정 -->
+<!-- v794: 배우정보 미보유품번 같이보기 옆 바로검색 추가 · dmmSearchName 우선 배우명으로 메타 작품검색 즉시 실행 · 검색결과 표시 후 상단 메타검색 버튼 활성화 -->
