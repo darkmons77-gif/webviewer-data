@@ -6074,6 +6074,17 @@ body.video-fullscreen-clean #wtHint{
   display: none !important;
 }
 
+/* v813: 영상 라이트뷰 전체화면에서도 상단 버튼부를 항상 표시.
+   v431의 마우스 상단 감지/자동숨김 로직은 호환을 위해 남기되 시각적 숨김만 무효화한다. */
+body.video-fullscreen-clean #wtLayer .wtLayerHead,
+body.video-fullscreen-clean #wtLayer #wtBox > .wt-head {
+  display: flex !important;
+}
+body.video-fullscreen-clean #videoFullscreenHoverZone {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 
 /* v449: 사진더미 / 콜라주 흰선 두께 옵션 */
 #videoPileFrameWidthBox {
@@ -10402,7 +10413,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(811) 모드 : </span>
+<span>버전 4.1(813) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12107,7 +12118,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(811) 모드 :</span>
+        <span>버전 4.1(813) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -161364,7 +161375,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 811;
+  const VIEWER_BUILD_V789 = 813;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161682,7 +161693,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
           ? '로컬 HTML(file://)에서는 PWA 설치창을 열 수 없습니다.'
           : '현재 브라우저가 자동 PWA 설치 프롬프트를 제공하지 않았습니다. 이미 설치된 앱이 있으면 Chrome이 이 설치 이벤트를 다시 주지 않을 수 있습니다.',
         localFile
-          ? 'GitHub Pages의 index.html 주소를 Chrome에서 연 뒤 앱설치를 눌러주세요.'
+          ? 'GitHub Pages 주소:\nhttps://darkmons77-gif.github.io/webviewer-data/\n\n이 주소를 Chrome에서 연 뒤 앱설치를 눌러주세요.'
           : '이미 설치된 앱이 있다면 기존 앱을 실행하면 됩니다. 처음 설치하는 경우에는 manifest.webmanifest와 sw.js가 같은 폴더에 배포되어 있는지 확인하고 새로고침해 주세요.'
       );
       return;
@@ -162259,6 +162270,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v809: 미리보기 0 하단 시간표시 오른쪽에 작게/크게 버튼 추가([ ] 단축키 동일) · 재생/멈춤 단일 버튼 추가(Space 동일) · 하단에 현재 볼륨 % 상시 표시 및 키보드/터치 제스처/음소거 변화 즉시 동기화 · 화면 버전 4.1(809) -->
 <!-- v810: 미리보기 0 하단에서 재생·멈춤 버튼을 처음 바로 오른쪽으로 이동 · 그 옆 닫기 버튼 추가 · 닫기는 stopVideoHoverPreview 재사용 · 나머지 시간/작게/크게/볼륨 컨트롤 유지 · 화면 버전 4.1(810) -->
 <!-- v811: 장면 썸네일 월드컵 RAM 캐시 · 16강에서 준비한 실시간 장면 video/ObjectURL을 승자에게 유지해 8강·4강·결승에서 재사용 · 탈락/월드컵 종료 시에만 해제 · 화면 버전 4.1(811) -->
+<!-- v812: 로컬 file://에서 앱설치 클릭 시 PWA 설치 안내에 GitHub Pages 실제 주소 https://darkmons77-gif.github.io/webviewer-data/ 표시 · 화면 버전 4.1(812) -->
+<!-- v813: 영상 라이트뷰 전체화면에서도 상단 2개 버튼줄을 항상 표시 · v431 전체화면 자동숨김 CSS만 무효화하고 나머지 전체화면 동작 유지 · 화면 버전 4.1(813) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
