@@ -1,9 +1,9 @@
 {
-  "id": "./mobile.html",
-  "name": "웹뷰어 MOBILE",
+  "id": "./index.html",
+  "name": "웹뷰어",
   "short_name": "웹뷰어",
-  "description": "모바일 전용 웹뷰어",
-  "start_url": "./mobile.html",
+  "description": "태블릿용 웹뷰어",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
   "display_override": [
