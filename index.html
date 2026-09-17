@@ -10402,7 +10402,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(805) 모드 : </span>
+<span>버전 4.1(806) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12107,7 +12107,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(805) 모드 :</span>
+        <span>버전 4.1(806) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -160727,7 +160727,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 805;
+  const VIEWER_BUILD_V789 = 806;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161043,10 +161043,10 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
         localFile ? '앱 설치는 GitHub Pages에서 가능합니다' : '앱 설치 준비가 아직 되지 않았습니다',
         localFile
           ? '로컬 HTML(file://)에서는 PWA 설치창을 열 수 없습니다.'
-          : '현재 브라우저가 자동 PWA 설치 프롬프트를 제공하지 않았습니다.',
+          : '현재 브라우저가 자동 PWA 설치 프롬프트를 제공하지 않았습니다. 이미 설치된 앱이 있으면 Chrome이 이 설치 이벤트를 다시 주지 않을 수 있습니다.',
         localFile
           ? 'GitHub Pages의 index.html 주소를 Chrome에서 연 뒤 앱설치를 눌러주세요.'
-          : 'manifest.webmanifest와 sw.js가 같은 폴더에 배포되어 있는지 확인하고 한 번 새로고침해 보세요. 필요하면 브라우저 메뉴의 "앱 설치" 또는 "홈 화면에 추가"도 사용할 수 있습니다.'
+          : '이미 설치된 앱이 있다면 기존 앱을 실행하면 됩니다. 처음 설치하는 경우에는 manifest.webmanifest와 sw.js가 같은 폴더에 배포되어 있는지 확인하고 새로고침해 주세요.'
       );
       return;
     }
@@ -161097,9 +161097,13 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     if (!('serviceWorker' in navigator)) return;
     const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     if (location.protocol !== 'https:' && !isLocalhost) return;
-    navigator.serviceWorker.register('./sw.js').catch(error => {
-      console.warn('[Viewer PWA v804] service worker registration failed:', error);
-    });
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(registration => {
+        try { registration.update(); } catch (_) {}
+      })
+      .catch(error => {
+        console.warn('[Viewer PWA v804] service worker registration failed:', error);
+      });
   }
 
   window.addEventListener('beforeinstallprompt', event => {
@@ -161503,6 +161507,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v803: 태블릿 터치 포스터 조작 · 로컬 보유작은 1회 탭으로 기존 hover 미리보기, 같은 포스터 더블탭으로 재생 · 터치 스크롤은 이동거리로 구분 · touch-action manipulation으로 더블탭 확대 충돌 방지 · PC 마우스 동작 유지 · 화면 버전 4.1(803) -->
 <!-- v804: 최신버전 버튼 옆 PWA 앱설치 버튼 추가 · manifest.webmanifest 연결 · GitHub Pages HTTPS에서 sw.js 자동 등록 · beforeinstallprompt를 사용자 클릭까지 보관해 설치창 호출 · 설치 완료/PWA 실행 중에는 설치 버튼 숨김 · 로컬 file:// 및 설치 프롬프트 미제공 시 기존 내부 모달로 안내 · 화면 버전 4.1(805) -->
 <!-- v805: 동영상 재생화면 태블릿 제스처 추가 · 좌우 스와이프는 시간 탐색(영상 길이에 따른 자동 감도), 상하 스와이프는 볼륨 0~100% 조절 · 제스처 HUD 표시 · 스와이프 직후 click 재생/일시정지 오작동 차단 · PC 마우스 동작 유지 · 화면 버전 4.1(805) -->
+<!-- v806: PWA 복구 · Service Worker 등록을 updateViaCache:none으로 강제 갱신 · 설치 프롬프트 미발생 시 기존 설치앱 가능성 안내 · companion manifest/sw는 기존 PWA id 유지하면서 index.html 실행 · 화면 버전 4.1(806) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
