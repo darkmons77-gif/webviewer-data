@@ -2,6 +2,8 @@
 <html lang="ko">
 <head>
 <link rel="icon" type="image/png" href="./image/icon.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#07080d">
 <meta charset="utf-8">
 <title></title> <!-- 비워두기: JS가 채움 -->
 <style>
@@ -10400,7 +10402,7 @@ body.video-fullscreen-clean #wtHint{
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(803) 모드 : </span>
+<span>버전 4.1(804) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -10914,6 +10916,7 @@ body.video-fullscreen-clean #wtHint{
 	  <button id="lsCleanup" title="목록에 없는 작품의 image_config_map_v1 / fav_v2 정리">정리</button>
       <button id="viewerFullResetBtn" title="초기화 범위 선택: 만화만 / 영상만 / 만화+영상">완전초기화</button>
       <button id="viewerLatestVersionBtn" title="GitHub version.json을 확인하고 최신 웹뷰어 HTML 다운로드">최신버전</button>
+      <button id="viewerPwaInstallBtn" type="button" title="이 웹뷰어를 태블릿/모바일에 PWA 앱으로 설치" style="background:#5b45a8;color:#fff;font-weight:700;">앱설치</button>
       <button id="lsClose">닫기</button>
     </div>
   </header>
@@ -12104,7 +12107,7 @@ body.video-fullscreen-clean #wtHint{
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(803) 모드 :</span>
+        <span>버전 4.1(804) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -12160,6 +12163,11 @@ body.video-fullscreen-clean #wtHint{
         type="button"
         title="최신 웹뷰어 버전 확인 및 HTML 다운로드"
         style="background:#236a45;color:#fff;font-weight:700;">최신버전</button>
+<button id="viewerPwaInstallBtnWt"
+        class="zoomBtn"
+        type="button"
+        title="이 웹뷰어를 태블릿/모바일에 PWA 앱으로 설치"
+        style="background:#5b45a8;color:#fff;font-weight:700;">앱설치</button>
 </div>
     </div>
   <!-- ✅ 추가: 헤더 아래 본문(가로로 레일 + wtBox) -->
@@ -160719,7 +160727,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 803;
+  const VIEWER_BUILD_V789 = 804;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -160980,8 +160988,135 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     });
   }
 
+  // v804: GitHub Pages의 manifest.webmanifest + sw.js를 이용한 PWA 앱 설치 버튼.
+  // 브라우저 설치 프롬프트(beforeinstallprompt)를 저장했다가 사용자가 "앱설치"를 눌렀을 때만 실행한다.
+  let viewerPwaInstallPromptV804 = null;
+
+  function getViewerPwaInstallButtonsV804(){
+    return ['viewerPwaInstallBtnWt', 'viewerPwaInstallBtn']
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+  }
+
+  function isViewerPwaModeV804(){
+    try {
+      if (window.matchMedia?.('(display-mode: standalone)').matches) return true;
+      if (window.matchMedia?.('(display-mode: fullscreen)').matches) return true;
+      if (window.matchMedia?.('(display-mode: minimal-ui)').matches) return true;
+      if (window.navigator?.standalone === true) return true;
+    } catch (_) {}
+    return false;
+  }
+
+  function syncViewerPwaInstallButtonsV804(){
+    const installed = isViewerPwaModeV804();
+    getViewerPwaInstallButtonsV804().forEach(btn => {
+      btn.style.display = installed ? 'none' : '';
+      btn.disabled = false;
+      btn.textContent = '앱설치';
+    });
+  }
+
+  async function showViewerPwaNoticeV804(title, message, notice = ''){
+    return showViewerUpdateDialogV789({
+      title,
+      message,
+      notice,
+      cancelText: '확인',
+      closeOnly: true
+    });
+  }
+
+  async function installViewerPwaV804(button){
+    if (isViewerPwaModeV804()) {
+      syncViewerPwaInstallButtonsV804();
+      await showViewerPwaNoticeV804(
+        '이미 앱으로 실행 중입니다',
+        '현재 웹뷰어는 이미 설치된 PWA 앱 모드로 실행 중입니다.'
+      );
+      return;
+    }
+
+    if (!viewerPwaInstallPromptV804) {
+      const localFile = location.protocol === 'file:';
+      await showViewerPwaNoticeV804(
+        localFile ? '앱 설치는 GitHub Pages에서 가능합니다' : '앱 설치 준비가 아직 되지 않았습니다',
+        localFile
+          ? '로컬 HTML(file://)에서는 PWA 설치창을 열 수 없습니다.'
+          : '현재 브라우저가 자동 PWA 설치 프롬프트를 제공하지 않았습니다.',
+        localFile
+          ? 'GitHub Pages의 index.html 주소를 Chrome에서 연 뒤 앱설치를 눌러주세요.'
+          : 'manifest.webmanifest와 sw.js가 같은 폴더에 배포되어 있는지 확인하고 한 번 새로고침해 보세요. 필요하면 브라우저 메뉴의 "앱 설치" 또는 "홈 화면에 추가"도 사용할 수 있습니다.'
+      );
+      return;
+    }
+
+    const promptEvent = viewerPwaInstallPromptV804;
+    viewerPwaInstallPromptV804 = null;
+
+    const oldText = button?.textContent || '앱설치';
+    if (button) {
+      button.disabled = true;
+      button.textContent = '설치중';
+    }
+
+    try {
+      await promptEvent.prompt();
+      const choice = await promptEvent.userChoice;
+      if (choice?.outcome === 'accepted') {
+        getViewerPwaInstallButtonsV804().forEach(btn => { btn.style.display = 'none'; });
+      } else {
+        syncViewerPwaInstallButtonsV804();
+      }
+    } catch (error) {
+      console.warn('[Viewer PWA v804] install prompt failed:', error);
+      await showViewerPwaNoticeV804(
+        '앱 설치창을 열지 못했습니다',
+        '브라우저의 PWA 설치창을 호출하는 중 오류가 발생했습니다.',
+        String(error?.message || error)
+      );
+      syncViewerPwaInstallButtonsV804();
+    } finally {
+      if (button && button.isConnected && button.style.display !== 'none') {
+        button.disabled = false;
+        button.textContent = oldText || '앱설치';
+      }
+    }
+  }
+
+  function bindViewerPwaInstallButtonsV804(){
+    getViewerPwaInstallButtonsV804().forEach(btn => {
+      if (btn.dataset.viewerPwaBoundV804 === '1') return;
+      btn.dataset.viewerPwaBoundV804 = '1';
+      btn.addEventListener('click', () => installViewerPwaV804(btn));
+    });
+    syncViewerPwaInstallButtonsV804();
+  }
+
+  function registerViewerPwaServiceWorkerV804(){
+    if (!('serviceWorker' in navigator)) return;
+    const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (location.protocol !== 'https:' && !isLocalhost) return;
+    navigator.serviceWorker.register('./sw.js').catch(error => {
+      console.warn('[Viewer PWA v804] service worker registration failed:', error);
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    viewerPwaInstallPromptV804 = event;
+    syncViewerPwaInstallButtonsV804();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    viewerPwaInstallPromptV804 = null;
+    getViewerPwaInstallButtonsV804().forEach(btn => { btn.style.display = 'none'; });
+  });
+
   function startViewerLatestV789(){
     bindViewerLatestButtonsV789();
+    bindViewerPwaInstallButtonsV804();
+    registerViewerPwaServiceWorkerV804();
 
     // 자동 알림은 로컬 file:// 사용자에게만 띄운다.
     // GitHub Pages 사용자는 접속 자체가 최신 index.html이므로 수동 버튼만 제공한다.
@@ -160991,6 +161126,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   }
 
   window.checkViewerLatestVersionV789 = () => runViewerLatestCheckV789({ manual:true });
+  window.installViewerPwaV804 = () => installViewerPwaV804(getViewerPwaInstallButtonsV804()[0] || null);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', startViewerLatestV789, { once:true });
@@ -161141,6 +161277,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
 <!-- v802: v801 기준으로 최신버전 기능 안의 브라우저 기본 alert만 제거 · 기존 showViewerUpdateDialogV789 내부 모달을 closeOnly 단일버튼 알림으로 재사용 · 다운로드 시작/현재파일이 manifest보다 새 버전/확인 실패 알림만 커스텀화 · 화면 버전 4.1(803) -->
 <!-- v803: 태블릿 터치 포스터 조작 · 로컬 보유작은 1회 탭으로 기존 hover 미리보기, 같은 포스터 더블탭으로 재생 · 터치 스크롤은 이동거리로 구분 · touch-action manipulation으로 더블탭 확대 충돌 방지 · PC 마우스 동작 유지 · 화면 버전 4.1(803) -->
+<!-- v804: 최신버전 버튼 옆 PWA 앱설치 버튼 추가 · manifest.webmanifest 연결 · GitHub Pages HTTPS에서 sw.js 자동 등록 · beforeinstallprompt를 사용자 클릭까지 보관해 설치창 호출 · 설치 완료/PWA 실행 중에는 설치 버튼 숨김 · 로컬 file:// 및 설치 프롬프트 미제공 시 기존 내부 모달로 안내 · 화면 버전 4.1(804) -->
 </html>
 
 <!-- v745: 배우월 기본14 / 월드컵 썸네일옵션 기본접힘 / 저장폴더 picker 사용자제스처 수정 -->
