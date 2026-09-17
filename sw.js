@@ -1,6 +1,9 @@
-const SHELL_CACHE = 'webviewer-shell-v1';
+const SHELL_CACHE = 'webviewer-shell-v803';
+
+const APP_PAGE = './index.html';
+
 const SHELL_FILES = [
-  './mobile.html',
+  APP_PAGE,
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
@@ -17,64 +20,107 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== SHELL_CACHE).map(k => caches.delete(k))))
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(k => k !== SHELL_CACHE)
+            .map(k => caches.delete(k))
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
   const request = event.request;
+
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+
   if (url.origin !== self.location.origin) return;
 
-  // 페이지 이동: 온라인이면 최신 mobile.html을 받고, 실패하면 설치된 앱 셸 사용.
+  // 페이지 이동:
+  // 온라인이면 항상 최신 HTML 사용.
+  // 네트워크 실패 시 마지막으로 저장한 index.html 사용.
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
-        const fresh = await fetch(request);
+        const fresh = await fetch(request, {
+          cache: 'no-store'
+        });
+
         if (fresh && fresh.ok) {
           const cache = await caches.open(SHELL_CACHE);
-          cache.put('./mobile.html', fresh.clone());
+
+          await cache.put(
+            APP_PAGE,
+            fresh.clone()
+          );
+
+          return fresh;
         }
-        return fresh;
+
+        return (
+          await caches.match(APP_PAGE)
+        ) || fresh;
+
       } catch (_) {
-        return (await caches.match('./mobile.html')) || Response.error();
+        return (
+          await caches.match(APP_PAGE)
+        ) || Response.error();
       }
     })());
+
     return;
   }
 
-  // DB 대용량 JSON은 Service Worker에 중복 저장하지 않는다.
-  // 배우/작품 데이터의 영구 캐시는 mobile.html의 IndexedDB가 담당한다.
+  // 대용량 JSON은 SW Cache에 중복 저장하지 않음.
+  // IndexedDB가 담당.
   if (/\.json$/i.test(url.pathname)) {
+
+    // version.json만 최신 확인을 위해 network-first
     if (url.pathname.endsWith('/version.json')) {
       event.respondWith((async () => {
         try {
-          const fresh = await fetch(request);
+          const fresh = await fetch(request, {
+            cache: 'no-store'
+          });
+
           if (fresh && fresh.ok) {
             const cache = await caches.open(SHELL_CACHE);
-            cache.put(request, fresh.clone());
+            await cache.put(request, fresh.clone());
+            return fresh;
           }
-          return fresh;
+
+          return (
+            await caches.match(request)
+          ) || fresh;
+
         } catch (_) {
-          return (await caches.match(request)) || Response.error();
+          return (
+            await caches.match(request)
+          ) || Response.error();
         }
       })());
     }
+
     return;
   }
 
-  // manifest/icon/app shell: 캐시 우선, 없으면 네트워크.
+  // manifest / icon 등은 캐시 우선.
   event.respondWith((async () => {
     const cached = await caches.match(request);
+
     if (cached) return cached;
+
     const fresh = await fetch(request);
+
     if (fresh && fresh.ok) {
       const cache = await caches.open(SHELL_CACHE);
-      cache.put(request, fresh.clone());
+      await cache.put(request, fresh.clone());
     }
+
     return fresh;
   })());
 });
