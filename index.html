@@ -10413,7 +10413,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(813) 모드 : </span>
+<span>버전 4.1(빌드830) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -10563,6 +10563,14 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   <option value="tag">태그</option>
   <option value="playCount">재생</option>
   <option value="sceneCount">썸</option>
+</select>
+<select
+  class="zoomBtn"
+  id="videoFolderFilterSel"
+  title="영상 폴더 선택 · 폴더마다 정렬 방식과 방향을 따로 기억합니다"
+  style="display:none;max-width:180px;"
+>
+  <option value="">전체</option>
 </select>
 <button
   class="zoomBtn"
@@ -10926,6 +10934,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
       <button id="lsClearAll" title="로컬스토리지 전체 삭제(주의)">삭제</button>
 	  <button id="lsCleanup" title="목록에 없는 작품의 image_config_map_v1 / fav_v2 정리">정리</button>
       <button id="viewerFullResetBtn" title="초기화 범위 선택: 만화만 / 영상만 / 만화+영상">완전초기화</button>
+      <button id="viewerChangeLogBtn" type="button" title="최근 웹뷰어 수정내역 보기">수정내역</button>
       <button id="viewerLatestVersionBtn" title="GitHub version.json을 확인하고 최신 웹뷰어 HTML 다운로드">최신버전</button>
       <button id="viewerPwaInstallBtn" type="button" title="이 웹뷰어를 태블릿/모바일에 PWA 앱으로 설치" style="background:#5b45a8;color:#fff;font-weight:700;">앱설치</button>
       <button id="lsClose">닫기</button>
@@ -12118,7 +12127,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(813) 모드 :</span>
+        <span>버전 4.1(빌드830) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -12169,6 +12178,11 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         type="button"
         title="초기화 범위 선택: 만화만 / 영상만 / 만화+영상"
         style="background:#8f2525;color:#fff;font-weight:700;">완전초기화</button>
+<button id="viewerChangeLogBtnWt"
+        class="zoomBtn"
+        type="button"
+        title="최근 웹뷰어 수정내역 보기"
+        style="background:#4b5563;color:#fff;font-weight:700;">수정내역</button>
 <button id="viewerLatestVersionBtnWt"
         class="zoomBtn"
         type="button"
@@ -12609,8 +12623,15 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         class="zoomBtn"
         id="videoRangeDmmSearchBtn"
         type="button"
-        title="범위 품번 + 작품 날짜 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 검색"
+        title="범위 품번 + 작품 날짜 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 전체 검색"
       >작품검색</button>
+      <button
+        class="zoomBtn"
+        id="videoRangeOwnedSearchBtn"
+        type="button"
+        title="같은 메타검색 조건을 현재 보유 영상과 매칭된 AVWikiDB 작품에만 적용합니다. 조건이 비어 있으면 보유작 전체를 표시합니다."
+        aria-pressed="false"
+      >보유작검색</button>
       <button
         class="zoomBtn"
         id="videoMissingOnlyBtn"
@@ -40471,6 +40492,27 @@ document.addEventListener('DOMContentLoaded', () => {
   box-shadow:0 0 0 2px rgba(255,94,112,.10);
 }
 #videoRangeDmmSearchBtn.is-cancel:hover { background:#b94a56; }
+/* v820: 작품DB 전체검색과 같은 조건을 보유작에만 적용하는 검색 버튼 */
+#videoRangeOwnedSearchBtn {
+  min-width: 86px;
+  height: 30px;
+  background: #356f58;
+  border-color: rgba(116,226,176,.40);
+  color: #fff;
+  font-weight: 800;
+}
+#videoRangeOwnedSearchBtn:hover { background:#408469; }
+#videoRangeOwnedSearchBtn.active {
+  background:#4f936f;
+  border-color:rgba(142,245,195,.74);
+  box-shadow:0 0 0 2px rgba(90,220,157,.12);
+}
+#videoRangeOwnedSearchBtn.is-cancel {
+  background:#a33f49;
+  border-color:rgba(255,132,145,.68);
+  box-shadow:0 0 0 2px rgba(255,94,112,.10);
+}
+#videoRangeOwnedSearchBtn.is-cancel:hover { background:#b94a56; }
 /* v396: 미보유도 범위검색 계열 버튼 모양으로 통일하되 청록 계열로 구분 */
 #videoMissingOnlyBtn {
   min-width: 59px;
@@ -47178,6 +47220,9 @@ button.videoPosterBadgeLine:hover {
   // 영상 정렬
   const VIDEO_SORT_KEY = 'video_sort_mode_v1';
   const VIDEO_SORT_REVERSE_KEY = 'video_sort_reverse_v1';
+  // v819: 메인 영상 목록의 루트폴더 필터 + 폴더별 정렬 설정
+  // 폴더 선택 자체는 새로고침 시 항상 '전체'로 시작하고, 정렬 방식/방향만 폴더별로 기억한다.
+  const VIDEO_FOLDER_SORT_PREF_KEY_V819 = 'video_folder_sort_pref_v1';
   const VIDEO_WORK_BOOKMARK_KEY = 'video_work_bookmark_v1';
 const VIDEO_WORK_BODY_POSTER_KEY = 'video_work_body_poster_v1';
   const VIDEO_BOOKMARK_ONLY_KEY = 'video_bookmark_only_v1';
@@ -49139,6 +49184,189 @@ let videoSortReverse = (() => {
   }
 })();
 
+// v819: '' = 전체. 사용자가 새로고침하면 의도대로 항상 전체부터 시작한다.
+let videoFolderFilterNameV819 = '';
+
+function normalizeVideoFolderFilterNameV819(value) {
+  return String(value || '').trim();
+}
+
+function getVideoFolderSortPrefMapV819() {
+  try {
+    const value = VTLS.getJSON(VIDEO_FOLDER_SORT_PREF_KEY_V819, {});
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? value
+      : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function getVideoGlobalSortPreferenceV819() {
+  let mode = 'random';
+  let reverse = false;
+  try {
+    const savedMode = String(VTLS.getRaw(VIDEO_SORT_KEY) || '');
+    mode = VIDEO_SORT_MODES.has(savedMode) && savedMode !== 'none'
+      ? savedMode
+      : 'random';
+    reverse = VTLS.getRaw(VIDEO_SORT_REVERSE_KEY) === '1';
+  } catch (_) {}
+  return { mode, reverse };
+}
+
+function getVideoFolderSortPreferenceV819(folderName) {
+  const name = normalizeVideoFolderFilterNameV819(folderName);
+  if (!name) return getVideoGlobalSortPreferenceV819();
+
+  const map = getVideoFolderSortPrefMapV819();
+  const row = map[name];
+  if (row && typeof row === 'object') {
+    const mode = VIDEO_SORT_MODES.has(String(row.mode || ''))
+      ? String(row.mode)
+      : '';
+    if (mode) {
+      return {
+        mode,
+        reverse: !!row.reverse
+      };
+    }
+  }
+
+  // 이 폴더에서 아직 정렬을 고른 적이 없으면 '전체' 정렬을 초기값으로 사용.
+  return getVideoGlobalSortPreferenceV819();
+}
+
+function saveVideoCurrentSortPreferenceV819() {
+  const name = normalizeVideoFolderFilterNameV819(videoFolderFilterNameV819);
+
+  try {
+    if (!name) {
+      // 전체 보기의 정렬은 기존 전역 키를 그대로 사용해서 구버전과 호환.
+      VTLS.setRaw(VIDEO_SORT_KEY, videoSortMode);
+      VTLS.setRaw(
+        VIDEO_SORT_REVERSE_KEY,
+        videoSortReverse ? '1' : '0'
+      );
+      return;
+    }
+
+    const map = getVideoFolderSortPrefMapV819();
+    map[name] = {
+      mode: VIDEO_SORT_MODES.has(videoSortMode) ? videoSortMode : 'random',
+      reverse: !!videoSortReverse,
+      updatedAt: Date.now()
+    };
+    VTLS.setJSON(VIDEO_FOLDER_SORT_PREF_KEY_V819, map);
+  } catch (_) {}
+}
+
+function applyVideoFolderSortPreferenceV819(folderName) {
+  const pref = getVideoFolderSortPreferenceV819(folderName);
+  videoSortMode = VIDEO_SORT_MODES.has(pref.mode) ? pref.mode : 'random';
+  videoSortReverse = !!pref.reverse;
+}
+
+function videoEntryMatchesFolderFilterV819(entry) {
+  const selected = normalizeVideoFolderFilterNameV819(videoFolderFilterNameV819);
+  if (!selected) return true;
+
+  return (
+    String(entry?.sourceType || '').toLowerCase() === 'folder' &&
+    normalizeVideoFolderFilterNameV819(entry?.rootName) === selected
+  );
+}
+
+function getVideoFolderFilterOptionsV819() {
+  const list = loadVideoList();
+  const counts = new Map();
+
+  for (const entry of list) {
+    if (String(entry?.sourceType || '').toLowerCase() !== 'folder') continue;
+    const name = normalizeVideoFolderFilterNameV819(entry?.rootName);
+    if (!name) continue;
+    counts.set(name, (counts.get(name) || 0) + 1);
+  }
+
+  // 현재 핸들 캐시에만 있고 영상이 0개인 추가폴더도 셀렉트에 보이게 한다.
+  try {
+    const roots = Array.isArray(_videoVideoRootHandleRecordsCache)
+      ? _videoVideoRootHandleRecordsCache
+      : [];
+    for (const rec of roots) {
+      const name = normalizeVideoFolderFilterNameV819(rec?.name || rec?.handle?.name);
+      if (name && !counts.has(name)) counts.set(name, 0);
+    }
+  } catch (_) {}
+
+  const folders = Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ko', { numeric: true, sensitivity: 'base' }));
+
+  return { total: list.length, folders };
+}
+
+function syncVideoFolderFilterUIV819() {
+  const select = document.getElementById('videoFolderFilterSel');
+  if (!select) return;
+
+  const { total, folders } = getVideoFolderFilterOptionsV819();
+  const available = new Set(folders.map(row => row.name));
+
+  if (videoFolderFilterNameV819 && !available.has(videoFolderFilterNameV819)) {
+    videoFolderFilterNameV819 = '';
+    applyVideoFolderSortPreferenceV819('');
+  }
+
+  const signature = JSON.stringify([total, folders]);
+  if (select.dataset.folderSignatureV819 !== signature) {
+    select.innerHTML = '';
+
+    const all = document.createElement('option');
+    all.value = '';
+    all.textContent = `전체 (${total})`;
+    select.appendChild(all);
+
+    for (const row of folders) {
+      const option = document.createElement('option');
+      option.value = row.name;
+      option.textContent = `${row.name} (${row.count})`;
+      select.appendChild(option);
+    }
+
+    select.dataset.folderSignatureV819 = signature;
+  }
+
+  select.value = videoFolderFilterNameV819;
+  select.title = videoFolderFilterNameV819
+    ? `${videoFolderFilterNameV819} 폴더만 보기 · 이 폴더의 정렬 설정은 따로 저장됩니다`
+    : '전체 폴더 보기 · 폴더를 고르면 해당 루트폴더의 영상만 표시합니다';
+}
+
+function setVideoFolderFilterV819(folderName) {
+  const requested = normalizeVideoFolderFilterNameV819(folderName);
+  const { folders } = getVideoFolderFilterOptionsV819();
+  const available = new Set(folders.map(row => row.name));
+  const next = requested && available.has(requested) ? requested : '';
+
+  if (next === videoFolderFilterNameV819) {
+    syncVideoFolderFilterUIV819();
+    return;
+  }
+
+  videoFolderFilterNameV819 = next;
+  applyVideoFolderSortPreferenceV819(next);
+
+  // 랜덤 정렬도 현재 폴더의 후보군에서 안정적으로 다시 시작한다.
+  if (videoSortMode === 'random') {
+    resetVideoRandomSortRanks();
+  }
+
+  syncVideoFolderFilterUIV819();
+  syncVideoSortUI();
+  renderVideoList();
+}
+
 // 영상 작품 북마크만 보기
 let videoBookmarkOnly = (() => {
   try {
@@ -49188,6 +49416,9 @@ let videoRangeAutoCodeFilterText = '';
 // 범위뷰와 같은 가상 포스터 카드로 결과를 보여주되,
 // 최소/최대 품번 범위와는 독립적으로 26만 작품 전체를 검색한다.
 let videoDmmWorkSearchOn = false;
+// v820: 메타검색을 AVWikiDB 전체가 아니라 현재 보유 영상과 매칭된 작품에만 제한.
+// false = 기존 작품검색(인덱스DB 전체), true = 보유작검색.
+let videoDmmOwnedOnlySearchV820 = false;
 let videoDmmWorkSearchQuery = '';
 let videoDmmWorkSearchResults = [];
 let videoDmmWorkSearchBusy = false;
@@ -52050,8 +52281,32 @@ let videoColsLayer = clampVideoCols(
       const id = String(entry.id || '');
       const display = String(entry.display || '');
       const fileName = String(entry.fileName || '');
-      const rawActressGroups =
+
+      // v826: 배우월 보유작 인덱스는 로컬 파일에 저장된 배우명만 보지 않고
+      // 현재 AVWikiDB 작품DB에 확정/잠정 매칭된 actresses[]도 함께 합친다.
+      // 예: 로컬에는 黒沢麗華만 있어도 작품DB가
+      // ["SARA(S-Cute)", "黒沢麗華"]이면 양쪽 배우월에서 같은 보유작으로 잡힌다.
+      let workMeta = null;
+      try {
+        workMeta =
+          typeof getVideoWorkRecordForEntry === 'function'
+            ? getVideoWorkRecordForEntry(entry)
+            : null;
+      } catch (_) {}
+
+      const localActressGroups =
         getVideoEntryActressGroups(entry);
+
+      const workActressGroups =
+        Array.isArray(workMeta?.actresses)
+          ? normalizeVideoActressGroupList(workMeta.actresses)
+          : [];
+
+      const rawActressGroups =
+        normalizeVideoActressGroupList([
+          ...localActressGroups,
+          ...workActressGroups
+        ]);
 
       const rawActress =
         rawActressGroups[0] || '';
@@ -52162,14 +52417,6 @@ let videoColsLayer = clampVideoCols(
           actressAliasSearchText = aliasLabels.join(' ');
         } catch (_) {}
       }
-
-      let workMeta = null;
-      try {
-        workMeta =
-          typeof getVideoWorkRecordForEntry === 'function'
-            ? getVideoWorkRecordForEntry(entry)
-            : null;
-      } catch (_) {}
 
       const workTitleJa =
         String(workMeta?.titleJa || '').trim();
@@ -54421,64 +54668,21 @@ function openVideoDisplayActressProfileV670(item) {
 // 대표명 + 원본명처럼 일본어 이름 2개를 공백으로 합치면 하나의 긴 일본어 이름으로
 // 오인될 수 있었으므로 절대 합치지 않는다.
 function getVideoDisplayActressPhotoNamesV779(item) {
-  const result = [];
-  const seen = new Set();
+  let exactName = String(item?.label || item?.displayLabel || '').trim();
 
-  const add = value => {
-    if (Array.isArray(value)) {
-      value.forEach(add);
-      return;
-    }
-
-    const label = String(value || '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    if (!label) return;
-
-    let key = '';
-    try {
-      key = normalizeActressAliasToken(label);
-    } catch (_) {
-      key = label.toLocaleLowerCase();
-    }
-
-    if (!key || seen.has(key)) return;
-    seen.add(key);
-    result.push(label);
-  };
-
-  // display 카드에 현재 표시되는 이름 / 작품에서 들어온 원본 이름
-  add(item?.displayLabel);
-  add(item?.label);
-
-  // 저장된 배우정보의 대표명 / DMM·AVWiki 대표명도 후보에 포함
   try {
     const profile = getVideoActressProfile(
       item?.key || item?.label || item?.displayLabel || ''
     ) || {};
-
-    add(profile.name);
-    add(profile.dmmName);
-    add(profile.dmmSearchName);
+    if (
+      String(profile?.dmmNameSource || '').trim() === 'avwikidb' &&
+      String(profile?.dmmName || '').trim()
+    ) {
+      exactName = String(profile.dmmName).trim();
+    }
   } catch (_) {}
 
-  // 배우정보창이 사용하는 동일 별칭 목록
-  try {
-    getVideoActressAliasLabelsForEditor(
-      item?.key || item?.label || item?.displayLabel || ''
-    ).forEach(add);
-  } catch (_) {}
-
-  // 원본 문자열 자체에 "/" 등으로 여러 이름이 묶여 있는 경우도 각각 분리
-  for (const raw of [item?.displayLabel, item?.label]) {
-    try {
-      splitVideoActressAliases(raw || '')
-        .forEach(alias => add(alias?.label || alias));
-    } catch (_) {}
-  }
-
-  return result;
+  return exactName ? [exactName] : [];
 }
 
 function renderVideoDisplayActressStripV670(entry) {
@@ -59061,6 +59265,8 @@ async function importVideoActressJsonDb(kind, file, options = {}) {
       __videoAvwikidbActorsIndexPromise = null;
       __videoAvwikidbNameJaExactIndex = null;
       __videoAvwikidbNameJaExactIndexPromise = null;
+      __videoAvwikidbActorIdPhotoIndexV830 = null;
+      __videoAvwikidbActorIdPhotoIndexV830Promise = null;
       try { __videoAvwikiMatchIndexV732 = null; } catch (_) {}
     } catch (_) {}
   }
@@ -59278,6 +59484,8 @@ async function deleteVideoActressJsonDatasetV736(kind) {
       __videoAvwikidbActorsIndexPromise = null;
       __videoAvwikidbNameJaExactIndex = null;
       __videoAvwikidbNameJaExactIndexPromise = null;
+      __videoAvwikidbActorIdPhotoIndexV830 = null;
+      __videoAvwikidbActorIdPhotoIndexV830Promise = null;
       try { __videoAvwikiMatchIndexV732 = null; } catch (_) {}
     }
   } catch (_) {}
@@ -77413,6 +77621,692 @@ function appendVideoAvdbsOnlinePosterCandidates(
 }
 
 
+
+
+// =========================================================
+// v814 무포스터 정지 프레임 선택
+// - 기존 로컬/온라인 포스터 후보가 전부 실패한 "보유 영상"만 대상
+// - v818: 5초 간격 5~50초, 총 10개 프레임을 RAM Blob으로만 만들어 후보 표시
+// - 사용자가 고른 1장만 Scenes 폴더에 JPG로 저장
+// - 선택 기록은 작은 매핑만 저장하고, 다음 렌더부터 Scenes JPG를 포스터 후보로 재사용
+// =========================================================
+const VIDEO_FRAME_POSTER_MAP_KEY_V814 = 'video_frame_poster_map_v814';
+const VIDEO_FRAME_POSTER_TIMES_V814 = Object.freeze([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]);
+let videoFramePosterPickerBusyV814 = false;
+
+function getVideoFramePosterEntryKeyV814(entry) {
+  const id = String(entry?.id || '').trim();
+  if (id) return id;
+  return [
+    String(entry?.sourceType || ''),
+    String(entry?.rootName || ''),
+    String(entry?.relPath || ''),
+    String(entry?.fileName || entry?.baseName || '')
+  ].join('|');
+}
+
+function getVideoFramePosterMapV814() {
+  try {
+    const value = VTLS.getJSON(VIDEO_FRAME_POSTER_MAP_KEY_V814, {});
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function getVideoFramePosterInfoV814(entry) {
+  const key = getVideoFramePosterEntryKeyV814(entry);
+  if (!key) return null;
+  const row = getVideoFramePosterMapV814()[key];
+  return row && typeof row === 'object' ? row : null;
+}
+
+function setVideoFramePosterInfoV814(entry, info) {
+  const key = getVideoFramePosterEntryKeyV814(entry);
+  if (!key) return null;
+  const map = getVideoFramePosterMapV814();
+  map[key] = {
+    fileName: String(info?.fileName || '').trim(),
+    time: Math.max(0, Number(info?.time) || 0),
+    updatedAt: Date.now()
+  };
+  VTLS.setJSON(VIDEO_FRAME_POSTER_MAP_KEY_V814, map);
+  return map[key];
+}
+
+function isVideoFramePosterOwnedEntryV814(entry) {
+  if (!entry || typeof entry !== 'object') return false;
+  try {
+    if (typeof isVideoFolderEntry === 'function' && isVideoFolderEntry(entry)) return true;
+  } catch (_) {}
+  try {
+    if (typeof isVideoDirectFileEntry === 'function' && isVideoDirectFileEntry(entry)) return true;
+  } catch (_) {}
+  return ['folder', 'file'].includes(String(entry?.sourceType || '').toLowerCase());
+}
+
+function hashVideoFramePosterKeyV814(value) {
+  let h = 2166136261 >>> 0;
+  const text = String(value || '');
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+function makeVideoFramePosterFileNameV814(entry) {
+  const base = stripExt(entry?.fileName || entry?.baseName || 'video');
+  const suffix = hashVideoFramePosterKeyV814(getVideoFramePosterEntryKeyV814(entry));
+  return `${base}__FramePoster_${suffix}.jpg`;
+}
+
+// v816: v814 장면 선택창 CSS가 다른 팝업용 HTML 문자열 안에 들어가 실제 웹뷰어 문서에는 적용되지 않았다.
+// 메인 document.head에 런타임 스타일을 1회 주입해 선택창을 화면 중앙에 확실히 표시한다.
+function ensureVideoFramePosterPickerStylesV816() {
+  let style = document.getElementById('videoFramePosterPickerStylesV816');
+  if (style) return style;
+
+  style = document.createElement('style');
+  style.id = 'videoFramePosterPickerStylesV816';
+  style.textContent = `
+.videoFramePosterOfferV814{
+  position:absolute;inset:0;z-index:45;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  padding:12px;box-sizing:border-box;text-align:center;
+  background:linear-gradient(145deg,rgba(32,27,39,.97),rgba(16,17,21,.98));
+  color:#eee;border:1px solid rgba(174,135,255,.34);
+}
+.videoFramePosterOfferTitleV814{font-size:16px;font-weight:900;letter-spacing:-.2px;color:#e6dcff;}
+.videoFramePosterOfferHintV814{font-size:10px;line-height:1.4;color:#aaa;}
+.videoFramePosterOfferBtnV814{
+  appearance:none;border:1px solid rgba(179,146,255,.74);border-radius:7px;
+  background:#5b45a8;color:#fff;font-size:11px;font-weight:850;
+  padding:7px 10px;cursor:pointer;box-shadow:0 3px 13px rgba(0,0,0,.24);
+}
+.videoFramePosterOfferBtnV814:hover{filter:brightness(1.12);}
+.videoFramePosterOfferBtnV814:disabled{opacity:.62;cursor:wait;}
+#videoFramePosterPickerLayerV814{
+  position:fixed!important;inset:0!important;z-index:9999998!important;display:none;
+  align-items:center;justify-content:center;padding:18px;box-sizing:border-box;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(2px);pointer-events:auto!important;
+}
+#videoFramePosterPickerLayerV814.is-visible{display:flex!important;}
+.videoFramePosterPickerPanelV814{
+  width:min(920px,96vw);max-height:92vh;overflow:auto;box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.16);border-radius:12px;
+  background:#17191f;color:#eee;box-shadow:0 22px 70px rgba(0,0,0,.55);padding:14px;
+}
+.videoFramePosterPickerHeadV814{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.videoFramePosterPickerHeadTextV814{min-width:0;flex:1;}
+.videoFramePosterPickerTitleV814{font-size:17px;font-weight:900;color:#fff;}
+.videoFramePosterPickerSubV814{margin-top:4px;font-size:11px;line-height:1.45;color:#aeb5c2;word-break:break-all;}
+.videoFramePosterPickerCloseV814{
+  width:30px;height:30px;border:1px solid #454a55;border-radius:7px;background:#252831;color:#ddd;
+  font-size:20px;line-height:26px;cursor:pointer;flex:0 0 auto;
+}
+.videoFramePosterPickerStatusV814{
+  min-height:22px;margin:3px 0 10px;padding:7px 9px;border-radius:7px;
+  background:#111319;color:#aeb5c2;font-size:11px;display:flex;align-items:center;
+}
+.videoFramePosterPickerGridV814{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
+.videoFramePosterChoiceV814{
+  position:relative;display:block;width:100%;padding:0;overflow:hidden;
+  border:2px solid #343946;border-radius:9px;background:#0d0f13;color:#fff;cursor:pointer;
+}
+.videoFramePosterChoiceV814:hover,.videoFramePosterChoiceV814:focus-visible{border-color:#a98cff;outline:none;box-shadow:0 0 0 2px rgba(137,106,225,.25);}
+.videoFramePosterChoiceV814 img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#050607;}
+.videoFramePosterChoiceLabelV814{
+  position:absolute;left:7px;bottom:7px;padding:3px 7px;border-radius:999px;
+  background:rgba(0,0,0,.76);color:#fff;font-size:11px;font-weight:900;pointer-events:none;
+}
+.videoFramePosterPickerFootV814{display:flex;justify-content:flex-end;gap:7px;margin-top:11px;}
+.videoFramePosterPickerCancelV814{
+  border:1px solid #454a55;border-radius:7px;background:#252831;color:#ddd;font-size:11px;font-weight:750;padding:7px 13px;cursor:pointer;
+}
+.videoFramePosterReselectBtnV818{
+  appearance:none; font-family:inherit; margin:0 6px 0 4px; vertical-align:middle;
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:18px; padding:1px 5px; border-radius:5px;
+  border:1px solid rgba(255,188,92,.72); background:rgba(126,70,18,.92);
+  color:#ffe2a7; font-size:9px; font-weight:900; line-height:1;
+  cursor:pointer; user-select:none; box-sizing:border-box;
+}
+.videoFramePosterReselectBtnV818:hover{filter:brightness(1.14);}
+.videoFramePosterReselectBtnV818:disabled{opacity:.65;cursor:wait;}
+@media (max-width:680px){
+  #videoFramePosterPickerLayerV814{padding:8px;}
+  .videoFramePosterPickerPanelV814{width:99vw;padding:9px;}
+  .videoFramePosterPickerGridV814{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+  .videoFramePosterChoiceLabelV814{left:5px;bottom:5px;font-size:10px;}
+}
+`;
+  document.head.appendChild(style);
+  return style;
+}
+
+function ensureVideoFramePosterPickerLayerV814() {
+  ensureVideoFramePosterPickerStylesV816();
+  let layer = document.getElementById('videoFramePosterPickerLayerV814');
+  if (layer) return layer;
+  layer = document.createElement('div');
+  layer.id = 'videoFramePosterPickerLayerV814';
+  layer.setAttribute('role', 'dialog');
+  layer.setAttribute('aria-modal', 'true');
+  layer.setAttribute('aria-labelledby', 'videoFramePosterPickerTitleV814');
+  layer.innerHTML = `
+    <div class="videoFramePosterPickerPanelV814">
+      <div class="videoFramePosterPickerHeadV814">
+        <div class="videoFramePosterPickerHeadTextV814">
+          <div class="videoFramePosterPickerTitleV814" id="videoFramePosterPickerTitleV814">포스터 장면 선택</div>
+          <div class="videoFramePosterPickerSubV814" id="videoFramePosterPickerSubV814"></div>
+        </div>
+        <button type="button" class="videoFramePosterPickerCloseV814" data-frame-poster-close-v814 aria-label="닫기">×</button>
+      </div>
+      <div class="videoFramePosterPickerStatusV814" id="videoFramePosterPickerStatusV814">장면을 준비합니다.</div>
+      <div class="videoFramePosterPickerGridV814" id="videoFramePosterPickerGridV814"></div>
+      <div class="videoFramePosterPickerFootV814">
+        <button type="button" class="videoFramePosterPickerCancelV814" data-frame-poster-close-v814>취소</button>
+      </div>
+    </div>`;
+  document.body.appendChild(layer);
+  return layer;
+}
+
+function closeVideoFramePosterPickerLayerV814(layer = null) {
+  const target = layer || document.getElementById('videoFramePosterPickerLayerV814');
+  target?.classList?.remove('is-visible');
+}
+
+// v815: Android/태블릿에서는 DOM 밖의 <video>가 loadeddata를 오래 주지 않는 경우가 있다.
+// 장면 포스터 캡처 전용으로 영상 요소를 화면 밖 DOM에 붙이고 metadata까지만 먼저 준비한다.
+// 모든 대기에는 timeout을 둬서 "장면 준비중" 상태로 무한 대기하지 않게 한다.
+function waitVideoFramePosterEventV815(video, okEvents, timeoutMs, errorText) {
+  if (!video) return Promise.reject(new Error(errorText || '영상 준비 실패'));
+  const names = Array.isArray(okEvents) ? okEvents.filter(Boolean) : [okEvents].filter(Boolean);
+  return new Promise((resolve, reject) => {
+    let done = false;
+    let timer = 0;
+    const cleanup = () => {
+      for (const name of names) video.removeEventListener(name, onOk);
+      video.removeEventListener('error', onError);
+      video.removeEventListener('abort', onAbort);
+      if (timer) clearTimeout(timer);
+    };
+    const finish = (ok, value) => {
+      if (done) return;
+      done = true;
+      cleanup();
+      ok ? resolve(value) : reject(value);
+    };
+    const onOk = () => finish(true, video);
+    const onError = () => finish(false, new Error(errorText || '영상 준비 실패'));
+    const onAbort = () => finish(false, new Error('영상 읽기가 중단되었습니다.'));
+    for (const name of names) video.addEventListener(name, onOk, { once: true });
+    video.addEventListener('error', onError, { once: true });
+    video.addEventListener('abort', onAbort, { once: true });
+    timer = setTimeout(() => finish(false, new Error(`${errorText || '영상 준비'} 시간 초과`)), Math.max(1000, Number(timeoutMs) || 12000));
+  });
+}
+
+async function waitVideoFramePosterMetadataV815(video) {
+  if (video.readyState >= 1 && Number.isFinite(Number(video.duration))) return video;
+  return waitVideoFramePosterEventV815(video, ['loadedmetadata'], 15000, '영상 정보 읽기 실패');
+}
+
+async function seekVideoFramePosterV815(video, time) {
+  const duration = Number(video?.duration) || 0;
+  const target = Math.max(0, Math.min(Math.max(0, duration - 0.05), Number(time) || 0));
+  if (Math.abs((Number(video.currentTime) || 0) - target) < 0.035 && video.readyState >= 2) return target;
+
+  const seekDone = waitVideoFramePosterEventV815(video, ['seeked'], 15000, `${Math.round(target)}초 장면 이동 실패`);
+  try {
+    video.currentTime = target;
+  } catch (error) {
+    throw new Error(`${Math.round(target)}초 위치로 이동할 수 없습니다.`);
+  }
+  await seekDone;
+
+  // seeked 직후에도 일부 모바일 코덱은 화면 프레임 제출이 한 박자 늦다.
+  if (video.readyState < 2) {
+    await waitVideoFramePosterEventV815(video, ['loadeddata', 'canplay'], 8000, `${Math.round(target)}초 화면 디코딩 실패`);
+  }
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  return target;
+}
+
+function canvasToVideoFramePosterBlobV815(canvas) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error('정지화면 JPG 생성 시간 초과'));
+    }, 8000);
+    try {
+      canvas.toBlob(value => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        value ? resolve(value) : reject(new Error('정지화면 생성 실패'));
+      }, 'image/jpeg', 0.90);
+    } catch (error) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    }
+  });
+}
+
+async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
+  try { onProgress?.(-2, VIDEO_FRAME_POSTER_TIMES_V814.length, 0, 'handle'); } catch (_) {}
+  const handle = await resolveVideoHandle(entry);
+  if (!handle) throw new Error('영상 파일을 찾지 못했습니다.');
+
+  let sourceUrl = '';
+  let video = null;
+  const result = [];
+  try {
+    try { onProgress?.(-1, VIDEO_FRAME_POSTER_TIMES_V814.length, 0, 'file'); } catch (_) {}
+    const file = await handle.getFile();
+    if (!file || !Number(file.size)) throw new Error('영상 파일이 비어 있거나 읽을 수 없습니다.');
+
+    sourceUrl = URL.createObjectURL(file);
+    video = document.createElement('video');
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.controls = false;
+    video.disablePictureInPicture = true;
+    video.preload = 'metadata';
+    video.style.cssText = 'position:fixed!important;left:-10000px!important;top:-10000px!important;width:2px!important;height:2px!important;opacity:0!important;pointer-events:none!important;z-index:-1!important;';
+    document.body.appendChild(video);
+
+    try { onProgress?.(0, VIDEO_FRAME_POSTER_TIMES_V814.length, 0, 'metadata'); } catch (_) {}
+    video.src = sourceUrl;
+    try { video.load(); } catch (_) {}
+    await waitVideoFramePosterMetadataV815(video);
+
+    const duration = Number(video.duration) || 0;
+    if (!Number.isFinite(duration) || duration <= 0) {
+      throw new Error('영상 길이를 읽지 못했습니다.');
+    }
+
+    const safeMax = Math.max(0, duration - 0.08);
+    const times = [];
+    for (const wanted of VIDEO_FRAME_POSTER_TIMES_V814) {
+      const actual = Math.min(wanted, safeMax);
+      if (!times.some(value => Math.abs(value - actual) < 0.04)) times.push(actual);
+    }
+    if (!times.length) times.push(0);
+
+    const vw = Math.max(1, Number(video.videoWidth) || 1280);
+    const vh = Math.max(1, Number(video.videoHeight) || 720);
+    const scale = Math.min(1, 720 / Math.max(vw, vh));
+    const width = Math.max(2, Math.round(vw * scale));
+    const height = Math.max(2, Math.round(vh * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) throw new Error('캡처 화면을 만들지 못했습니다.');
+
+    for (let i = 0; i < times.length; i++) {
+      const requestedTime = times[i];
+      try { onProgress?.(i, times.length, requestedTime, 'seek'); } catch (_) {}
+      try {
+        const actualTime = await seekVideoFramePosterV815(video, requestedTime);
+        drawVideoToWebpCanvas(ctx, video, width, height);
+        const blob = await canvasToVideoFramePosterBlobV815(canvas);
+        result.push({
+          wantedTime: VIDEO_FRAME_POSTER_TIMES_V814[Math.min(i, VIDEO_FRAME_POSTER_TIMES_V814.length - 1)],
+          time: actualTime,
+          blob,
+          url: URL.createObjectURL(blob)
+        });
+      } catch (error) {
+        console.warn('[v815 장면 포스터 프레임 건너뜀]', entry?.fileName, requestedTime, error);
+      }
+      try { onProgress?.(i + 1, times.length, requestedTime, 'done'); } catch (_) {}
+    }
+
+    if (!result.length) {
+      throw new Error('5~50초 장면 후보를 디코딩하지 못했습니다. 영상 코덱을 확인해 주세요.');
+    }
+    return result;
+  } finally {
+    try {
+      video?.pause?.();
+      video?.removeAttribute?.('src');
+      video?.load?.();
+      video?.remove?.();
+    } catch (_) {}
+    if (sourceUrl) {
+      try { URL.revokeObjectURL(sourceUrl); } catch (_) {}
+    }
+  }
+}
+
+function releaseVideoFramePosterCandidatesV814(candidates) {
+  for (const item of Array.isArray(candidates) ? candidates : []) {
+    const url = String(item?.url || '');
+    if (url) {
+      try { URL.revokeObjectURL(url); } catch (_) {}
+    }
+    if (item) item.url = '';
+  }
+}
+
+// v817: 장면 포스터는 선택된 메타데이터와 별개로 파일명이 영상 entry에서 결정된다.
+// 새로고침 뒤에는 file:// 상대경로가 아니라 사용자가 지정한 표지 루트의 Scenes에서 File Handle로 직접 읽는다.
+function makeVideoFramePosterCandidateSrcV817(fileName) {
+  const name = String(fileName || '').trim();
+  return name ? `frameposter-v817:${encodeURIComponent(name)}` : '';
+}
+
+function parseVideoFramePosterCandidateSrcV817(src) {
+  const raw = String(src || '');
+  const prefix = 'frameposter-v817:';
+  if (!raw.toLocaleLowerCase().startsWith(prefix)) return '';
+  try {
+    return decodeURIComponent(raw.slice(prefix.length));
+  } catch (_) {
+    return raw.slice(prefix.length);
+  }
+}
+
+async function getSavedVideoFramePosterFileV817(fileName) {
+  const name = String(fileName || '').trim();
+  if (!name) return null;
+  const root = await getVideoPosterRootHandle();
+  const scenes = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
+    ? root
+    : await root.getDirectoryHandle('Scenes');
+  const handle = await scenes.getFileHandle(name);
+  const file = await handle.getFile();
+  return file && Number(file.size) > 0 ? file : null;
+}
+
+async function saveVideoFramePosterCandidateV814(entry, candidate) {
+  if (!candidate?.blob) throw new Error('선택한 이미지가 없습니다.');
+  const root = await getVideoPosterRootHandle();
+  const scenes = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
+    ? root
+    : await root.getDirectoryHandle('Scenes', { create: true });
+
+  const fileName = makeVideoFramePosterFileNameV814(entry);
+  const fileHandle = await scenes.getFileHandle(fileName, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(candidate.blob);
+  await writable.close();
+
+  setVideoFramePosterInfoV814(entry, {
+    fileName,
+    time: candidate.time
+  });
+  return { fileName, time: candidate.time, size: candidate.blob.size };
+}
+
+function ensureVideoFramePosterReselectControlV818(wrap, entry) {
+  if (!wrap || !entry) return null;
+  // v823: 재선택은 포스터 위에 띄우지 않고 기본 영상 카드의 텍스트 메타 줄에 배지형으로 표시한다.
+  // 잠정/확정 배지가 있으면 바로 옆, 없으면 배우/품번 텍스트 앞에 둔다.
+  if (!wrap.closest?.('#wtList')) return null;
+
+  try { ensureVideoFramePosterPickerStylesV816(); } catch (_) {}
+  wrap.dataset.videoFramePosterActiveV818 = '1';
+
+  // 구버전에서 포스터 위에 만들어진 버튼이 남아 있으면 제거한다.
+  wrap.querySelector('.videoFramePosterReselectBtnV818')?.remove();
+
+  const card = wrap.closest?.('.videoCard');
+  const meta = card?.querySelector?.('.videoCardMeta');
+  if (!meta) return null;
+
+  let button = meta.querySelector('.videoFramePosterReselectBtnV818');
+  if (button) return button;
+
+  button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'videoFramePosterReselectBtnV818';
+  button.textContent = '재선택';
+  button.title = '5초 간격 10개 장면(5~50초)에서 포스터를 다시 선택';
+
+  button.addEventListener('pointerdown', event => {
+    event.stopPropagation();
+  });
+  button.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    stopVideoHoverPreview?.();
+    void openVideoFramePosterPickerV814(entry, wrap, button);
+  });
+
+  const duplicateBadge = meta.querySelector('.videoWorkDuplicateBadgeV693');
+  if (duplicateBadge) {
+    duplicateBadge.insertAdjacentElement('afterend', button);
+  } else {
+    meta.insertBefore(button, meta.firstChild || null);
+  }
+  return button;
+}
+
+function showVideoFramePosterBlobInWrapV814(wrap, blob, entry = null) {
+  if (!wrap || !blob) return;
+  wrap.querySelector('.videoFramePosterOfferV814')?.remove();
+  wrap.querySelector('.videoPosterPending')?.remove();
+  delete wrap.dataset.videoFramePosterPickerV814;
+
+  // 재선택으로 들어온 경우 현재 장면 포스터를 새 프레임으로 교체한다.
+  if (wrap.dataset.videoFramePosterActiveV818 === '1') {
+    wrap.querySelectorAll('.videoPoster[data-frame-poster-selected-v818="1"]').forEach(el => el.remove());
+  }
+  wrap.closest?.('.videoCard')?.querySelector?.('.videoFramePosterReselectBtnV818')?.remove();
+
+  const url = URL.createObjectURL(blob);
+  const img = document.createElement('img');
+  img.className = 'videoPoster';
+  img.dataset.framePosterSelectedV818 = '1';
+  img.alt = '';
+  img.decoding = 'async';
+  img.addEventListener('load', () => {
+    try { URL.revokeObjectURL(url); } catch (_) {}
+  }, { once: true });
+  img.addEventListener('error', () => {
+    try { URL.revokeObjectURL(url); } catch (_) {}
+    img.remove();
+  }, { once: true });
+  img.src = url;
+  wrap.insertBefore(img, wrap.firstChild || null);
+
+  if (entry) ensureVideoFramePosterReselectControlV818(wrap, entry);
+}
+
+async function openVideoFramePosterPickerV814(entry, wrap = null, triggerButton = null) {
+  if (videoFramePosterPickerBusyV814) return;
+  videoFramePosterPickerBusyV814 = true;
+  const layer = ensureVideoFramePosterPickerLayerV814();
+  const grid = layer.querySelector('#videoFramePosterPickerGridV814');
+  const status = layer.querySelector('#videoFramePosterPickerStatusV814');
+  const sub = layer.querySelector('#videoFramePosterPickerSubV814');
+  const closeButtons = Array.from(layer.querySelectorAll('[data-frame-poster-close-v814]'));
+  let candidates = [];
+  let resolveChoice = null;
+  let choicePromise = null;
+  let cancelRequested = false;
+  const triggerButtonIdleText = String(triggerButton?.textContent || '장면 선택');
+
+  const close = value => {
+    if (!value) cancelRequested = true;
+    if (resolveChoice) {
+      const fn = resolveChoice;
+      resolveChoice = null;
+      fn(value || null);
+    } else {
+      closeVideoFramePosterPickerLayerV814(layer);
+    }
+  };
+
+  closeButtons.forEach(btn => {
+    btn.onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      close(null);
+    };
+  });
+  layer.onmousedown = event => {
+    if (event.target === layer) close(null);
+  };
+
+  const onKey = event => {
+    if (!layer.classList.contains('is-visible')) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      close(null);
+    }
+  };
+  document.addEventListener('keydown', onKey, true);
+
+  try {
+    stopVideoHoverPreview?.();
+    if (sub) sub.textContent = `${entry?.fileName || entry?.display || '영상'} · 5초 간격 10개 · 5~50초`;
+    if (grid) grid.innerHTML = '';
+    if (status) status.textContent = '원본 영상에서 10개 장면을 캡처하는 중...';
+    if (triggerButton) {
+      triggerButton.disabled = true;
+      triggerButton.textContent = '장면 준비중...';
+    }
+    layer.classList.add('is-visible');
+
+    candidates = await captureVideoFramePosterCandidatesV814(entry, (done, total, time, phase) => {
+      if (!status) return;
+      if (phase === 'handle') {
+        status.textContent = '영상 위치 확인 중...';
+      } else if (phase === 'file') {
+        status.textContent = '영상 파일 여는 중...';
+      } else if (phase === 'metadata') {
+        status.textContent = '영상 정보 읽는 중...';
+      } else if (phase === 'seek') {
+        status.textContent = `${Math.round(Number(time) || 0)}초 장면 준비 중 · ${Math.min(done, total)}/${total}`;
+      } else {
+        status.textContent = `장면 준비 중 · ${Math.min(done, total)}/${total}`;
+      }
+    });
+
+    // 준비 중 닫기/취소를 눌렀다면 캡처가 끝나는 즉시 후보를 버리고 종료한다.
+    if (cancelRequested) return;
+    if (!candidates.length) throw new Error('선택할 장면을 만들지 못했습니다.');
+    if (status) status.textContent = '포스터로 사용할 장면을 한 장 선택하세요. 선택한 한 장만 Scenes에 저장됩니다.';
+    if (triggerButton?.isConnected) triggerButton.textContent = '장면 선택중...';
+
+    if (grid) {
+      grid.innerHTML = '';
+      candidates.forEach((candidate, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'videoFramePosterChoiceV814';
+        btn.dataset.framePosterIndexV814 = String(index);
+        btn.title = `${Math.round(candidate.time)}초 장면을 포스터로 저장`;
+        const img = document.createElement('img');
+        img.src = candidate.url;
+        img.alt = `${Math.round(candidate.time)}초 장면`;
+        img.draggable = false;
+        const label = document.createElement('span');
+        label.className = 'videoFramePosterChoiceLabelV814';
+        label.textContent = `${Math.round(candidate.time)}초`;
+        btn.append(img, label);
+        grid.appendChild(btn);
+      });
+    }
+
+    choicePromise = new Promise(resolve => {
+      resolveChoice = resolve;
+    });
+    if (grid) {
+      grid.onclick = event => {
+        const btn = event.target.closest('.videoFramePosterChoiceV814');
+        if (!btn || !grid.contains(btn)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const index = Number(btn.dataset.framePosterIndexV814);
+        const selected = Number.isInteger(index) ? candidates[index] : null;
+        close(selected || null);
+      };
+    }
+
+    requestAnimationFrame(() => grid?.querySelector('.videoFramePosterChoiceV814')?.focus?.());
+    const selected = await choicePromise;
+    if (!selected) return;
+
+    if (status) status.textContent = `${Math.round(selected.time)}초 장면 저장 중...`;
+    grid?.querySelectorAll?.('button')?.forEach?.(btn => { btn.disabled = true; });
+    const saved = await saveVideoFramePosterCandidateV814(entry, selected);
+    showVideoFramePosterBlobInWrapV814(wrap, selected.blob, entry);
+    if (typeof showToast === 'function') {
+      showToast(`포스터 장면 저장 · ${Math.round(saved.time)}초 · Scenes/${saved.fileName}`, 3500);
+    }
+  } catch (error) {
+    console.warn('[v814 무포스터 장면 선택]', error);
+    if (status) status.textContent = `장면 준비/저장 실패 · ${error?.message || error}`;
+    if (typeof showToast === 'function') {
+      showToast(`포스터 장면 처리 실패 · ${error?.message || error}`, 3200);
+    }
+    await new Promise(resolve => setTimeout(resolve, 650));
+  } finally {
+    releaseVideoFramePosterCandidatesV814(candidates);
+    closeVideoFramePosterPickerLayerV814(layer);
+    if (grid) {
+      grid.onclick = null;
+      grid.innerHTML = '';
+    }
+    layer.onmousedown = null;
+    closeButtons.forEach(btn => { btn.onclick = null; });
+    document.removeEventListener('keydown', onKey, true);
+    if (triggerButton?.isConnected) {
+      triggerButton.disabled = false;
+      triggerButton.textContent = triggerButtonIdleText;
+    }
+    videoFramePosterPickerBusyV814 = false;
+  }
+}
+
+function showVideoFramePosterOfferV814(wrap, entry, pending = null) {
+  if (!wrap || !isVideoFramePosterOwnedEntryV814(entry)) return false;
+  // v817: 첫 렌더부터 장면 선택 UI 스타일을 적용해 첫 선택 전/후 모습이 바뀌지 않게 한다.
+  try { ensureVideoFramePosterPickerStylesV816(); } catch (_) {}
+  if (wrap.querySelector('.videoFramePosterOfferV814')) return true;
+  if (pending) pending.style.display = 'none';
+
+  wrap.dataset.videoFramePosterPickerV814 = '1';
+  const offer = document.createElement('div');
+  offer.className = 'videoFramePosterOfferV814';
+  const title = document.createElement('div');
+  title.className = 'videoFramePosterOfferTitleV814';
+  title.textContent = '포스터 없음';
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'videoFramePosterOfferBtnV814';
+  button.textContent = '장면 선택';
+  button.title = '영상의 5~50초 구간을 5초 간격으로 캡처한 10개 장면 중 포스터 선택';
+  const hint = document.createElement('div');
+  hint.className = 'videoFramePosterOfferHintV814';
+  hint.textContent = '5초 간격 · 5~50초 · 10장 중 한 장 선택';
+
+  button.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    void openVideoFramePosterPickerV814(entry, wrap, button);
+  });
+  button.addEventListener('pointerdown', event => event.stopPropagation());
+  offer.append(title, button, hint);
+  wrap.appendChild(offer);
+  return true;
+}
+
 function makePosterCandidates(meta) {
   /*
     품번 판단 책임은 parseVideoFilename()에만 둔다.
@@ -77460,6 +78354,21 @@ function makePosterCandidates(meta) {
       result.push(basePath);
     }
   }
+
+  // v817: 사용자가 고른 정지 프레임은 정식 로컬 Posters 다음, 온라인보다 먼저 사용.
+  // v814는 localStorage map을 찾은 경우에만 상대경로 Scenes/... 를 넣어서
+  // entry 키가 달라지거나 표지 루트가 HTML 폴더와 다르면 새로고침 후 사라질 수 있었다.
+  // 보유 영상 entry라면 결정적 파일명을 항상 계산하고, 실제 존재 여부는 File Handle로 확인한다.
+  try {
+    if (isVideoFramePosterOwnedEntryV814(meta)) {
+      const framePoster = getVideoFramePosterInfoV814(meta);
+      const framePosterFile = String(
+        framePoster?.fileName || makeVideoFramePosterFileNameV814(meta)
+      ).trim();
+      const frameCandidate = makeVideoFramePosterCandidateSrcV817(framePosterFile);
+      if (frameCandidate && !result.includes(frameCandidate)) result.push(frameCandidate);
+    }
+  } catch (_) {}
 
   // 온라인 후보는 확정 품번을 그대로 사용하고,
   // 각 사이트가 필요한 주소 변환만 자체적으로 수행한다.
@@ -91070,6 +91979,11 @@ function attachPosterWithFallback(
   };
 
   if (!candidates.length) {
+    showVideoFramePosterOfferV814(
+      wrap,
+      entry,
+      pending
+    );
     finishResolve(false);
     return;
   }
@@ -91114,6 +92028,14 @@ function attachPosterWithFallback(
     } catch (_) {}
 
     try {
+      const frameUrlV817 = String(currentEl?.dataset?.framePosterObjectUrlV817 || '');
+      if (frameUrlV817) {
+        try { URL.revokeObjectURL(frameUrlV817); } catch (_) {}
+        delete currentEl.dataset.framePosterObjectUrlV817;
+      }
+    } catch (_) {}
+
+    try {
       currentEl.remove();
     } catch (_) {}
 
@@ -91143,6 +92065,14 @@ function attachPosterWithFallback(
       pending.style.display =
         'flex';
 
+      // v814: 정식 로컬/온라인 포스터가 모두 실패한 보유 영상만
+      // v818: 5초 간격 10개 정지 프레임 선택 버튼을 표시한다.
+      showVideoFramePosterOfferV814(
+        wrap,
+        entry,
+        pending
+      );
+
       finishResolve(false);
       return;
     }
@@ -91150,6 +92080,58 @@ function attachPosterWithFallback(
 
     const src =
       candidates[idx++];
+
+    // v817: 사용자가 선택해 Scenes에 저장한 정지 포스터는
+    // HTML 위치 기준 상대 URL이 아니라 저장 루트의 File Handle에서 직접 읽는다.
+    const framePosterFileV817 = parseVideoFramePosterCandidateSrcV817(src);
+    if (framePosterFileV817) {
+      const frameAttemptIdV817 = attemptSerial;
+      (async () => {
+        const file = await getSavedVideoFramePosterFileV817(framePosterFileV817);
+        if (!file || frameAttemptIdV817 !== attemptSerial) throw new Error('저장 장면 포스터 없음');
+
+        const objectUrl = URL.createObjectURL(file);
+        const img = document.createElement('img');
+        currentEl = img;
+        img.className = 'videoPoster';
+        img.dataset.framePosterSelectedV818 = '1';
+        img.alt = entry?.display || '';
+        img.decoding = 'async';
+        img.loading = 'eager';
+        img.dataset.framePosterObjectUrlV817 = objectUrl;
+
+        const revoke = () => {
+          const url = String(img.dataset.framePosterObjectUrlV817 || '');
+          if (!url) return;
+          delete img.dataset.framePosterObjectUrlV817;
+          try { URL.revokeObjectURL(url); } catch (_) {}
+        };
+
+        img.addEventListener('load', () => {
+          if (frameAttemptIdV817 !== attemptSerial) {
+            revoke();
+            return;
+          }
+          revoke();
+          pending.style.display = 'none';
+          wrap.dataset.videoFramePosterActiveV818 = '1';
+          ensureVideoFramePosterReselectControlV818(wrap, entry);
+          finishResolve(true);
+        }, { once: true });
+
+        img.addEventListener('error', () => {
+          revoke();
+          if (frameAttemptIdV817 !== attemptSerial) return;
+          tryNext();
+        }, { once: true });
+
+        wrap.appendChild(img);
+        img.src = objectUrl;
+      })().catch(() => {
+        if (frameAttemptIdV817 === attemptSerial) tryNext();
+      });
+      return;
+    }
 
     const isRemoteCandidate = /^https?:\/\//i.test(String(src || ''));
 
@@ -92527,6 +93509,70 @@ button:hover{background:#253149}
 #wtList.videoListMode.videoPosterVertical.videoPosterTextNone:not(.videoRandomCoverflowMode)
 .videoCard:not(.videoMissingCard):has(.videoExtBadge) .videoTopRightMeta {
   display: none !important;
+}
+</style>
+
+<style id="videoFramePosterPickerStylesV814">
+/* v814: 정식 포스터가 끝까지 없을 때 원본 영상 5/10/15/20초 정지 프레임 중 하나를 선택해 Scenes에 저장 */
+.videoFramePosterOfferV814{
+  position:absolute;inset:0;z-index:45;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  padding:12px;box-sizing:border-box;text-align:center;
+  background:linear-gradient(145deg,rgba(32,27,39,.97),rgba(16,17,21,.98));
+  color:#eee;border:1px solid rgba(174,135,255,.34);
+}
+.videoFramePosterOfferTitleV814{font-size:16px;font-weight:900;letter-spacing:-.2px;color:#e6dcff;}
+.videoFramePosterOfferHintV814{font-size:10px;line-height:1.4;color:#aaa;}
+.videoFramePosterOfferBtnV814{
+  appearance:none;border:1px solid rgba(179,146,255,.74);border-radius:7px;
+  background:#5b45a8;color:#fff;font-size:11px;font-weight:850;
+  padding:7px 10px;cursor:pointer;box-shadow:0 3px 13px rgba(0,0,0,.24);
+}
+.videoFramePosterOfferBtnV814:hover{filter:brightness(1.12);}
+.videoFramePosterOfferBtnV814:disabled{opacity:.62;cursor:wait;}
+#videoFramePosterPickerLayerV814{
+  position:fixed;inset:0;z-index:160500;display:none;
+  align-items:center;justify-content:center;padding:18px;box-sizing:border-box;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(2px);
+}
+#videoFramePosterPickerLayerV814.is-visible{display:flex;}
+.videoFramePosterPickerPanelV814{
+  width:min(920px,96vw);max-height:92vh;overflow:auto;box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.16);border-radius:12px;
+  background:#17191f;color:#eee;box-shadow:0 22px 70px rgba(0,0,0,.55);padding:14px;
+}
+.videoFramePosterPickerHeadV814{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.videoFramePosterPickerHeadTextV814{min-width:0;flex:1;}
+.videoFramePosterPickerTitleV814{font-size:17px;font-weight:900;color:#fff;}
+.videoFramePosterPickerSubV814{margin-top:4px;font-size:11px;line-height:1.45;color:#aeb5c2;word-break:break-all;}
+.videoFramePosterPickerCloseV814{
+  width:30px;height:30px;border:1px solid #454a55;border-radius:7px;background:#252831;color:#ddd;
+  font-size:20px;line-height:26px;cursor:pointer;flex:0 0 auto;
+}
+.videoFramePosterPickerStatusV814{
+  min-height:22px;margin:3px 0 10px;padding:7px 9px;border-radius:7px;
+  background:#111319;color:#aeb5c2;font-size:11px;display:flex;align-items:center;
+}
+.videoFramePosterPickerGridV814{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.videoFramePosterChoiceV814{
+  position:relative;display:block;width:100%;padding:0;overflow:hidden;
+  border:2px solid #343946;border-radius:9px;background:#0d0f13;color:#fff;cursor:pointer;
+}
+.videoFramePosterChoiceV814:hover,.videoFramePosterChoiceV814:focus-visible{border-color:#a98cff;outline:none;box-shadow:0 0 0 2px rgba(137,106,225,.25);}
+.videoFramePosterChoiceV814 img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#050607;}
+.videoFramePosterChoiceLabelV814{
+  position:absolute;left:7px;bottom:7px;padding:3px 7px;border-radius:999px;
+  background:rgba(0,0,0,.76);color:#fff;font-size:11px;font-weight:900;pointer-events:none;
+}
+.videoFramePosterPickerFootV814{display:flex;justify-content:flex-end;gap:7px;margin-top:11px;}
+.videoFramePosterPickerCancelV814{
+  border:1px solid #454a55;border-radius:7px;background:#252831;color:#ddd;font-size:11px;font-weight:750;padding:7px 13px;cursor:pointer;
+}
+@media (max-width:680px){
+  #videoFramePosterPickerLayerV814{padding:8px;}
+  .videoFramePosterPickerPanelV814{width:99vw;padding:9px;}
+  .videoFramePosterPickerGridV814{gap:6px;}
+  .videoFramePosterChoiceLabelV814{left:5px;bottom:5px;font-size:10px;}
 }
 </style>
 </head>
@@ -96268,7 +97314,7 @@ function appendVideoRangeActressChooserEntry(grid, entry, totalCount) {
 
   const photoName = isUnowned
     ? String(unownedMeta?.nameJa || displayLabel)
-    : (displayLabel === actress?.label ? actress?.label : `${displayLabel} ${actress?.label || ''}`.trim());
+    : String(actress?.label || canonical || displayLabel).trim();
   queueVideoRangeActressPhoto(img, photoWrap, photoName, grid);
 }
 
@@ -98066,6 +99112,20 @@ function initVideoRangeLabelLayer() {
     });
   });
 
+
+  document.getElementById('videoRangeOwnedSearchBtn')?.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (videoDmmWorkSearchBusy) {
+      cancelVideoDmmWorkSearchScan({ render: true, announce: true });
+      return;
+    }
+    startVideoDmmWorkSearchFromRangePanel({ ownedOnly: true }).catch(error => {
+      console.error('[v820 보유작검색] 검색 시작 실패', error);
+      if (typeof showToast === 'function') showToast('보유작 검색 시작 중 오류가 발생했습니다.', 2600);
+    });
+  });
+
   document.getElementById('videoRangeDmmTitleInput')?.addEventListener('input', event => {
     delete event.currentTarget.dataset.seriesAutoTitle;
   });
@@ -98468,9 +99528,10 @@ function syncVideoRangeViewUI() {
 
   if (videoDmmWorkSearchOn) {
     const count = Array.isArray(videoDmmWorkSearchResults) ? videoDmmWorkSearchResults.length : 0;
+    const scopeLabelV820 = videoDmmOwnedOnlySearchV820 ? '보유작 검색' : '작품 검색';
     btn.title = videoDmmWorkSearchBusy
-      ? `DMM 검색 중 · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 클릭하면 검색을 종료합니다.`
-      : `DMM 검색 ${count.toLocaleString()}개 표시 중 · 클릭하면 DMM검색을 종료하고 일반 영상 목록으로 돌아갑니다.`;
+      ? `${scopeLabelV820} 중 · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 클릭하면 검색을 종료합니다.`
+      : `${scopeLabelV820} ${count.toLocaleString()}개 표시 중 · 클릭하면 검색을 종료하고 일반 영상 목록으로 돌아갑니다.`;
     return;
   }
 
@@ -98637,34 +99698,65 @@ function getVideoRangeViewItems() {
 }
 
 
+function getVideoDmmWorkSearchRuntimeSignatureV820(criteria) {
+  return `${getVideoDmmWorkSearchCriteriaSignature(criteria)}::scope:${videoDmmOwnedOnlySearchV820 ? 'owned' : 'all'}`;
+}
+
+function getVideoDmmWorkSearchScopedDisplayTextV820(criteria) {
+  const base = String(getVideoDmmWorkSearchDisplayText(criteria) || '').trim();
+  if (!videoDmmOwnedOnlySearchV820) return base;
+  return hasVideoDmmWorkSearchCriteria(criteria)
+    ? `보유작 · ${base}`
+    : '보유작 전체';
+}
+
 function syncVideoDmmWorkSearchUI() {
   const btn = document.getElementById('videoRangeDmmSearchBtn');
-  if (!btn) {
+  const ownedBtn = document.getElementById('videoRangeOwnedSearchBtn');
+  if (!btn && !ownedBtn) {
     try { syncVideoRangeViewUI(); } catch (_) {}
     return;
   }
 
-  btn.classList.toggle('active', !!videoDmmWorkSearchOn);
-  btn.classList.toggle('is-cancel', !!videoDmmWorkSearchBusy);
-  btn.setAttribute(
-    'aria-pressed',
-    videoDmmWorkSearchOn ? 'true' : 'false'
-  );
-  btn.textContent = videoDmmWorkSearchBusy ? '검색취소' : 'DMM검색';
+  const allActive = !!videoDmmWorkSearchOn && !videoDmmOwnedOnlySearchV820;
+  const ownedActive = !!videoDmmWorkSearchOn && !!videoDmmOwnedOnlySearchV820;
+  const allBusy = !!videoDmmWorkSearchBusy && allActive;
+  const ownedBusy = !!videoDmmWorkSearchBusy && ownedActive;
+  const count = Array.isArray(videoDmmWorkSearchResults)
+    ? videoDmmWorkSearchResults.length
+    : 0;
+  const criteriaLabel = videoDmmWorkSearchDisplayText || getVideoDmmWorkActressCountLabel();
 
-  if (videoDmmWorkSearchOn) {
-    const count = Array.isArray(videoDmmWorkSearchResults)
-      ? videoDmmWorkSearchResults.length
-      : 0;
+  if (btn) {
+    btn.classList.toggle('active', allActive);
+    btn.classList.toggle('is-cancel', allBusy);
+    btn.setAttribute('aria-pressed', allActive ? 'true' : 'false');
+    btn.textContent = allBusy ? '검색취소' : '작품검색';
 
-    const criteriaLabel = videoDmmWorkSearchDisplayText || getVideoDmmWorkActressCountLabel();
-    btn.title = videoDmmWorkSearchBusy
-      ? `DMM 작품 검색 중 · ${criteriaLabel} · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인`
-      : (videoDmmWorkSearchCancelled
-          ? `AVWikiDB 작품DB 검색 중단 · ${criteriaLabel} · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 부분결과 ${count.toLocaleString()}개 · 클릭하면 조건창을 다시 엽니다.`
-          : `AVWikiDB 작품DB 검색 · ${criteriaLabel} · 결과 ${count.toLocaleString()}개 · 클릭하면 조건창을 다시 엽니다.`);
-  } else {
-    btn.title = '범위 품번 + 작품 날짜 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 검색';
+    if (allActive) {
+      btn.title = videoDmmWorkSearchBusy
+        ? `AVWikiDB 작품DB 전체 검색 중 · ${criteriaLabel} · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인`
+        : (videoDmmWorkSearchCancelled
+            ? `AVWikiDB 작품DB 전체 검색 중단 · ${criteriaLabel} · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 부분결과 ${count.toLocaleString()}개`
+            : `AVWikiDB 작품DB 전체 검색 · ${criteriaLabel} · 결과 ${count.toLocaleString()}개`);
+    } else {
+      btn.title = '범위 품번 + 작품 날짜 + 체크 배우(합/교) + 출연 인원 + 제목 조건으로 AVWikiDB 작품DB 전체 검색';
+    }
+  }
+
+  if (ownedBtn) {
+    ownedBtn.classList.toggle('active', ownedActive);
+    ownedBtn.classList.toggle('is-cancel', ownedBusy);
+    ownedBtn.setAttribute('aria-pressed', ownedActive ? 'true' : 'false');
+    ownedBtn.textContent = ownedBusy ? '검색취소' : '보유작검색';
+
+    if (ownedActive) {
+      ownedBtn.title = videoDmmWorkSearchBusy
+        ? `보유작 검색 중 · ${criteriaLabel} · 보유 영상 ${videoDmmWorkSearchScanned.toLocaleString()}개 확인`
+        : `보유작 검색 · ${criteriaLabel} · 결과 ${count.toLocaleString()}개`;
+    } else {
+      ownedBtn.title = '같은 메타검색 조건을 현재 보유 영상과 매칭된 AVWikiDB 작품에만 적용합니다. 조건이 비어 있으면 보유작 전체를 표시합니다.';
+    }
   }
 
   try { syncVideoRangeViewUI(); } catch (_) {}
@@ -98701,7 +99793,7 @@ function cancelVideoDmmWorkSearchScan({ render = true, announce = true } = {}) {
 
   if (announce && typeof showToast === 'function') {
     showToast(
-      `DMM 검색 취소 · ${scanned.toLocaleString()}건 확인 · 찾은 ${found.toLocaleString()}개 표시`,
+      `${videoDmmOwnedOnlySearchV820 ? '보유작 검색' : '작품 검색'} 취소 · ${scanned.toLocaleString()}건 확인 · 찾은 ${found.toLocaleString()}개 표시`,
       2400
     );
   }
@@ -98750,6 +99842,7 @@ function deactivateVideoDmmWorkSearch({
   // DMM검색 종료만으로 번역기를 강제로 끄지 않는다.
 
   videoDmmWorkSearchOn = false;
+  videoDmmOwnedOnlySearchV820 = false;
   videoDmmWorkSearchBusy = false;
   videoDmmWorkSearchCancelled = false;
   videoDmmWorkSearchToken += 1;
@@ -99342,7 +100435,8 @@ function syncVideoRangeDmmSearchControls() {
   syncVideoDmmWorkSearchUI();
 }
 
-async function startVideoDmmWorkSearchFromRangePanel() {
+async function startVideoDmmWorkSearchFromRangePanel(options = {}) {
+  const ownedOnlyV820 = options?.ownedOnly === true;
   let meta = null;
   try {
     meta = typeof getVideoWorkDbMeta === 'function' ? await getVideoWorkDbMeta('dmm') : null;
@@ -99426,7 +100520,7 @@ async function startVideoDmmWorkSearchFromRangePanel() {
     criteria = variantResolved?.criteria || criteria;
   }
 
-  if (!hasVideoDmmWorkSearchCriteria(criteria)) {
+  if (!hasVideoDmmWorkSearchCriteria(criteria) && !ownedOnlyV820) {
     if (typeof showToast === 'function') {
       showToast('범위 · 작품날짜 · 배우 · 제목 · 시리즈 · 영상나이 중 하나를 지정하거나 출연 인원 조건을 선택하세요.', 2400);
     }
@@ -99439,7 +100533,11 @@ async function startVideoDmmWorkSearchFromRangePanel() {
     ensureVideoJaKoTranslator({ userInitiated: true }).catch(() => {});
   }
 
-  videoDmmWorkSearchTotal = Number(meta.count) || 0;
+  videoDmmOwnedOnlySearchV820 = ownedOnlyV820;
+  const ownedListCountV820 = typeof loadVideoList === 'function' ? loadVideoList().length : 0;
+  videoDmmWorkSearchTotal = ownedOnlyV820
+    ? ownedListCountV820
+    : (Number(meta.count) || 0);
   clearVideoPosterBadgeOnlyMode();
 
   if (videoActressPosterWallOn) setVideoActressPosterWallOn(false, { render: false });
@@ -99459,7 +100557,7 @@ async function startVideoDmmWorkSearchFromRangePanel() {
 
   videoDmmWorkSearchOn = true;
   videoDmmWorkSearchCriteria = criteria;
-  videoDmmWorkSearchDisplayText = getVideoDmmWorkSearchDisplayText(criteria);
+  videoDmmWorkSearchDisplayText = getVideoDmmWorkSearchScopedDisplayTextV820(criteria);
   videoDmmWorkSearchToken += 1;
   videoDmmWorkSearchQuery = '';
   videoDmmWorkSearchResults = [];
@@ -100838,24 +101936,97 @@ function scheduleVideoDmmOwnedRefreshV797(refreshPromise, myToken, signature) {
 async function runVideoDmmWorkSearch(criteria = videoDmmWorkSearchCriteria) {
   const normalizedCriteria = prepareVideoDmmWorkSearchCriteria(criteria);
   const signature = getVideoDmmWorkSearchCriteriaSignature(normalizedCriteria);
-  const displayText = getVideoDmmWorkSearchDisplayText(normalizedCriteria);
+  const runtimeSignatureV820 = getVideoDmmWorkSearchRuntimeSignatureV820(normalizedCriteria);
+  const displayText = getVideoDmmWorkSearchScopedDisplayTextV820(normalizedCriteria);
   const hasCriteria = hasVideoDmmWorkSearchCriteria(normalizedCriteria);
+  const searchAllowedV820 = hasCriteria || videoDmmOwnedOnlySearchV820;
   const myToken = ++videoDmmWorkSearchToken;
 
   videoDmmWorkSearchCriteria = normalizedCriteria;
   videoDmmWorkSearchDisplayText = displayText;
-  videoDmmWorkSearchQuery = signature;
+  videoDmmWorkSearchQuery = runtimeSignatureV820;
   videoDmmWorkSearchResults = [];
-  videoDmmWorkSearchBusy = hasCriteria;
+  videoDmmWorkSearchBusy = searchAllowedV820;
   videoDmmWorkSearchCancelled = false;
   videoDmmWorkSearchScanned = 0;
   videoDmmWorkSearchTruncated = false;
   syncVideoDmmWorkSearchUI();
 
-  if (!hasCriteria) {
+  // v821: '검색취소'는 실제 busy 상태에서만 보이게 한다.
+  // 시작 대기 화면에는 취소 버튼을 두지 않고, 검색이 실제 시작된 뒤 busy 화면으로 전환한다.
+  if (searchAllowedV820 && videoDmmWorkSearchOn) {
+    try { renderVideoList(); } catch (_) {}
+  }
+
+  if (!searchAllowedV820) {
     videoDmmWorkSearchBusy = false;
     if (videoDmmWorkSearchOn) renderVideoList();
     return [];
+  }
+
+  // v820: 보유작검색은 전체 작품 source cursor를 돌지 않는다.
+  // 현재 로컬 videolist와 작품DB RAM 매칭을 이용해 보유 영상에 연결된 row만 같은 조건으로 검사한다.
+  if (videoDmmOwnedOnlySearchV820) {
+    try {
+      if (!__videoWorkRuntimeReady) {
+        await refreshVideoWorkRuntimeIndex({ force: false, render: false });
+      }
+      if (myToken !== videoDmmWorkSearchToken) return [];
+
+      const ownedEntries = typeof loadVideoList === 'function' ? loadVideoList() : [];
+      videoDmmWorkSearchTotal = Array.isArray(ownedEntries) ? ownedEntries.length : 0;
+      const ownedKeysV820 = getOwnedVideoCodeKeySet();
+      const ownedIdsV820 = getOwnedVideoWorkIdSetV693();
+      const rowsByIdV820 = new Map();
+
+      for (const entry of (Array.isArray(ownedEntries) ? ownedEntries : [])) {
+        if (myToken !== videoDmmWorkSearchToken) return [];
+        videoDmmWorkSearchScanned += 1;
+
+        let row = null;
+        try { row = getVideoWorkRecordForEntry(entry); } catch (_) {}
+        if (!row?.id) continue;
+        if (hasCriteria && !videoDmmWorkMatchesSearch(row, normalizedCriteria)) continue;
+        rowsByIdV820.set(String(row.id), row);
+      }
+
+      const resultV820 = Array.from(rowsByIdV820.values())
+        .map(row => {
+          const item = makeVideoDmmSearchItem(row, ownedKeysV820, ownedIdsV820);
+          item.owned = true;
+          return item;
+        })
+        .sort((a, b) =>
+          String(a?.code || '').localeCompare(
+            String(b?.code || ''),
+            'en',
+            { numeric: true, sensitivity: 'base' }
+          )
+        );
+
+      videoDmmWorkSearchResults = resultV820;
+      videoDmmWorkSearchBusy = false;
+      syncVideoDmmWorkSearchUI();
+
+      if (
+        videoDmmWorkSearchOn &&
+        getVideoDmmWorkSearchRuntimeSignatureV820(videoDmmWorkSearchCriteria) === runtimeSignatureV820
+      ) {
+        renderVideoList();
+      }
+      return resultV820;
+    } catch (error) {
+      if (myToken === videoDmmWorkSearchToken) {
+        videoDmmWorkSearchBusy = false;
+        videoDmmWorkSearchResults = [];
+        syncVideoDmmWorkSearchUI();
+        console.error('[v820 보유작 메타검색] 실패', error);
+        if (typeof showToast === 'function') {
+          showToast(`보유작 검색 실패: ${error?.message || error}`, 2800);
+        }
+      }
+      return [];
+    }
   }
 
   // v797: 보유작 workId RAM 준비는 검색 시작을 막지 않는다.
@@ -100986,7 +102157,7 @@ async function runVideoDmmWorkSearch(criteria = videoDmmWorkSearchCriteria) {
             myToken === videoDmmWorkSearchToken
           ) {
             countEl.textContent =
-              `(DMM 검색 ${videoDmmWorkSearchScanned.toLocaleString()}` +
+              `(${videoDmmOwnedOnlySearchV820 ? '보유작 검색' : '작품 검색'} ${videoDmmWorkSearchScanned.toLocaleString()}` +
               `${total ? ' / ' + total.toLocaleString() : ''}` +
               ` · 찾음 ${foundById.size.toLocaleString()})`;
           }
@@ -101078,15 +102249,16 @@ function renderVideoDmmWorkSearchList(box) {
   } catch (_) {}
 
   const criteria = normalizeVideoDmmWorkSearchCriteria(videoDmmWorkSearchCriteria);
-  const signature = getVideoDmmWorkSearchCriteriaSignature(criteria);
-  const displayText = getVideoDmmWorkSearchDisplayText(criteria);
+  const signature = getVideoDmmWorkSearchRuntimeSignatureV820(criteria);
+  const displayText = getVideoDmmWorkSearchScopedDisplayTextV820(criteria);
   const hasCriteria = hasVideoDmmWorkSearchCriteria(criteria);
+  const canSearchV820 = hasCriteria || videoDmmOwnedOnlySearchV820;
 
   videoRangePosterProbeState = null;
   videoRangePosterQueue = [];
   videoRangePosterActive = 0;
 
-  if (!hasCriteria) {
+  if (!canSearchV820) {
     videoDmmWorkSearchQuery = '';
     videoDmmWorkSearchResults = [];
     videoDmmWorkSearchBusy = false;
@@ -101106,8 +102278,8 @@ function renderVideoDmmWorkSearchList(box) {
     const empty = document.createElement('div');
     empty.className = 'videoEmpty';
     empty.innerHTML =
-      '상단 <b>범위</b> 버튼을 열어 범위 · 배우 · 인원 · 제목 조건을 설정한 뒤 <b>DMM검색</b>을 누르세요.<br>' +
-      '<span style="opacity:.7">체크 배우는 범위창의 합/교 선택을 따르고, 범위·인원·제목 조건은 함께 교집합으로 적용됩니다.</span>';
+      '상단 <b>메타검색</b> 버튼을 열어 범위 · 배우 · 인원 · 제목 조건을 설정한 뒤 <b>작품검색</b> 또는 <b>보유작검색</b>을 누르세요.<br>' +
+      '<span style="opacity:.7">보유작검색은 조건이 없어도 현재 보유작 전체를 표시하며, 작품DB와 연결되지 않은 영상은 제외됩니다.</span>';
 
     box.appendChild(empty);
     syncVideoDmmWorkSearchUI();
@@ -101115,34 +102287,36 @@ function renderVideoDmmWorkSearchList(box) {
   }
 
   if (signature !== videoDmmWorkSearchQuery) {
-    void runVideoDmmWorkSearch(criteria);
-
+    // v821: 보유작검색은 RAM 목록만 훑으면 매우 빨리 끝날 수 있다.
+    // 기존처럼 렌더 도중 즉시 검색을 실행하면 내부 검색 완료 렌더가 먼저 끝난 뒤
+    // 바깥 렌더가 다시 '준비 중/검색취소' DOM을 붙이는 역전 현상이 생긴다.
+    // 현재 렌더를 먼저 끝낸 다음 다음 task에서 검색을 시작해 상태 순서를 보장한다.
     wtListCache = [];
     wtListRenderedCount = 0;
 
     const countEl = document.getElementById('wtCount');
     if (countEl) {
-      countEl.textContent = '(DMM 검색 준비 중…)';
+      countEl.textContent = videoDmmOwnedOnlySearchV820 ? '(보유작 검색 시작 중…)' : '(작품 검색 시작 중…)';
       countEl.title = displayText;
     }
 
     const loading = document.createElement('div');
     loading.className = 'videoEmpty';
     const loadingText = document.createElement('div');
-    loadingText.textContent = `AVWikiDB 작품DB 검색 중… ${displayText}`;
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.className = 'zoomBtn';
-    cancelBtn.textContent = '검색취소';
-    cancelBtn.title = '현재 AVWikiDB 작품DB 검색을 중단합니다.';
-    cancelBtn.style.marginTop = '10px';
-    cancelBtn.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      cancelVideoDmmWorkSearchScan({ render: true, announce: true });
-    });
-    loading.append(loadingText, cancelBtn);
+    loadingText.textContent = videoDmmOwnedOnlySearchV820
+      ? `보유작 검색 시작 중… ${displayText}`
+      : `작품 검색 시작 중… ${displayText}`;
+    loading.appendChild(loadingText);
     box.appendChild(loading);
+
+    setTimeout(() => {
+      if (!videoDmmWorkSearchOn) return;
+      const currentCriteriaV821 = normalizeVideoDmmWorkSearchCriteria(videoDmmWorkSearchCriteria);
+      const currentSignatureV821 = getVideoDmmWorkSearchRuntimeSignatureV820(currentCriteriaV821);
+      if (currentSignatureV821 !== signature) return;
+      if (videoDmmWorkSearchQuery === signature || videoDmmWorkSearchBusy) return;
+      void runVideoDmmWorkSearch(currentCriteriaV821);
+    }, 0);
 
     return true;
   }
@@ -101154,7 +102328,7 @@ function renderVideoDmmWorkSearchList(box) {
     const countEl = document.getElementById('wtCount');
     if (countEl) {
       countEl.textContent =
-        `(DMM 검색 ${videoDmmWorkSearchScanned.toLocaleString()}` +
+        `(${videoDmmOwnedOnlySearchV820 ? '보유작 검색' : '작품 검색'} ${videoDmmWorkSearchScanned.toLocaleString()}` +
         `${videoDmmWorkSearchTotal ? ' / ' + videoDmmWorkSearchTotal.toLocaleString() : ''})`;
       countEl.title = displayText;
     }
@@ -101164,7 +102338,9 @@ function renderVideoDmmWorkSearchList(box) {
 
     const loadingText = document.createElement('div');
     loadingText.textContent =
-      `AVWikiDB 작품DB 검색 중… ${videoDmmWorkSearchScanned.toLocaleString()}건 확인`;
+      videoDmmOwnedOnlySearchV820
+        ? `보유 영상 ${videoDmmWorkSearchScanned.toLocaleString()}개 확인 중…`
+        : `AVWikiDB 작품DB 검색 중… ${videoDmmWorkSearchScanned.toLocaleString()}건 확인`;
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
@@ -101194,12 +102370,12 @@ function renderVideoDmmWorkSearchList(box) {
     wtListRenderedCount = 0;
     const countEl = document.getElementById('wtCount');
     if (countEl) {
-      countEl.textContent = `(DMM 검색 취소 · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 결과 0)`;
+      countEl.textContent = `(${videoDmmOwnedOnlySearchV820 ? '보유작 검색' : '작품 검색'} 취소 · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인 · 결과 0)`;
       countEl.title = displayText;
     }
     const cancelled = document.createElement('div');
     cancelled.className = 'videoEmpty';
-    cancelled.textContent = `AVWikiDB 작품DB 검색을 취소했습니다. ${videoDmmWorkSearchScanned.toLocaleString()}건 확인했고, 그 구간에서는 검색 결과가 없었습니다.`;
+    cancelled.textContent = `${videoDmmOwnedOnlySearchV820 ? '보유작 검색' : 'AVWikiDB 작품DB 검색'}을 취소했습니다. ${videoDmmWorkSearchScanned.toLocaleString()}건 확인했고, 그 구간에서는 검색 결과가 없었습니다.`;
     box.appendChild(cancelled);
     syncVideoDmmWorkSearchUI();
     return true;
@@ -101232,7 +102408,7 @@ function renderVideoDmmWorkSearchList(box) {
       `${videoDmmWorkSearchTruncated ? ' · 최대10,000' : ''})`;
 
     countEl.title =
-      `DMM 검색${videoDmmWorkSearchCancelled ? ' 중단 부분결과' : ''} ${displayText}` +
+      `${videoDmmOwnedOnlySearchV820 ? '보유작 검색' : '작품 검색'}${videoDmmWorkSearchCancelled ? ' 중단 부분결과' : ''} ${displayText}` +
       ` · ${videoDmmWorkSearchScanned.toLocaleString()}건 확인` +
       ` · 결과 ${items.length.toLocaleString()}개` +
       ` · 보유 ${ownedCount.toLocaleString()}개` +
@@ -101242,7 +102418,7 @@ function renderVideoDmmWorkSearchList(box) {
   if (!items.length) {
     const empty = document.createElement('div');
     empty.className = 'videoEmpty';
-    empty.textContent = `AVWikiDB 작품DB 검색 결과가 없습니다. · ${displayText}`;
+    empty.textContent = `${videoDmmOwnedOnlySearchV820 ? '보유작' : 'AVWikiDB 작품DB'} 검색 결과가 없습니다. · ${displayText}`;
     box.appendChild(empty);
     syncVideoDmmWorkSearchUI();
     return true;
@@ -104570,10 +105746,7 @@ function renderVideoWorkDbActressStripV671() {
     wrap.appendChild(img);
     photoBtn.appendChild(wrap);
 
-    const lookupName =
-      item.displayLabel === item.label
-        ? item.label
-        : `${item.displayLabel} ${item.label}`;
+    const lookupName = String(item?.label || item?.displayLabel || '').trim();
 
     // 배우월과 같은 사진 로더:
     // 보유/미보유 체크와 관계없이 이름 자체로 사진 후보를 찾는다.
@@ -106493,6 +107666,9 @@ for (const entry of list) {
         posterWrap.appendChild(ownedCornerRibbon);
       }
 	  posterWrap.addEventListener('mouseenter', () => {
+  // v814: 포스터가 없어 장면 선택 UI가 떠 있는 동안에는 hover 미리보기가
+  // 선택 버튼을 덮지 않게 한다.
+  if (posterWrap.dataset.videoFramePosterPickerV814 === '1') return;
   queueVideoHoverPreview(entry, posterWrap);
 });
 
@@ -109891,9 +111067,108 @@ function collectVideoActressWallSearchValuesV774(item) {
   return values;
 }
 
+// v827: 영문 검색은 짧은 문자열 부분일치 때문에 수백 명이 잡히는 문제를 막기 위해
+// 일본어/한글 검색과 분리한다.
+// - 대/소문자 무시
+// - nameJa 계열: 이름 전체 정확일치 + 첫 괄호 앞 이름 전체 정확일치
+// - nameEn/별칭/과거명: 이름 전체 정확일치만 허용
+// - 그 외 언어 검색은 기존 부분일치 + 기호제거 부분일치를 그대로 유지
+function isVideoActressWallEnglishSearchV827(value) {
+  const raw = String(value || '').normalize('NFKC').trim();
+  if (!/[A-Za-z]/.test(raw)) return false;
+  return !/[가-힣\u3040-\u30ff\u3400-\u9fff々〆ヵヶ]/.test(raw);
+}
+
+function normalizeVideoActressWallEnglishExactV827(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getVideoActressWallBeforeParenV827(value) {
+  const raw = String(value || '')
+    .normalize('NFKC')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!raw) return '';
+  const pos = raw.search(/[（(]/);
+  return pos > 0 ? raw.slice(0, pos).trim() : '';
+}
+
+function videoActressWallEnglishItemMatchesSearchV827(item, query) {
+  const q = normalizeVideoActressWallEnglishExactV827(query);
+  if (!q) return true;
+
+  const matchExact = value => {
+    if (Array.isArray(value)) return value.some(matchExact);
+    if (value == null) return false;
+    return normalizeVideoActressWallEnglishExactV827(value) === q;
+  };
+
+  const matchNameJa = value => {
+    if (Array.isArray(value)) return value.some(matchNameJa);
+    if (value == null) return false;
+    if (matchExact(value)) return true;
+    const beforeParen = getVideoActressWallBeforeParenV827(value);
+    return !!beforeParen && normalizeVideoActressWallEnglishExactV827(beforeParen) === q;
+  };
+
+  const matchAliases = value => {
+    if (Array.isArray(value)) return value.some(matchAliases);
+    if (value == null) return false;
+    const raw = String(value || '').trim();
+    if (!raw) return false;
+    if (matchExact(raw)) return true;
+
+    // 내부 배우 별칭 문자열이 "A / B" 한 줄로 저장된 구형 데이터도
+    // 각 별칭 이름 전체 단위로만 비교한다. 부분일치는 하지 않는다.
+    try {
+      const split = splitVideoActressAliases(raw);
+      if (Array.isArray(split) && split.length > 1) {
+        return split.some(alias => matchExact(alias?.label));
+      }
+    } catch (_) {}
+    return false;
+  };
+
+  // 배우월의 기본 label은 보통 원본/일본어 대표명 계열이므로 nameJa 규칙을 적용한다.
+  if (matchNameJa(item?.label) || matchNameJa(item?.displayLabel)) return true;
+  if (matchExact(item?.key)) return true;
+
+  const p = item?.profile || {};
+  if (matchExact(p?.name)) return true;
+  if (matchNameJa(p?.nameJa)) return true;
+  if (matchExact(p?.nameEn)) return true;
+  if (matchAliases(p?.aliases) || matchAliases(p?.formerNames) || matchAliases(p?.aliasLabels)) return true;
+
+  const source = item?.unownedSource || {};
+  if (matchNameJa(source?.nameJa)) return true;
+  if (matchExact(source?.nameEn)) return true;
+  if (matchAliases(source?.aliases) || matchAliases(source?.formerNames)) return true;
+
+  const actor = source?.actor || {};
+  if (matchNameJa(actor?.nameJa) || matchNameJa(actor?.name)) return true;
+  if (matchExact(actor?.nameEn)) return true;
+  if (matchAliases(actor?.aliases) || matchAliases(actor?.formerNames)) return true;
+
+  const avdbs = source?.avdbsRow || {};
+  if (matchNameJa(avdbs?.nameJa) || matchNameJa(avdbs?.mainName)) return true;
+  if (matchExact(avdbs?.nameEn)) return true;
+  if (matchAliases(avdbs?.formerNames) || matchAliases(avdbs?.aliases)) return true;
+
+  return false;
+}
+
 function videoActressWallItemMatchesSearchV774(item, query) {
   const q = normalizeVideoActressWallSearchV774(query);
   if (!q) return true;
+
+  // v827: 영문은 전체이름 중심 정확일치 검색으로 분기.
+  if (isVideoActressWallEnglishSearchV827(query)) {
+    return videoActressWallEnglishItemMatchesSearchV827(item, query);
+  }
 
   const cq = compactVideoActressWallSearchV774(q);
   const values = collectVideoActressWallSearchValuesV774(item);
@@ -109945,7 +111220,7 @@ function scheduleVideoActressWallSearchRenderV774(value, input) {
       );
       try { nextInput.setSelectionRange(nextCaret, nextCaret); } catch (_) {}
     });
-  }, 120);
+  }, 750);
 }
 
 // v595: 배우월의 미보유 배우 표시 방식은 세션 전용.
@@ -109955,6 +111230,8 @@ let videoActressPosterWallIncludeUnowned = false;
 let videoActressPosterWallTogetherUnowned = false;
 let videoActressPosterWallUnownedGeneration = 0;
 const VIDEO_ACTRESS_POSTER_WALL_UNOWNED_BATCH_SIZE = 80;
+// v830: 보유 배우도 검색/미포함/같이와 동일하게 80명 단위로 DOM 생성한다.
+let videoActressPosterWallOwnedGenerationV830 = 0;
 
 function isVideoActressPosterWallAnyUnownedMode() {
   return !!(videoActressPosterWallIncludeUnowned || videoActressPosterWallTogetherUnowned);
@@ -110852,12 +112129,18 @@ function getVideoActressWallUnownedWorkLookupNames(item) {
     result.push(raw);
   };
 
-  const addJapaneseAliases = value => {
+  const addWorkIndexAliases = value => {
     const raw = String(value || '').normalize('NFKC').trim();
     if (!raw) return;
 
-    // DMM 작품 actresses[]는 일본어 대표명 중심이므로 한/영 표시명 자체는
-    // 억지로 넣지 않고 일본어 이름/과거명에서 정확일치 후보만 만든다.
+    // v826: 작품DB actresses 인덱스는 문자열 완전일치 인덱스다.
+    // 따라서 SARA(S-Cute), Blake Blossom 같은 영문명도 원문 전체를
+    // 정확일치 키로 허용한다. 부분검색으로 넓히지는 않는다.
+    addExact(raw);
+
+    // 기존 일본어 괄호 별칭 호환은 유지한다.
+    // 예: 山岸あや花（山岸逢花）처럼 파생된 이름은 일본어일 때만 추가해
+    // 영문 SARA(S-Cute)에서 SARA / S-Cute까지 불필요하게 넓어지는 것을 막는다.
     let aliases = [];
     try {
       aliases = typeof getVideoDmmActorJaNameAliases === 'function'
@@ -110867,32 +112150,31 @@ function getVideoActressWallUnownedWorkLookupNames(item) {
       aliases = [raw];
     }
 
-    if (!aliases.length) aliases = [raw];
     aliases.forEach(alias => {
       const v = String(alias || '').normalize('NFKC').trim();
-      if (!v) return;
+      if (!v || v === raw) return;
       if (!/[\u3040-\u30ff\u3400-\u9fff々〆ヵヶ]/.test(v)) return;
       addExact(v);
     });
   };
 
-  addJapaneseAliases(source?.nameJa);
-  addJapaneseAliases(actor?.nameJa);
-  (Array.isArray(actor?.aliases) ? actor.aliases : []).forEach(addJapaneseAliases);
-  addJapaneseAliases(row?.nameJa);
-  addJapaneseAliases(row?.mainName);
-  (Array.isArray(row?.formerNames) ? row.formerNames : []).forEach(addJapaneseAliases);
+  addWorkIndexAliases(source?.nameJa);
+  addWorkIndexAliases(actor?.nameJa);
+  (Array.isArray(actor?.aliases) ? actor.aliases : []).forEach(addWorkIndexAliases);
+  addWorkIndexAliases(row?.nameJa);
+  addWorkIndexAliases(row?.mainName);
+  (Array.isArray(row?.formerNames) ? row.formerNames : []).forEach(addWorkIndexAliases);
 
-  // v599: 보유 배우 카드도 같은 DMM actresses 인덱스를 사용할 수 있게
-  // 저장 프로필의 DMM 대표명/검색명/일본어명/별칭을 정확일치 후보로 추가한다.
+  // v599/v826: 보유 배우 카드도 같은 actresses 인덱스를 사용한다.
+  // 저장 프로필의 대표명/검색명/일본어명/별칭은 문자권과 관계없이 원문 전체를 정확일치 후보로 추가한다.
   if (!item?.isUnowned) {
     const profile = item?.profile || getVideoActressProfile(item?.key) || {};
-    addJapaneseAliases(profile?.dmmSearchName);
-    addJapaneseAliases(profile?.dmmName);
-    addJapaneseAliases(profile?.nameJa);
-    addJapaneseAliases(item?.label);
+    addWorkIndexAliases(profile?.dmmSearchName);
+    addWorkIndexAliases(profile?.dmmName);
+    addWorkIndexAliases(profile?.nameJa);
+    addWorkIndexAliases(item?.label);
     try {
-      (getVideoActressAliasLabelsForEditor(item?.key) || []).forEach(addJapaneseAliases);
+      (getVideoActressAliasLabelsForEditor(item?.key) || []).forEach(addWorkIndexAliases);
     } catch (_) {}
   }
 
@@ -111657,9 +112939,14 @@ function createVideoActressWallCard(item) {
 
   const photoLookupName = isUnowned
     ? String(item?.unownedSource?.nameJa || item?.label || item?.displayLabel || '').trim()
-    : (item.displayLabel === item.label ? item.label : `${item.displayLabel} ${item.label}`);
+    : String(item?.label || item?.displayLabel || '').trim();
 
-  loadActressRailPhoto(img, wrap, photoLookupName);
+  loadActressRailPhoto(
+    img,
+    wrap,
+    photoLookupName,
+    { actressKey: isUnowned ? '' : String(item?.key || '').trim() }
+  );
 
   photoBtn.addEventListener('click', event => {
     event.preventDefault();
@@ -111875,6 +113162,7 @@ function setupVideoActressPosterWallUnownedSection(box, ownedItems = []) {
 
 // v774: 검색어가 있을 때는 현재 정렬 종류와 관계없이 '전체'처럼 평평한 이름순 그리드.
 // 미포함/같이가 켜져 있으면 미보유 배우도 같은 검색결과 안에 섞어서 표시한다.
+// v824: 검색 결과 카드도 한 번에 전부 만들지 않고 80명씩 지연 표시한다.
 function renderVideoActressWallSearchGridV774(box, ownedItems, allOwnedItems) {
   if (!box) return false;
 
@@ -111885,47 +113173,99 @@ function renderVideoActressWallSearchGridV774(box, ownedItems, allOwnedItems) {
 
   const generation = ++videoActressPosterWallUnownedGeneration;
   const approxCols = Math.max(1, Number(videoActressPosterWallCols) || 14);
+  const batchSizeV824 = VIDEO_ACTRESS_POSTER_WALL_UNOWNED_BATCH_SIZE;
+
+  if (box.__videoActressWallSearchScrollHandlerV824) {
+    box.removeEventListener('scroll', box.__videoActressWallSearchScrollHandlerV824);
+    box.__videoActressWallSearchScrollHandlerV824 = null;
+  }
 
   const holder = document.createElement('div');
   holder.className = 'videoActressWallSearchResultsV774';
 
   const grid = document.createElement('div');
   grid.className = 'videoActressWallGrid videoActressWallAllGrid';
-  holder.appendChild(grid);
+
+  const progressV824 = document.createElement('div');
+  progressV824.className = 'videoActressWallSearchLoading';
+
+  holder.append(grid, progressV824);
   box.appendChild(holder);
 
-  const renderFlat = list => {
-    grid.textContent = '';
+  let sortedV824 = [];
+  let renderedV824 = 0;
+  let expandedIndexV824 = -1;
+  let rowEndIndexV824 = -1;
 
-    const sorted = buildVideoActressWallAllItems(
-      Array.isArray(list) ? list : []
-    );
+  const syncProgressV824 = () => {
+    const total = sortedV824.length;
+    if (!total) {
+      progressV824.textContent = '';
+      progressV824.style.display = 'none';
+      return;
+    }
+    progressV824.style.display = '';
+    progressV824.textContent = renderedV824 >= total
+      ? `검색 결과 ${total.toLocaleString()}명 표시 완료`
+      : `검색 결과 ${renderedV824.toLocaleString()} / ${total.toLocaleString()} · 아래로 스크롤하면 계속 표시`;
+  };
 
-    const expandedIndex = sorted.findIndex(item =>
-      !item?.isUnowned && item.key === videoActressPosterWallExpandedKey
-    );
-    const rowEndIndex = expandedIndex >= 0
-      ? Math.min(
-          sorted.length - 1,
-          Math.floor(expandedIndex / approxCols) * approxCols + approxCols - 1
-        )
-      : -1;
+  const appendBatchV824 = (targetCount = null) => {
+    if (generation !== videoActressPosterWallUnownedGeneration || !box.isConnected) return;
+    if (normalizeVideoActressWallSearchV774(videoActressPosterWallSearchTextV774) !== query) return;
+    if (renderedV824 >= sortedV824.length) {
+      syncProgressV824();
+      return;
+    }
 
-    sorted.forEach((item, index) => {
+    const wanted = Number.isFinite(targetCount)
+      ? Math.min(sortedV824.length, Math.max(renderedV824, Number(targetCount) || 0))
+      : Math.min(sortedV824.length, renderedV824 + batchSizeV824);
+
+    while (renderedV824 < wanted) {
+      const index = renderedV824;
+      const item = sortedV824[index];
       grid.appendChild(createVideoActressWallCard(item));
 
       if (
-        index === rowEndIndex &&
-        expandedIndex >= 0 &&
-        !sorted[expandedIndex]?.isUnowned
+        index === rowEndIndexV824 &&
+        expandedIndexV824 >= 0 &&
+        !sortedV824[expandedIndexV824]?.isUnowned
       ) {
         grid.appendChild(
-          createVideoActressWallExpandedPanel(sorted[expandedIndex])
+          createVideoActressWallExpandedPanel(sortedV824[expandedIndexV824])
         );
       }
-    });
 
-    wtListCache = sorted.map(item => ({
+      renderedV824 += 1;
+    }
+
+    // 배우월은 자체 지연렌더를 사용하므로 일반 영상용 더보기 버튼이 생기지 않게
+    // wtList 쪽 카운트는 전체 검색결과를 이미 처리한 것으로 유지한다.
+    wtListRenderedCount = wtListCache.length;
+    syncProgressV824();
+  };
+
+  const renderFlat = list => {
+    const previousRendered = renderedV824;
+    grid.textContent = '';
+
+    sortedV824 = buildVideoActressWallAllItems(
+      Array.isArray(list) ? list : []
+    );
+    renderedV824 = 0;
+
+    expandedIndexV824 = sortedV824.findIndex(item =>
+      !item?.isUnowned && item.key === videoActressPosterWallExpandedKey
+    );
+    rowEndIndexV824 = expandedIndexV824 >= 0
+      ? Math.min(
+          sortedV824.length - 1,
+          Math.floor(expandedIndexV824 / approxCols) * approxCols + approxCols - 1
+        )
+      : -1;
+
+    wtListCache = sortedV824.map(item => ({
       display: item.displayLabel,
       value: item.key,
       __actress: item
@@ -111933,17 +113273,38 @@ function renderVideoActressWallSearchGridV774(box, ownedItems, allOwnedItems) {
     wtListRenderedCount = wtListCache.length;
 
     const countEl = document.getElementById('videoActressWallSearchCountV774');
-    if (countEl) countEl.textContent = `${sorted.length.toLocaleString()}명`;
+    if (countEl) countEl.textContent = `${sortedV824.length.toLocaleString()}명`;
 
-    if (!sorted.length) {
+    if (!sortedV824.length) {
       const empty = document.createElement('div');
       empty.className = 'videoActressWallNoData';
       empty.textContent = '검색 결과가 없습니다.';
       grid.appendChild(empty);
+      syncProgressV824();
+      if (typeof updateWtCountUI === 'function') updateWtCountUI();
+      return;
     }
+
+    // 미포함 검색 결과가 뒤늦게 합쳐져도 사용자가 이미 내려 본 배치 깊이는 유지한다.
+    const initialTarget = Math.min(
+      sortedV824.length,
+      Math.max(
+        batchSizeV824,
+        Math.ceil(Math.max(0, previousRendered) / batchSizeV824) * batchSizeV824
+      )
+    );
+    appendBatchV824(initialTarget);
 
     if (typeof updateWtCountUI === 'function') updateWtCountUI();
   };
+
+  const onScrollV824 = () => {
+    if (generation !== videoActressPosterWallUnownedGeneration || !box.isConnected) return;
+    const remain = box.scrollHeight - box.scrollTop - box.clientHeight;
+    if (remain <= 520) appendBatchV824();
+  };
+  box.__videoActressWallSearchScrollHandlerV824 = onScrollV824;
+  box.addEventListener('scroll', onScrollV824, { passive: true });
 
   renderFlat(ownedItems);
 
@@ -111970,7 +113331,7 @@ function renderVideoActressWallSearchGridV774(box, ownedItems, allOwnedItems) {
       loading.remove();
 
       // 검색 중에는 '미포함'과 '같이'의 배치 차이를 없애고
-      // 사용자가 원한 대로 전체처럼 한 목록에서 이름순으로 나열한다.
+      // 보유 + 미포함 결과를 이름순으로 합치되 실제 카드는 80명씩만 만든다.
       renderFlat([
         ...(Array.isArray(ownedItems) ? ownedItems : []),
         ...unownedMatches
@@ -112323,8 +113684,204 @@ function isVideoActressWallControlActive(control) {
   return false;
 }
 
+function setupVideoActressPosterWallOwnedSectionV830(box, ownedItems = [], options = {}) {
+  if (!box) return false;
+
+  const generation = ++videoActressPosterWallOwnedGenerationV830;
+  const items = Array.isArray(ownedItems) ? ownedItems : [];
+  const approxCols = Math.max(1, Number(videoActressPosterWallCols) || 14);
+  const batchSize = VIDEO_ACTRESS_POSTER_WALL_UNOWNED_BATCH_SIZE;
+
+  if (box.__videoActressWallOwnedScrollHandlerV830) {
+    box.removeEventListener('scroll', box.__videoActressWallOwnedScrollHandlerV830);
+    box.__videoActressWallOwnedScrollHandlerV830 = null;
+  }
+
+  const groups = videoActressPosterWallSort === 'all'
+    ? [{ key: 'owned:all', title: '', items: buildVideoActressWallAllItems(items) }]
+    : buildVideoActressWallGroups(items, videoActressPosterWallSort);
+
+  const progress = document.createElement('div');
+  progress.className = 'videoActressWallSearchLoading videoActressWallOwnedLoadingV830';
+  box.appendChild(progress);
+
+  let groupIndex = 0;
+  let itemIndex = 0;
+  let rendered = 0;
+  let currentGroupDom = null;
+  let completed = false;
+
+  let expandedTargetCount = 0;
+  let cumulative = 0;
+  for (const group of groups) {
+    const expandedIndex = group.items.findIndex(item =>
+      !item?.isUnowned && item.key === videoActressPosterWallExpandedKey
+    );
+    if (expandedIndex >= 0) {
+      const rowEndIndex = Math.min(
+        group.items.length - 1,
+        Math.floor(expandedIndex / approxCols) * approxCols + approxCols - 1
+      );
+      expandedTargetCount = cumulative + rowEndIndex + 1;
+      break;
+    }
+    cumulative += group.items.length;
+  }
+
+  const finishIfNeeded = () => {
+    if (completed || rendered < items.length) return;
+    completed = true;
+    progress.textContent = items.length
+      ? `보유 배우 ${items.length.toLocaleString()}명 표시 완료`
+      : '';
+    if (!items.length) progress.style.display = 'none';
+
+    if (box.__videoActressWallOwnedScrollHandlerV830) {
+      box.removeEventListener('scroll', box.__videoActressWallOwnedScrollHandlerV830);
+      box.__videoActressWallOwnedScrollHandlerV830 = null;
+    }
+
+    try { options?.onComplete?.(); } catch (error) {
+      console.warn('[배우월 v830 보유배우] 완료 콜백 실패', error);
+    }
+  };
+
+  const createGroupDom = group => {
+    let grid;
+
+    if (videoActressPosterWallSort === 'all') {
+      grid = document.createElement('div');
+      grid.className = 'videoActressWallGrid videoActressWallAllGrid';
+      box.insertBefore(grid, progress);
+    } else {
+      const section = document.createElement('section');
+      section.className = 'videoActressWallSection';
+
+      const sh = document.createElement('div');
+      sh.className = 'videoActressWallSectionHead';
+      const st = document.createElement('div');
+      st.className = 'videoActressWallSectionTitle';
+      st.textContent = group.title;
+      const sc = document.createElement('div');
+      sc.className = 'videoActressWallSectionCount';
+      sc.textContent = `(${group.items.length}명)`;
+      sh.append(st, sc);
+
+      grid = document.createElement('div');
+      grid.className = 'videoActressWallGrid';
+      section.append(sh, grid);
+      box.insertBefore(section, progress);
+    }
+
+    const expandedIndex = group.items.findIndex(item =>
+      !item?.isUnowned && item.key === videoActressPosterWallExpandedKey
+    );
+    const rowEndIndex = expandedIndex >= 0
+      ? Math.min(
+          group.items.length - 1,
+          Math.floor(expandedIndex / approxCols) * approxCols + approxCols - 1
+        )
+      : -1;
+
+    return {
+      grid,
+      rowEndIndex,
+      expandedItem: expandedIndex >= 0 ? group.items[expandedIndex] : null
+    };
+  };
+
+  const syncProgress = () => {
+    progress.style.display = items.length ? '' : 'none';
+    if (!items.length) return;
+    progress.textContent = rendered >= items.length
+      ? `보유 배우 ${items.length.toLocaleString()}명 표시 완료`
+      : `보유 배우 ${rendered.toLocaleString()} / ${items.length.toLocaleString()} · 아래로 스크롤하면 계속 표시`;
+  };
+
+  const appendBatch = (targetCount = null) => {
+    if (generation !== videoActressPosterWallOwnedGenerationV830 || !box.isConnected) return;
+    if (rendered >= items.length) {
+      syncProgress();
+      finishIfNeeded();
+      return;
+    }
+
+    const wanted = Number.isFinite(targetCount)
+      ? Math.min(items.length, Math.max(rendered, Number(targetCount) || 0))
+      : Math.min(items.length, rendered + batchSize);
+
+    while (rendered < wanted && groupIndex < groups.length) {
+      const group = groups[groupIndex];
+      if (!currentGroupDom) currentGroupDom = createGroupDom(group);
+
+      while (rendered < wanted && itemIndex < group.items.length) {
+        const indexInGroup = itemIndex;
+        const item = group.items[itemIndex];
+        currentGroupDom.grid.appendChild(createVideoActressWallCard(item));
+        itemIndex += 1;
+        rendered += 1;
+
+        if (
+          indexInGroup === currentGroupDom.rowEndIndex &&
+          currentGroupDom.expandedItem &&
+          !currentGroupDom.expandedItem.isUnowned
+        ) {
+          currentGroupDom.grid.appendChild(
+            createVideoActressWallExpandedPanel(currentGroupDom.expandedItem)
+          );
+        }
+      }
+
+      if (itemIndex >= group.items.length) {
+        groupIndex += 1;
+        itemIndex = 0;
+        currentGroupDom = null;
+      }
+    }
+
+    // 일반 영상 목록의 더보기 시스템과 분리된 배우월 자체 배치이므로 전체 처리 상태는 유지.
+    wtListRenderedCount = wtListCache.length;
+    syncProgress();
+    finishIfNeeded();
+  };
+
+  const onScroll = () => {
+    if (generation !== videoActressPosterWallOwnedGenerationV830 || !box.isConnected) return;
+    const remain = box.scrollHeight - box.scrollTop - box.clientHeight;
+    if (remain <= 520 && rendered < items.length) appendBatch();
+  };
+  box.__videoActressWallOwnedScrollHandlerV830 = onScroll;
+  box.addEventListener('scroll', onScroll, { passive: true });
+
+  if (!items.length) {
+    finishIfNeeded();
+    return true;
+  }
+
+  // 기본은 첫 80명. 이미 펼쳐 놓은 배우가 80명 이후라면 그 배우가 있던 배치 깊이까지만 복원한다.
+  const initialTarget = Math.min(
+    items.length,
+    Math.max(
+      batchSize,
+      expandedTargetCount > 0
+        ? Math.ceil(expandedTargetCount / batchSize) * batchSize
+        : 0
+    )
+  );
+  appendBatch(initialTarget);
+  return true;
+}
+
+
 function renderVideoActressPosterWall(box) {
   if (!box) return false;
+
+  // v830: 이전 보유배우 80명 지연렌더도 새 렌더에서 즉시 무효화한다.
+  videoActressPosterWallOwnedGenerationV830 += 1;
+  if (box.__videoActressWallOwnedScrollHandlerV830) {
+    box.removeEventListener('scroll', box.__videoActressWallOwnedScrollHandlerV830);
+    box.__videoActressWallOwnedScrollHandlerV830 = null;
+  }
 
   // v595: 같은 #wtList DOM을 재사용하므로 이전 지연렌더 스크롤 핸들러부터 제거.
   if (box.__videoActressWallUnownedScrollHandler) {
@@ -112334,6 +113891,10 @@ function renderVideoActressPosterWall(box) {
   if (box.__videoActressWallTogetherScrollHandler) {
     box.removeEventListener('scroll', box.__videoActressWallTogetherScrollHandler);
     box.__videoActressWallTogetherScrollHandler = null;
+  }
+  if (box.__videoActressWallSearchScrollHandlerV824) {
+    box.removeEventListener('scroll', box.__videoActressWallSearchScrollHandlerV824);
+    box.__videoActressWallSearchScrollHandlerV824 = null;
   }
 
   const allItemsV774 = buildVideoActressWallItems();
@@ -112411,7 +113972,7 @@ function renderVideoActressPosterWall(box) {
   searchInputV774.placeholder = '배우 검색';
   searchInputV774.autocomplete = 'off';
   searchInputV774.spellcheck = false;
-  searchInputV774.title = '배우명 부분일치 검색 · 한글/일본어/영어/별칭 포함';
+  searchInputV774.title = '배우명 검색 · 일본어/한글은 부분일치 · 영문은 nameJa 전체/괄호앞 전체, nameEn/별칭 전체 정확일치';
   searchInputV774.setAttribute('aria-label', '배우월 배우 부분일치 검색');
   searchInputV774.addEventListener('input', event => {
     scheduleVideoActressWallSearchRenderV774(
@@ -112642,76 +114203,16 @@ function renderVideoActressPosterWall(box) {
     return true;
   }
 
-  // v221: 펼침 패널 위치 계산도 실제 선택한 포스터월 열 수와 정확히 일치.
-  const approxCols = Math.max(1, Number(videoActressPosterWallCols) || 14);
-
-  // v550: 전체는 이름순 한 개 그리드.
-  // 작품수/평점/신체정보처럼 대표 그룹 제목줄을 만들지 않는다.
-  if (videoActressPosterWallSort === 'all') {
-    const allItems = buildVideoActressWallAllItems(items);
-    const grid = document.createElement('div');
-    grid.className = 'videoActressWallGrid videoActressWallAllGrid';
-
-    const expandedIndex = allItems.findIndex(item => item.key === videoActressPosterWallExpandedKey);
-    const rowEndIndex = expandedIndex >= 0
-      ? Math.min(allItems.length - 1, Math.floor(expandedIndex / approxCols) * approxCols + approxCols - 1)
-      : -1;
-
-    allItems.forEach((item, index) => {
-      grid.appendChild(createVideoActressWallCard(item));
-      if (index === rowEndIndex && expandedIndex >= 0) {
-        grid.appendChild(createVideoActressWallExpandedPanel(allItems[expandedIndex]));
+  // v830: 검색이 없는 일반 보유 배우월도 미포함/같이/검색과 동일하게 80명씩 DOM 생성한다.
+  // 미포함 모드는 보유 배우를 전부 지연표시한 뒤 그 아래에 미보유 배우 섹션을 이어 붙인다.
+  setupVideoActressPosterWallOwnedSectionV830(box, items, {
+    onComplete: () => {
+      if (videoActressPosterWallIncludeUnowned) {
+        setupVideoActressPosterWallUnownedSection(box, items);
       }
-    });
+    }
+  });
 
-    box.appendChild(grid);
-  } else {
-    const groups = buildVideoActressWallGroups(items, videoActressPosterWallSort);
-
-    groups.forEach(group => {
-      const section = document.createElement('section');
-      section.className = 'videoActressWallSection';
-
-      const sh = document.createElement('div');
-      sh.className = 'videoActressWallSectionHead';
-
-      const st = document.createElement('div');
-      st.className = 'videoActressWallSectionTitle';
-      st.textContent = group.title;
-
-      const sc = document.createElement('div');
-      sc.className = 'videoActressWallSectionCount';
-      sc.textContent = `(${group.items.length}명)`;
-
-      sh.append(st, sc);
-      section.appendChild(sh);
-
-      const grid = document.createElement('div');
-      grid.className = 'videoActressWallGrid';
-
-      const expandedIndex = group.items.findIndex(item => item.key === videoActressPosterWallExpandedKey);
-      const rowEndIndex = expandedIndex >= 0
-        ? Math.min(group.items.length - 1, Math.floor(expandedIndex / approxCols) * approxCols + approxCols - 1)
-        : -1;
-
-      group.items.forEach((item, index) => {
-        grid.appendChild(createVideoActressWallCard(item));
-        if (index === rowEndIndex && expandedIndex >= 0) {
-          grid.appendChild(createVideoActressWallExpandedPanel(group.items[expandedIndex]));
-        }
-      });
-
-      section.appendChild(grid);
-      box.appendChild(section);
-    });
-  }
-
-  if (videoActressPosterWallIncludeUnowned) {
-    setupVideoActressPosterWallUnownedSection(box, items);
-  } else if (box.__videoActressWallUnownedScrollHandler) {
-    box.removeEventListener('scroll', box.__videoActressWallUnownedScrollHandler);
-    box.__videoActressWallUnownedScrollHandler = null;
-  }
   if (!videoActressPosterWallTogetherUnowned && box.__videoActressWallTogetherScrollHandler) {
     box.removeEventListener('scroll', box.__videoActressWallTogetherScrollHandler);
     box.__videoActressWallTogetherScrollHandler = null;
@@ -112743,6 +114244,9 @@ function renderVideoList() {
 
     const box = document.getElementById('wtList');
     if (!box) return;
+
+    // v819: 폴더 추가/삭제 후에도 메인 폴더 셀렉트를 현재 videolist와 즉시 동기화.
+    try { syncVideoFolderFilterUIV819(); } catch (_) {}
 
     try {
       resetVideoPosterEntranceQueue();
@@ -113052,6 +114556,12 @@ if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoNoPoster
     );
 }
 
+// v819: 메인에서 루트폴더가 선택되어 있으면 다른 검색/배우/태그/관리 필터와 AND로 적용.
+// 직접 [파일]로 추가한 영상은 특정 폴더 보기에는 속하지 않고 '전체'에서만 표시된다.
+if (videoFolderFilterNameV819) {
+  list = list.filter(videoEntryMatchesFolderFilterV819);
+}
+
 // v591: 포스터에 실제 표시되는 배지와 완전히 같은 기준으로 필터.
 if (videoPosterBadgeOnlyMode) {
   list = list.filter(videoEntryMatchesPosterBadgeOnly);
@@ -113070,6 +114580,7 @@ if (
   !videoPosterBadgeOnlyMode &&
   !videoBookmarkOnly &&
   !tagFilters.length &&
+  !videoFolderFilterNameV819 &&
   actressFilters.length
 ) {
   const togetherKeys = getSelectedVideoActressMissingTogetherKeys();
@@ -113691,13 +115202,7 @@ function setVideoQuickCountSort(mode) {
     videoSortReverse = true;
   }
 
-  try {
-    VTLS.setRaw(VIDEO_SORT_KEY, videoSortMode);
-    VTLS.setRaw(
-      VIDEO_SORT_REVERSE_KEY,
-      videoSortReverse ? '1' : '0'
-    );
-  } catch (_) {}
+  saveVideoCurrentSortPreferenceV819();
 
   syncVideoSortUI();
   renderVideoList();
@@ -113730,12 +115235,8 @@ function setVideoSortMode(mode) {
 
   videoSortMode = nextMode;
 
-  try {
-    VTLS.setRaw(
-      VIDEO_SORT_KEY,
-      videoSortMode
-    );
-  } catch (_) {}
+  // v819: 전체 보기와 각 루트폴더의 정렬값을 서로 독립 저장.
+  saveVideoCurrentSortPreferenceV819();
 
   // 남아 있던 커버플로우/콜라주 class도 렌더 전에 바로 해제한다.
   try { applyVideoRandomVisualStyle(); } catch (_) {}
@@ -113754,14 +115255,8 @@ function toggleVideoSortReverse() {
   videoSortReverse =
     !videoSortReverse;
 
-  try {
-    VTLS.setRaw(
-      VIDEO_SORT_REVERSE_KEY,
-      videoSortReverse
-        ? '1'
-        : '0'
-    );
-  } catch (_) {}
+  // v819: 현재 선택한 폴더(또는 전체)의 방향만 저장.
+  saveVideoCurrentSortPreferenceV819();
 
   syncVideoSortUI();
   renderVideoList();
@@ -113878,6 +115373,11 @@ function toggleVideoToolbarFold() {
 const videoSortReverseBtn =
   document.getElementById(
     'videoSortReverseBtn'
+  );
+
+const videoFolderFilterSel =
+  document.getElementById(
+    'videoFolderFilterSel'
   );
 
 const videoToolbarFoldBtn =
@@ -114046,6 +115546,14 @@ if (videoSortSel) {
 if (videoSortReverseBtn) {
   videoSortReverseBtn.style.display =
     isVideo ? '' : 'none';
+}
+
+if (videoFolderFilterSel) {
+  videoFolderFilterSel.style.display =
+    isVideo ? '' : 'none';
+  if (isVideo) {
+    try { syncVideoFolderFilterUIV819(); } catch (_) {}
+  }
 }
 
 // v790: 영상/만화 모두 스타일 버튼을 사용하고, 모드에 맞게 3열 도구를 다시 구성
@@ -115537,54 +117045,26 @@ function toggleVideoActressBodyLock() {
 function refreshVideoActressProfilePhoto() {
   if (!videoActressProfileState) return;
 
-  const img = document.getElementById(
-    'videoActressProfilePhoto'
-  );
-  const wrap = document.getElementById(
-    'videoActressProfilePhotoWrap'
-  );
-  const nameInput = document.getElementById(
-    'videoActressProfileName'
-  );
-
+  const img = document.getElementById('videoActressProfilePhoto');
+  const wrap = document.getElementById('videoActressProfilePhotoWrap');
+  const nameInput = document.getElementById('videoActressProfileName');
   if (!img || !wrap) return;
 
-  const aliasesInput = document.getElementById(
-    'videoActressProfileAliases'
-  );
-
-  // v221_20:
-  // 이름/별칭을 공백으로 한 문자열에 합치면 일본어 이름이 여러 개일 때
-  // "山田花子 山田華子" 전체를 하나의 일본어 이름으로 오인할 수 있다.
-  // 사진 검색에는 각 이름/별칭을 독립 후보로 넘긴다.
-  const photoNames = [];
-  const seen = new Set();
-
-  const addPhotoName = value => {
-    const label = String(value || '').replace(/\s+/g, ' ').trim();
-    const key = normalizeActressAliasToken(label);
-    if (!label || !key || seen.has(key)) return;
-    seen.add(key);
-    photoNames.push(label);
-  };
-
-  addPhotoName(nameInput?.value || '');
-
-  parseVideoActressAliasEditorText(
-    aliasesInput?.value || ''
-  ).forEach(item => addPhotoName(item.label));
-
-  if (Array.isArray(videoActressProfileState.aliasLabels)) {
-    videoActressProfileState.aliasLabels.forEach(addPhotoName);
+  let photoName = String(nameInput?.value || videoActressProfileState?.label || '').trim();
+  if (
+    String(videoActressProfileState?.dmmNameSource || '').trim() === 'avwikidb' &&
+    String(videoActressProfileState?.dmmName || '').trim()
+  ) {
+    photoName = String(videoActressProfileState.dmmName).trim();
   }
 
-  splitVideoActressAliases(
-    videoActressProfileState.label || ''
-  ).forEach(item => addPhotoName(item.label));
-
-  loadActressRailPhoto(img, wrap, photoNames);
+  loadActressRailPhoto(
+    img,
+    wrap,
+    photoName,
+    { actressKey: String(videoActressProfileState?.key || '').trim() }
+  );
 }
-
 
 // =========================================
 // 배우 미보유 품번
@@ -137792,6 +139272,7 @@ function getVideoDmmInlineActorMap() {
   if (__videoDmmInlineActorMap) return __videoDmmInlineActorMap;
 
   const map = new Map();
+  const ambiguous = new Set();
   let rowCount = 0;
 
   for (const line of VIDEO_DMM_INLINE_ACTOR_MAP_TEXT.split('\n')) {
@@ -137805,32 +139286,28 @@ function getVideoDmmInlineActorMap() {
     const nameJa = trimmed.slice(tabAt + 1).trim();
     if (!imageName || !nameJa) continue;
 
-    const aliases = getVideoDmmActorJaNameAliases(nameJa);
-    if (!aliases.length) continue;
+    const key = normalizeVideoDmmActorJaName(nameJa);
+    if (!key || ambiguous.has(key)) continue;
 
     const url =
       'https://awsimgsrc.dmm.co.jp/pics_dig/mono/actjpgs/' +
       encodeURIComponent(imageName) +
       '?w=125&h=125&f=webp&t=margin';
 
-    const actorData = {
-      nameJa,
-      imageName,
-      url
-    };
-
-    for (const alias of aliases) {
-      const key = normalizeVideoDmmActorJaName(alias);
-      if (!key || map.has(key)) continue;
-      map.set(key, actorData);
+    const actorData = { nameJa, imageName, url };
+    const old = map.get(key);
+    if (old && String(old.imageName || '') !== imageName) {
+      map.delete(key);
+      ambiguous.add(key);
+      continue;
     }
-
+    if (!old) map.set(key, actorData);
     rowCount++;
   }
 
   __videoDmmInlineActorMap = map;
   console.info(
-    `[DMM actress] HTML 내장 문자열 Map 로드: ${rowCount.toLocaleString()}명 / 검색키 ${map.size.toLocaleString()}개`
+    `[DMM actress] HTML 내장 문자열 Map 로드: ${rowCount.toLocaleString()}명 / 정확 nameJa ${map.size.toLocaleString()}개 / 동명이인 제외 ${ambiguous.size.toLocaleString()}개`
   );
   return map;
 }
@@ -137931,91 +139408,46 @@ function normalizeVideoDmmActorImageUrl(value) {
 // file:// 폴더 Handle이나 상대경로 fetch는 배우 얼굴 조회에 사용하지 않는다.
 
 async function getVideoDmmActorsIndex() {
-  if (__videoDmmActorsIndex) {
-    return __videoDmmActorsIndex;
-  }
-
-  if (__videoDmmActorsIndexPromise) {
-    return __videoDmmActorsIndexPromise;
-  }
+  if (__videoDmmActorsIndex) return __videoDmmActorsIndex;
+  if (__videoDmmActorsIndexPromise) return __videoDmmActorsIndexPromise;
 
   __videoDmmActorsIndexPromise = (async () => {
-    // 옵션의 DMM DB 버튼으로 등록한 dmm_actors.json 데이터만 사용한다.
-    // readVideoActressJsonRowsFromIdb('dmm')은 datasets 스토어의
-    // { id: 'dmm', rows: [...] } 중 rows 배열을 그대로 반환한다.
-    const rows =
-      await readVideoActressJsonRowsFromIdb('dmm') || [];
-
+    const rows = await readVideoActressJsonRowsFromIdb('dmm') || [];
     const map = new Map();
+    const ambiguous = new Set();
 
     for (const row of rows) {
       if (!row || typeof row !== 'object') continue;
-
       const nameJa = String(row.nameJa || '').trim();
-      const aliases = getVideoDmmActorJaNameAliases(nameJa);
-      if (!aliases.length) continue;
+      const key = normalizeVideoDmmActorJaName(nameJa);
+      if (!nameJa || !key || ambiguous.has(key)) continue;
 
-      const imageUrl = normalizeVideoDmmActorImageUrl(
-        row.imageUrl
-      );
-      const imageSrc = normalizeVideoDmmActorImageUrl(
-        row.imageSrc
-      );
-
-      const urls = Array.from(
-        new Set([
-          // 안정적인 원본 JPG 주소를 우선
-          imageUrl,
-          // 실패하면 DMM의 125x125 변환 주소
-          imageSrc
-        ].filter(Boolean))
-      );
-
-      // v361: 대표 DMM 이름 매칭은 사진 유무와 무관하게 유지한다.
-      const imageName = String(row.imageName || '').trim();
-      const romanAliases = getVideoDmmActorRomanAliases(imageName);
-
+      const imageUrl = normalizeVideoDmmActorImageUrl(row.imageUrl);
+      const imageSrc = normalizeVideoDmmActorImageUrl(row.imageSrc);
+      const urls = Array.from(new Set([imageUrl, imageSrc].filter(Boolean)));
       const actorData = {
         nameJa,
-        aliases,
-        romanAliases,
         urls,
-        imageName,
+        imageName: String(row.imageName || '').trim(),
         profileUrl: String(row.profileUrl || '').trim()
       };
 
-      for (const alias of aliases) {
-        const key = normalizeVideoDmmActorJaName(alias);
-        if (!key || map.has(key)) continue;
-        map.set(key, actorData);
+      const old = map.get(key);
+      if (old && String(old.nameJa || '') !== nameJa) {
+        map.delete(key);
+        ambiguous.add(key);
+        continue;
       }
-
-      for (const alias of romanAliases) {
-        const key = normalizeVideoDmmActorRomanName(alias);
-        if (!key || map.has(key)) continue;
-        map.set(key, actorData);
-      }
+      if (!old) map.set(key, actorData);
     }
 
     __videoDmmActorsIndex = map;
-
-    if (map.size) {
-      console.info(
-        `[DMM actress] IndexedDB dmm 배우 사진 인덱스 로드: ${rows.length}명 / 검색키 ${map.size}개`
-      );
-    } else {
-      console.info(
-        '[DMM actress] IndexedDB에 DMM 배우 DB가 없거나 유효한 사진 데이터가 없습니다. 옵션의 DMM DB 버튼으로 dmm_actors.json을 등록하세요.'
-      );
-    }
-
     return map;
   })();
 
   try {
     return await __videoDmmActorsIndexPromise;
   } finally {
-    // 성공/실패 결과(Map)는 캐시하고 Promise만 정리
     __videoDmmActorsIndexPromise = null;
   }
 }
@@ -138024,37 +139456,16 @@ async function getVideoDmmActressPhotoUrls(actressNames) {
   const names = (Array.isArray(actressNames) ? actressNames : [])
     .map(name => String(name || '').trim())
     .filter(Boolean);
-
   if (!names.length) return [];
 
   const index = await getVideoDmmActorsIndex();
   if (!index?.size) return [];
 
-  // 기존 DMM JSON/IndexedDB 방식 그대로:
-  // 1) 일본어 이름 정확 매칭
-  const japaneseNames = names.filter(
-    name => /[\u3040-\u30ff\u3400-\u9fff々〆ヵヶ]/.test(name)
-  );
-
-  for (const name of japaneseNames) {
+  for (const name of names) {
     const key = normalizeVideoDmmActorJaName(name);
     const found = index.get(key);
     if (found?.urls?.length) return found.urls;
   }
-
-  // 2) 기존 JSON 인덱스의 영문 imageName/헵번·훈령 후보 매칭
-  const romanNames = names.filter(name => /[a-z]/i.test(name));
-
-  for (const name of romanNames) {
-    const candidates = getVideoDmmActorRomanAliases(name);
-
-    for (const candidate of candidates) {
-      const key = normalizeVideoDmmActorRomanName(candidate);
-      const found = index.get(key);
-      if (found?.urls?.length) return found.urls;
-    }
-  }
-
   return [];
 }
 
@@ -138069,6 +139480,9 @@ let __videoAvwikidbActorsIndex = null;
 // v691: Wiki 정보입력은 AVWikiDB nameJa만 source-side 검색키로 사용한다.
 let __videoAvwikidbNameJaExactIndexPromise = null;
 let __videoAvwikidbNameJaExactIndex = null;
+// v830: 사진은 별칭이 아니라 확정 actorId로 AVWiki 원본 행을 다시 찾아 사용한다.
+let __videoAvwikidbActorIdPhotoIndexV830Promise = null;
+let __videoAvwikidbActorIdPhotoIndexV830 = null;
 
 async function getVideoAvwikidbActorsIndex() {
   if (__videoAvwikidbActorsIndex) return __videoAvwikidbActorsIndex;
@@ -138142,6 +139556,38 @@ async function getVideoAvwikidbActorsIndex() {
     return await __videoAvwikidbActorsIndexPromise;
   } finally {
     __videoAvwikidbActorsIndexPromise = null;
+  }
+}
+
+
+async function getVideoAvwikidbActorIdPhotoIndexV830() {
+  if (__videoAvwikidbActorIdPhotoIndexV830) return __videoAvwikidbActorIdPhotoIndexV830;
+  if (__videoAvwikidbActorIdPhotoIndexV830Promise) return __videoAvwikidbActorIdPhotoIndexV830Promise;
+
+  __videoAvwikidbActorIdPhotoIndexV830Promise = (async () => {
+    const rows = await readVideoActressJsonRowsFromIdb('avwikidb') || [];
+    const map = new Map();
+
+    for (const row of rows) {
+      if (!row || typeof row !== 'object') continue;
+      const actorId = String(row.actorId || '').trim();
+      if (!actorId || map.has(actorId)) continue;
+      map.set(actorId, {
+        actorId,
+        nameJa: String(row.nameJa || '').normalize('NFKC').trim(),
+        imageUrl: normalizeVideoDmmActorImageUrl(row.imageUrl)
+      });
+    }
+
+    __videoAvwikidbActorIdPhotoIndexV830 = map;
+    console.info(`[AVWikiDB actress] actorId 사진 인덱스 ${map.size.toLocaleString()}개`);
+    return map;
+  })();
+
+  try {
+    return await __videoAvwikidbActorIdPhotoIndexV830Promise;
+  } finally {
+    __videoAvwikidbActorIdPhotoIndexV830Promise = null;
   }
 }
 
@@ -138318,60 +139764,75 @@ async function getVideoJavbusActressPhotoUrls(actressNames) {
   return [];
 }
 
+async function getVideoActressStrictAvwikiPhotoV830(actressNames, actressKey = '') {
+  const names = (Array.isArray(actressNames) ? actressNames : [actressNames])
+    .map(name => String(name || '').normalize('NFKC').trim())
+    .filter(Boolean);
+
+  // 1순위: 호출부가 넘긴 현재 배우 canonical key의 AVWiki actorId.
+  // 사진 식별에서는 이름/별칭으로 canonical을 다시 역추적하지 않는다.
+  // 따라서 AIKA와 AIKA(三浦あいか)가 별칭 문자열을 공유해도 사진 actorId는 섞이지 않는다.
+  const exactActressKey = String(actressKey || '').trim();
+  if (exactActressKey) {
+    try {
+      const profile = getVideoActressProfile(exactActressKey) || {};
+      const actorId = String(profile?.avwikidbActorId || '').trim();
+      if (actorId) {
+        const byActorId = await getVideoAvwikidbActorIdPhotoIndexV830();
+        const actor = byActorId?.get(actorId);
+        if (actor) {
+          return {
+            matched: true,
+            actorId,
+            nameJa: String(actor?.nameJa || '').trim(),
+            url: normalizeVideoDmmActorImageUrl(actor?.imageUrl || '')
+          };
+        }
+      }
+    } catch (_) {}
+  }
+
+  // 2순위: actorId가 없는 배우만 전달받은 이름 전체와 AVWiki nameJa를 정확일치.
+  // aliases/nameEn/괄호 분해는 사진 매칭에 사용하지 않는다.
+  try {
+    const exactIndex = await getVideoAvwikidbNameJaExactIndex();
+    for (const name of names) {
+      const actor = exactIndex?.get(normalizeVideoDmmActorJaName(name));
+      if (!actor) continue;
+      return {
+        matched: true,
+        actorId: String(actor?.actorId || '').trim(),
+        nameJa: String(actor?.nameJa || '').trim(),
+        url: normalizeVideoDmmActorImageUrl(actor?.imageUrl || '')
+      };
+    }
+  } catch (_) {}
+
+  return { matched: false, actorId: '', nameJa: '', url: '' };
+}
+
 function loadActressRailPhoto(
   img,
   wrap,
-  actressLabel
+  actressLabel,
+  options = {}
 ) {
   if (!img || !wrap) return;
 
   const loadToken = String(++__videoActressPhotoLoadSeq);
   img.dataset.actressPhotoLoadToken = loadToken;
+  const isCurrentLoad = () => img.dataset.actressPhotoLoadToken === loadToken;
 
-  const isCurrentLoad = () =>
-    img.dataset.actressPhotoLoadToken === loadToken;
-
-  const rawPhotoNames = Array.isArray(actressLabel)
-    ? actressLabel
-    : [actressLabel];
-
+  const rawPhotoNames = Array.isArray(actressLabel) ? actressLabel : [actressLabel];
   const names = [];
-  const nameSeen = new Set();
-
-  const addPhotoCandidate = value => {
-    const label = String(value || '').trim();
+  const seen = new Set();
+  for (const rawName of rawPhotoNames) {
+    const label = String(rawName || '').normalize('NFKC').trim();
     const key = normalizeActressAliasToken(label);
-    if (!label || !key || nameSeen.has(key)) return;
-    nameSeen.add(key);
+    if (!label || !key || seen.has(key)) continue;
+    seen.add(key);
     names.push(label);
-  };
-
-  rawPhotoNames.forEach(rawName => {
-    getActressPhotoNameCandidates(rawName).forEach(name => {
-      addPhotoCandidate(name);
-
-      // 배우정보의 별칭들도 Actors/내장 Map/JSON 매칭 후보로 사용한다.
-      try {
-        getVideoActressAliasLabelsForEditor(name).forEach(alias => {
-          getActressPhotoNameCandidates(alias).forEach(addPhotoCandidate);
-        });
-      } catch (_) {}
-    });
-  });
-
-  // 1순위: Actors/배우이름.jpg
-  const localCandidates = [];
-  for (const name of names) {
-    localCandidates.push(
-      './Actors/' + encodeURIComponent(name) + '.jpg'
-    );
   }
-
-  let candidates = localCandidates.slice();
-  let index = 0;
-  let inlineMapChecked = false;
-  let dmmJsonChecked = false;
-  let avwikidbJsonChecked = false;
 
   img.alt = '';
   img.referrerPolicy = 'no-referrer';
@@ -138388,82 +139849,53 @@ function loadActressRailPhoto(
     wrap.classList.add('is-missing');
   };
 
-  const tryNext = () => {
-    if (!isCurrentLoad()) return;
-    img.classList.remove('is-loaded');
-
-    if (index < candidates.length) {
+  const loadUrlCandidates = urls => {
+    const candidates = Array.from(new Set((Array.isArray(urls) ? urls : []).filter(Boolean)));
+    let index = 0;
+    const tryNext = () => {
+      if (!isCurrentLoad()) return;
+      img.classList.remove('is-loaded');
+      if (index >= candidates.length) return finishMissing();
       const nextUrl = candidates[index++];
       img.removeAttribute('src');
       img.src = nextUrl;
-      return;
-    }
-
-    // v688 2순위: AVWikiDB JSON/IndexedDB 사진을 기본으로 사용한다.
-    if (!avwikidbJsonChecked) {
-      avwikidbJsonChecked = true;
-      img.removeAttribute('src');
-
-      getVideoAvwikidbActressPhotoUrls(names)
-        .then(urls => {
-          if (!isCurrentLoad()) return;
-          if (urls.length) candidates = candidates.concat(urls);
-          tryNext();
-        })
-        .catch(error => {
-          console.info('[AVWikiDB actress] JSON 배우 사진 조회 실패', error);
-          tryNext();
-        });
-
-      return;
-    }
-
-    // 3순위: HTML에 내장한 기존 DMM 이름↔사진 Map은 폴백으로만 사용한다.
-    if (!inlineMapChecked) {
-      inlineMapChecked = true;
-      img.removeAttribute('src');
-
-      const urls = getVideoDmmInlineActressPhotoUrls(names);
-      if (urls.length) candidates = candidates.concat(urls);
+    };
+    img.onload = () => {
+      if (!isCurrentLoad()) return;
+      wrap.classList.remove('is-missing');
+      img.classList.add('is-loaded');
+    };
+    img.onerror = () => {
+      if (!isCurrentLoad()) return;
       tryNext();
-      return;
-    }
-
-    // 4순위: 등록한 DMM 배우 JSON/IndexedDB도 최종 폴백으로 유지한다.
-    if (!dmmJsonChecked) {
-      dmmJsonChecked = true;
-      img.removeAttribute('src');
-
-      getVideoDmmActressPhotoUrls(names)
-        .then(urls => {
-          if (!isCurrentLoad()) return;
-          if (urls.length) candidates = candidates.concat(urls);
-          tryNext();
-        })
-        .catch(error => {
-          console.info('[DMM actress] JSON 배우 사진 조회 실패', error);
-          finishMissing();
-        });
-
-      return;
-    }
-
-    finishMissing();
-  };
-
-  img.onload = () => {
-    if (!isCurrentLoad()) return;
-    wrap.classList.remove('is-missing');
-    img.classList.add('is-loaded');
-  };
-
-  img.onerror = () => {
-    if (!isCurrentLoad()) return;
-    img.classList.remove('is-loaded');
+    };
     tryNext();
   };
 
-  tryNext();
+  if (!names.length) return finishMissing();
+
+  Promise.resolve()
+    .then(() => getVideoActressStrictAvwikiPhotoV830(names, options?.actressKey || ''))
+    .then(async strict => {
+      if (!isCurrentLoad()) return;
+
+      if (strict?.matched) {
+        if (strict.url) loadUrlCandidates([strict.url]);
+        else finishMissing();
+        return;
+      }
+
+      const localCandidates = names.map(name => './Actors/' + encodeURIComponent(name) + '.jpg');
+      const inlineUrls = getVideoDmmInlineActressPhotoUrls(names);
+      let dmmUrls = [];
+      try { dmmUrls = await getVideoDmmActressPhotoUrls(names); } catch (_) {}
+      if (!isCurrentLoad()) return;
+      loadUrlCandidates([...localCandidates, ...inlineUrls, ...dmmUrls]);
+    })
+    .catch(error => {
+      console.info('[배우 사진] 정확 매칭 조회 실패', error);
+      finishMissing();
+    });
 }
 
 function getVideoActressRailEnglishSortName(
@@ -138555,7 +139987,8 @@ function forceLoadVideoMainActressRailPhoto(wrap) {
     loadActressRailPhoto(
       image,
       wrap,
-      image.dataset.mainActressPhotoName || ''
+      image.dataset.mainActressPhotoName || '',
+      { actressKey: image.dataset.mainActressPhotoKey || '' }
     );
   } catch (_) {
     wrap.classList.add('is-missing');
@@ -138606,11 +140039,13 @@ function queueVideoMainActressRailPhoto(
   img,
   wrap,
   photoName,
-  root = null
+  root = null,
+  actressKey = ''
 ) {
   if (!img || !wrap) return;
 
   img.dataset.mainActressPhotoName = String(photoName || '').trim();
+  img.dataset.mainActressPhotoKey = String(actressKey || '').trim();
   delete img.dataset.mainActressPhotoLoaded;
 
   // 브라우저 native lazy는 사용하지 않는다. 실제 지연 시점은 아래 observer/스크롤 검사로 제어.
@@ -139985,10 +141420,9 @@ img.decoding = 'async';
   queueVideoMainActressRailPhoto(
     img,
     photoWrap,
-    displayLabel === label
-      ? label
-      : `${displayLabel} ${label}`,
-    photoRoot
+    String(label || displayLabel || '').trim(),
+    photoRoot,
+    String(key || '').trim()
   );
 
 
@@ -145832,6 +147266,20 @@ document
       }
     }
   );
+
+document
+  .getElementById('videoFolderFilterSel')
+  ?.addEventListener('change', event => {
+    const selectEl = event.currentTarget;
+    const value = String(selectEl?.value || '');
+    try {
+      setVideoFolderFilterV819(value);
+    } finally {
+      requestAnimationFrame(() => {
+        try { selectEl?.blur?.(); } catch (_) {}
+      });
+    }
+  });
 
 document
   .getElementById(
@@ -161375,7 +162823,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 813;
+  const VIEWER_BUILD_V789 = 830;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -161765,8 +163213,128 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     getViewerPwaInstallButtonsV804().forEach(btn => { btn.style.display = 'none'; });
   });
 
+  // v822: 하단 HTML 주석의 최근 수정내역을 그대로 읽어 별도 창에 표시한다.
+  // 앞으로도 파일 맨 아래에 <!-- v빌드: 수정내용 --> 주석만 추가하면 이 창에 자동 누적된다.
+  const VIEWER_CHANGELOG_START_BUILD_V822 = 814;
+
+  function collectViewerChangeLogV822(){
+    const byBuild = new Map();
+    try {
+      const walker = document.createTreeWalker(
+        document,
+        NodeFilter.SHOW_COMMENT
+      );
+      let node = null;
+      while ((node = walker.nextNode())) {
+        const raw = String(node.nodeValue || '').replace(/\s+/g, ' ').trim();
+        const match = raw.match(/^v(\d+)\s*:\s*(.+)$/i);
+        if (!match) continue;
+        const build = Number(match[1]);
+        if (!Number.isFinite(build) || build < VIEWER_CHANGELOG_START_BUILD_V822) continue;
+        let detail = String(match[2] || '').trim();
+        // 주석 끝의 예전 화면 버전 표기는 히스토리에서는 중복이므로 제거한다.
+        detail = detail.replace(/\s*·\s*화면\s*버전\s*4\.1\([^)]*\)\s*$/i, '').trim();
+        if (!detail) continue;
+        byBuild.set(build, detail);
+      }
+    } catch (error) {
+      console.warn('[viewer changelog v822] 주석 수집 실패', error);
+    }
+    return Array.from(byBuild.entries())
+      .map(([build, detail]) => ({ build, detail }))
+      .sort((a, b) => b.build - a.build);
+  }
+
+  function escapeViewerChangeLogHtmlV822(value){
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function openViewerChangeLogV822(){
+    const entries = collectViewerChangeLogV822();
+    const popup = window.open(
+      '',
+      'viewerChangeLogV822',
+      'popup=yes,width=760,height=820,resizable=yes,scrollbars=yes'
+    );
+
+    if (!popup) {
+      const plain = entries.length
+        ? entries.map(item => `빌드${item.build}  ${item.detail}`).join('\n\n')
+        : '표시할 수정내역이 없습니다.';
+      showViewerUpdateDialogV789({
+        title: '웹뷰어 수정내역',
+        message: plain,
+        notice: '팝업이 차단되어 현재 창의 안내창으로 표시했습니다.',
+        cancelText: '닫기',
+        closeOnly: true
+      });
+      return false;
+    }
+
+    const rows = entries.length
+      ? entries.map(item => `
+          <article class="change-item">
+            <div class="change-build">빌드${item.build}</div>
+            <div class="change-detail">${escapeViewerChangeLogHtmlV822(item.detail)}</div>
+          </article>`).join('')
+      : '<div class="empty">표시할 수정내역이 없습니다.</div>';
+
+    popup.document.open();
+    popup.document.write(`<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>웹뷰어 수정내역</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#111318;color:#eef1f6;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  .wrap{max-width:900px;margin:0 auto;padding:22px 18px 36px}
+  .head{position:sticky;top:0;z-index:2;margin:-22px -18px 16px;padding:18px;background:rgba(17,19,24,.96);border-bottom:1px solid #343945;backdrop-filter:blur(8px)}
+  h1{font-size:21px;margin:0 0 5px}.sub{font-size:13px;color:#aeb7c6}
+  .change-item{display:grid;grid-template-columns:92px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #2d323b}
+  .change-build{font-weight:900;color:#8fc7ff;white-space:nowrap}.change-detail{font-size:14px;line-height:1.65;color:#e2e6ec;word-break:keep-all}
+  .empty{padding:30px 0;color:#aeb7c6}
+  @media(max-width:560px){.wrap{padding:16px 13px 28px}.head{margin:-16px -13px 12px;padding:14px 13px}.change-item{grid-template-columns:1fr;gap:4px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>웹뷰어 수정내역</h1>
+    <div class="sub">현재 버전 4.1 · 빌드${VIEWER_BUILD_V789} · 빌드${VIEWER_CHANGELOG_START_BUILD_V822}부터 표시</div>
+  </div>
+  ${rows}
+</div>
+</body>
+</html>`);
+    popup.document.close();
+    try { popup.opener = null; } catch (_) {}
+    try { popup.focus(); } catch (_) {}
+    return true;
+  }
+
+  function bindViewerChangeLogButtonsV822(){
+    ['viewerChangeLogBtn', 'viewerChangeLogBtnWt'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn || btn.dataset.viewerChangeLogBoundV822 === '1') return;
+      btn.dataset.viewerChangeLogBoundV822 = '1';
+      btn.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openViewerChangeLogV822();
+      });
+    });
+  }
+
   function startViewerLatestV789(){
     bindViewerLatestButtonsV789();
+    bindViewerChangeLogButtonsV822();
     bindViewerPwaInstallButtonsV804();
     registerViewerPwaServiceWorkerV804();
 
@@ -162296,3 +163864,20 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 
 <!-- v793: 화면 표기를 버전 4.1(793)으로 변경 · 스타일 버튼명을 기능으로 변경 · 영상 정렬 북마크만보기를 북마크로 축약 · 메타검색에 작품날짜 최소~최대 검색 추가 · 2/4자리 연도와 .-/ 구분자 지원 · 최소 생략값은 1/1, 최대 생략값은 연말/월말 자동보정 -->
 <!-- v794: 배우정보 미보유품번 같이보기 옆 바로검색 추가 · dmmSearchName 우선 배우명으로 메타 작품검색 즉시 실행 · 검색결과 표시 후 상단 메타검색 버튼 활성화 -->
+<!-- v814: 무포스터 보유 영상에 장면 선택 버튼 추가 · 원본 영상 5/10/15/20초 정지 프레임 4개를 RAM에서 생성해 선택창 표시 · 선택한 1장만 JPG로 Scenes에 저장 · 다음 렌더부터 저장 장면을 온라인 포스터보다 먼저 재사용 · 화면 버전 4.1(814) -->
+<!-- v815: 무포스터 장면 캡처 태블릿 로딩 수정 · off-DOM video의 loadeddata 무한대기 대신 화면 밖 DOM에 video를 연결하고 loadedmetadata→seeked 순서로 캡처 · metadata/seek/JPG 생성에 timeout 추가 · 개별 장면 실패 시 다음 시점 계속 시도 · 진행상태 세분화 · 화면 버전 4.1(815) -->
+<!-- v816: 무포스터 장면 선택창 표시 수정 · v814 선택창 CSS가 다른 팝업 HTML 문자열 안에 들어가 메인 문서에 적용되지 않던 문제 수정 · 실제 document.head에 런타임 스타일 주입 · 선택 후보 준비 후 버튼 상태를 장면 선택중으로 표시 · 화면 버전 4.1(816) -->
+<!-- v817: 무포스터 장면 포스터 저장 복구 · 선택 JPG를 새로고침 후 localStorage 키/상대경로에 의존하지 않고 결정적 파일명 + 표지 루트 Scenes File Handle로 직접 재로드 · 첫 장면선택 전후 UI 스타일이 달라지던 지연 CSS 적용도 첫 렌더 시점으로 통일 · 화면 버전 4.1(817) -->
+<!-- v818: 무포스터 장면 포스터 후보를 5초 간격 5~50초 총 10개로 확대 · 저장된 장면 포스터에 기본 목록 전용 재선택 버튼 추가 · 재선택 시 같은 Scenes JPG를 덮어써 즉시 교체 · 화면 버전 4.1(818) -->
+<!-- v819: 메인 영상 정렬 셀렉트 옆에 추가한 루트폴더 선택 추가 · 기본은 전체 · 선택 폴더의 영상만 기존 검색/배우/태그 필터와 함께 표시 · 전체/각 폴더마다 정렬 방식과 ↑↓ 방향을 독립 저장 · 화면 버전 4.1(820) -->
+<!-- v820: 메타검색 상단에 보유작검색 추가 · AVWikiDB 전체 대신 현재 보유 영상과 매칭된 작품만 동일 메타조건으로 검색 · 조건 없음은 보유작 전체 · 작품 기준 중복 제거 · 화면 버전 4.1(820) -->
+<!-- v821: 보유작검색이 빠르게 완료될 때 이전 렌더의 준비중/검색취소 UI가 결과 뒤에 다시 붙는 렌더 순서 역전 수정 · 검색 시작 대기에는 취소 버튼 숨김 · 실제 busy 상태에서만 검색취소 표시 · 화면 버전 4.1(821) -->
+<!-- v822: 화면 버전 표기를 버전 4.1(빌드823) 형식으로 변경 · 최신버전 왼쪽에 수정내역 버튼 추가 · 빌드814부터 파일 하단 v주석을 자동 수집해 새 창에 수정 히스토리 표시 · 앞으로 하단 주석 추가만으로 수정내역에 자동 누적 · 화면 버전 4.1(822) -->
+<!-- v823: 장면포스터 재선택 버튼을 포스터 위 떠있는 버튼에서 하단 텍스트 메타 줄로 이동 · 잠정/확정 배지가 있으면 바로 옆에 같은 크기/형식의 배지로 표시 · 없으면 배우/품번 앞에 표시 · 화면 버전 4.1(빌드823) -->
+<!-- v824: 배우월 배우이름 검색 결과를 한 번에 전부 생성하던 방식을 80명씩 지연표시로 변경 · 일반 보유 검색과 미포함/같이 검색 모두 동일 적용 · 미포함 카탈로그가 뒤늦게 합쳐져도 현재 표시 배치 깊이 유지 · 화면 버전 4.1(빌드824) -->
+<!-- v825: 배우월 배우이름 검색 입력 디바운스를 120ms에서 750ms(0.75초)로 변경 · 입력을 멈춘 뒤 0.75초 후 검색/재렌더 실행 · 기존 검색결과 80명씩 지연표시는 유지 · 화면 버전 4.1(빌드825) -->
+<!-- v826: 배우월 작품조회에서 일본어 문자만 허용하던 제한을 수정해 SARA(S-Cute) 같은 영문 배우명도 actresses 인덱스 원문 전체 정확일치로 조회 · 괄호 파생 영문명은 추가하지 않아 SARA/S-Cute로 검색범위를 불필요하게 넓히지 않음 · 보유작 RAM 배우인덱스에 로컬 배우명 + 매칭된 AVWikiDB actresses[]를 합쳐 등록해 작품DB에만 있는 공동출연 배우도 배우월 보유작에 포함 · 화면 버전 4.1(빌드826) -->
+<!-- v827: 배우월 영문검색을 부분일치에서 정확일치 중심으로 변경 · 영문 대소문자 무시 · nameJa/원본명은 이름 전체 또는 첫 괄호 앞 이름 전체가 검색어와 같을 때만 일치 · nameEn/별칭/과거명은 이름 전체 정확일치만 허용 · 일본어/한글 등 비영문 검색은 기존 부분일치 유지 · 화면 버전 4.1(빌드827) -->\n
+<!-- v828: 배우 얼굴 사진 후보를 자동 분해하지 않고 현재 라벨 전체 + 등록 별칭 전체 정확이름만 사용하도록 변경 · 화면 버전 4.1(빌드828) -->
+<!-- v829: 배우 얼굴 사진에서 별칭 매칭을 완전 제외 · AVWikiDB actor가 정확히 식별되면 해당 actor의 avwikidbImageUrl만 사용하고 실패 시 다른 이름/DMM로 폴백하지 않음 · 미매칭 배우만 전체 이름 정확일치로 Actors/DMM 내장/DMM DB를 폴백 · DMM 사진 인덱스도 괄호 파생별칭/로마자 휴리스틱 제거하고 nameJa 전체 정확일치만 사용 · 화면 버전 4.1(빌드829) -->
+<!-- v830: 배우사진 AVWiki 매칭 시 저장된 avwikidbImageUrl 빈값에서 즉시 종료하던 문제 수정 · 확정 avwikidbActorId로 현재 AVWikiDB 원본 행을 다시 찾아 imageUrl 사용 · actorId가 없을 때만 nameJa 전체 정확일치 사용, 사진 별칭 매칭은 계속 제외 · 일반 보유 배우월도 첫 80명 표시 후 스크롤 하단에서 80명씩 추가하도록 변경 · 미포함 모드는 보유 배우 지연표시 완료 뒤 미보유 섹션을 이어 표시 · 화면 버전 4.1(빌드830) -->
