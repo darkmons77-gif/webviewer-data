@@ -10413,7 +10413,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드830) 모드 : </span>
+<span>버전 4.1(빌드831) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12127,7 +12127,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드830) 모드 :</span>
+        <span>버전 4.1(빌드831) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -97190,14 +97190,22 @@ function syncVideoRangeActressChooserCount(totalOverride = null) {
   count.textContent = selected ? `선택 ${selected} / ${total}` : `전체 ${total} · 선택 0`;
 }
 
-function queueVideoRangeActressPhoto(img, wrap, photoName, root) {
+function queueVideoRangeActressPhoto(img, wrap, photoName, root, actressKey = '') {
   if (!img || !wrap) return;
   img.dataset.rangeActressPhotoName = String(photoName || '').trim();
+  img.dataset.rangeActressPhotoKey = String(actressKey || '').trim();
 
   const load = () => {
     if (img.dataset.rangeActressPhotoLoaded === '1') return;
     img.dataset.rangeActressPhotoLoaded = '1';
-    try { loadActressRailPhoto(img, wrap, img.dataset.rangeActressPhotoName || ''); }
+    try {
+      loadActressRailPhoto(
+        img,
+        wrap,
+        img.dataset.rangeActressPhotoName || '',
+        { actressKey: img.dataset.rangeActressPhotoKey || '' }
+      );
+    }
     catch (_) { wrap.classList.add('is-missing'); }
   };
 
@@ -97215,7 +97223,14 @@ function queueVideoRangeActressPhoto(img, wrap, photoName, root) {
         const image = target.querySelector('img.videoActressPhoto');
         if (!image || image.dataset.rangeActressPhotoLoaded === '1') return;
         image.dataset.rangeActressPhotoLoaded = '1';
-        try { loadActressRailPhoto(image, target, image.dataset.rangeActressPhotoName || ''); }
+        try {
+          loadActressRailPhoto(
+            image,
+            target,
+            image.dataset.rangeActressPhotoName || '',
+            { actressKey: image.dataset.rangeActressPhotoKey || '' }
+          );
+        }
         catch (_) { target.classList.add('is-missing'); }
       });
     }, { root: root || null, rootMargin: '120px 220px', threshold: 0.01 });
@@ -97315,7 +97330,13 @@ function appendVideoRangeActressChooserEntry(grid, entry, totalCount) {
   const photoName = isUnowned
     ? String(unownedMeta?.nameJa || displayLabel)
     : String(actress?.label || canonical || displayLabel).trim();
-  queueVideoRangeActressPhoto(img, photoWrap, photoName, grid);
+  queueVideoRangeActressPhoto(
+    img,
+    photoWrap,
+    photoName,
+    grid,
+    isUnowned ? '' : canonical
+  );
 }
 
 function renderVideoRangeActressChooser() {
@@ -105750,7 +105771,12 @@ function renderVideoWorkDbActressStripV671() {
 
     // 배우월과 같은 사진 로더:
     // 보유/미보유 체크와 관계없이 이름 자체로 사진 후보를 찾는다.
-    loadActressRailPhoto(img, wrap, lookupName);
+    loadActressRailPhoto(
+      img,
+      wrap,
+      lookupName,
+      { actressKey: String(item?.key || '').trim() }
+    );
 
     photoBtn.addEventListener('click', event => {
       event.preventDefault();
@@ -162823,7 +162849,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 830;
+  const VIEWER_BUILD_V789 = 831;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -163881,3 +163907,4 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v828: 배우 얼굴 사진 후보를 자동 분해하지 않고 현재 라벨 전체 + 등록 별칭 전체 정확이름만 사용하도록 변경 · 화면 버전 4.1(빌드828) -->
 <!-- v829: 배우 얼굴 사진에서 별칭 매칭을 완전 제외 · AVWikiDB actor가 정확히 식별되면 해당 actor의 avwikidbImageUrl만 사용하고 실패 시 다른 이름/DMM로 폴백하지 않음 · 미매칭 배우만 전체 이름 정확일치로 Actors/DMM 내장/DMM DB를 폴백 · DMM 사진 인덱스도 괄호 파생별칭/로마자 휴리스틱 제거하고 nameJa 전체 정확일치만 사용 · 화면 버전 4.1(빌드829) -->
 <!-- v830: 배우사진 AVWiki 매칭 시 저장된 avwikidbImageUrl 빈값에서 즉시 종료하던 문제 수정 · 확정 avwikidbActorId로 현재 AVWikiDB 원본 행을 다시 찾아 imageUrl 사용 · actorId가 없을 때만 nameJa 전체 정확일치 사용, 사진 별칭 매칭은 계속 제외 · 일반 보유 배우월도 첫 80명 표시 후 스크롤 하단에서 80명씩 추가하도록 변경 · 미포함 모드는 보유 배우 지연표시 완료 뒤 미보유 섹션을 이어 표시 · 화면 버전 4.1(빌드830) -->
+<!-- v831: 메타검색 배우선택 사진 지연로더가 canonical 배우 key를 버려 actorId 사진매칭을 못 하던 문제 수정 · 보유배우는 photoName과 함께 actressKey를 전달해 AVWiki actorId→원본 imageUrl 경로 사용 · 미포함 배우는 기존 nameJa 전체 정확일치 유지 · 작품DB 배우사진 영역도 canonical key를 함께 전달 · 화면 버전 4.1(빌드831) -->
