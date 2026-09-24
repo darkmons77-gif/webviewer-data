@@ -10452,7 +10452,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드856) 모드 : </span>
+<span>버전 4.1(빌드864) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12166,7 +12166,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드856) 모드 :</span>
+        <span>버전 4.1(빌드864) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -65315,30 +65315,182 @@ function videoDuplicateActressIdentityMatchesV861(a, b) {
   return false;
 }
 
-function resolveVideoDuplicateCandidateByFilenameActressV861(entry, candidates) {
-  const rows = Array.isArray(candidates) ? candidates.filter(Boolean) : [];
-  // v862: 잠재 중복그룹의 현재 후보가 1개뿐이어도
-  // 파일명 배우가 그 후보의 배우와 맞으면 잠정을 해제할 수 있도록 비교한다.
-  if (rows.length < 1) return null;
+// ============================================================
+// v863: 중복품번용 "DB 배우 별칭 -> 파일명 전체" 역검색
+//
+// 일반 파일명 배우 추출 규칙은 변경하지 않는다.
+// 1) 기존처럼 품번 앞쪽/##강제배우##에서 추출된 배우를 먼저 비교한다.
+// 2) 그 비교만으로 후보가 하나로 정해지지 않을 때에만,
+//    각 작품DB 후보의 배우를 배우 별칭DB에서 찾아 그 "유일 별칭"을
+//    실제 파일명 전체(품번 앞/뒤 모두)에서 역검색한다.
+// 3) 하나의 별칭이 여러 배우에게 속하면 자동판정 근거에서 제외한다.
+// 4) 최종적으로 정확히 한 작품 후보만 맞을 때만 자동확정한다.
+// ============================================================
+function normalizeVideoDuplicateFilenameSearchTextV863(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    // 파일명에서 흔한 구분자는 공백으로 통일한다.
+    .replace(/[\_.,;:|+~!@#$%^&*=<>?\[\]{}()（）【】「」『』・·]+/g, ' ')
+    .replace(/[-–—]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-  const filenameActresses = getVideoFilenameActressGroupsV861(entry);
-  if (!filenameActresses.length) return null;
+function videoDuplicateFilenameContainsAliasV863(fileText, aliasLabel) {
+  const haystack = normalizeVideoDuplicateFilenameSearchTextV863(fileText);
+  const needle = normalizeVideoDuplicateFilenameSearchTextV863(aliasLabel);
+  if (!haystack || !needle) return false;
 
-  const sourceIdentity = collectVideoActressIdentityV861(filenameActresses);
-  if (!sourceIdentity.canonicals.size && !sourceIdentity.exact.size) return null;
+  // 지나치게 짧은 별칭은 오탐 위험이 커서 자동판정에 사용하지 않는다.
+  const compactNeedle = needle.replace(/\s+/g, '');
+  if (compactNeedle.length < 2) return false;
 
-  const matchedRows = [];
-  for (const row of rows) {
-    const rowActresses = Array.isArray(row?.actresses) ? row.actresses : [];
-    if (!rowActresses.length) continue;
+  // 구분자 정규화 후 "단어/구" 단위로 먼저 찾는다.
+  const paddedHaystack = ` ${haystack} `;
+  const paddedNeedle = ` ${needle} `;
+  if (paddedHaystack.includes(paddedNeedle)) return true;
 
-    const rowIdentity = collectVideoActressIdentityV861(rowActresses);
-    if (videoDuplicateActressIdentityMatchesV861(sourceIdentity, rowIdentity)) {
-      matchedRows.push(row);
+  // 일본어/한자처럼 파일명에서 공백 없이 붙는 이름은 3글자 이상일 때만
+  // 연속 문자열 검색을 보조로 허용한다.
+  if (compactNeedle.length >= 3 && /[^a-z0-9가-힣]/i.test(compactNeedle)) {
+    const compactHaystack = haystack.replace(/\s+/g, '');
+    return compactHaystack.includes(compactNeedle);
+  }
+
+  return false;
+}
+
+function getVideoUniqueAliasLabelsForCandidateActressV863(value) {
+  const result = [];
+  const seen = new Set();
+  let data = null;
+
+  try { data = getVideoActressAliasData(); } catch (_) {}
+  if (!data) return result;
+
+  const addUniqueOwnedAlias = (label, expectedCanonical = '') => {
+    const raw = String(label || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
+    if (!raw) return;
+
+    const key = normalizeActressAliasToken(raw);
+    if (!key || seen.has(key)) return;
+
+    // 핵심 안전장치: 같은 별칭을 여러 배우가 공유하면 사용하지 않는다.
+    const owners = data.aliasToCanonicals?.get(key);
+    if (!owners || owners.size !== 1) return;
+
+    const owner = String(Array.from(owners)[0] || '').trim();
+    if (!owner) return;
+    if (expectedCanonical && owner !== expectedCanonical) return;
+
+    seen.add(key);
+    result.push(raw);
+  };
+
+  const seeds = [];
+  const rawValue = String(value || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
+  if (rawValue) seeds.push(rawValue);
+
+  try {
+    for (const alias of splitVideoActressAliases(rawValue) || []) {
+      const label = String(alias?.label || '').trim();
+      if (label) seeds.push(label);
+    }
+  } catch (_) {}
+
+  for (const seed of seeds) {
+    const seedKey = normalizeActressAliasToken(seed);
+    if (!seedKey) continue;
+
+    const owners = data.aliasToCanonicals?.get(seedKey);
+    // 작품DB 배우명 자체가 어느 배우인지도 유일하게 특정되는 경우만 확장한다.
+    if (!owners || owners.size !== 1) continue;
+
+    const canonical = String(Array.from(owners)[0] || '').trim();
+    if (!canonical) continue;
+
+    addUniqueOwnedAlias(seed, canonical);
+
+    const group = data.groups?.get(canonical);
+    for (const label of (Array.isArray(group?.aliasLabels) ? group.aliasLabels : [])) {
+      addUniqueOwnedAlias(label, canonical);
+    }
+
+    // 캐시에 보관된 원본 표기도 후보로 추가하되 동일한 유일성 검사를 거친다.
+    try {
+      const original = data.originalByKey?.get(canonical);
+      if (original) addUniqueOwnedAlias(original, canonical);
+    } catch (_) {}
+  }
+
+  return result;
+}
+
+function rowMatchesVideoFilenameByUniqueAliasesV863(entry, row) {
+  const fileText = String(entry?.fileName || entry?.baseName || entry?.display || '').trim();
+  if (!fileText) return false;
+
+  const rowActresses = Array.isArray(row?.actresses) ? row.actresses : [];
+  if (!rowActresses.length) return false;
+
+  for (const actress of rowActresses) {
+    const aliases = getVideoUniqueAliasLabelsForCandidateActressV863(actress);
+    for (const alias of aliases) {
+      if (videoDuplicateFilenameContainsAliasV863(fileText, alias)) {
+        return true;
+      }
     }
   }
 
-  return matchedRows.length === 1 ? matchedRows[0] : null;
+  return false;
+}
+
+function resolveVideoDuplicateCandidateByFilenameActressV861(entry, candidates) {
+  const rows = Array.isArray(candidates) ? candidates.filter(Boolean) : [];
+  // v862: 잠재 중복그룹의 현재 후보가 1개뿐이어도 판별한다.
+  if (rows.length < 1) return null;
+
+  // ----------------------------------------------------------
+  // 1차: 기존 규칙 그대로.
+  // parseVideoFilename()이 품번 앞쪽/##강제배우##에서 실제로 추출한 배우와
+  // 작품DB 후보 배우를 비교한다.
+  // ----------------------------------------------------------
+  const filenameActresses = getVideoFilenameActressGroupsV861(entry);
+  if (filenameActresses.length) {
+    const sourceIdentity = collectVideoActressIdentityV861(filenameActresses);
+
+    if (sourceIdentity.canonicals.size || sourceIdentity.exact.size) {
+      const matchedRows = [];
+      for (const row of rows) {
+        const rowActresses = Array.isArray(row?.actresses) ? row.actresses : [];
+        if (!rowActresses.length) continue;
+
+        const rowIdentity = collectVideoActressIdentityV861(rowActresses);
+        if (videoDuplicateActressIdentityMatchesV861(sourceIdentity, rowIdentity)) {
+          matchedRows.push(row);
+        }
+      }
+
+      if (matchedRows.length === 1) return matchedRows[0];
+    }
+  }
+
+  // ----------------------------------------------------------
+  // 2차(v863): 일반 파서에서는 배우로 보지 않는 품번 뒤쪽까지 포함해
+  // "작품DB 후보 배우 -> 유일 별칭"을 파일명 전체에서 역검색한다.
+  // 예) STAR-522 高尾明日香 후보
+  //     배우DB 유일 별칭 "타카오 아스카"가
+  //     "STAR-522 타카오 아스카 NW FHD"에 있으면 해당 후보를 확정.
+  // ----------------------------------------------------------
+  const reverseMatchedRows = [];
+  for (const row of rows) {
+    if (rowMatchesVideoFilenameByUniqueAliasesV863(entry, row)) {
+      reverseMatchedRows.push(row);
+    }
+  }
+
+  return reverseMatchedRows.length === 1 ? reverseMatchedRows[0] : null;
 }
 
 function collectVideoWorkRowsFromCandidateMapV693(candidateMap, keys) {
@@ -79535,13 +79687,23 @@ function parseVideoFramePosterCandidateSrcV817(src) {
 async function getSavedVideoFramePosterFileV817(fileName) {
   const name = String(fileName || '').trim();
   if (!name) return null;
-  const root = await getVideoPosterRootHandle();
-  const scenes = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
-    ? root
-    : await root.getDirectoryHandle('Scenes');
-  const handle = await scenes.getFileHandle(name);
-  const file = await handle.getFile();
-  return file && Number(file.size) > 0 ? file : null;
+
+  // v864: 포스터 자동 렌더링은 절대로 폴더 선택/권한 요청 UI를 띄우지 않는다.
+  // 저장된 루트가 있고 현재 읽기 권한이 이미 granted일 때만 조용히 사용한다.
+  // 권한이 없으면 정지프레임 포스터만 건너뛰고 다음 포스터 후보로 진행한다.
+  const root = await getVideoPosterRootHandlePassiveV864();
+  if (!root) return null;
+
+  try {
+    const scenes = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
+      ? root
+      : await root.getDirectoryHandle('Scenes');
+    const handle = await scenes.getFileHandle(name);
+    const file = await handle.getFile();
+    return file && Number(file.size) > 0 ? file : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 async function saveVideoFramePosterCandidateV814(entry, candidate) {
@@ -91703,6 +91865,69 @@ async function ensureVideoWritePermission(
 }
 
 
+// v864: 저장된 표지 루트의 수동(무요청) 읽기 접근.
+// 자동 포스터 렌더링/자동 점검에서는 queryPermission만 하고 requestPermission이나
+// showDirectoryPicker를 절대 호출하지 않는다. 권한이 아직 없으면 null로 조용히 건너뛴다.
+let _videoPosterRootPassiveHandleCacheV864;
+let _videoPosterRootPassiveHandlePromiseV864 = null;
+
+function setVideoPosterRootPassiveHandleCacheV864(handle) {
+  _videoPosterRootPassiveHandleCacheV864 = handle || null;
+}
+
+function resetVideoPosterRootPassiveHandleCacheV864() {
+  _videoPosterRootPassiveHandleCacheV864 = undefined;
+  _videoPosterRootPassiveHandlePromiseV864 = null;
+}
+
+async function getVideoPosterRootHandlePassiveV864() {
+  if (_videoPosterRootPassiveHandleCacheV864 !== undefined) {
+    return _videoPosterRootPassiveHandleCacheV864;
+  }
+  if (_videoPosterRootPassiveHandlePromiseV864) {
+    return _videoPosterRootPassiveHandlePromiseV864;
+  }
+
+  _videoPosterRootPassiveHandlePromiseV864 = (async () => {
+    if (typeof idbGetComic !== 'function') {
+      _videoPosterRootPassiveHandleCacheV864 = null;
+      return null;
+    }
+
+    let saved = null;
+    try {
+      saved = await idbGetComic(VIDEO_POSTER_ROOT_KEY);
+    } catch (_) {
+      saved = null;
+    }
+
+    if (!saved) {
+      _videoPosterRootPassiveHandleCacheV864 = null;
+      return null;
+    }
+
+    try {
+      if (typeof saved.queryPermission === 'function') {
+        const permission = await saved.queryPermission({ mode: 'read' });
+        if (permission !== 'granted') {
+          _videoPosterRootPassiveHandleCacheV864 = null;
+          return null;
+        }
+      }
+    } catch (_) {
+      _videoPosterRootPassiveHandleCacheV864 = null;
+      return null;
+    }
+
+    _videoPosterRootPassiveHandleCacheV864 = saved;
+    return saved;
+  })().finally(() => {
+    _videoPosterRootPassiveHandlePromiseV864 = null;
+  });
+
+  return _videoPosterRootPassiveHandlePromiseV864;
+}
+
 // v745: showDirectoryPicker는 alert 뒤의 비사용자제스처 호출에서 차단될 수 있으므로
 // 자체 안내 레이어의 실제 버튼 click 이벤트 안에서 직접 실행한다.
 let _videoPosterRootPickerPromise = null;
@@ -91788,26 +92013,40 @@ function requestVideoPosterRootHandleFromUser() {
 // 이후에는 IDB에 저장된 Handle 재사용.
 async function getVideoPosterRootHandle() {
 
+  let saved = null;
+
   try {
     if (
       typeof idbGetComic ===
       'function'
     ) {
-      const saved =
+      saved =
         await idbGetComic(
           VIDEO_POSTER_ROOT_KEY
         );
-
-      if (
-        saved &&
-        await ensureVideoWritePermission(
-          saved
-        )
-      ) {
-        return saved;
-      }
     }
-  } catch (_) {}
+  } catch (_) {
+    saved = null;
+  }
+
+  // v864: 저장된 Handle이 이미 있으면 그것을 재사용한다.
+  // 권한이 아직 없다는 이유만으로 새 폴더 선택창을 띄우면 안 된다.
+  if (saved) {
+    if (
+      await ensureVideoWritePermission(
+        saved
+      )
+    ) {
+      setVideoPosterRootPassiveHandleCacheV864(saved);
+      return saved;
+    }
+
+    const permissionError = new Error(
+      '저장된 표지 폴더의 접근 권한이 필요합니다. 저장/캡처 버튼을 다시 눌러 권한을 허용하거나, 저장 폴더 변경에서 새 폴더를 지정하세요.'
+    );
+    permissionError.name = 'NotAllowedError';
+    throw permissionError;
+  }
 
 
   if (
@@ -91820,6 +92059,7 @@ async function getVideoPosterRootHandle() {
   }
 
 
+  // 저장된 Handle 자체가 없을 때에만 최초 폴더 선택창을 표시한다.
   const root =
     await requestVideoPosterRootHandleFromUser();
 
@@ -91844,6 +92084,8 @@ async function getVideoPosterRootHandle() {
         VIDEO_POSTER_ROOT_KEY,
         root
       );
+
+      setVideoPosterRootPassiveHandleCacheV864(root);
 
       if (
         typeof resetVideoSceneIndexCache ===
@@ -91879,6 +92121,8 @@ async function changeVideoPosterRootHandle() {
       'video_poster_root_handle_v1',
       dir
     );
+
+    setVideoPosterRootPassiveHandleCacheV864(dir);
 
     if (
       typeof resetVideoSceneIndexCache ===
