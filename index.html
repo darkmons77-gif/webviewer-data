@@ -9957,74 +9957,6 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 </style>
 
 <!-- v856: 공유 랭킹 로컬형 복원 · 통계열 절반폭 -->
-
-<style id="v865-video-fps-badge">
-/* ============================================================
-   v865 미리보기 FPS 배지
-   - MP4/MKV/TS 등 확장자 배지 바로 옆
-   - 값이 없을 때는 숨김, 미리보기에서 측정되면 즉시 표시
-   ============================================================ */
-.videoExtFpsGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  white-space: nowrap;
-}
-.videoFpsBadge {
-  position: static;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background: rgba(38, 112, 74, 0.92);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 14px;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 2px #000;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* 커버플로우에서도 다른 배지와 같은 축소 크기 */
-#wtList.videoListMode.videoRandomCoverflowMode .videoCard .videoFpsBadge {
-  font-size: 9px !important;
-  line-height: 12px !important;
-  padding: 1px 4px !important;
-}
-
-/* v639 세로 보유카드: 기존 확장자 위치에 확장자+FPS 묶음을 그대로 둔다. */
-#wtList.videoListMode.videoPosterVertical.videoPosterTextAll:not(.videoRandomCoverflowMode)
-.videoCard:not(.videoMissingCard):has(.videoExtBadge) .videoTopRightMeta .videoExtFpsGroup {
-  position: absolute !important;
-  right: 4px !important;
-  bottom: calc(var(--video-owned-vertical-badge-base) + 42px) !important;
-  left: auto !important;
-  top: auto !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 3px !important;
-  pointer-events: auto !important;
-  white-space: nowrap !important;
-}
-#wtList.videoListMode.videoPosterVertical.videoPosterTextAll:not(.videoRandomCoverflowMode)
-.videoCard:not(.videoMissingCard):has(.videoExtBadge) .videoTopRightMeta .videoExtFpsGroup .videoExtBadge {
-  position: static !important;
-  right: auto !important;
-  bottom: auto !important;
-  left: auto !important;
-  top: auto !important;
-}
-
-/* 텍스트만/없음 모드에서는 기존 포스터 배지 규칙과 동일하게 숨김 */
-#wtList.videoPosterVertical.videoPosterTextCaptionOnly .videoCard .videoFpsBadge,
-#wtList.videoPosterVertical.videoPosterTextNone .videoCard .videoFpsBadge {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-}
-</style>
-
 </head>
 <body>
 <div id="videoFullscreenHoverZone" aria-hidden="true"></div>
@@ -10520,7 +10452,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드868) 모드 : </span>
+<span>버전 4.1(빌드856) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -10660,7 +10592,6 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   <option value="noCode">품번X</option>
   <option value="noActress">배우X</option>
   <option value="duplicateOnly">중복만</option>
-  <option value="ownedDuplicateOnly">보유중복</option>
   <option value="uncensoredOnly">노모만</option>
   <option value="censoredOnly">유모만</option>
   <option value="subtitleOnly">자막만</option>
@@ -10679,24 +10610,6 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   style="display:none;max-width:180px;"
 >
   <option value="">전체</option>
-</select>
-<select
-  class="zoomBtn"
-  id="videoFpsFilterSel"
-  title="측정된 FPS로 보유 영상 필터 · FPS가 없는 영상은 미리보기 재생 시 자동 측정"
-  style="display:none;max-width:110px;"
->
-  <option value="">FPS</option>
-  <option value="23.976">23.976</option>
-  <option value="24">24</option>
-  <option value="25">25</option>
-  <option value="29.97">29.97</option>
-  <option value="30">30</option>
-  <option value="50">50</option>
-  <option value="59.94">59.94</option>
-  <option value="60">60</option>
-  <option value="other">기타</option>
-  <option value="unmeasured">미측정</option>
 </select>
 <button
   class="zoomBtn"
@@ -12253,7 +12166,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드868) 모드 :</span>
+        <span>버전 4.1(빌드856) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -46773,12 +46686,6 @@ button.videoPosterBadgeLine:hover {
   color: #9be7ff;
   font-weight: 700;
 }
-/* v868: 보유 영상의 루트 폴더명 - 하단 품번 바로 오른쪽 */
-.videoCaptionFolderName {
-  color: #8fa2b5;
-  font-weight: 600;
-  opacity: .95;
-}
 /* ─────────────────────
    동영상 + 장면 영역
    ───────────────────── */
@@ -49677,17 +49584,10 @@ let videoBookmarkOnly = (() => {
 let videoNoCodeOnly = false;
 let videoNoActressOnly = false;
 
-// v766: 인덱스DB 중복품번 관련 상태만 보기.
+// v766: 중복품번 관련 상태만 보기.
 // 실제 정렬값(videoSortMode)은 유지하고 필터만 적용한다.
 // 포함: duplicate-tentative / duplicate / duplicate-pending / duplicate-manual
 let videoDuplicateOnly = false;
-
-// v866: 실제 보유 videolist 안에서 같은 품번이 2개 이상인 파일만 보기.
-// 인덱스DB 중복과 의미를 분리한다.
-let videoOwnedDuplicateOnlyV866 = false;
-
-// v866: 측정된 videoFps 기준 보유영상 필터. 빈값은 전체.
-let videoFpsFilterValueV866 = '';
 
 // v591: 포스터에 실제로 표시되는 노모/유모/자막 배지 기준만 보기.
 // 정렬 순서는 videoSortMode를 그대로 유지하고, 이 값은 필터만 담당한다.
@@ -53600,7 +53500,6 @@ let videoColsLayer = clampVideoCols(
       String(entry?.actressKey || ''),
       getVideoActressGroupsSignature(getVideoEntryActressGroups(entry)),
       String(entry?.code || ''),
-      String(entry?.videoFps || ''),
       String(work?.titleJa || ''),
       Array.isArray(work?.actresses) ? work.actresses.join(' / ') : ''
     ].join('\u0001');
@@ -53840,19 +53739,6 @@ let videoColsLayer = clampVideoCols(
           ? workMeta.actresses
           : [];
 
-      // v866: 검색칸에서 29.97fps / 23.976fps 같은 FPS 검색도 가능.
-      const fpsValueV866 = Number(entry?.videoFps);
-      const fpsSearchTextV866 =
-        Number.isFinite(fpsValueV866) && fpsValueV866 > 0
-          ? [
-              `${fpsValueV866}fps`,
-              `${fpsValueV866} fps`,
-              (typeof formatVideoFpsBadgeV865 === 'function'
-                ? formatVideoFpsBadgeV865(fpsValueV866)
-                : '')
-            ].filter(Boolean).join(' ')
-          : '';
-
       const searchText =
         [
           display,
@@ -53861,8 +53747,7 @@ let videoColsLayer = clampVideoCols(
           code,
           actressAliasSearchText,
           workTitleJa,
-          ...workActresses,
-          fpsSearchTextV866
+          ...workActresses
         ]
           .filter(Boolean)
           .join(' ')
@@ -65430,182 +65315,30 @@ function videoDuplicateActressIdentityMatchesV861(a, b) {
   return false;
 }
 
-// ============================================================
-// v863: 중복품번용 "DB 배우 별칭 -> 파일명 전체" 역검색
-//
-// 일반 파일명 배우 추출 규칙은 변경하지 않는다.
-// 1) 기존처럼 품번 앞쪽/##강제배우##에서 추출된 배우를 먼저 비교한다.
-// 2) 그 비교만으로 후보가 하나로 정해지지 않을 때에만,
-//    각 작품DB 후보의 배우를 배우 별칭DB에서 찾아 그 "유일 별칭"을
-//    실제 파일명 전체(품번 앞/뒤 모두)에서 역검색한다.
-// 3) 하나의 별칭이 여러 배우에게 속하면 자동판정 근거에서 제외한다.
-// 4) 최종적으로 정확히 한 작품 후보만 맞을 때만 자동확정한다.
-// ============================================================
-function normalizeVideoDuplicateFilenameSearchTextV863(value) {
-  return String(value || '')
-    .normalize('NFKC')
-    .toLocaleLowerCase()
-    // 파일명에서 흔한 구분자는 공백으로 통일한다.
-    .replace(/[\_.,;:|+~!@#$%^&*=<>?\[\]{}()（）【】「」『』・·]+/g, ' ')
-    .replace(/[-–—]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function videoDuplicateFilenameContainsAliasV863(fileText, aliasLabel) {
-  const haystack = normalizeVideoDuplicateFilenameSearchTextV863(fileText);
-  const needle = normalizeVideoDuplicateFilenameSearchTextV863(aliasLabel);
-  if (!haystack || !needle) return false;
-
-  // 지나치게 짧은 별칭은 오탐 위험이 커서 자동판정에 사용하지 않는다.
-  const compactNeedle = needle.replace(/\s+/g, '');
-  if (compactNeedle.length < 2) return false;
-
-  // 구분자 정규화 후 "단어/구" 단위로 먼저 찾는다.
-  const paddedHaystack = ` ${haystack} `;
-  const paddedNeedle = ` ${needle} `;
-  if (paddedHaystack.includes(paddedNeedle)) return true;
-
-  // 일본어/한자처럼 파일명에서 공백 없이 붙는 이름은 3글자 이상일 때만
-  // 연속 문자열 검색을 보조로 허용한다.
-  if (compactNeedle.length >= 3 && /[^a-z0-9가-힣]/i.test(compactNeedle)) {
-    const compactHaystack = haystack.replace(/\s+/g, '');
-    return compactHaystack.includes(compactNeedle);
-  }
-
-  return false;
-}
-
-function getVideoUniqueAliasLabelsForCandidateActressV863(value) {
-  const result = [];
-  const seen = new Set();
-  let data = null;
-
-  try { data = getVideoActressAliasData(); } catch (_) {}
-  if (!data) return result;
-
-  const addUniqueOwnedAlias = (label, expectedCanonical = '') => {
-    const raw = String(label || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
-    if (!raw) return;
-
-    const key = normalizeActressAliasToken(raw);
-    if (!key || seen.has(key)) return;
-
-    // 핵심 안전장치: 같은 별칭을 여러 배우가 공유하면 사용하지 않는다.
-    const owners = data.aliasToCanonicals?.get(key);
-    if (!owners || owners.size !== 1) return;
-
-    const owner = String(Array.from(owners)[0] || '').trim();
-    if (!owner) return;
-    if (expectedCanonical && owner !== expectedCanonical) return;
-
-    seen.add(key);
-    result.push(raw);
-  };
-
-  const seeds = [];
-  const rawValue = String(value || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
-  if (rawValue) seeds.push(rawValue);
-
-  try {
-    for (const alias of splitVideoActressAliases(rawValue) || []) {
-      const label = String(alias?.label || '').trim();
-      if (label) seeds.push(label);
-    }
-  } catch (_) {}
-
-  for (const seed of seeds) {
-    const seedKey = normalizeActressAliasToken(seed);
-    if (!seedKey) continue;
-
-    const owners = data.aliasToCanonicals?.get(seedKey);
-    // 작품DB 배우명 자체가 어느 배우인지도 유일하게 특정되는 경우만 확장한다.
-    if (!owners || owners.size !== 1) continue;
-
-    const canonical = String(Array.from(owners)[0] || '').trim();
-    if (!canonical) continue;
-
-    addUniqueOwnedAlias(seed, canonical);
-
-    const group = data.groups?.get(canonical);
-    for (const label of (Array.isArray(group?.aliasLabels) ? group.aliasLabels : [])) {
-      addUniqueOwnedAlias(label, canonical);
-    }
-
-    // 캐시에 보관된 원본 표기도 후보로 추가하되 동일한 유일성 검사를 거친다.
-    try {
-      const original = data.originalByKey?.get(canonical);
-      if (original) addUniqueOwnedAlias(original, canonical);
-    } catch (_) {}
-  }
-
-  return result;
-}
-
-function rowMatchesVideoFilenameByUniqueAliasesV863(entry, row) {
-  const fileText = String(entry?.fileName || entry?.baseName || entry?.display || '').trim();
-  if (!fileText) return false;
-
-  const rowActresses = Array.isArray(row?.actresses) ? row.actresses : [];
-  if (!rowActresses.length) return false;
-
-  for (const actress of rowActresses) {
-    const aliases = getVideoUniqueAliasLabelsForCandidateActressV863(actress);
-    for (const alias of aliases) {
-      if (videoDuplicateFilenameContainsAliasV863(fileText, alias)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
 function resolveVideoDuplicateCandidateByFilenameActressV861(entry, candidates) {
   const rows = Array.isArray(candidates) ? candidates.filter(Boolean) : [];
-  // v862: 잠재 중복그룹의 현재 후보가 1개뿐이어도 판별한다.
+  // v862: 잠재 중복그룹의 현재 후보가 1개뿐이어도
+  // 파일명 배우가 그 후보의 배우와 맞으면 잠정을 해제할 수 있도록 비교한다.
   if (rows.length < 1) return null;
 
-  // ----------------------------------------------------------
-  // 1차: 기존 규칙 그대로.
-  // parseVideoFilename()이 품번 앞쪽/##강제배우##에서 실제로 추출한 배우와
-  // 작품DB 후보 배우를 비교한다.
-  // ----------------------------------------------------------
   const filenameActresses = getVideoFilenameActressGroupsV861(entry);
-  if (filenameActresses.length) {
-    const sourceIdentity = collectVideoActressIdentityV861(filenameActresses);
+  if (!filenameActresses.length) return null;
 
-    if (sourceIdentity.canonicals.size || sourceIdentity.exact.size) {
-      const matchedRows = [];
-      for (const row of rows) {
-        const rowActresses = Array.isArray(row?.actresses) ? row.actresses : [];
-        if (!rowActresses.length) continue;
+  const sourceIdentity = collectVideoActressIdentityV861(filenameActresses);
+  if (!sourceIdentity.canonicals.size && !sourceIdentity.exact.size) return null;
 
-        const rowIdentity = collectVideoActressIdentityV861(rowActresses);
-        if (videoDuplicateActressIdentityMatchesV861(sourceIdentity, rowIdentity)) {
-          matchedRows.push(row);
-        }
-      }
-
-      if (matchedRows.length === 1) return matchedRows[0];
-    }
-  }
-
-  // ----------------------------------------------------------
-  // 2차(v863): 일반 파서에서는 배우로 보지 않는 품번 뒤쪽까지 포함해
-  // "작품DB 후보 배우 -> 유일 별칭"을 파일명 전체에서 역검색한다.
-  // 예) STAR-522 高尾明日香 후보
-  //     배우DB 유일 별칭 "타카오 아스카"가
-  //     "STAR-522 타카오 아스카 NW FHD"에 있으면 해당 후보를 확정.
-  // ----------------------------------------------------------
-  const reverseMatchedRows = [];
+  const matchedRows = [];
   for (const row of rows) {
-    if (rowMatchesVideoFilenameByUniqueAliasesV863(entry, row)) {
-      reverseMatchedRows.push(row);
+    const rowActresses = Array.isArray(row?.actresses) ? row.actresses : [];
+    if (!rowActresses.length) continue;
+
+    const rowIdentity = collectVideoActressIdentityV861(rowActresses);
+    if (videoDuplicateActressIdentityMatchesV861(sourceIdentity, rowIdentity)) {
+      matchedRows.push(row);
     }
   }
 
-  return reverseMatchedRows.length === 1 ? reverseMatchedRows[0] : null;
+  return matchedRows.length === 1 ? matchedRows[0] : null;
 }
 
 function collectVideoWorkRowsFromCandidateMapV693(candidateMap, keys) {
@@ -79802,23 +79535,13 @@ function parseVideoFramePosterCandidateSrcV817(src) {
 async function getSavedVideoFramePosterFileV817(fileName) {
   const name = String(fileName || '').trim();
   if (!name) return null;
-
-  // v864: 포스터 자동 렌더링은 절대로 폴더 선택/권한 요청 UI를 띄우지 않는다.
-  // 저장된 루트가 있고 현재 읽기 권한이 이미 granted일 때만 조용히 사용한다.
-  // 권한이 없으면 정지프레임 포스터만 건너뛰고 다음 포스터 후보로 진행한다.
-  const root = await getVideoPosterRootHandlePassiveV864();
-  if (!root) return null;
-
-  try {
-    const scenes = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
-      ? root
-      : await root.getDirectoryHandle('Scenes');
-    const handle = await scenes.getFileHandle(name);
-    const file = await handle.getFile();
-    return file && Number(file.size) > 0 ? file : null;
-  } catch (_) {
-    return null;
-  }
+  const root = await getVideoPosterRootHandle();
+  const scenes = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
+    ? root
+    : await root.getDirectoryHandle('Scenes');
+  const handle = await scenes.getFileHandle(name);
+  const file = await handle.getFile();
+  return file && Number(file.size) > 0 ? file : null;
 }
 
 async function saveVideoFramePosterCandidateV814(entry, candidate) {
@@ -81750,12 +81473,6 @@ function mergeRootVideos(rootName, found) {
           Number(previous.videoHeight) > 0
             ? Number(previous.videoHeight)
             : Number(entry.videoHeight) || 0,
-
-        // v865: 미리보기에서 한 번 측정한 FPS 유지
-        videoFps:
-          Number(previous.videoFps) > 0
-            ? Number(previous.videoFps)
-            : Number(entry.videoFps) || 0,
 
         // 최초 등록일 유지
         addedAt:
@@ -91986,69 +91703,6 @@ async function ensureVideoWritePermission(
 }
 
 
-// v864: 저장된 표지 루트의 수동(무요청) 읽기 접근.
-// 자동 포스터 렌더링/자동 점검에서는 queryPermission만 하고 requestPermission이나
-// showDirectoryPicker를 절대 호출하지 않는다. 권한이 아직 없으면 null로 조용히 건너뛴다.
-let _videoPosterRootPassiveHandleCacheV864;
-let _videoPosterRootPassiveHandlePromiseV864 = null;
-
-function setVideoPosterRootPassiveHandleCacheV864(handle) {
-  _videoPosterRootPassiveHandleCacheV864 = handle || null;
-}
-
-function resetVideoPosterRootPassiveHandleCacheV864() {
-  _videoPosterRootPassiveHandleCacheV864 = undefined;
-  _videoPosterRootPassiveHandlePromiseV864 = null;
-}
-
-async function getVideoPosterRootHandlePassiveV864() {
-  if (_videoPosterRootPassiveHandleCacheV864 !== undefined) {
-    return _videoPosterRootPassiveHandleCacheV864;
-  }
-  if (_videoPosterRootPassiveHandlePromiseV864) {
-    return _videoPosterRootPassiveHandlePromiseV864;
-  }
-
-  _videoPosterRootPassiveHandlePromiseV864 = (async () => {
-    if (typeof idbGetComic !== 'function') {
-      _videoPosterRootPassiveHandleCacheV864 = null;
-      return null;
-    }
-
-    let saved = null;
-    try {
-      saved = await idbGetComic(VIDEO_POSTER_ROOT_KEY);
-    } catch (_) {
-      saved = null;
-    }
-
-    if (!saved) {
-      _videoPosterRootPassiveHandleCacheV864 = null;
-      return null;
-    }
-
-    try {
-      if (typeof saved.queryPermission === 'function') {
-        const permission = await saved.queryPermission({ mode: 'read' });
-        if (permission !== 'granted') {
-          _videoPosterRootPassiveHandleCacheV864 = null;
-          return null;
-        }
-      }
-    } catch (_) {
-      _videoPosterRootPassiveHandleCacheV864 = null;
-      return null;
-    }
-
-    _videoPosterRootPassiveHandleCacheV864 = saved;
-    return saved;
-  })().finally(() => {
-    _videoPosterRootPassiveHandlePromiseV864 = null;
-  });
-
-  return _videoPosterRootPassiveHandlePromiseV864;
-}
-
 // v745: showDirectoryPicker는 alert 뒤의 비사용자제스처 호출에서 차단될 수 있으므로
 // 자체 안내 레이어의 실제 버튼 click 이벤트 안에서 직접 실행한다.
 let _videoPosterRootPickerPromise = null;
@@ -92134,40 +91788,26 @@ function requestVideoPosterRootHandleFromUser() {
 // 이후에는 IDB에 저장된 Handle 재사용.
 async function getVideoPosterRootHandle() {
 
-  let saved = null;
-
   try {
     if (
       typeof idbGetComic ===
       'function'
     ) {
-      saved =
+      const saved =
         await idbGetComic(
           VIDEO_POSTER_ROOT_KEY
         );
-    }
-  } catch (_) {
-    saved = null;
-  }
 
-  // v864: 저장된 Handle이 이미 있으면 그것을 재사용한다.
-  // 권한이 아직 없다는 이유만으로 새 폴더 선택창을 띄우면 안 된다.
-  if (saved) {
-    if (
-      await ensureVideoWritePermission(
-        saved
-      )
-    ) {
-      setVideoPosterRootPassiveHandleCacheV864(saved);
-      return saved;
+      if (
+        saved &&
+        await ensureVideoWritePermission(
+          saved
+        )
+      ) {
+        return saved;
+      }
     }
-
-    const permissionError = new Error(
-      '저장된 표지 폴더의 접근 권한이 필요합니다. 저장/캡처 버튼을 다시 눌러 권한을 허용하거나, 저장 폴더 변경에서 새 폴더를 지정하세요.'
-    );
-    permissionError.name = 'NotAllowedError';
-    throw permissionError;
-  }
+  } catch (_) {}
 
 
   if (
@@ -92180,7 +91820,6 @@ async function getVideoPosterRootHandle() {
   }
 
 
-  // 저장된 Handle 자체가 없을 때에만 최초 폴더 선택창을 표시한다.
   const root =
     await requestVideoPosterRootHandleFromUser();
 
@@ -92205,8 +91844,6 @@ async function getVideoPosterRootHandle() {
         VIDEO_POSTER_ROOT_KEY,
         root
       );
-
-      setVideoPosterRootPassiveHandleCacheV864(root);
 
       if (
         typeof resetVideoSceneIndexCache ===
@@ -92242,8 +91879,6 @@ async function changeVideoPosterRootHandle() {
       'video_poster_root_handle_v1',
       dir
     );
-
-    setVideoPosterRootPassiveHandleCacheV864(dir);
 
     if (
       typeof resetVideoSceneIndexCache ===
@@ -94957,18 +94592,6 @@ function renderVideoClickableMeta(
     });
 
     metaElement.appendChild(codeLink);
-
-    // v868: 품번 바로 오른쪽에 이 영상이 속한 루트 폴더명을 표시한다.
-    // 직접 [파일]로 추가한 영상은 rootName이 없으므로 표시하지 않는다.
-    const folderNameV868 = String(entry?.rootName || '').trim();
-    if (folderNameV868) {
-      metaElement.appendChild(document.createTextNode(' · '));
-      const folderSpanV868 = document.createElement('span');
-      folderSpanV868.className = 'videoCaptionFolderName';
-      folderSpanV868.textContent = folderNameV868;
-      folderSpanV868.title = `폴더: ${folderNameV868}`;
-      metaElement.appendChild(folderSpanV868);
-    }
   }
 
   // 이름과 품번이 전혀 없을 때
@@ -95865,7 +95488,6 @@ function getVideoSortSelectDisplayValue() {
   if (videoNoCodeOnly) return 'noCode';
   if (videoNoActressOnly) return 'noActress';
   if (videoDuplicateOnly) return 'duplicateOnly';
-  if (videoOwnedDuplicateOnlyV866) return 'ownedDuplicateOnly';
   if (videoPosterBadgeOnlyMode === 'uncensored') return 'uncensoredOnly';
   if (videoPosterBadgeOnlyMode === 'censored') return 'censoredOnly';
   if (videoPosterBadgeOnlyMode === 'subtitle') return 'subtitleOnly';
@@ -95984,123 +95606,6 @@ function videoEntryMatchesDuplicateOnlyV766(entry) {
   }
 }
 
-// ============================================================
-// v866: 보유중복 / FPS 필터
-// - 보유중복은 AVWikiDB 중복이 아니라 현재 videolist의 동일 품번 2개 이상.
-// - 품번 없는 영상은 보유중복에서 제외한다.
-// - FPS 필터는 미리보기에서 저장된 videoFps만 사용하고 파일을 새로 읽지 않는다.
-// ============================================================
-function normalizeVideoOwnedDuplicateCodeV866(value) {
-  return String(value || '')
-    .normalize('NFKC')
-    .trim()
-    .toLocaleUpperCase();
-}
-
-function getVideoOwnedDuplicateCodeSetV866() {
-  const counts = new Map();
-  try {
-    for (const record of getVideoRamIndex().records || []) {
-      const key = normalizeVideoOwnedDuplicateCodeV866(record?.entry?.code);
-      if (!key) continue;
-      counts.set(key, (counts.get(key) || 0) + 1);
-    }
-  } catch (_) {}
-
-  return new Set(
-    Array.from(counts.entries())
-      .filter(([, count]) => count >= 2)
-      .map(([key]) => key)
-  );
-}
-
-function videoEntryMatchesOwnedDuplicateOnlyV866(entry, duplicateCodes = null) {
-  const key = normalizeVideoOwnedDuplicateCodeV866(entry?.code);
-  if (!key) return false;
-  const set = duplicateCodes instanceof Set
-    ? duplicateCodes
-    : getVideoOwnedDuplicateCodeSetV866();
-  return set.has(key);
-}
-
-function getVideoOwnedDuplicateCountV866() {
-  const duplicateCodes = getVideoOwnedDuplicateCodeSetV866();
-  if (!duplicateCodes.size) return 0;
-  try {
-    return getVideoRamIndex().records.reduce((sum, record) =>
-      sum + (duplicateCodes.has(normalizeVideoOwnedDuplicateCodeV866(record?.entry?.code)) ? 1 : 0), 0
-    );
-  } catch (_) {
-    return 0;
-  }
-}
-window.getVideoOwnedDuplicateCountV866 = getVideoOwnedDuplicateCountV866;
-
-const VIDEO_FPS_STANDARD_VALUES_V866 = Object.freeze([
-  23.976, 24, 25, 29.97, 30, 50, 59.94, 60
-]);
-
-function videoEntryMatchesFpsFilterV866(entry) {
-  const filter = String(videoFpsFilterValueV866 || '');
-  if (!filter) return true;
-
-  const fps = Number(entry?.videoFps);
-  const hasFps = Number.isFinite(fps) && fps > 0;
-
-  if (filter === 'unmeasured') return !hasFps;
-  if (!hasFps) return false;
-
-  if (filter === 'other') {
-    return !VIDEO_FPS_STANDARD_VALUES_V866.some(value => Math.abs(fps - value) < 0.001);
-  }
-
-  const target = Number(filter);
-  return Number.isFinite(target) && Math.abs(fps - target) < 0.001;
-}
-
-function syncVideoFpsFilterUIV866() {
-  const select = document.getElementById('videoFpsFilterSel');
-  if (select && select.value !== String(videoFpsFilterValueV866 || '')) {
-    select.value = String(videoFpsFilterValueV866 || '');
-  }
-}
-
-function setVideoFpsFilterV866(value) {
-  const next = String(value || '');
-  const allowed = new Set([
-    '', '23.976', '24', '25', '29.97', '30', '50', '59.94', '60', 'other', 'unmeasured'
-  ]);
-  videoFpsFilterValueV866 = allowed.has(next) ? next : '';
-  syncVideoFpsFilterUIV866();
-  renderVideoList();
-}
-
-function setVideoOwnedDuplicateOnlyV866(on) {
-  const next = !!on;
-
-  if (next) {
-    videoPosterBadgeOnlyMode = '';
-    closeOtherVideoSpecialViewsForBasicAudit();
-
-    videoDuplicateOnly = false;
-    videoNoCodeOnly = false;
-    videoNoActressOnly = false;
-    videoNoPosterOnly = false;
-    videoNoPosterExistingSet = new Set();
-    videoNoOnlinePosterOnly = false;
-    videoNoOnlinePosterFailedSet = new Set();
-
-    try { syncVideoNoCodeOnlyUI(); } catch (_) {}
-    try { syncVideoNoActressOnlyUI(); } catch (_) {}
-    try { syncVideoNoPosterOnlyUI(); } catch (_) {}
-    try { syncVideoNoOnlinePosterOnlyUI(); } catch (_) {}
-  }
-
-  videoOwnedDuplicateOnlyV866 = next;
-  try { syncVideoSortUI(); } catch (_) {}
-  renderVideoList();
-}
-
 async function setVideoDuplicateOnlyV766(on) {
   const next = !!on;
 
@@ -96131,7 +95636,6 @@ async function setVideoDuplicateOnlyV766(on) {
   }
 
   videoDuplicateOnly = next;
-  if (next) videoOwnedDuplicateOnlyV866 = false;
 
   try { syncVideoSortUI(); } catch (_) {}
   renderVideoList();
@@ -96154,7 +95658,6 @@ function setVideoPosterBadgeOnlyMode(mode) {
     videoNoCodeOnly = false;
     videoNoActressOnly = false;
     videoDuplicateOnly = false;
-    videoOwnedDuplicateOnlyV866 = false;
     videoNoPosterOnly = false;
     videoNoPosterExistingSet = new Set();
     videoNoOnlinePosterOnly = false;
@@ -96407,9 +95910,8 @@ async function scanVideoNoOnlinePosterFailedSet() {
 function closeOtherVideoSpecialViewsForBasicAudit() {
   clearVideoPosterBadgeOnlyMode();
 
-  // 호출자가 새 특수보기를 켜기 전에 기존 인덱스중복/보유중복 상태도 종료.
+  // 호출자가 새 특수보기를 켜기 전에 기존 "중복만" 상태도 종료.
   videoDuplicateOnly = false;
-  videoOwnedDuplicateOnlyV866 = false;
 
   if (videoActressPosterWallOn) {
     setVideoActressPosterWallOn(false, { render: false });
@@ -96435,7 +95937,6 @@ function toggleVideoNoCodeOnly() {
   if (next) {
     closeOtherVideoSpecialViewsForBasicAudit();
     videoDuplicateOnly = false;
-    videoOwnedDuplicateOnlyV866 = false;
     videoNoActressOnly = false;
     syncVideoNoActressOnlyUI();
     videoNoPosterOnly = false;
@@ -96459,7 +95960,6 @@ function toggleVideoNoActressOnly() {
   if (next) {
     closeOtherVideoSpecialViewsForBasicAudit();
     videoDuplicateOnly = false;
-    videoOwnedDuplicateOnlyV866 = false;
     videoNoCodeOnly = false;
     syncVideoNoCodeOnlyUI();
     videoNoPosterOnly = false;
@@ -109581,7 +109081,7 @@ function isVideoTouchPosterControlV803(target, root) {
   if (!target || !root || target === root) return false;
   const control = target.closest?.(
     'button,a,input,select,textarea,[contenteditable="true"],' +
-    '.videoActualDeleteBadge,.videoCodeBadge,.videoExtFpsGroup,.videoFpsBadge,.videoPosterBadge,' +
+    '.videoActualDeleteBadge,.videoCodeBadge,.videoPosterBadge,' +
     '.videoTopRightMeta,.videoBottomLeftMeta,.videoOnlinePosterControls,' +
     '.videoMissingViewBtn,.videoMissingTorrentBtn,.videoMissingFavoriteBtn,' +
     '.videoDmmPreviewBtn,.videoWorkDuplicateBadgeV767'
@@ -110243,13 +109743,6 @@ const videoExtension =
   getVideoFileExtension(entry);
 
 if (videoExtension) {
-  // v865: 확장자와 FPS를 한 묶음으로 두어 항상 바로 옆에 표시한다.
-  const extFpsGroup =
-    document.createElement('span');
-
-  extFpsGroup.className =
-    'videoExtFpsGroup';
-
   const extBadge =
     document.createElement('span');
 
@@ -110304,37 +109797,10 @@ if (videoExtension) {
     );
   }
 
-  extFpsGroup.appendChild(extBadge);
 
-  const fpsBadge =
-    document.createElement('span');
-
-  fpsBadge.className =
-    'videoFpsBadge';
-
-  fpsBadge.dataset.videoEntryId =
-    String(entry?.id || '');
-
-  fpsBadge.__videoEntry = entry;
-
-  const savedFpsV865 =
-    Number(entry?.videoFps);
-
-  if (
-    Number.isFinite(savedFpsV865) &&
-    savedFpsV865 > 0
-  ) {
-    fpsBadge.textContent =
-      formatVideoFpsBadgeV865(savedFpsV865);
-    fpsBadge.title =
-      `미리보기에서 측정한 FPS: ${savedFpsV865}`;
-  } else {
-    fpsBadge.textContent = '';
-    fpsBadge.style.display = 'none';
-  }
-
-  extFpsGroup.appendChild(fpsBadge);
-  topRightMeta.appendChild(extFpsGroup);
+  topRightMeta.appendChild(
+    extBadge
+  );
 }
 
 if (topRightMeta.childElementCount) {
@@ -110533,19 +109999,11 @@ if (
     tempMeta.querySelectorAll('.videoCaptionActressLink')
   );
 
-  const folderNameSpanV868 =
-    tempMeta.querySelector('.videoCaptionFolderName');
-
   if (codeLink) {
     meta.appendChild(codeLink);
   }
 
-  if (codeLink && folderNameSpanV868) {
-    meta.appendChild(document.createTextNode(' · '));
-    meta.appendChild(folderNameSpanV868);
-  }
-
-  if ((codeLink || folderNameSpanV868) && actressLinks.length) {
+  if (codeLink && actressLinks.length) {
     meta.appendChild(document.createTextNode(' · '));
   }
 
@@ -116538,7 +115996,7 @@ function renderVideoList() {
     // 노모 모드 자체를 활성화할 때는 activateVideoUncensoredCatalog()가 다른 모드를 먼저 끈다.
     if (videoUncensoredCatalogOn && (
       videoActressPosterWallOn || videoDmmWorkSearchOn || videoArbitraryViewOn || videoRangeViewOn ||
-      videoMissingOnly || videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoOwnedDuplicateOnlyV866 || videoNoPosterOnly || videoNoOnlinePosterOnly
+      videoMissingOnly || videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoNoPosterOnly || videoNoOnlinePosterOnly
     )) {
       deactivateVideoUncensoredCatalog({ render:false });
     }
@@ -116614,7 +116072,6 @@ function renderVideoList() {
       !videoNoCodeOnly &&
       !videoNoActressOnly &&
       !videoDuplicateOnly &&
-      !videoOwnedDuplicateOnlyV866 &&
       !videoNoPosterOnly &&
       !videoNoOnlinePosterOnly &&
       !videoMissingOnly &&
@@ -116725,16 +116182,10 @@ videoRangePosterActive = 0;
 
 let list;
 
-// v866: 보유중복 모드에서는 현재 videolist 전체에서 중복 품번 Set을 한 번만 계산한다.
-const ownedDuplicateCodesV866 =
-  videoOwnedDuplicateOnlyV866
-    ? getVideoOwnedDuplicateCodeSetV866()
-    : null;
-
-// 품번X / 배우X / 인덱스중복 / 보유중복 / 표지X / 온라인X는 관리용 특수보기다.
+// 품번X / 배우X / 표지X / 온라인X는 관리용 특수보기다.
 // 배우/태그 체크 상태와 무관하게 전체 영상에서 조건을 찾되,
 // 제목 검색(term)은 그대로 적용해서 목록 안에서 다시 찾을 수 있게 한다.
-if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoOwnedDuplicateOnlyV866 || videoNoPosterOnly || videoNoOnlinePosterOnly) {
+if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoNoPosterOnly || videoNoOnlinePosterOnly) {
   list = getVideoRamIndex().records
     .filter(record => {
       if (term && !record.searchText.includes(term)) return false;
@@ -116759,10 +116210,6 @@ if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoOwnedDup
 
       if (videoDuplicateOnly) {
         return videoEntryMatchesDuplicateOnlyV766(entry);
-      }
-
-      if (videoOwnedDuplicateOnlyV866) {
-        return videoEntryMatchesOwnedDuplicateOnlyV866(entry, ownedDuplicateCodesV866);
       }
 
       if (videoNoPosterOnly) {
@@ -116798,11 +116245,6 @@ if (videoFolderFilterNameV819) {
   list = list.filter(videoEntryMatchesFolderFilterV819);
 }
 
-// v866: FPS 셀렉트는 일반/관리 보유목록에 AND 조건으로 적용한다.
-if (videoFpsFilterValueV866) {
-  list = list.filter(videoEntryMatchesFpsFilterV866);
-}
-
 // v591: 포스터에 실제 표시되는 배지와 완전히 같은 기준으로 필터.
 if (videoPosterBadgeOnlyMode) {
   list = list.filter(videoEntryMatchesPosterBadgeOnly);
@@ -116816,7 +116258,6 @@ if (
   !videoNoCodeOnly &&
   !videoNoActressOnly &&
   !videoDuplicateOnly &&
-  !videoOwnedDuplicateOnlyV866 &&
   !videoNoPosterOnly &&
   !videoNoOnlinePosterOnly &&
   !videoPosterBadgeOnlyMode &&
@@ -116849,7 +116290,6 @@ const actressSelectedListMode =
   !videoNoCodeOnly &&
   !videoNoActressOnly &&
   !videoDuplicateOnly &&
-  !videoOwnedDuplicateOnlyV866 &&
   !videoNoPosterOnly &&
   !videoNoOnlinePosterOnly &&
   !videoMissingOnly &&
@@ -116937,14 +116377,8 @@ try { syncVideoSortUI(); } catch (_) {}
                 : videoDuplicateOnly
                   ? (
                       videoBookmarkOnly
-                        ? '북마크된 영상 중 인덱스DB 중복품번 상태인 영상이 없습니다.'
-                        : '인덱스DB 중복품번 상태인 영상이 없습니다.'
-                    )
-                : videoOwnedDuplicateOnlyV866
-                  ? (
-                      videoBookmarkOnly
-                        ? '북마크된 영상 중 같은 품번을 2개 이상 보유한 영상이 없습니다.'
-                        : '같은 품번을 2개 이상 보유한 영상이 없습니다.'
+                        ? '북마크된 영상 중 중복품번 상태인 영상이 없습니다.'
+                        : '중복품번 상태인 영상이 없습니다.'
                     )
                 : videoNoPosterOnly
                   ? (
@@ -117629,11 +117063,6 @@ const videoFolderFilterSel =
     'videoFolderFilterSel'
   );
 
-const videoFpsFilterSel =
-  document.getElementById(
-    'videoFpsFilterSel'
-  );
-
 const videoToolbarFoldBtn =
   document.getElementById(
     'videoToolbarFoldBtn'
@@ -117807,14 +117236,6 @@ if (videoFolderFilterSel) {
     isVideo ? '' : 'none';
   if (isVideo) {
     try { syncVideoFolderFilterUIV819(); } catch (_) {}
-  }
-}
-
-if (videoFpsFilterSel) {
-  videoFpsFilterSel.style.display =
-    isVideo ? '' : 'none';
-  if (isVideo) {
-    try { syncVideoFpsFilterUIV866(); } catch (_) {}
   }
 }
 
@@ -146456,24 +145877,9 @@ async function runVideoCenterHoverPreview(entry, posterWrap, requestToken) {
         } catch (_) {}
       }
 
-      // 중앙 미리보기도 이미 읽은 일반 metadata를 재사용한다.
-      saveVideoMetadataFromLoadedVideo(
-        entry,
-        file,
-        preview
-      );
-
       overlay.classList.add('on');
       overlay.setAttribute('aria-hidden', 'false');
-
-      const playPromiseV865 = preview.play();
-      if (playPromiseV865?.then) {
-        playPromiseV865
-          .then(() => startVideoFpsMeasurementV865(entry, preview))
-          .catch(() => {});
-      } else {
-        startVideoFpsMeasurementV865(entry, preview);
-      }
+      preview.play().catch(() => {});
     }, { once: true });
 
     preview.addEventListener('error', () => {
@@ -146743,8 +146149,6 @@ function isVideoPosterInteractiveControlTarget(target) {
       'textarea',
       '.videoCodeBadge',
       '.videoExtBadge',
-      '.videoExtFpsGroup',
-      '.videoFpsBadge',
       '.videoPosterBadgeLine',
       '.videoOnlinePosterSaveBtn',
       '.videoOnlinePosterViewBtn',
@@ -147335,12 +146739,6 @@ async function showNextVideoRandomPreview(token) {
   try {
     const playPromise = video.play();
 
-    // v865: 랜덤 미리보기도 보유파일 FPS가 비어 있을 때만 1회 측정한다.
-    startVideoFpsMeasurementV865(
-      item.entry,
-      video
-    );
-
     if (typeof video.requestVideoFrameCallback === 'function') {
       video.requestVideoFrameCallback(() => reveal());
     } else {
@@ -147760,12 +147158,6 @@ const previewSeconds =
               stopVideoHoverPreview();
               return;
             }
-
-            // v865: 저장된 FPS가 없는 보유파일만 미리보기 재생 중 한 번 측정.
-            startVideoFpsMeasurementV865(
-              entry,
-              preview
-            );
 
             // 최초 재생에서 실제 첫 프레임이 나온 순간 영상+베젤을 동시에 표시
             if (!hoverVisualShown) {
@@ -148588,238 +147980,6 @@ function saveVideoDuration(
   이미 실제 재생/hover/random preview에서 video metadata를 읽었다면
   별도의 임시 <video> 조사를 다시 하지 않고 그 값을 그대로 저장한다.
 */
-
-// ============================================================
-// v865: 미리보기 재생 중 FPS 자동 측정
-// - 브라우저 metadata에는 원본 FPS가 직접 없으므로 requestVideoFrameCallback 사용
-// - FPS가 이미 저장된 작품은 다시 측정하지 않는다.
-// - 첫 몇 프레임은 seek/play 안정화 구간으로 버리고 약 1.2초 이상 측정한다.
-// - 일반 hover + 중앙 hover + 랜덤 미리보기에서 공통 재사용한다.
-// ============================================================
-function normalizeMeasuredVideoFpsV865(value) {
-  const raw = Number(value);
-  if (!Number.isFinite(raw) || raw < 5 || raw > 240) return 0;
-
-  // 흔한 영상 표준값은 측정 오차를 흡수해 정확한 표준값으로 저장한다.
-  const standards = [
-    15, 20, 23.976, 24, 25, 29.97, 30,
-    47.952, 48, 50, 59.94, 60,
-    90, 100, 119.88, 120, 144
-  ];
-
-  let nearest = standards[0];
-  let nearestDiff = Math.abs(raw - nearest);
-
-  for (const fps of standards.slice(1)) {
-    const diff = Math.abs(raw - fps);
-    if (diff < nearestDiff) {
-      nearest = fps;
-      nearestDiff = diff;
-    }
-  }
-
-  // 60fps 기준 약 ±0.9fps까지 표준값으로 스냅.
-  const snapTolerance = Math.max(0.35, nearest * 0.015);
-  const result = nearestDiff <= snapTolerance
-    ? nearest
-    : Math.round(raw * 100) / 100;
-
-  return Number(result.toFixed(3));
-}
-
-function formatVideoFpsBadgeV865(value) {
-  const fps = Number(value);
-  if (!Number.isFinite(fps) || fps <= 0) return '';
-
-  // v866: 대표 표준값은 필터/검색과 같은 실제 표기를 유지한다.
-  if (Math.abs(fps - 23.976) < 0.001) return '23.976FPS';
-  if (Math.abs(fps - 29.97) < 0.001) return '29.97FPS';
-  if (Math.abs(fps - 59.94) < 0.001) return '59.94FPS';
-
-  const rounded = Math.round(fps);
-  if (Math.abs(fps - rounded) < 0.02) {
-    return `${rounded}FPS`;
-  }
-
-  return `${fps.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')}FPS`;
-}
-
-function updateVideoFpsBadgesV865(entry) {
-  const id = String(entry?.id || '');
-  const fps = Number(entry?.videoFps);
-  if (!id || !Number.isFinite(fps) || fps <= 0) return;
-
-  const text = formatVideoFpsBadgeV865(fps);
-  if (!text) return;
-
-  document
-    .querySelectorAll('.videoFpsBadge')
-    .forEach(badge => {
-      if (String(badge?.dataset?.videoEntryId || '') !== id) return;
-      badge.textContent = text;
-      badge.title = `미리보기에서 측정한 FPS: ${fps}`;
-      badge.style.display = '';
-    });
-}
-
-function saveVideoFpsV865(entry, measuredFps) {
-  if (!entry?.id) return false;
-
-  const fps = normalizeMeasuredVideoFpsV865(measuredFps);
-  if (!fps) return false;
-
-  /*
-    v867 핵심 수정:
-    일반 보유카드의 entry는 loadVideoList() 안의 같은 객체일 수 있다.
-    예전 코드는 entry.videoFps를 먼저 넣은 뒤 list[index].videoFps를 검사해서,
-    방금 넣은 RAM 값 자체를 "이미 저장된 값"으로 오인하고 writeJson 전에 return했다.
-    따라서 반드시 videolist의 기존 저장값을 먼저 판정한 뒤 새 FPS를 기록한다.
-  */
-  const list = loadVideoList();
-  const index = list.findIndex(item =>
-    String(item?.id || '') === String(entry.id)
-  );
-
-  if (index < 0) {
-    // 화면 객체에는 표시하되, videolist에 없는 가상/임시 엔트리는 영구저장하지 않는다.
-    entry.videoFps = fps;
-    updateVideoFpsBadgesV865(entry);
-    return false;
-  }
-
-  const storedFps = Number(list[index]?.videoFps);
-  if (Number.isFinite(storedFps) && storedFps > 0) {
-    entry.videoFps = storedFps;
-    updateVideoFpsBadgesV865(entry);
-    return false;
-  }
-
-  // entry와 list[index]가 같은 객체인지 여부와 관계없이 원본 videolist에 확정 기록.
-  list[index] = {
-    ...list[index],
-    videoFps: fps
-  };
-
-  entry.videoFps = fps;
-  updateVideoFpsBadgesV865(entry);
-
-  writeJson(VIDEO_LIST_KEY, list);
-
-  // v867: FPS는 미리보기당 최대 1회 저장이므로 즉시 IDB flush를 시작해
-  // 새로고침/종료 직전 250ms 예약저장 유실 가능성도 줄인다.
-  try {
-    const flushPromise = flushVideoListData?.();
-    if (flushPromise?.catch) flushPromise.catch(() => {});
-  } catch (_) {}
-
-  // 같은 세션에서 바로 29.97fps 검색/필터를 사용할 수 있게 검색 RAM을 갱신한다.
-  try { invalidateVideoRamIndex?.('video-fps-measured-v867'); } catch (_) {}
-  return true;
-}
-
-function startVideoFpsMeasurementV865(entry, video) {
-  if (!entry || !video) return false;
-
-  const saved = Number(entry?.videoFps);
-  if (Number.isFinite(saved) && saved > 0) {
-    updateVideoFpsBadgesV865(entry);
-    return false;
-  }
-
-  if (video.__videoFpsMeasureStartedV865) return false;
-  if (typeof video.requestVideoFrameCallback !== 'function') return false;
-
-  video.__videoFpsMeasureStartedV865 = true;
-
-  let warmupFrames = 5;
-  let baseMediaTime = NaN;
-  let basePresentedFrames = NaN;
-  let callbackFrames = 0;
-  let baseNow = 0;
-  let finished = false;
-
-  const finish = (fps = 0) => {
-    if (finished) return;
-    finished = true;
-    video.__videoFpsMeasureFinishedV865 = true;
-    if (fps > 0) saveVideoFpsV865(entry, fps);
-  };
-
-  const onFrame = (now, metadata = {}) => {
-    if (finished) return;
-
-    // 다른 경로에서 이미 저장됐으면 여기서는 즉시 종료.
-    if (Number(entry?.videoFps) > 0) {
-      finish(0);
-      return;
-    }
-
-    const mediaTime = Number(metadata.mediaTime);
-    const presentedFrames = Number(metadata.presentedFrames);
-
-    if (!Number.isFinite(mediaTime)) {
-      finish(0);
-      return;
-    }
-
-    // seek 직후/첫 디코딩 구간은 측정에서 제외.
-    if (warmupFrames > 0) {
-      warmupFrames--;
-      baseMediaTime = mediaTime;
-      basePresentedFrames = presentedFrames;
-      callbackFrames = 0;
-      baseNow = Number(now) || performance.now();
-    } else {
-      callbackFrames++;
-
-      const mediaElapsed = mediaTime - baseMediaTime;
-      const wallElapsed = (Number(now) || performance.now()) - baseNow;
-
-      let framesElapsed = callbackFrames;
-      if (
-        Number.isFinite(presentedFrames) &&
-        Number.isFinite(basePresentedFrames) &&
-        presentedFrames >= basePresentedFrames
-      ) {
-        framesElapsed = presentedFrames - basePresentedFrames;
-      }
-
-      // 3초 미리보기 안에서 1.2초 이상 + 12프레임 이상이면 충분히 안정적.
-      if (
-        mediaElapsed >= 1.2 &&
-        framesElapsed >= 12
-      ) {
-        finish(framesElapsed / mediaElapsed);
-        return;
-      }
-
-      // hover가 짧게 끝나기 전에 2.6초가 지나면 현재 표본으로 마감.
-      if (wallElapsed >= 2600) {
-        if (mediaElapsed >= 0.6 && framesElapsed >= 8) {
-          finish(framesElapsed / mediaElapsed);
-        } else {
-          finish(0);
-        }
-        return;
-      }
-    }
-
-    try {
-      video.requestVideoFrameCallback(onFrame);
-    } catch (_) {
-      finish(0);
-    }
-  };
-
-  try {
-    video.requestVideoFrameCallback(onFrame);
-    return true;
-  } catch (_) {
-    finish(0);
-    return false;
-  }
-}
-
 function saveVideoMetadataFromLoadedVideo(
   entry,
   file,
@@ -149705,11 +148865,10 @@ document
       try {
         // v792: 북마크만보기를 독립 하트 버튼 대신 정렬 셀렉트의 특수보기로 사용한다.
         if (value === 'bookmarkOnly') {
-          if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoOwnedDuplicateOnlyV866 || videoPosterBadgeOnlyMode) {
+          if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoPosterBadgeOnlyMode) {
             videoNoCodeOnly = false;
             videoNoActressOnly = false;
             videoDuplicateOnly = false;
-            videoOwnedDuplicateOnlyV866 = false;
             videoPosterBadgeOnlyMode = '';
             syncVideoNoCodeOnlyUI();
             syncVideoNoActressOnlyUI();
@@ -149755,15 +148914,6 @@ document
           return;
         }
 
-        if (value === 'ownedDuplicateOnly') {
-          if (!videoOwnedDuplicateOnlyV866) {
-            setVideoOwnedDuplicateOnlyV866(true);
-          } else {
-            syncVideoSortUI();
-          }
-          return;
-        }
-
         if (value === 'uncensoredOnly') {
           setVideoPosterBadgeOnlyMode('uncensored');
           return;
@@ -149779,12 +148929,11 @@ document
           return;
         }
 
-        // 일반 정렬을 선택하면 품번X / 배우X / 인덱스중복 / 보유중복 / 배지 전용보기를 자동 해제한다.
-        if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoOwnedDuplicateOnlyV866 || videoPosterBadgeOnlyMode) {
+        // 일반 정렬을 선택하면 품번X / 배우X / 중복만 / 배지 전용보기를 자동 해제한다.
+        if (videoNoCodeOnly || videoNoActressOnly || videoDuplicateOnly || videoPosterBadgeOnlyMode) {
           videoNoCodeOnly = false;
           videoNoActressOnly = false;
           videoDuplicateOnly = false;
-          videoOwnedDuplicateOnlyV866 = false;
           videoPosterBadgeOnlyMode = '';
           syncVideoNoCodeOnlyUI();
           syncVideoNoActressOnlyUI();
@@ -149808,20 +148957,6 @@ document
     const value = String(selectEl?.value || '');
     try {
       setVideoFolderFilterV819(value);
-    } finally {
-      requestAnimationFrame(() => {
-        try { selectEl?.blur?.(); } catch (_) {}
-      });
-    }
-  });
-
-document
-  .getElementById('videoFpsFilterSel')
-  ?.addEventListener('change', event => {
-    const selectEl = event.currentTarget;
-    const value = String(selectEl?.value || '');
-    try {
-      setVideoFpsFilterV866(value);
     } finally {
       requestAnimationFrame(() => {
         try { selectEl?.blur?.(); } catch (_) {}
@@ -149864,7 +148999,6 @@ document
 syncVideoNoCodeOnlyUI();
 syncVideoNoActressOnlyUI();
 syncVideoPosterBadgeOnlyUI();
-syncVideoFpsFilterUIV866();
 syncVideoNoPosterOnlyUI();
 syncVideoNoOnlinePosterOnlyUI();
 syncVideoMissingOnlyUI();
@@ -167106,7 +166240,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 868;
+  const VIEWER_BUILD_V789 = 833;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -168194,15 +167328,3 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v855: 공유 랭킹 숫자열 폭 축소/제목칸 대폭 확대 · 공유 카탈로그 사용가능 상세목록 제거 · 문제목록은 상단 요약칸에서 접기/펼치기, 기본 접힘 -->
 <!-- v852: 임시 로컬 태그매치 전적 초기화 버튼 추가 · sceneTag/sharedSceneTag만 삭제 · 장면태그/썸네일/다른 월드컵 기록 유지 · 공유 업로드 bookkeeping/받은캐시 함께 초기화 -->
 <!-- v842: 공유 상태 목록 렌더링의 미정의 escapeHtml 호출을 전용 escapeVideoShareHtml 함수로 수정 · 화면 빌드842 -->
-<!-- v857: 이동한 영상 폴더를 같은 이름으로 다시 선택하면 IndexedDB의 기존 FileSystemDirectoryHandle을 새 핸들로 교체해 재연결 · 기존 영상 메타데이터 유지 -->
-<!-- v858: 잠정/수동확정 중복품번은 로컬 Posters 공용 포스터를 건너뛰고 매칭된 인덱스DB 작품 이미지 우선 사용 -->
-<!-- v860: 중복품번 선택창의 각 후보 카드가 품번 전체 후보 첫 이미지를 공유하지 않고 자기 AVWikiDB row의 정확한 imageRef 포스터를 사용 -->
-<!-- v861: 중복품번 후보가 여러 개면 파일명에서 추출한 배우와 각 작품DB actresses를 대표명/별칭 기준으로 비교해 정확히 한 후보만 일치할 때 자동확정 -->
-<!-- v862: 잠재 중복그룹에서 같은 번호 후보가 1개뿐이어도 파일명 배우가 DB 배우와 일치하면 잠정 해제 후 자동확정 -->
-<!-- v863: 일반 배우추출 규칙은 유지하고 잠정/중복일 때만 작품DB 후보 배우의 유일 별칭을 파일명 전체에서 역검색 · 공유별칭은 자동판정 제외 -->
-<!-- v864: HTML 시작/포스터 자동표시 중 저장폴더 핸들의 권한이 prompt여도 새 폴더 선택창을 자동으로 띄우지 않음 · 사용자 저장 작업 때만 권한/폴더 선택 -->
-<!-- v865: FPS가 없는 보유파일은 3초 미리보기 재생 중 requestVideoFrameCallback으로 FPS를 1회 측정해 videolist에 저장 · 확장자 옆 FPS 배지 표시 -->
-<!-- v866: 화면/최신버전 빌드를 866으로 갱신 · 수정내역 857~866 보강 · FPS 전용 필터(표준값/기타/미측정)와 29.97fps 검색 지원 · 23.976 표준값 정확표시 · 인덱스DB 중복과 분리된 보유중복 특수보기 추가 -->
-<!-- v867: FPS 저장 순서 버그 수정 · 보유카드 entry와 videolist 원본이 같은 객체일 때 RAM값을 저장완료값으로 오인해 writeJson 전 종료하던 문제 해결 · 신규 FPS는 videolist에 먼저 확정 후 IndexedDB 즉시 flush 시작 -->
-<!-- v868: 보유 포스터 하단 메타의 품번 오른쪽에 루트 폴더명 표시 · FPS 필터 표기를 FPS/숫자/기타/미측정으로 간결화 · 화면/최신버전 빌드 868 갱신 -->
-
