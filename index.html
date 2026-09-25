@@ -10554,7 +10554,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드875) 모드 : </span>
+<span>버전 4.1(빌드876) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12287,7 +12287,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드875) 모드 :</span>
+        <span>버전 4.1(빌드876) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -79924,6 +79924,59 @@ function parseVideoFramePosterCandidateSrcV817(src) {
   }
 }
 
+// v876: GitHub 온라인에서도 사용자가 한 번 연결한 PC의 Posters 폴더를
+// 상대 HTTP 경로가 아니라 FileSystemDirectoryHandle로 직접 읽는다.
+// 자동 렌더에서는 v872와 동일하게 RAM에 이미 올라온 root만 사용하며
+// queryPermission/requestPermission/showDirectoryPicker는 절대 호출하지 않는다.
+const VIDEO_LOCAL_POSTER_CANDIDATE_PREFIX_V876 = 'localposter-v876:';
+let _videoLocalPostersDirCacheV876 = null;
+
+function makeVideoLocalPosterCandidateSrcV876(fileName) {
+  const name = String(fileName || '').trim();
+  return name ? `${VIDEO_LOCAL_POSTER_CANDIDATE_PREFIX_V876}${encodeURIComponent(name)}` : '';
+}
+
+function parseVideoLocalPosterCandidateSrcV876(src) {
+  const raw = String(src || '');
+  if (!raw.toLocaleLowerCase().startsWith(VIDEO_LOCAL_POSTER_CANDIDATE_PREFIX_V876)) return '';
+  try { return decodeURIComponent(raw.slice(VIDEO_LOCAL_POSTER_CANDIDATE_PREFIX_V876.length)); }
+  catch (_) { return raw.slice(VIDEO_LOCAL_POSTER_CANDIDATE_PREFIX_V876.length); }
+}
+
+async function getSavedVideoLocalPosterFileV876(fileName) {
+  const name = String(fileName || '').trim();
+  if (!name) return null;
+
+  const root = getVideoPosterRootHandleCachedV872();
+  if (!root) return null;
+
+  try {
+    let posters = null;
+    if (_videoLocalPostersDirCacheV876?.root === root) {
+      posters = _videoLocalPostersDirCacheV876.dir || null;
+    } else {
+      const postersPromise =
+        String(root?.name || '').trim().toLocaleLowerCase() === 'posters'
+          ? Promise.resolve(root)
+          : root.getDirectoryHandle('Posters');
+      posters = await withVideoPosterPassiveTimeoutV872(postersPromise, 900);
+      if (posters) _videoLocalPostersDirCacheV876 = { root, dir: posters };
+    }
+    if (!posters) return null;
+
+    const handle = await withVideoPosterPassiveTimeoutV872(
+      posters.getFileHandle(name),
+      900
+    );
+    if (!handle) return null;
+
+    const file = await withVideoPosterPassiveTimeoutV872(handle.getFile(), 900);
+    return file && Number(file.size) > 0 ? file : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function getSavedVideoFramePosterFileV817(fileName) {
   const name = String(fileName || '').trim();
   if (!name) return null;
@@ -80342,6 +80395,25 @@ function makePosterCandidates(meta) {
         if (!result.includes(basePath)) {
           result.push(basePath);
         }
+      }
+    } else {
+      // v876: GitHub 온라인에서는 동일한 로컬 우선순위를 PC File Handle로 확인한다.
+      for (const codeName of codeNames) {
+        for (const fileNameV876 of [
+          `${codeName}.jpg`,
+          `${codeName}_Poster.jpg`,
+          `${codeName}_Capture.jpg`
+        ]) {
+          const candidateV876 = makeVideoLocalPosterCandidateSrcV876(fileNameV876);
+          if (candidateV876 && !result.includes(candidateV876)) result.push(candidateV876);
+        }
+      }
+
+      if (meta && meta.baseName) {
+        const candidateV876 = makeVideoLocalPosterCandidateSrcV876(
+          `${String(meta.baseName).trim()}.jpg`
+        );
+        if (candidateV876 && !result.includes(candidateV876)) result.push(candidateV876);
       }
     }
 
@@ -92214,11 +92286,13 @@ try { void warmVideoPosterRootHandleCacheV872(); } catch (_) {}
 
 function setVideoPosterRootPassiveHandleCacheV864(handle) {
   _videoPosterRootPassiveHandleCacheV864 = handle || null;
+  try { _videoLocalPostersDirCacheV876 = null; } catch (_) {}
 }
 
 function resetVideoPosterRootPassiveHandleCacheV864() {
   _videoPosterRootPassiveHandleCacheV864 = undefined;
   _videoPosterRootPassiveHandlePromiseV864 = null;
+  try { _videoLocalPostersDirCacheV876 = null; } catch (_) {}
 }
 
 async function getVideoPosterRootHandlePassiveV864() {
@@ -92273,7 +92347,7 @@ function requestVideoPosterRootHandleFromUser() {
       layer.innerHTML = `
         <div class="videoPosterRootPickerGuidePanel" role="dialog" aria-modal="true" aria-labelledby="videoPosterRootPickerGuideTitle">
           <div class="videoPosterRootPickerGuideTitle" id="videoPosterRootPickerGuideTitle">저장 폴더를 선택하세요</div>
-          <div class="videoPosterRootPickerGuideText">처음 한 번만 선택합니다.\n\n웹뷰어 HTML 파일이 있는 폴더를 선택하세요.\n그 안의 Posters / Scenes 폴더에 이미지가 저장됩니다.</div>
+          <div class="videoPosterRootPickerGuideText">처음 한 번만 선택합니다.\n\n웹뷰어 HTML 파일이 있는 폴더를 선택하세요.\n그 안의 Posters / Actors / Scenes 폴더를 사용해 포스터 · 배우사진 · 썸네일을 저장/불러옵니다.</div>
           <div class="videoPosterRootPickerGuideActions">
             <button type="button" id="videoPosterRootPickerCancel">취소</button>
             <button type="button" class="primary" id="videoPosterRootPickerChoose">폴더 선택</button>
@@ -92485,6 +92559,59 @@ async function changeVideoPosterRootHandle() {
     );
   }
 }
+// v876: 최초 가이드에서 웹뷰어 폴더 하나만 선택해
+// Posters / Actors / Scenes(썸네일)을 함께 쓰기 위한 브리지.
+// showDirectoryPicker는 반드시 사용자가 누른 버튼 이벤트에서 이 함수를 직접 호출한다.
+window.getVideoLocalMediaRootStateV876 = async function() {
+  let root = getVideoPosterRootHandleCachedV872();
+  if (!root) {
+    try {
+      if (typeof idbGetComic === 'function') root = await idbGetComic(VIDEO_POSTER_ROOT_KEY);
+    } catch (_) { root = null; }
+  }
+  return {
+    hasRoot: !!root,
+    name: String(root?.name || '').trim()
+  };
+};
+
+window.pickVideoLocalMediaRootFromUserV876 = async function() {
+  if (typeof window.showDirectoryPicker !== 'function') {
+    throw new Error('이 브라우저에서는 PC 폴더 연결 기능을 사용할 수 없습니다.');
+  }
+
+  // 사용자 클릭 직후 첫 비동기 호출.
+  const root = await window.showDirectoryPicker({ mode: 'readwrite' });
+
+  if (!await ensureVideoWritePermission(root)) {
+    throw new Error('선택한 폴더의 읽기/쓰기 권한이 필요합니다.');
+  }
+
+  let actors = null;
+  try {
+    if (String(root?.name || '').trim().toLocaleLowerCase() === 'actors') {
+      actors = root;
+    } else {
+      await root.getDirectoryHandle('Posters', { create: true });
+      actors = await root.getDirectoryHandle('Actors', { create: true });
+      await root.getDirectoryHandle('Scenes', { create: true });
+    }
+  } catch (_) {}
+
+  if (typeof idbPutComic === 'function') {
+    await idbPutComic(VIDEO_POSTER_ROOT_KEY, root);
+    if (actors && typeof VIDEO_AVDBS_ACTORS_DIR_HANDLE_KEY !== 'undefined') {
+      try { await idbPutComic(VIDEO_AVDBS_ACTORS_DIR_HANDLE_KEY, actors); } catch (_) {}
+    }
+  }
+
+  setVideoPosterRootPassiveHandleCacheV864(root);
+  try { _videoLocalPostersDirCacheV876 = null; } catch (_) {}
+  try { if (typeof resetVideoSceneIndexCache === 'function') resetVideoSceneIndexCache(); } catch (_) {}
+
+  return { ok: true, root, name: String(root?.name || '').trim() };
+};
+
 async function saveVideoGifToPosters(
   entry,
   blob
@@ -94215,6 +94342,11 @@ function attachPosterWithFallback(
         try { URL.revokeObjectURL(frameUrlV817); } catch (_) {}
         delete currentEl.dataset.framePosterObjectUrlV817;
       }
+      const localUrlV876 = String(currentEl?.dataset?.localPosterObjectUrlV876 || '');
+      if (localUrlV876) {
+        try { URL.revokeObjectURL(localUrlV876); } catch (_) {}
+        delete currentEl.dataset.localPosterObjectUrlV876;
+      }
     } catch (_) {}
 
     try {
@@ -94262,6 +94394,54 @@ function attachPosterWithFallback(
 
     const src =
       candidates[idx++];
+
+    // v876: GitHub 온라인에서 연결된 PC Posters 폴더를 File Handle로 먼저 확인한다.
+    const localPosterFileV876 = parseVideoLocalPosterCandidateSrcV876(src);
+    if (localPosterFileV876) {
+      const localAttemptIdV876 = attemptSerial;
+      (async () => {
+        const file = await getSavedVideoLocalPosterFileV876(localPosterFileV876);
+        if (!file || localAttemptIdV876 !== attemptSerial) throw new Error('PC 로컬 포스터 없음');
+
+        const objectUrl = URL.createObjectURL(file);
+        const img = document.createElement('img');
+        currentEl = img;
+        img.className = 'videoPoster';
+        img.alt = entry?.display || '';
+        img.decoding = 'async';
+        img.loading = 'eager';
+        img.dataset.localPosterObjectUrlV876 = objectUrl;
+
+        const revoke = () => {
+          const url = String(img.dataset.localPosterObjectUrlV876 || '');
+          if (!url) return;
+          delete img.dataset.localPosterObjectUrlV876;
+          try { URL.revokeObjectURL(url); } catch (_) {}
+        };
+
+        img.addEventListener('load', () => {
+          if (localAttemptIdV876 !== attemptSerial) {
+            revoke();
+            return;
+          }
+          revoke();
+          pending.style.display = 'none';
+          finishResolve(true);
+        }, { once: true });
+
+        img.addEventListener('error', () => {
+          revoke();
+          if (localAttemptIdV876 !== attemptSerial) return;
+          tryNext();
+        }, { once: true });
+
+        wrap.appendChild(img);
+        img.src = objectUrl;
+      })().catch(() => {
+        if (localAttemptIdV876 === attemptSerial) tryNext();
+      });
+      return;
+    }
 
     // v817: 사용자가 선택해 Scenes에 저장한 정지 포스터는
     // HTML 위치 기준 상대 URL이 아니라 저장 루트의 File Handle에서 직접 읽는다.
@@ -142304,6 +142484,51 @@ async function getVideoActressStrictAvwikiPhotoV830(actressNames, actressKey = '
   return { matched: false, actorId: '', nameJa: '', url: '' };
 }
 
+// v876: GitHub 온라인에서도 연결된 웹뷰어 폴더의 Actors/*.jpg를
+// FileSystemDirectoryHandle로 읽어 배우사진의 로컬 우선순위를 유지한다.
+let _videoLocalActorsDirCacheV876 = null;
+
+async function getVideoLocalActorPhotoObjectUrlsV876(nameCandidates) {
+  const root = getVideoPosterRootHandleCachedV872();
+  if (!root) return [];
+
+  const names = Array.from(new Set(
+    (Array.isArray(nameCandidates) ? nameCandidates : [nameCandidates])
+      .map(v => String(v || '').normalize('NFKC').trim())
+      .filter(v => v && !/[\\/]/.test(v))
+  ));
+  if (!names.length) return [];
+
+  try {
+    let actors = null;
+    if (_videoLocalActorsDirCacheV876?.root === root) {
+      actors = _videoLocalActorsDirCacheV876.dir || null;
+    } else {
+      const actorsPromise =
+        String(root?.name || '').trim().toLocaleLowerCase() === 'actors'
+          ? Promise.resolve(root)
+          : root.getDirectoryHandle('Actors');
+      actors = await withVideoPosterPassiveTimeoutV872(actorsPromise, 900);
+      if (actors) _videoLocalActorsDirCacheV876 = { root, dir: actors };
+    }
+    if (!actors) return [];
+
+    for (const name of names) {
+      for (const ext of ['jpg', 'jpeg', 'png', 'webp']) {
+        const handle = await withVideoPosterPassiveTimeoutV872(
+          actors.getFileHandle(`${name}.${ext}`),
+          900
+        );
+        if (!handle) continue;
+        const file = await withVideoPosterPassiveTimeoutV872(handle.getFile(), 900);
+        if (file && Number(file.size) > 0) return [URL.createObjectURL(file)];
+      }
+    }
+  } catch (_) {}
+
+  return [];
+}
+
 function loadActressRailPhoto(
   img,
   wrap,
@@ -142345,21 +142570,31 @@ function loadActressRailPhoto(
   const loadUrlCandidates = urls => {
     const candidates = Array.from(new Set((Array.isArray(urls) ? urls : []).filter(Boolean)));
     let index = 0;
+    let activeBlobUrlV876 = '';
+    const revokeActiveBlobV876 = () => {
+      if (!activeBlobUrlV876) return;
+      try { URL.revokeObjectURL(activeBlobUrlV876); } catch (_) {}
+      activeBlobUrlV876 = '';
+    };
     const tryNext = () => {
-      if (!isCurrentLoad()) return;
+      if (!isCurrentLoad()) { revokeActiveBlobV876(); return; }
+      revokeActiveBlobV876();
       img.classList.remove('is-loaded');
       if (index >= candidates.length) return finishMissing();
       const nextUrl = candidates[index++];
+      if (String(nextUrl).startsWith('blob:')) activeBlobUrlV876 = nextUrl;
       img.removeAttribute('src');
       img.src = nextUrl;
     };
     img.onload = () => {
-      if (!isCurrentLoad()) return;
+      if (!isCurrentLoad()) { revokeActiveBlobV876(); return; }
+      revokeActiveBlobV876();
       wrap.classList.remove('is-missing');
       img.classList.add('is-loaded');
     };
     img.onerror = () => {
-      if (!isCurrentLoad()) return;
+      if (!isCurrentLoad()) { revokeActiveBlobV876(); return; }
+      revokeActiveBlobV876();
       tryNext();
     };
     tryNext();
@@ -142372,18 +142607,12 @@ function loadActressRailPhoto(
     .then(async strict => {
       if (!isCurrentLoad()) return;
 
-      if (strict?.matched) {
-        if (strict.url) loadUrlCandidates([strict.url]);
-        else finishMissing();
-        return;
-      }
-
       // v874: '한글 / English / 日本語'처럼 슬래시가 들어간 표시명을
-      // file:// 경로에 그대로 encode하면 %2F가 경로 구분자로 취급되어 ERR_INVALID_URL이 날 수 있다.
-      // 실제 파일명으로 가능한 개별 이름 후보만 분해해서 Actors 폴더를 확인한다.
+      // 파일명으로 직접 쓰지 않고 실제 개별 이름 후보만 만든다.
       const localNameCandidatesV874 = [];
       const localNameSeenV874 = new Set();
-      for (const rawNameV874 of names) {
+      const sourceNamesV876 = [strict?.nameJa, ...names].filter(Boolean);
+      for (const rawNameV874 of sourceNamesV876) {
         const parsedV874 =
           typeof getActressPhotoNameCandidates === 'function'
             ? getActressPhotoNameCandidates(rawNameV874)
@@ -142397,14 +142626,42 @@ function loadActressRailPhoto(
           localNameCandidatesV874.push(safeNameV874);
         }
       }
-      const localCandidates = localNameCandidatesV874.map(
-        name => './Actors/' + encodeURIComponent(name) + '.jpg'
-      );
+
+      // v876: GitHub에서는 PC Actors 폴더 File Handle을 먼저 사용한다.
+      // 로컬 file:// 상대경로는 기존 동작을 그대로 fallback으로 둔다.
+      let pcLocalUrlsV876 = [];
+      try { pcLocalUrlsV876 = await getVideoLocalActorPhotoObjectUrlsV876(localNameCandidatesV874); } catch (_) {}
+      if (!isCurrentLoad()) {
+        for (const urlV876 of pcLocalUrlsV876) {
+          try { URL.revokeObjectURL(urlV876); } catch (_) {}
+        }
+        return;
+      }
+
+      if (strict?.matched) {
+        if (pcLocalUrlsV876.length) {
+          loadUrlCandidates([...pcLocalUrlsV876, ...(strict.url ? [strict.url] : [])]);
+        } else if (strict.url) {
+          loadUrlCandidates([strict.url]);
+        } else {
+          finishMissing();
+        }
+        return;
+      }
+
+      const skipRelativeActorsHttpV876 =
+        typeof window.viewerIsGitHubOnlineV873 === 'function' &&
+        window.viewerIsGitHubOnlineV873();
+      const localCandidates = skipRelativeActorsHttpV876
+        ? []
+        : localNameCandidatesV874.map(
+            name => './Actors/' + encodeURIComponent(name) + '.jpg'
+          );
       const inlineUrls = getVideoDmmInlineActressPhotoUrls(names);
       let dmmUrls = [];
       try { dmmUrls = await getVideoDmmActressPhotoUrls(names); } catch (_) {}
       if (!isCurrentLoad()) return;
-      loadUrlCandidates([...localCandidates, ...inlineUrls, ...dmmUrls]);
+      loadUrlCandidates([...pcLocalUrlsV876, ...localCandidates, ...inlineUrls, ...dmmUrls]);
     })
     .catch(error => {
       console.info('[배우 사진] 정확 매칭 조회 실패', error);
@@ -166300,15 +166557,15 @@ function showVideoAvdbsMatchSummaryV758({stopped=false,totalPairs=0,auto=0,manua
     detail.textContent=`이번 자동 ${Number(auto||0).toLocaleString()} · 확인 ${Number(manual||0).toLocaleString()} · 보류 ${Number(skip||0).toLocaleString()} · ${String(residualLabel||'매칭실패')} ${Number(none||0).toLocaleString()}`;
     detail.style.cssText='font-size:13px;line-height:1.65;color:#d7e8dc;word-break:keep-all;';
     const foot=document.createElement('div');
-    foot.textContent='7초 후 자동으로 닫힙니다.';
+    foot.textContent='3초 후 자동으로 닫힙니다.';
     foot.style.cssText='font-size:10px;color:#9bb3a2;margin-top:12px;';
     box.append(title,main,detail,foot);
     layer.appendChild(box);
     document.body.appendChild(layer);
-    window.setTimeout(()=>{try{layer.remove();}catch(_){}},7000);
+    window.setTimeout(()=>{try{layer.remove();}catch(_){}},3000);
   }catch(e){
     try{
-      if(typeof showToast==='function') showToast(`AVDBS↔AVWiki ${stopped?'중지':'완료'} · 저장 매칭 ${Number(totalPairs||0).toLocaleString()}명`,7000);
+      if(typeof showToast==='function') showToast(`AVDBS↔AVWiki ${stopped?'중지':'완료'} · 저장 매칭 ${Number(totalPairs||0).toLocaleString()}명`,3000);
     }catch(_){}
   }
 }
@@ -166472,8 +166729,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     if(typeof showVideoAvdbsMatchSummaryV758==='function'){
       showVideoAvdbsMatchSummaryV758({stopped:!!st.stopRequested,totalPairs,auto:st.auto,manual:st.manual,skip:st.skip,none:st.none,residualLabel:residualModeLabelV755});
     }else if(typeof showVideoJobDoneNotice==='function'){
-      showVideoJobDoneNotice({title:`AVDBS ↔ AVWiki 배우 매칭 ${st.stopRequested?'중지':'완료'}`,main:`저장 매칭 ${totalPairs.toLocaleString()}명`,detail:`이번 자동 ${st.auto.toLocaleString()} · 확인 ${st.manual.toLocaleString()} · 보류 ${st.skip.toLocaleString()}`,counts:`${residualModeLabelV755} ${st.none.toLocaleString()}명`,ms:7000});
-    }else if(typeof showToast==='function')showToast(msg,7000);else alert(msg);
+      showVideoJobDoneNotice({title:`AVDBS ↔ AVWiki 배우 매칭 ${st.stopRequested?'중지':'완료'}`,main:`저장 매칭 ${totalPairs.toLocaleString()}명`,detail:`이번 자동 ${st.auto.toLocaleString()} · 확인 ${st.manual.toLocaleString()} · 보류 ${st.skip.toLocaleString()}`,counts:`${residualModeLabelV755} ${st.none.toLocaleString()}명`,ms:3000});
+    }else if(typeof showToast==='function')showToast(msg,3000);else alert(msg);
   }catch(e){v741RunFailed=true;console.error('[v757 AVDBS↔AVWiki PASS 간편판정]',e);alert(`AVDBS↔AVWiki 매칭 실패\n\n${e?.message||e}`);}
   finally{
     try{st.currentDialogFinish?.(null);}catch(_){}st.currentDialogFinish=null;document.getElementById('videoAvdbsManualLayerV732')?.remove();
@@ -166531,7 +166788,9 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   'use strict';
 
   const DAILY_KEY = 'video_empty_library_add_prompt_day_v739';
-  const DELAY_MS = 10000;
+  const LOCAL_MEDIA_GUIDE_DONE_KEY_V876 = 'video_local_media_root_guide_done_v876';
+  // v876: 빈 라이브러리 첫 안내는 10초 → 1초.
+  const DELAY_MS = 1000;
 
   const localDayKey = () => {
     const d = new Date();
@@ -166575,24 +166834,28 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     }
   };
 
-  const removeLayer = () => {
-    document.getElementById('videoEmptyLibraryDailyPromptV739')?.remove();
+  const removeLayer = id => {
+    document.getElementById(id)?.remove();
   };
 
-  const showPrompt = () => {
+  const markLocalMediaGuideDoneV876 = () => {
+    try { localStorage.setItem(LOCAL_MEDIA_GUIDE_DONE_KEY_V876, '1'); } catch (_) {}
+  };
+
+  const isLocalMediaGuideDoneV876 = () => {
+    try { return localStorage.getItem(LOCAL_MEDIA_GUIDE_DONE_KEY_V876) === '1'; }
+    catch (_) { return false; }
+  };
+
+  const showVideoAddPromptV876 = () => {
     if (document.getElementById('videoEmptyLibraryDailyPromptV739')) return;
+    if (getVideoCount() > 0 || isFolderImportBusy()) return;
 
     const today = localDayKey();
     try {
       if (localStorage.getItem(DAILY_KEY) === today) return;
+      localStorage.setItem(DAILY_KEY, today);
     } catch (_) {}
-
-    if (getVideoCount() > 0) return;
-    if (isFolderImportBusy()) return;
-
-    // 하루 1회는 실제 안내창을 보여준 시점에 기록한다.
-    // 취소 후 같은 날 HTML을 다시 열어도 반복해서 묻지 않는다.
-    try { localStorage.setItem(DAILY_KEY, today); } catch (_) {}
 
     const layer = document.createElement('div');
     layer.id = 'videoEmptyLibraryDailyPromptV739';
@@ -166600,26 +166863,15 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     layer.setAttribute('aria-modal', 'true');
     layer.setAttribute('aria-label', '동영상 추가 안내');
     layer.style.cssText = [
-      'position:fixed',
-      'inset:0',
-      'z-index:1000600',
-      'display:flex',
-      'align-items:center',
-      'justify-content:center',
-      'background:rgba(0,0,0,.56)',
-      'backdrop-filter:blur(2px)'
+      'position:fixed','inset:0','z-index:1000600','display:flex','align-items:center','justify-content:center',
+      'background:rgba(0,0,0,.56)','backdrop-filter:blur(2px)'
     ].join(';');
 
     const panel = document.createElement('div');
     panel.style.cssText = [
-      'width:min(440px,calc(100vw - 32px))',
-      'background:#171a20',
-      'color:#f4f6f8',
-      'border:1px solid #4a505b',
-      'border-radius:12px',
-      'box-shadow:0 18px 55px rgba(0,0,0,.58)',
-      'padding:22px 22px 18px',
-      'font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif'
+      'width:min(440px,calc(100vw - 32px))','background:#171a20','color:#f4f6f8',
+      'border:1px solid #4a505b','border-radius:12px','box-shadow:0 18px 55px rgba(0,0,0,.58)',
+      'padding:22px 22px 18px','font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif'
     ].join(';');
 
     const title = document.createElement('div');
@@ -166645,48 +166897,159 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     addBtn.textContent = '동영상 추가';
     addBtn.style.cssText = 'min-width:104px;padding:8px 13px;background:#5b45a8;color:#fff;border-color:#7763c8;font-weight:800;';
 
-    laterBtn.addEventListener('click', removeLayer);
+    laterBtn.addEventListener('click', () => removeLayer(layer.id));
 
     addBtn.addEventListener('click', () => {
-      // showDirectoryPicker의 사용자 제스처를 유지하려고
-      // 이 실제 클릭 핸들러 안에서 기존 폴더 버튼을 동기적으로 click한다.
-      removeLayer();
-
-      try {
-        if (typeof window.showToast === 'function') {
-          window.showToast('동영상이 있는 폴더를 선택하세요.', 3500);
-        }
-      } catch (_) {}
-
+      removeLayer(layer.id);
+      try { window.showToast?.('동영상이 있는 폴더를 선택하세요.', 1800); } catch (_) {}
       const folderBtn = document.getElementById('fsComicLink');
       if (folderBtn) {
         folderBtn.click();
         return;
       }
-
       alert('폴더 추가 버튼을 찾지 못했습니다. 상단의 폴더 버튼을 눌러 주세요.');
     });
 
-    layer.addEventListener('click', (event) => {
-      if (event.target === layer) removeLayer();
+    layer.addEventListener('click', event => {
+      if (event.target === layer) removeLayer(layer.id);
     });
-
-    layer.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') removeLayer();
+    layer.addEventListener('keydown', event => {
+      if (event.key === 'Escape') removeLayer(layer.id);
     });
 
     buttons.append(laterBtn, addBtn);
     panel.append(title, desc, buttons);
     layer.append(panel);
-    document.body.append(layer);
-
+    document.body.appendChild(layer);
     requestAnimationFrame(() => addBtn.focus());
+  };
+
+  const showLocalMediaRootPromptV876 = () => {
+    if (document.getElementById('videoLocalMediaRootPromptV876')) return;
+
+    const layer = document.createElement('div');
+    layer.id = 'videoLocalMediaRootPromptV876';
+    layer.setAttribute('role', 'dialog');
+    layer.setAttribute('aria-modal', 'true');
+    layer.style.cssText = [
+      'position:fixed','inset:0','z-index:1000610','display:flex','align-items:center','justify-content:center',
+      'background:rgba(0,0,0,.58)','backdrop-filter:blur(2px)'
+    ].join(';');
+
+    const panel = document.createElement('div');
+    panel.style.cssText = [
+      'width:min(500px,calc(100vw - 32px))','background:#171a20','color:#f4f6f8',
+      'border:1px solid #4a505b','border-radius:12px','box-shadow:0 18px 55px rgba(0,0,0,.58)',
+      'padding:22px 22px 18px','font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif'
+    ].join(';');
+
+    const title = document.createElement('div');
+    title.textContent = '포스터 · 배우사진 · 썸네일 폴더를 연결하세요';
+    title.style.cssText = 'font-size:19px;font-weight:850;margin-bottom:10px;';
+
+    const desc = document.createElement('div');
+    desc.textContent =
+      'PC에 저장된 포스터·배우사진·썸네일을 사용하려면 웹뷰어 HTML 파일이 있는 폴더를 선택하세요.\n\n' +
+      '한 번 선택하면 그 아래 Posters / Actors / Scenes 폴더를 함께 사용합니다.\n' +
+      '온라인 GitHub에서도 이 PC 폴더의 이미지를 먼저 사용하고, 없으면 온라인 이미지로 넘어갑니다.';
+    desc.style.cssText = 'font-size:13px;line-height:1.65;color:#d5dae3;white-space:pre-line;margin-bottom:18px;';
+
+    const buttons = document.createElement('div');
+    buttons.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;';
+
+    const skipBtn = document.createElement('button');
+    skipBtn.type = 'button';
+    skipBtn.className = 'zoomBtn';
+    skipBtn.textContent = '건너뛰기';
+    skipBtn.style.cssText = 'min-width:88px;padding:8px 13px;';
+
+    const pickBtn = document.createElement('button');
+    pickBtn.type = 'button';
+    pickBtn.className = 'zoomBtn';
+    pickBtn.textContent = '폴더 선택';
+    pickBtn.style.cssText = 'min-width:112px;padding:8px 13px;background:#237a55;color:#fff;border-color:#35966d;font-weight:850;';
+
+    const continueToVideo = () => {
+      removeLayer(layer.id);
+      window.setTimeout(showVideoAddPromptV876, 1000);
+    };
+
+    skipBtn.addEventListener('click', () => {
+      markLocalMediaGuideDoneV876();
+      continueToVideo();
+    });
+
+    pickBtn.addEventListener('click', async event => {
+      event.preventDefault();
+      event.stopPropagation();
+      pickBtn.disabled = true;
+      pickBtn.textContent = '연결 중…';
+      try {
+        if (typeof window.pickVideoLocalMediaRootFromUserV876 !== 'function') {
+          throw new Error('PC 이미지 폴더 연결 기능을 찾지 못했습니다.');
+        }
+        const result = await window.pickVideoLocalMediaRootFromUserV876();
+        markLocalMediaGuideDoneV876();
+        try { window.showToast?.(`로컬 이미지 폴더 연결 완료: ${result?.name || ''}`, 1800); } catch (_) {}
+        continueToVideo();
+      } catch (error) {
+        if (error?.name === 'AbortError') {
+          pickBtn.disabled = false;
+          pickBtn.textContent = '폴더 선택';
+          return;
+        }
+        console.warn('[v876 local media root]', error);
+        alert(error?.message || String(error || '폴더 연결 실패'));
+        pickBtn.disabled = false;
+        pickBtn.textContent = '폴더 선택';
+      }
+    });
+
+    layer.addEventListener('click', event => {
+      if (event.target !== layer) return;
+      markLocalMediaGuideDoneV876();
+      continueToVideo();
+    });
+    layer.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      markLocalMediaGuideDoneV876();
+      continueToVideo();
+    });
+
+    buttons.append(skipBtn, pickBtn);
+    panel.append(title, desc, buttons);
+    layer.append(panel);
+    document.body.appendChild(layer);
+    requestAnimationFrame(() => pickBtn.focus());
+  };
+
+  const showPrompt = async () => {
+    if (getVideoCount() > 0 || isFolderImportBusy()) return;
+
+    const today = localDayKey();
+    try {
+      if (localStorage.getItem(DAILY_KEY) === today) return;
+    } catch (_) {}
+
+    let hasRoot = false;
+    try {
+      const state = await window.getVideoLocalMediaRootStateV876?.();
+      hasRoot = !!state?.hasRoot;
+    } catch (_) {}
+
+    if (!hasRoot && !isLocalMediaGuideDoneV876()) {
+      showLocalMediaRootPromptV876();
+      return;
+    }
+
+    showVideoAddPromptV876();
   };
 
   const schedule = () => {
     window.setTimeout(() => {
-      try { showPrompt(); }
-      catch (err) { console.warn('[v739] 동영상 없음 하루 1회 안내 실패', err); }
+      Promise.resolve(showPrompt()).catch(err => {
+        console.warn('[v739/v876] 동영상 없음 초기 안내 실패', err);
+      });
     }, DELAY_MS);
   };
 
@@ -166747,9 +167110,9 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   // v742: 새 동영상이 들어오면 과거 완료기록과 관계없이 매칭/입력을 한 번 더 안내한다.
   // 영구 플래그라서 동영상 추가 직후 HTML을 닫아도 다음 실행에서 이어진다.
   const NEW_VIDEO_PENDING_KEY='video_setup_new_video_pending_v742';
-  const START_DELAY=10000;
-  // v743: 가이드의 각 단계 → 다음 단계 전환 대기시간을 모두 5초로 통일.
-  const STEP_DELAY=5000;
+  const START_DELAY=1000;
+  // v876: 가이드의 각 단계 → 다음 단계 전환 대기시간을 1초로 단축.
+  const STEP_DELAY=1000;
   let promptOpen=false;
   let flowSerial=0;
   let activeFlow=null;
@@ -167212,11 +167575,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     });
   };
 
-  const startGuide=async()=>{
-    if(promptOpen)return;
-    const flow=setFlow(makeFlow('guide'));
-    const status=await getStatus();
-    flow.videoCountAtGuideStart=Number(status.videoCount)||0;
+  const showGuideVideoFolderStepV876=(flow,status)=>{
     if(!isFlowCurrent(flow))return;
     showChoice({
       daily:false,
@@ -167230,11 +167589,52 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
         const btn=document.getElementById('fsComicLink');
         if(!btn){showInfo('가이드','폴더 버튼을 찾지 못했습니다.');activeFlow=null;return;}
         flow.hadAction=true;flow.waiting='video-folder';
-        try{window.showToast?.('동영상이 있는 폴더를 선택하세요.',3500);}catch(_){}
+        try{window.showToast?.('동영상이 있는 폴더를 선택하세요.',1800);}catch(_){}
         btn.click();
       },
       onCancel:()=>scheduleFlow(flow,advanceActorDb,STEP_DELAY)
     });
+  };
+
+  const offerGuideLocalMediaRootV876=async(flow,status)=>{
+    if(!isFlowCurrent(flow))return;
+    let hasRoot=false;
+    try{
+      const state=await window.getVideoLocalMediaRootStateV876?.();
+      hasRoot=!!state?.hasRoot;
+    }catch(_){}
+    if(hasRoot){showGuideVideoFolderStepV876(flow,status);return;}
+
+    showChoice({
+      step:'local-media-root-v876',daily:false,
+      title:'포스터 · 배우사진 · 썸네일 폴더를 연결하시겠습니까?',
+      message:'웹뷰어 HTML 파일이 있는 폴더를 한 번 선택하면 Posters / Actors / Scenes를 함께 사용합니다.\n\nGitHub 온라인에서도 PC의 로컬 포스터·배우사진·썸네일을 먼저 사용할 수 있습니다.',
+      confirmText:'폴더 선택',cancelText:'건너뛰기',
+      onConfirm:async()=>{
+        if(!isFlowCurrent(flow))return;
+        try{
+          if(typeof window.pickVideoLocalMediaRootFromUserV876!=='function')throw new Error('PC 이미지 폴더 연결 기능을 찾지 못했습니다.');
+          const result=await window.pickVideoLocalMediaRootFromUserV876();
+          try{window.showToast?.(`로컬 이미지 폴더 연결 완료: ${result?.name||''}`,1800);}catch(_){}
+        }catch(err){
+          if(err?.name!=='AbortError'){
+            console.warn('[v876 guide local media root]',err);
+            showInfo('로컬 이미지 폴더 연결 실패',String(err?.message||err||''));
+          }
+        }
+        scheduleFlow(flow,()=>showGuideVideoFolderStepV876(flow,status),STEP_DELAY);
+      },
+      onCancel:()=>scheduleFlow(flow,()=>showGuideVideoFolderStepV876(flow,status),STEP_DELAY)
+    });
+  };
+
+  const startGuide=async()=>{
+    if(promptOpen)return;
+    const flow=setFlow(makeFlow('guide'));
+    const status=await getStatus();
+    flow.videoCountAtGuideStart=Number(status.videoCount)||0;
+    if(!isFlowCurrent(flow))return;
+    await offerGuideLocalMediaRootV876(flow,status);
   };
   window.startVideoSetupGuideV741=startGuide;
 
@@ -167358,7 +167758,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 875;
+  const VIEWER_BUILD_V789 = 876;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -168364,6 +168764,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v838: JAVXXX 보안코드 2단계 검사 · 원본 품번을 Worker로 먼저 검사하고 exists:false일 때만 숫자/H_숫자 보안 prefix 제거 품번을 재검사 · 예 300MAAN-949 -> MAAN-949 · 제거 품번에서 확인되면 JAVXXX 보기 링크도 제거 품번 사용 · MissAV 품번 판정과 JAVXXX 판정을 분리 · 화면 빌드838 -->
 <!-- v859: 잠정/중복/중복보류/수동확정 모두 로컬 Posters/Scenes 후보를 건너뛰고 인덱스DB imageRef(i) 포스터를 우선 사용 -->
 
+<!-- v876: 최초 빈 라이브러리 가이드에서 동영상 폴더 전에 웹뷰어 루트 폴더 1회 연결 단계 추가 · 선택한 한 폴더의 Posters/Actors/Scenes를 포스터·배우사진·썸네일 공용으로 사용 · GitHub 온라인도 PC Posters/Actors를 FileSystem Handle로 우선 읽고 없으면 온라인 fallback · 가이드 시작/단계 대기 1초로 단축 · AVDBS↔AVWiki 완료 안내 7초→3초 · 화면/최신버전 빌드 876 갱신 -->
 <!-- v875: 온라인 시작 먹통처럼 보이던 배우별칭/작품DB 순환호출 차단 · 별칭 캐시 재구축 중 재진입 시 안전한 빈 alias map을 사용해 v765 안전폴백 수천회/대형 스택로그 방지 · 작품DB 배우 fallback 기능은 정상 구간에서 그대로 유지 · 화면/최신버전 빌드 875 갱신 -->
 <!-- v874: 기본 배경 흰색으로 통일 및 background4.jpg 요청 제거 · v873 만화 지연 복원 함수의 window 동일이름 덮어쓰기 재귀(Maximum call stack) 수정 · file://에서 PWA manifest를 연결하지 않아 CORS 오류 방지 · Cloudflare Web Analytics는 GitHub Pages 온라인에서만 로드 · 슬래시가 포함된 배우 표시명의 Actors 로컬사진 ERR_INVALID_URL 방지 · 화면/최신버전 빌드 874 갱신 -->
 <!-- v873: 영상 시작 시 만화 초기화 지연 · detectPadExt/본문 이미지 배치/만화 FS 자동스캔은 실제 만화 탭 진입 때만 실행 · scanComicFolderListUnified boolean/function 3번째 인자 호환 및 progressCb 오류 수정 · GitHub Pages에서 Posters 상대경로 HTTP 404 탐색 생략 · background4.jpg 온라인 404 방지 · 화면/최신버전 빌드 873 갱신 -->
