@@ -10554,7 +10554,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드874) 모드 : </span>
+<span>버전 4.1(빌드875) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12287,7 +12287,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드874) 모드 :</span>
+        <span>버전 4.1(빌드875) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -56817,6 +56817,16 @@ const VIDEO_ACTRESS_ALIAS_CACHE_DB_VERSION = 1;
 const VIDEO_ACTRESS_ALIAS_CACHE_VERSION = 2;
 
 let _videoActressAliasDataCache = null;
+// v875: 배우 별칭 캐시를 videolist에서 재구축하는 도중 작품DB 배우 fallback이
+// 다시 작품 중복판정 -> 배우 별칭 캐시로 되돌아오는 순환호출을 차단한다.
+let _videoActressAliasDataBuildingV875 = false;
+const _videoActressAliasReentrySafeDataV875 = {
+  aliasToCanonical: new Map(),
+  aliasToCanonicals: new Map(),
+  rawToCanonical: new Map(),
+  groups: new Map(),
+  originalByKey: new Map()
+};
 let _videoActressAliasPersistentPackedCache = null;
 let _videoActressAliasPersistentLoaded = false;
 let _videoActressAliasPersistentLoadPromise = null;
@@ -57726,6 +57736,14 @@ function getVideoActressAliasData() {
     return _videoActressAliasDataCache;
   }
 
+  // v875: 재구축 중 재진입하면 빈 읽기전용 역할의 안전 데이터로 즉시 반환.
+  // 이전에는 getVideoActressAliasData -> getVideoEntryActressGroups ->
+  // getVideoWorkRecordForEntry -> 중복배우판정 -> getVideoActressAliasData 순환이
+  // 수천 번 중첩되어 시작 리스트 렌더가 끝나지 않는 것처럼 보였다.
+  if (_videoActressAliasDataBuildingV875) {
+    return _videoActressAliasReentrySafeDataV875;
+  }
+
   /*
     변경사항이 없으면 여기서 끝.
     videolist 전체 검사, split, record 생성, cluster 병합을 모두 생략.
@@ -57937,6 +57955,10 @@ function getVideoActressAliasData() {
   let aliasStoreChanged = false;
   const videos = loadVideoList();
 
+  // v875: 이 구간에서만 재진입 guard를 켠다.
+  // getVideoEntryActressGroups의 작품DB fallback 기능 자체는 그대로 유지한다.
+  _videoActressAliasDataBuildingV875 = true;
+  try {
   for (const video of videos) {
     const videoActressGroups = getVideoEntryActressGroups(video);
 
@@ -58026,6 +58048,9 @@ function getVideoActressAliasData() {
       });
     }
     }
+  }
+  } finally {
+    _videoActressAliasDataBuildingV875 = false;
   }
 
   if (aliasStoreChanged) {
@@ -167333,7 +167358,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 874;
+  const VIEWER_BUILD_V789 = 875;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -168339,6 +168364,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v838: JAVXXX 보안코드 2단계 검사 · 원본 품번을 Worker로 먼저 검사하고 exists:false일 때만 숫자/H_숫자 보안 prefix 제거 품번을 재검사 · 예 300MAAN-949 -> MAAN-949 · 제거 품번에서 확인되면 JAVXXX 보기 링크도 제거 품번 사용 · MissAV 품번 판정과 JAVXXX 판정을 분리 · 화면 빌드838 -->
 <!-- v859: 잠정/중복/중복보류/수동확정 모두 로컬 Posters/Scenes 후보를 건너뛰고 인덱스DB imageRef(i) 포스터를 우선 사용 -->
 
+<!-- v875: 온라인 시작 먹통처럼 보이던 배우별칭/작품DB 순환호출 차단 · 별칭 캐시 재구축 중 재진입 시 안전한 빈 alias map을 사용해 v765 안전폴백 수천회/대형 스택로그 방지 · 작품DB 배우 fallback 기능은 정상 구간에서 그대로 유지 · 화면/최신버전 빌드 875 갱신 -->
 <!-- v874: 기본 배경 흰색으로 통일 및 background4.jpg 요청 제거 · v873 만화 지연 복원 함수의 window 동일이름 덮어쓰기 재귀(Maximum call stack) 수정 · file://에서 PWA manifest를 연결하지 않아 CORS 오류 방지 · Cloudflare Web Analytics는 GitHub Pages 온라인에서만 로드 · 슬래시가 포함된 배우 표시명의 Actors 로컬사진 ERR_INVALID_URL 방지 · 화면/최신버전 빌드 874 갱신 -->
 <!-- v873: 영상 시작 시 만화 초기화 지연 · detectPadExt/본문 이미지 배치/만화 FS 자동스캔은 실제 만화 탭 진입 때만 실행 · scanComicFolderListUnified boolean/function 3번째 인자 호환 및 progressCb 오류 수정 · GitHub Pages에서 Posters 상대경로 HTTP 404 탐색 생략 · background4.jpg 온라인 404 방지 · 화면/최신버전 빌드 873 갱신 -->
 <!-- v872: Chrome 온라인 무한로딩 원인 후보인 v864 저장폴더 passive 권한확인 경로 수정 · 자동 카드 렌더에서 IDB/queryPermission/requestPermission 대기 제거 · 저장 DirectoryHandle은 백그라운드 RAM 워밍만 수행 · Scenes 읽기는 RAM 핸들 있을 때만 900ms 안전 제한으로 시도 후 즉시 다음 포스터 후보 진행 · 저장폴더 자동팝업 방지 유지 · 화면/최신버전 빌드 872 갱신 -->
