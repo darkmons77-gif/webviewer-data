@@ -2,10 +2,44 @@
 <html lang="ko">
 <head>
 <link rel="icon" type="image/png" href="./image/icon.png">
-<link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#07080d">
 <meta charset="utf-8">
 <title></title> <!-- 비워두기: JS가 채움 -->
+<script id="viewerStartupModeV873">
+(() => {
+  'use strict';
+
+  const readSavedMode = () => {
+    try { return localStorage.getItem('wt_content_mode_v1') || ''; }
+    catch (_) { return ''; }
+  };
+
+  // v873: 영상으로 시작하면 만화 전용 자동탐지/폴더스캔/초기 이미지 요청을 지연한다.
+  window.__viewerComicInitAllowedV873 = readSavedMode() !== 'video';
+  window.viewerShouldRunComicInitV873 = () => window.__viewerComicInitAllowedV873 === true;
+  window.viewerAllowComicInitV873 = () => {
+    window.__viewerComicInitAllowedV873 = true;
+  };
+  window.viewerIsGitHubOnlineV873 = () =>
+    location.protocol === 'https:' &&
+    location.hostname === 'darkmons77-gif.github.io';
+
+  if (window.viewerIsGitHubOnlineV873()) {
+    document.documentElement.classList.add('viewerGithubOnlineV873');
+  }
+
+  // v874: PWA manifest는 http/https에서만 연결한다.
+  // file://에서 <link rel=manifest>를 두면 Chromium이 null origin CORS 오류를 낸다.
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    try {
+      const manifestLinkV874 = document.createElement('link');
+      manifestLinkV874.rel = 'manifest';
+      manifestLinkV874.href = './manifest.webmanifest';
+      document.head.appendChild(manifestLinkV874);
+    } catch (_) {}
+  }
+})();
+</script>
 <style>
 :root{
   --img-w: 600px;
@@ -27,7 +61,7 @@
 body {
   height: 100%;
   margin: 0;
-  background: url("background4.jpg") repeat;
+  background: #fff;
   background-attachment: fixed;
   background-size: cover;
   color: #ccc;
@@ -10520,7 +10554,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드872) 모드 : </span>
+<span>버전 4.1(빌드874) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12253,7 +12287,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드872) 모드 :</span>
+        <span>버전 4.1(빌드874) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -19050,6 +19084,13 @@ function saveDetectedPadExt(pad, ext, root = null, first = undefined) {
 // 탐지 함수: start 인덱스 기준으로 빠르게 (비동기)
 // detectPadExt: "가장 작은 번호"를 찾도록 재작성
 async function detectPadExt(opts = {}) {
+  // v873: 영상 시작 중에는 만화 파일명/확장자 자동탐지를 전혀 실행하지 않는다.
+  if (
+    typeof window.viewerShouldRunComicInitV873 === 'function' &&
+    !window.viewerShouldRunComicInitV873()
+  ) {
+    return { skipped: true, reason: 'video-start-v873' };
+  }
   const {
   timeout = 3000,
   delay = 50,
@@ -19543,6 +19584,15 @@ const observer = new IntersectionObserver(entries => {
 observer.observe(document.getElementById("sentinel"));
 // 5장씩 로드
 function loadNextBatch() {
+  // v873: 영상으로 시작한 세션에서는 만화 본문 이미지 요청을 만들지 않는다.
+  // 사용자가 실제로 만화 탭을 누르면 setContentMode('comic')이 이 gate를 연다.
+  if (
+    typeof window.viewerShouldRunComicInitV873 === 'function' &&
+    !window.viewerShouldRunComicInitV873()
+  ) {
+    return;
+  }
+
   // ★ 추가: FS 모드일 땐 배치 로더를 비활성 (FS 렌더러가 담당)
   // ★ 추가: FS 모드(이전 세션 포함)면 배치로더 막기
   try {
@@ -19841,8 +19891,8 @@ bgButtons.forEach(btn => {
     const body = document.body;
 
     if (color === 'default') {
-      // 기본: 원래 배경 이미지 복원
-      body.style.background = 'url("background4.jpg") repeat';
+      // v874: 기본 배경은 로컬/온라인 모두 흰색. background4.jpg 요청도 만들지 않는다.
+      body.style.background = '#fff';
       body.style.backgroundAttachment = 'fixed';
       body.style.backgroundSize = 'cover';
     } else {
@@ -23584,8 +23634,19 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
     FIRST_INDEX = prevFirst;
   }
 }
-    async function runAuto() {
+    async function runAuto(forceComicV873 = false) {
     if (_running) return;
+
+    if (forceComicV873) {
+      try { window.viewerAllowComicInitV873?.(); } catch (_) {}
+    } else if (
+      typeof window.viewerShouldRunComicInitV873 === 'function' &&
+      !window.viewerShouldRunComicInitV873()
+    ) {
+      // 영상 시작에서는 만화 PAD/EXT/마지막번호 탐지를 완전히 지연.
+      return;
+    }
+
     _running = true;
 
     // v280: 기존 image_config_map IDB 프리로드가 끝나기 전에 자동 재탐지하지 않는다.
@@ -23715,10 +23776,13 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
     }
   }
 
+  // v873: 영상 시작에서는 보류하고, 사용자가 처음 만화 탭을 눌렀을 때만 실행.
+  window.runComicStartupAutoDetectV873 = () => runAuto(true);
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runAuto, { once:true });
+    document.addEventListener('DOMContentLoaded', () => runAuto(false), { once:true });
   } else {
-    setTimeout(runAuto, 120);
+    setTimeout(() => runAuto(false), 120);
   }
 })();
 
@@ -31315,27 +31379,63 @@ async function unlinkComicFolder(name) {
 }
 
 // ---------- 초기 복원 ----------
-document.addEventListener('DOMContentLoaded', async () => {
-  const KEY = 'comic_root_list_v1';
-  try {
-    const list = (await idbGetComic(KEY)) || [];
-    __comicFsRootRecordsCache = Array.isArray(list) ? list.slice() : [];
-    // 누적 모드로 초기화
-    if (!Array.isArray(window.comicFsTitles)) window.comicFsTitles = [];
-    window.comicFsTitles.length = 0;
+// v873: 영상으로 시작할 때는 만화 폴더 스캔을 하지 않는다.
+// 사용자가 만화 탭을 실제로 처음 열었을 때 한 번만 복원한다.
+let __comicStartupRestoreDoneV873 = false;
+let __comicStartupRestorePromiseV873 = null;
 
-    for (const rec of list) {
-      if (!rec || !rec.handle) continue;
-      try {
-        await scanComicFolderList(rec.handle, /*append=*/true, /*requestPermissionIfNeeded=*/false); // v290: 시작 시 자동 권한팝업 금지
-      } catch (e) {
-        console.warn('[comicFS] scan fail for', rec.name, e);
-      }
-    }
-    await updateWtListFromFs(); // ← v282: preload 완료 뒤 기존 목록과 합쳐 렌더
-  } catch (e) {
-    console.warn('[comicFS] restore failed', e);
+async function restoreComicRootsCoreV874(forceComicV873 = false) {
+  if (__comicStartupRestoreDoneV873) return;
+  if (__comicStartupRestorePromiseV873) return __comicStartupRestorePromiseV873;
+
+  if (forceComicV873) {
+    try { window.viewerAllowComicInitV873?.(); } catch (_) {}
+  } else if (
+    typeof window.viewerShouldRunComicInitV873 === 'function' &&
+    !window.viewerShouldRunComicInitV873()
+  ) {
+    return;
   }
+
+  __comicStartupRestorePromiseV873 = (async () => {
+    const KEY = 'comic_root_list_v1';
+    try {
+      const list = (await idbGetComic(KEY)) || [];
+      __comicFsRootRecordsCache = Array.isArray(list) ? list.slice() : [];
+      if (!Array.isArray(window.comicFsTitles)) window.comicFsTitles = [];
+      window.comicFsTitles.length = 0;
+
+      for (const rec of list) {
+        if (!rec || !rec.handle) continue;
+        try {
+          await scanComicFolderList(
+            rec.handle,
+            /*append=*/true,
+            /*requestPermissionIfNeeded=*/false
+          );
+        } catch (e) {
+          console.warn('[comicFS] scan fail for', rec.name, e);
+        }
+      }
+
+      await updateWtListFromFs();
+      __comicStartupRestoreDoneV873 = true;
+    } catch (e) {
+      console.warn('[comicFS] restore failed', e);
+    }
+  })().finally(() => {
+    __comicStartupRestorePromiseV873 = null;
+  });
+
+  return __comicStartupRestorePromiseV873;
+}
+
+// v874: top-level 함수 이름과 window 프로퍼티를 같은 이름으로 덮어써
+// wrapper가 자기 자신을 호출하던 재귀(Maximum call stack) 문제 수정.
+window.restoreComicRootsOnDemandV873 = () => restoreComicRootsCoreV874(true);
+
+document.addEventListener('DOMContentLoaded', () => {
+  void restoreComicRootsCoreV874(false);
 });
 // ---------- 버튼 연결 ----------
 document.getElementById('fsComicLink')?.addEventListener('click', linkComicFolder);
@@ -80183,32 +80283,40 @@ function makePosterCandidates(meta) {
   const result = [];
 
   if (!bypassLocalPosterForDuplicateV859) {
-    for (const codeName of codeNames) {
-      const encoded =
-        encodeURIComponent(codeName);
+    // v873: GitHub Pages에는 로컬 Posters 폴더가 없으므로 상대경로를 HTTP로 수백 번
+    // 404 조회하지 않는다. file:// 로컬 실행에서는 기존 로컬 Posters 우선순위를 유지한다.
+    const skipRelativePosterHttpV873 =
+      typeof window.viewerIsGitHubOnlineV873 === 'function' &&
+      window.viewerIsGitHubOnlineV873();
 
-      result.push(
-        `Posters/${encoded}.jpg`
-      );
-      result.push(
-        `Posters/${encoded}_Poster.jpg`
-      );
-      result.push(
-        `Posters/${encoded}_Capture.jpg`
-      );
-    }
+    if (!skipRelativePosterHttpV873) {
+      for (const codeName of codeNames) {
+        const encoded =
+          encodeURIComponent(codeName);
 
-    if (meta && meta.baseName) {
-      const encodedBase =
-        encodeURIComponent(
-          String(meta.baseName).trim()
+        result.push(
+          `Posters/${encoded}.jpg`
         );
+        result.push(
+          `Posters/${encoded}_Poster.jpg`
+        );
+        result.push(
+          `Posters/${encoded}_Capture.jpg`
+        );
+      }
 
-      const basePath =
-        `Posters/${encodedBase}.jpg`;
+      if (meta && meta.baseName) {
+        const encodedBase =
+          encodeURIComponent(
+            String(meta.baseName).trim()
+          );
 
-      if (!result.includes(basePath)) {
-        result.push(basePath);
+        const basePath =
+          `Posters/${encodedBase}.jpg`;
+
+        if (!result.includes(basePath)) {
+          result.push(basePath);
+        }
       }
     }
 
@@ -81868,8 +81976,29 @@ function mergeRootVideos(rootName, found) {
 
   // 기존 만화 스캔의 "모든 하위폴더를 만화로 등록" 문제를 막고,
   // 실제 이미지가 있는 폴더만 webtoonlist 후보로 만든다.
-  async function scanComicFolderListUnified(handle, append = false, progressCb = null) {
-    const ok = await ensureHandlePermission(handle, true);
+  async function scanComicFolderListUnified(
+    handle,
+    append = false,
+    progressCbOrRequestPermission = null,
+    maybeProgressCb = null
+  ) {
+    // v873 호환: 구버전 호출의 3번째 boolean은 requestPermissionIfNeeded,
+    // 새 폴더 추가 흐름의 3번째 function은 progress callback이다.
+    // false를 progress callback으로 오인해 "progressCb is not a function"이 나던 문제도 수정.
+    let requestPermissionIfNeeded = true;
+    let progressCb = null;
+
+    if (typeof progressCbOrRequestPermission === 'boolean') {
+      requestPermissionIfNeeded = progressCbOrRequestPermission;
+    } else if (typeof progressCbOrRequestPermission === 'function') {
+      progressCb = progressCbOrRequestPermission;
+    }
+
+    if (typeof maybeProgressCb === 'function') {
+      progressCb = maybeProgressCb;
+    }
+
+    const ok = await ensureHandlePermission(handle, requestPermissionIfNeeded);
     if (!ok) return [];
 
     const found = [];
@@ -105268,8 +105397,13 @@ function makeVideoMissingPosterCandidates(code) {
     result.push(src);
   };
 
-  // 사용자가 요청한 품번.jpg를 반드시 최우선으로 둔다.
-  add(exactLocal);
+  // v873: GitHub Pages에는 Posters 폴더가 없으므로 온라인에서는 이 상대경로를 생략.
+  const skipRelativePosterHttpV873 =
+    typeof window.viewerIsGitHubOnlineV873 === 'function' &&
+    window.viewerIsGitHubOnlineV873();
+  if (!skipRelativePosterHttpV873) {
+    add(exactLocal);
+  }
 
   // 기존 포스터 체계와 호환되도록 _Poster / _Capture 등 다른 로컬 후보도
   // 온라인보다 먼저 확인한다. 이후 DMM/Fourhoi 온라인 fallback.
@@ -118082,6 +118216,23 @@ function setContentMode(mode) {
     VIDEO_MODE_KEY,
     contentMode
   );
+
+  if (contentMode === 'comic') {
+    // v873: 시작 때 미뤘던 만화 초기화는 실제 만화 탭 진입 시에만 수행.
+    try { window.viewerAllowComicInitV873?.(); } catch (_) {}
+    try {
+      const p = window.restoreComicRootsOnDemandV873?.();
+      if (p?.catch) p.catch(() => {});
+    } catch (_) {}
+    try {
+      setTimeout(() => {
+        try {
+          const p = window.runComicStartupAutoDetectV873?.();
+          if (p?.catch) p.catch(() => {});
+        } catch (_) {}
+      }, 0);
+    } catch (_) {}
+  }
 
   updateContentModeUI();
 
@@ -142202,7 +142353,28 @@ function loadActressRailPhoto(
         return;
       }
 
-      const localCandidates = names.map(name => './Actors/' + encodeURIComponent(name) + '.jpg');
+      // v874: '한글 / English / 日本語'처럼 슬래시가 들어간 표시명을
+      // file:// 경로에 그대로 encode하면 %2F가 경로 구분자로 취급되어 ERR_INVALID_URL이 날 수 있다.
+      // 실제 파일명으로 가능한 개별 이름 후보만 분해해서 Actors 폴더를 확인한다.
+      const localNameCandidatesV874 = [];
+      const localNameSeenV874 = new Set();
+      for (const rawNameV874 of names) {
+        const parsedV874 =
+          typeof getActressPhotoNameCandidates === 'function'
+            ? getActressPhotoNameCandidates(rawNameV874)
+            : [];
+        const piecesV874 = parsedV874.length ? parsedV874 : [rawNameV874];
+        for (const pieceV874 of piecesV874) {
+          const safeNameV874 = String(pieceV874 || '').normalize('NFKC').trim();
+          if (!safeNameV874 || /[\\/]/.test(safeNameV874)) continue;
+          if (localNameSeenV874.has(safeNameV874)) continue;
+          localNameSeenV874.add(safeNameV874);
+          localNameCandidatesV874.push(safeNameV874);
+        }
+      }
+      const localCandidates = localNameCandidatesV874.map(
+        name => './Actors/' + encodeURIComponent(name) + '.jpg'
+      );
       const inlineUrls = getVideoDmmInlineActressPhotoUrls(names);
       let dmmUrls = [];
       try { dmmUrls = await getVideoDmmActressPhotoUrls(names); } catch (_) {}
@@ -167161,7 +167333,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 872;
+  const VIEWER_BUILD_V789 = 874;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -168167,11 +168339,25 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v838: JAVXXX 보안코드 2단계 검사 · 원본 품번을 Worker로 먼저 검사하고 exists:false일 때만 숫자/H_숫자 보안 prefix 제거 품번을 재검사 · 예 300MAAN-949 -> MAAN-949 · 제거 품번에서 확인되면 JAVXXX 보기 링크도 제거 품번 사용 · MissAV 품번 판정과 JAVXXX 판정을 분리 · 화면 빌드838 -->
 <!-- v859: 잠정/중복/중복보류/수동확정 모두 로컬 Posters/Scenes 후보를 건너뛰고 인덱스DB imageRef(i) 포스터를 우선 사용 -->
 
+<!-- v874: 기본 배경 흰색으로 통일 및 background4.jpg 요청 제거 · v873 만화 지연 복원 함수의 window 동일이름 덮어쓰기 재귀(Maximum call stack) 수정 · file://에서 PWA manifest를 연결하지 않아 CORS 오류 방지 · Cloudflare Web Analytics는 GitHub Pages 온라인에서만 로드 · 슬래시가 포함된 배우 표시명의 Actors 로컬사진 ERR_INVALID_URL 방지 · 화면/최신버전 빌드 874 갱신 -->
+<!-- v873: 영상 시작 시 만화 초기화 지연 · detectPadExt/본문 이미지 배치/만화 FS 자동스캔은 실제 만화 탭 진입 때만 실행 · scanComicFolderListUnified boolean/function 3번째 인자 호환 및 progressCb 오류 수정 · GitHub Pages에서 Posters 상대경로 HTTP 404 탐색 생략 · background4.jpg 온라인 404 방지 · 화면/최신버전 빌드 873 갱신 -->
 <!-- v872: Chrome 온라인 무한로딩 원인 후보인 v864 저장폴더 passive 권한확인 경로 수정 · 자동 카드 렌더에서 IDB/queryPermission/requestPermission 대기 제거 · 저장 DirectoryHandle은 백그라운드 RAM 워밍만 수행 · Scenes 읽기는 RAM 핸들 있을 때만 900ms 안전 제한으로 시도 후 즉시 다음 포스터 후보 진행 · 저장폴더 자동팝업 방지 유지 · 화면/최신버전 빌드 872 갱신 -->
 <!-- v871: Cloudflare Web Analytics 외부 module 비콘에 async 적용 · Analytics CDN 응답이 느리거나 차단돼도 DOMContentLoaded/영상 첫 리스트 렌더를 기다리게 하지 않도록 시작 경로와 분리 · token 69765bfdbee64f969d14f880db9b1eb1 유지 · 화면/최신버전 빌드 871 갱신 -->
 <!-- v870: Cloudflare Web Analytics 등록 재완료에 맞춰 비콘 token을 새 값으로 교체 · 기존 v869 token 제거 · 화면/최신버전 빌드 870 갱신 -->
 <!-- v869: GitHub Pages 접속 통계용 Cloudflare Web Analytics 비콘 추가 · Cloudflare 프록시를 거치지 않는 GitHub Pages에서도 index.html 접속 시 Web Analytics로 방문/페이지뷰 전송 · 화면/최신버전 빌드 869 갱신 -->
-<!-- Cloudflare Web Analytics · v871 non-blocking --><script async type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "69765bfdbee64f969d14f880db9b1eb1"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- Cloudflare Web Analytics · v874 GitHub-online only -->
+<script id="cloudflareAnalyticsLoaderV874">
+(() => {
+  if (!(location.protocol === 'https:' && location.hostname === 'darkmons77-gif.github.io')) return;
+  const beaconV874 = document.createElement('script');
+  beaconV874.type = 'module';
+  beaconV874.async = true;
+  beaconV874.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  beaconV874.setAttribute('data-cf-beacon', '{"token":"69765bfdbee64f969d14f880db9b1eb1"}');
+  document.head.appendChild(beaconV874);
+})();
+</script>
+<!-- End Cloudflare Web Analytics -->
 </body>
 
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
