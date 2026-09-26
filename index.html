@@ -41,7 +41,7 @@
 })();
 </script>
 
-<!-- v887: 최신버전 자동확인 시 새 버전 버튼 깜빡임을 최대 5분으로 제한 · 5분 뒤 자동으로 강조/깜빡임 해제 · 기존 자동확인/수동확인/다운로드 동작 유지 -->
+<!-- v889: 최신버전 버튼을 한 번 클릭하면 해당 탭 세션에서 알림 확인 상태를 sessionStorage에 저장 · 같은 탭에서 새로고침해도 깜빡임을 다시 표시하지 않음 · 탭/창을 닫고 HTML을 다시 열면 새 세션으로 다시 자동확인/최대 1분 알림 · 기존 자동확인/다운로드 동작 유지 -->
 <!-- v885: 공유 태그매치 화면 문구 정리 · 서버기록→태그기록 · 공유영상→공유태그 · D1 내부구조 설명 제거 -->
 <!-- v884: 성인확인을 생년월일 입력 대신 만19세 이상 예/아니오 자기확인으로 단순화 · 고정태그/태그매치/메타검색/분석/썸네일이 하나의 공통 성인확인 상태를 공유 · 셋 중 한 기능에서 예를 누르면 이후 모두 사용 가능 -->
 <!-- v878: 로컬(file://) 웹뷰어 실행을 한국 날짜 기준 하루 1회만 Cloudflare Worker에 집계 -->
@@ -10636,7 +10636,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드887) 모드 : </span>
+<span>버전 4.1(빌드889) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12381,7 +12381,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드887) 모드 :</span>
+        <span>버전 4.1(빌드889) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -168704,7 +168704,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 887;
+  const VIEWER_BUILD_V789 = 889;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -168870,8 +168870,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     });
   }
 
-  // v887: 시작 시 자동 확인 결과를 두 곳의 "최신버전" 버튼에 표시한다.
-  // 새 버전이 있으면 최대 5분 동안만 깜빡이고 이후 자동으로 강조를 해제한다.
+  // v888: 시작 시 자동 확인 결과를 두 곳의 "최신버전" 버튼에 표시한다.
+  // 새 버전이 있으면 최대 1분 동안만 깜빡이고, 최신버전 버튼을 누르면 즉시 강조를 해제한다.
   function ensureViewerLatestBlinkStyleV886(){
     if (document.getElementById('viewerLatestBlinkStyleV886')) return;
     const style = document.createElement('style');
@@ -168899,6 +168899,17 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   }
 
   let viewerLatestBlinkTimerV887 = null;
+  const VIEWER_LATEST_SESSION_ACK_KEY_V889 = 'viewer_latest_ack_session_v889';
+
+  function isViewerLatestSessionAcknowledgedV889(){
+    try { return sessionStorage.getItem(VIEWER_LATEST_SESSION_ACK_KEY_V889) === '1'; }
+    catch (_) { return false; }
+  }
+
+  function markViewerLatestSessionAcknowledgedV889(){
+    try { sessionStorage.setItem(VIEWER_LATEST_SESSION_ACK_KEY_V889, '1'); } catch (_) {}
+    stopViewerLatestBlinkV887();
+  }
 
   function stopViewerLatestBlinkV887(){
     if (viewerLatestBlinkTimerV887) {
@@ -168913,13 +168924,16 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   function setViewerLatestBlinkV886(info){
     const latest = Math.max(0, Number(info?.version) || 0);
     const hasUpdate = latest > VIEWER_BUILD_V789;
+    // v889: 사용자가 이 탭에서 최신버전 버튼을 한 번 눌렀다면 새로고침 뒤에도
+    // 자동 확인은 계속하되 깜빡임 알림만 다시 시작하지 않는다.
+    const shouldBlink = hasUpdate && !isViewerLatestSessionAcknowledgedV889();
     ensureViewerLatestBlinkStyleV886();
     stopViewerLatestBlinkV887();
 
     ['viewerLatestVersionBtnWt', 'viewerLatestVersionBtn'].forEach(id => {
       const btn = document.getElementById(id);
       if (!btn) return;
-      btn.classList.toggle('viewerLatestUpdateBlinkV886', hasUpdate);
+      btn.classList.toggle('viewerLatestUpdateBlinkV886', shouldBlink);
       if (hasUpdate) {
         btn.dataset.viewerLatestAvailableV886 = String(latest);
         btn.title = '새 웹뷰어 v' + latest + '이 있습니다. 클릭하면 확인/다운로드할 수 있습니다.';
@@ -168929,15 +168943,15 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
       }
     });
 
-    // v887: 새 버전 알림은 처음 5분 동안만 깜빡이고 이후 자동으로 평상시 표시로 돌아간다.
+    // v888: 새 버전 알림은 처음 1분 동안만 깜빡이고 이후 자동으로 평상시 표시로 돌아간다.
     // 최신 버전 정보(dataset/title)는 남겨 두므로 버튼을 클릭하면 기존 확인/다운로드 기능은 그대로 동작한다.
-    if (hasUpdate) {
+    if (shouldBlink) {
       viewerLatestBlinkTimerV887 = setTimeout(() => {
         viewerLatestBlinkTimerV887 = null;
         ['viewerLatestVersionBtnWt', 'viewerLatestVersionBtn'].forEach(id => {
           document.getElementById(id)?.classList.remove('viewerLatestUpdateBlinkV886');
         });
-      }, 5 * 60 * 1000);
+      }, 60 * 1000);
     }
   }
 
@@ -168955,11 +168969,17 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     try {
       const info = await fetchViewerLatestInfoV789();
       const currentName = currentViewerFileNameV788();
-      setViewerLatestBlinkV886(info);
+      if (manual) {
+        // v889: 사용자가 최신버전 버튼을 누르면 이 탭 세션에서 확인한 것으로 저장한다.
+        // sessionStorage이므로 같은 탭 새로고침에는 유지되고 탭/창 종료 시 사라진다.
+        markViewerLatestSessionAcknowledgedV889();
+      } else {
+        setViewerLatestBlinkV886(info);
+      }
 
       if (info.version > VIEWER_BUILD_V789) {
-        // v887: 자동 확인은 새 버전 존재를 최대 5분간 깜빡임으로 알린다.
-        // 사용자가 최신버전 버튼을 눌렀을 때만 기존 다운로드 안내창을 연다.
+        // v888: 자동 확인은 새 버전 존재를 최대 1분간 깜빡임으로 알린다.
+        // 사용자가 최신버전 버튼을 누르면 알림은 즉시 꺼지고 기존 다운로드 안내창을 연다.
         if (!manual) return;
         const ok = await showViewerUpdateDialogV789({
           title: '웹뷰어 새 버전이 있습니다',
@@ -169028,7 +169048,12 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
       const btn = document.getElementById(id);
       if (!btn || btn.dataset.viewerLatestBoundV789 === '1') return;
       btn.dataset.viewerLatestBoundV789 = '1';
-      btn.addEventListener('click', () => runViewerLatestCheckV789({ manual:true, button:btn }));
+      btn.addEventListener('click', () => {
+        // v889: 클릭 즉시 이번 탭 세션의 알림을 확인 처리한다.
+        // 네트워크 확인 전에도 깜빡임을 끄며, 같은 탭에서 F5해도 다시 깜빡이지 않는다.
+        markViewerLatestSessionAcknowledgedV889();
+        runViewerLatestCheckV789({ manual:true, button:btn });
+      });
     });
   }
 
@@ -169286,8 +169311,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     bindViewerPwaInstallButtonsV804();
     registerViewerPwaServiceWorkerV804();
 
-    // v887: HTML을 열면 실행 위치(file:// / GitHub Pages)에 관계없이 최신버전을 자동 확인한다.
-    // 새 버전이 있어도 자동 팝업은 띄우지 않고 "최신버전" 버튼을 최대 5분 동안만 깜빡이게 한다.
+    // v888: HTML을 열면 실행 위치(file:// / GitHub Pages)에 관계없이 최신버전을 자동 확인한다.
+    // 새 버전이 있어도 자동 팝업은 띄우지 않고 "최신버전" 버튼을 최대 1분 동안만 깜빡이게 한다.
     setTimeout(() => runViewerLatestCheckV789({ manual:false }), 2500);
   }
 
@@ -169779,6 +169804,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v881: 장면 태그창에 '태그 관리' 추가 · 기존 태그의 사용 장면 수 표시 · 기존 태그→고정태그/사용자태그 일괄 이름변경 · 대상 태그가 이미 같은 장면에 있으면 중복 제거 · 개인 sceneTag 월드컵 전적 id/tag까지 함께 이전/병합 · 공유 서버의 이미 업로드된 과거 태그는 자동 변경하지 않음 · 화면/최신버전 빌드 881 갱신 -->
 <!-- v883: 고정 장면태그와 개인/공유 태그매치에 성인확인 추가 · 생년월일로 오늘 기준 만19세 판정 · 생년월일 원문은 저장/전송하지 않고 통과 여부/확인시각만 localStorage 저장 · 미인증 상태에서도 사용자태그 직접입력/사용 가능 · 고정태그 분류는 잠금표시 후 확인 시 해제 · 첫 태그창 자동확인은 1회만 안내하고 취소 후 수동 재확인 가능 · 설정에 성인확인 상태/초기화 추가 · 화면/최신버전 빌드 883 갱신 -->
 <!-- v884: 성인확인을 생년월일 입력 대신 “만 19세 이상 성인이 맞습니까?” 예/아니오 방식으로 단순화 · 고정태그/태그매치/메타검색/분석/전체썸네일 생성이 동일한 성인확인 상태를 공유 · 어느 기능에서든 예를 한 번 선택하면 이후 모두 재확인 없이 사용 · 아니오는 해당 기능 진입만 취소 · 설정 초기화 시 다시 확인 · 화면/최신버전 빌드 884 갱신 -->
+<!-- v889: 최신버전 버튼 클릭 시 sessionStorage에 이번 탭 세션 확인 상태 저장 · 같은 탭 새로고침에서는 최신버전 자동확인은 수행하되 깜빡임 재표시 안 함 · 탭/창 종료 후 HTML을 다시 열면 새 세션에서 다시 최대 1분 알림 · 화면/최신버전 빌드 889 갱신 -->
+<!-- v888: 최신버전 자동확인의 붉은 깜빡임을 1분으로 단축 · 상단/기능창 최신버전 버튼을 한 번 클릭하면 즉시 깜빡임/강조 해제 · 수동 확인 중에는 알림을 재시작하지 않음 · 화면/최신버전 빌드 888 갱신 -->
 <!-- v887: 최신버전 자동확인의 붉은 깜빡임을 5분으로 제한 · 5분 경과 후 상단/기능창 최신버전 버튼의 깜빡임/강조를 자동 해제 · 최신버전 확인/다운로드 기능은 그대로 유지 · 화면/최신버전 빌드 887 갱신 -->
 <!-- v886: HTML 시작 2.5초 후 GitHub version.json 자동확인 · 최신 버전이 현재 빌드보다 높으면 상단/기능창의 최신버전 버튼이 붉게 깜빡임 · 자동 확인은 팝업 없이 표시만 하고 버튼 클릭 시 기존 최신버전 다운로드 안내 · file://와 GitHub Pages 모두 자동확인 · 화면/최신버전 빌드 886 갱신 -->
 <!-- v885: 공유 태그매치의 사용자 노출 문구에서 서버/D1 기록 표현을 제거 · 서버기록→태그기록 · 공유영상→공유태그 · 내부 데이터 수집처럼 보이는 안내문 삭제 · 화면/최신버전 빌드 885 갱신 -->
