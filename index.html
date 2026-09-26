@@ -41,7 +41,11 @@
 })();
 </script>
 
+<!-- v884: 성인확인을 생년월일 입력 대신 만19세 이상 예/아니오 자기확인으로 단순화 · 고정태그/태그매치/메타검색/분석/썸네일이 하나의 공통 성인확인 상태를 공유 · 셋 중 한 기능에서 예를 누르면 이후 모두 사용 가능 -->
 <!-- v878: 로컬(file://) 웹뷰어 실행을 한국 날짜 기준 하루 1회만 Cloudflare Worker에 집계 -->
+<!-- v879: 장면 태그창 고정 분류 태그 추가 · 분류 접기/펼치기 · 괄호 설명 분리 · 태그창 확대 -->
+<!-- v881: 장면 태그 일괄 이름변경 관리 추가 · 기존 태그→고정/사용자 태그 모두 변경 가능 · 장면 태그와 개인 태그매치 전적 동시 이전 · 대상 태그 중복 자동 병합 -->
+<!-- v880: 태그 분류를 배우월처럼 상단 분류명 클릭 → 아래 전체폭 태그목록 표시 방식으로 변경 · 기존 태그→사용자태그 · 태그 글자 확대 -->
 <script id="viewerLocalDailyRunV878">
 (() => {
   'use strict';
@@ -10630,7 +10634,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드878) 모드 : </span>
+<span>버전 4.1(빌드881) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -11856,6 +11860,17 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   >포스터 하단</button>
 </div>
 
+<span>성인확인:</span>
+<div id="videoAdultVerificationBox">
+  <button
+    class="zoomBtn"
+    id="videoAdultVerificationResetBtn"
+    type="button"
+    title="고정태그·태그매치·메타검색·분석·썸네일의 공통 성인확인 상태를 초기화"
+  >성인확인 초기화</button>
+  <span id="videoAdultVerificationStatus" style="margin-left:7px;font-size:11px;color:#9aa7b8;">미확인</span>
+</div>
+
 <span>포스터 글자:</span>
 <div id="videoPosterTextModeBox">
   <button
@@ -12272,6 +12287,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
     addCard(grids.video, directNode('videoAvdbsResidual45ModeBox'), 'AVDBS 잔여매칭', true);
     addCard(grids.video, directNode('videoActressBodyCalcWeightBox'), '체형 · 볼륨 가중치', true);
     addCard(grids.video, directNode('videoCareerRankPositionBox'), '월드컵 랭킹 표시');
+    addCard(grids.video, directNode('videoAdultVerificationBox'), '성인확인');
     addCard(grids.video, directNode('videoCenterPreviewWidthBox'), '미리보기 0 가로길이');
     addCard(grids.video, directNode('videoPreviewSubtitleBox'), '미리보기 자막');
 
@@ -12363,7 +12379,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드878) 모드 :</span>
+        <span>버전 4.1(빌드881) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -13916,7 +13932,7 @@ function init(){
   searchEl=$('vsa3Search');viewMinCount=$('vsa3ViewMinCount');viewMinScore=$('vsa3ViewMinScore');sortBy=$('vsa3SortBy');autoTranslateWorks=$('vsa3AutoTranslateWorks');translationStatus=$('vsa3TranslationStatus');
   if(!layer||!topBtn)return;
   loadRegistries();
-  topBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();layer.classList.contains('is-open')?closeLayer():openLayer()},true);
+  topBtn.addEventListener('click',async e=>{e.preventDefault();e.stopPropagation();if(layer.classList.contains('is-open')){closeLayer();return;}if(typeof requireVideoWorldCupAdultVerifiedV883==='function' && !(await requireVideoWorldCupAdultVerifiedV883()))return;openLayer()},true);
   analyzeBtn.addEventListener('click',startAnalysis);cancelBtn.addEventListener('click',cancelAnalysis);cacheResetBtn?.addEventListener('click',resetAnalyzerCache);closeBtn.addEventListener('click',closeLayer);
   const foldBtn=$('vsa3FoldBtn'),shell=layer.querySelector('.vsa3-shell');
   foldBtn?.addEventListener('click',()=>{
@@ -45191,14 +45207,56 @@ button.videoPosterBadgeLine:hover {
 .videoSceneWorldCupRankTag{flex:0 0 auto;border:1px solid rgba(255,156,218,.35);border-radius:6px;padding:3px 7px;background:#57334e;color:#ffd9f0;cursor:pointer;font-size:9px;font-weight:800;line-height:1.25}
 .videoSceneWorldCupRankTag:hover{filter:brightness(1.18)}
 
-#videoWorldCupSceneTagEditorLayer{position:fixed;inset:0;z-index:94000;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;background:rgba(0,0,0,.66);backdrop-filter:blur(4px)}
+#videoWorldCupSceneTagEditorLayer{position:fixed;inset:0;z-index:94000;display:none;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;background:rgba(0,0,0,.66);backdrop-filter:blur(4px)}
 #videoWorldCupSceneTagEditorLayer.is-visible{display:flex}
-.videoWorldCupSceneTagEditorPanel{width:min(560px,calc(100vw - 36px));padding:16px;box-sizing:border-box;border:1px solid rgba(255,139,217,.50);border-radius:14px;background:linear-gradient(180deg,#191824,#0e1119);color:#fff;box-shadow:0 24px 70px rgba(0,0,0,.8),0 0 30px rgba(255,90,199,.08)}
-.videoWorldCupSceneTagEditorHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.videoWorldCupSceneTagEditorTitle{font-size:15px;font-weight:900;color:#ffb9e3}.videoWorldCupSceneTagEditorClose{width:30px;height:30px;border:0;border-radius:8px;background:#393846;color:#fff;cursor:pointer;font-size:17px}
+/* v879: 고정 태그 분류를 넣기 위해 태그창을 넓히고 내부 스크롤로 정리 */
+.videoWorldCupSceneTagEditorPanel{width:min(920px,calc(100vw - 30px));max-height:min(88vh,860px);overflow:auto;padding:17px 18px;box-sizing:border-box;border:1px solid rgba(255,139,217,.50);border-radius:14px;background:linear-gradient(180deg,#191824,#0e1119);color:#fff;box-shadow:0 24px 70px rgba(0,0,0,.8),0 0 30px rgba(255,90,199,.08)}
+.videoWorldCupSceneTagEditorHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.videoWorldCupSceneTagEditorTitle{font-size:16px;font-weight:900;color:#ffb9e3}.videoWorldCupSceneTagEditorClose{width:30px;height:30px;border:0;border-radius:8px;background:#393846;color:#fff;cursor:pointer;font-size:17px}
 .videoWorldCupSceneTagEditorScene{margin-top:7px;color:#8fa2ba;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.videoWorldCupSceneTagEditorField{margin-top:12px}.videoWorldCupSceneTagEditorField label{display:block;margin-bottom:5px;color:#b8c2d0;font-size:11px;font-weight:700}.videoWorldCupSceneTagEditorField textarea{width:100%;min-height:86px;resize:vertical;box-sizing:border-box;border:1px solid #4a4557;border-radius:9px;padding:9px 10px;background:#090c13;color:#fff;outline:none;font-size:12px;line-height:1.55}.videoWorldCupSceneTagEditorField textarea:focus{border-color:#e579c2;box-shadow:0 0 0 3px rgba(229,121,194,.10)}
-.videoWorldCupSceneTagEditorSuggest{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.videoWorldCupSceneTagSuggestBtn{border:1px solid rgba(255,159,218,.24);border-radius:999px;background:rgba(93,48,80,.35);color:#e8bdd9;padding:4px 8px;cursor:pointer;font-size:9px}.videoWorldCupSceneTagSuggestBtn:hover{background:rgba(130,55,105,.55)}
+.videoWorldCupSceneTagEditorField{margin-top:12px}.videoWorldCupSceneTagEditorField label{display:block;margin-bottom:5px;color:#b8c2d0;font-size:11px;font-weight:700}.videoWorldCupSceneTagEditorField textarea{width:100%;min-height:72px;resize:vertical;box-sizing:border-box;border:1px solid #4a4557;border-radius:9px;padding:9px 10px;background:#090c13;color:#fff;outline:none;font-size:12px;line-height:1.55}.videoWorldCupSceneTagEditorField textarea:focus{border-color:#e579c2;box-shadow:0 0 0 3px rgba(229,121,194,.10)}
+.videoWorldCupSceneTagEditorSuggest{display:block;margin-top:10px}
+/* v880: 배우월처럼 분류명을 먼저 나열하고, 선택한 분류의 태그만 아래 전체 폭에 펼친다. */
+.videoWorldCupSceneTagCategoryBar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:2px 0 4px}
+.videoWorldCupSceneTagCategoryBtn{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.035);color:#e7ddea;padding:7px 10px;cursor:pointer;font-size:12px;font-weight:900;line-height:1.15;user-select:none}
+.videoWorldCupSceneTagCategoryBtn:hover{background:rgba(255,255,255,.075);border-color:rgba(255,183,225,.34)}
+.videoWorldCupSceneTagCategoryBtn.is-active{background:linear-gradient(135deg,rgba(155,55,120,.78),rgba(82,65,157,.78));border-color:rgba(255,197,233,.68);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.videoWorldCupSceneTagCategoryCount{font-size:9px;font-weight:700;color:#9fa9b8}
+.videoWorldCupSceneTagCategoryBtn.is-active .videoWorldCupSceneTagCategoryCount{color:#ffd9ef}
+.videoWorldCupSceneTagCategoryContent{margin-top:7px;min-height:42px}
+.videoWorldCupSceneTagSuggestGroup{border:1px solid rgba(255,159,218,.24);border-radius:11px;background:rgba(255,255,255,.025);overflow:hidden;min-width:0}
+.videoWorldCupSceneTagSuggestGroupHead{display:flex;align-items:center;gap:7px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:#f1e5ee;font-size:12px;font-weight:900}
+.videoWorldCupSceneTagSuggestCount{font-size:9px;font-weight:600;color:#9aa7b8}
+.videoWorldCupSceneTagSuggestGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px;padding:9px}
+.videoWorldCupSceneTagSuggestBtn{min-width:0;min-height:42px;border:1px solid rgba(255,159,218,.24);border-radius:8px;background:rgba(93,48,80,.35);color:#efd4e5;padding:6px 8px;cursor:pointer;text-align:left;font-size:12px;font-weight:800;line-height:1.2;overflow:hidden}
+.videoWorldCupSceneTagSuggestBtn:hover{background:rgba(130,55,105,.55);border-color:rgba(255,183,225,.46)}
+.videoWorldCupSceneTagSuggestBtn.is-selected{background:linear-gradient(135deg,rgba(187,63,139,.75),rgba(91,68,170,.75));border-color:rgba(255,205,238,.78);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.videoWorldCupSceneTagSuggestLabel{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.videoWorldCupSceneTagSuggestDesc{display:block;margin-top:3px;color:#9eabbc;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.videoWorldCupSceneTagSuggestBtn.is-selected .videoWorldCupSceneTagSuggestDesc{color:#f1cfe5}
+.videoWorldCupSceneTagEditorHint{color:#8492a5;font-size:10px;line-height:1.4;padding:0 2px 5px}
+.videoWorldCupSceneTagCategoryEmpty{display:flex;align-items:center;justify-content:center;min-height:42px;border:1px dashed rgba(255,255,255,.10);border-radius:9px;color:#7f8c9e;font-size:10px;background:rgba(255,255,255,.015)}
 .videoWorldCupSceneTagEditorActions{display:flex;justify-content:flex-end;gap:7px;margin-top:13px}.videoWorldCupSceneTagEditorActions button{min-width:74px;border:0;border-radius:8px;padding:7px 11px;color:#fff;cursor:pointer;font-size:11px;font-weight:800}.videoWorldCupSceneTagEditorCancel{background:#414652}.videoWorldCupSceneTagEditorSave{background:linear-gradient(135deg,#b64a91,#6552c6)}
+/* v881: 장면 태그 일괄 이름변경 */
+.videoWorldCupSceneTagManageBtn{margin-left:auto;border:1px solid rgba(255,184,226,.35);border-radius:8px;background:rgba(110,50,91,.42);color:#ffd6ee;padding:6px 9px;cursor:pointer;font-size:11px;font-weight:900}.videoWorldCupSceneTagManageBtn:hover{background:rgba(148,65,116,.58)}
+.videoWorldCupSceneTagEditorHeadTools{display:flex;align-items:center;gap:7px}
+#videoWorldCupTagRenameLayer{position:fixed;inset:0;z-index:94500;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(0,0,0,.72);backdrop-filter:blur(5px)}
+#videoWorldCupTagRenameLayer.is-visible{display:flex}
+.videoWorldCupTagRenamePanel{width:min(620px,calc(100vw - 32px));max-height:86vh;overflow:auto;border:1px solid rgba(255,155,218,.5);border-radius:14px;background:linear-gradient(180deg,#1c1924,#0d1017);color:#fff;padding:17px;box-sizing:border-box;box-shadow:0 22px 70px rgba(0,0,0,.82)}
+.videoWorldCupTagRenameHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.videoWorldCupTagRenameTitle{font-size:16px;font-weight:900;color:#ffbae3}.videoWorldCupTagRenameClose{width:30px;height:30px;border:0;border-radius:8px;background:#393846;color:#fff;cursor:pointer;font-size:17px}
+.videoWorldCupTagRenameHint{margin-top:8px;color:#94a0b1;font-size:11px;line-height:1.5}.videoWorldCupTagRenameGrid{display:grid;grid-template-columns:1fr 36px 1fr;gap:8px;align-items:end;margin-top:14px}.videoWorldCupTagRenameField label{display:block;margin-bottom:5px;color:#c2c9d4;font-size:11px;font-weight:800}.videoWorldCupTagRenameField select,.videoWorldCupTagRenameField input{width:100%;height:36px;box-sizing:border-box;border:1px solid #4a4557;border-radius:8px;background:#090c13;color:#fff;padding:0 9px;font-size:12px;outline:none}.videoWorldCupTagRenameArrow{text-align:center;padding-bottom:8px;color:#ffb5df;font-size:18px;font-weight:900}
+.videoWorldCupTagRenameInfo{margin-top:10px;padding:9px 10px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.025);color:#b8c2cf;font-size:11px;line-height:1.45}.videoWorldCupTagRenameInfo strong{color:#ffd0ea}
+.videoWorldCupTagRenameActions{display:flex;justify-content:flex-end;gap:7px;margin-top:14px}.videoWorldCupTagRenameActions button{border:0;border-radius:8px;padding:8px 12px;color:#fff;cursor:pointer;font-size:11px;font-weight:900}.videoWorldCupTagRenameCancel{background:#414652}.videoWorldCupTagRenameApply{background:linear-gradient(135deg,#b64a91,#6552c6)}.videoWorldCupTagRenameApply:disabled{opacity:.45;cursor:not-allowed}
+.videoWorldCupSceneTagCategoryBtn.is-adult-locked{border-color:rgba(255,190,118,.34);background:rgba(92,64,29,.28);color:#e7cda6}
+.videoWorldCupSceneTagCategoryBtn.is-adult-locked:hover{border-color:rgba(255,204,139,.62);background:rgba(116,75,27,.42)}
+.videoWorldCupSceneTagAdultLocked{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px;padding:9px 11px;border:1px dashed rgba(255,191,112,.35);border-radius:9px;background:rgba(92,64,29,.16);color:#cbb798;font-size:11px;line-height:1.45}
+.videoWorldCupSceneTagAdultLocked button{flex:0 0 auto;border:1px solid rgba(255,203,139,.48);border-radius:8px;background:rgba(128,78,29,.58);color:#ffe7c2;padding:7px 10px;cursor:pointer;font-size:11px;font-weight:900}
+#videoWorldCupAdultVerifyLayer{position:fixed;inset:0;z-index:94900;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(0,0,0,.76);backdrop-filter:blur(5px)}
+#videoWorldCupAdultVerifyLayer.is-visible{display:flex}
+.videoWorldCupAdultVerifyPanel{width:min(460px,calc(100vw - 32px));border:1px solid rgba(255,185,226,.5);border-radius:14px;background:linear-gradient(180deg,#1c1924,#0d1017);color:#fff;padding:18px;box-sizing:border-box;box-shadow:0 24px 70px rgba(0,0,0,.84)}
+.videoWorldCupAdultVerifyTitle{font-size:17px;font-weight:900;color:#ffb9e3}.videoWorldCupAdultVerifyText{margin-top:9px;color:#c3cad5;font-size:12px;line-height:1.55}.videoWorldCupAdultVerifyText b{color:#fff}
+.videoWorldCupAdultVerifyField{margin-top:14px}.videoWorldCupAdultVerifyField label{display:block;margin-bottom:6px;color:#d7dce4;font-size:11px;font-weight:850}.videoWorldCupAdultVerifyField input{width:100%;height:40px;box-sizing:border-box;border:1px solid #4a4557;border-radius:9px;background:#090c13;color:#fff;padding:0 10px;font-size:13px;outline:none;color-scheme:dark}.videoWorldCupAdultVerifyField input:focus{border-color:#e579c2;box-shadow:0 0 0 3px rgba(229,121,194,.10)}
+.videoWorldCupAdultVerifyPrivacy{margin-top:8px;color:#8995a6;font-size:10px;line-height:1.45}.videoWorldCupAdultVerifyError{min-height:18px;margin-top:7px;color:#ff9eac;font-size:11px;font-weight:700}.videoWorldCupAdultVerifyActions{display:flex;justify-content:flex-end;gap:8px;margin-top:11px}.videoWorldCupAdultVerifyActions button{border:0;border-radius:8px;padding:8px 13px;color:#fff;cursor:pointer;font-size:11px;font-weight:900}.videoWorldCupAdultVerifyCancel{background:#414652}.videoWorldCupAdultVerifyConfirm{background:linear-gradient(135deg,#b64a91,#6552c6)}
+@media(max-width:720px){.videoWorldCupSceneTagEditorPanel{width:min(96vw,920px);max-height:92vh;padding:14px}.videoWorldCupSceneTagCategoryBtn{font-size:11px;padding:6px 8px}.videoWorldCupSceneTagSuggestGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.videoWorldCupSceneTagSuggestBtn,.videoWorldCupSceneTagSuggestLabel{font-size:11px}.videoWorldCupSceneTagSuggestDesc{font-size:9px}.videoWorldCupTagRenameGrid{grid-template-columns:1fr}.videoWorldCupTagRenameArrow{padding:0;transform:rotate(90deg)}}
 
 /* v331: 태그 랭킹을 포스터 랭킹과 같은 레이아웃으로 통일 */
 #videoWorldCupRankingLayer.worldcup-ranking-tag .videoWorldCupRankingPanel {
@@ -47713,6 +47771,9 @@ const VIDEO_WORK_BODY_POSTER_KEY = 'video_work_body_poster_v1';
   let videoWorldCupOptionPurpose = 'play'; // play | ranking
   const VIDEO_WORLD_CUP_SCENE_PRESETS_KEY = 'video_worldcup_scene_presets_v1';
   const VIDEO_WORLD_CUP_SCENE_TAGS_KEY = 'video_worldcup_scene_tags_v1';
+  const VIDEO_WORLD_CUP_ADULT_VERIFIED_KEY_V883 = 'video_worldcup_adult_verified_v1';
+  const VIDEO_WORLD_CUP_ADULT_VERIFIED_AT_KEY_V883 = 'video_worldcup_adult_verified_at_v1';
+  const VIDEO_WORLD_CUP_ADULT_PROMPTED_KEY_V883 = 'video_worldcup_adult_prompted_v1';
   // v839: 태그/태그매치 공유 테스트 (Cloudflare Worker + D1)
   const VIDEO_SHARE_API_BASE = 'https://avwikidb-proxy.darkmons77.workers.dev';
   const VIDEO_SHARE_UPLOAD_STATE_KEY = 'video_tag_share_upload_state_v1';
@@ -91340,6 +91401,11 @@ async function runVideoBulkSceneThumbs(event, options = {}) {
     const btn = document.getElementById('videoBulkSceneThumbBtn');
     if (btn) btn.textContent = '중지중';
     updateVideoBulkThumbProgressOverlay({ subText: '중지 요청됨 · 현재 프레임/파일 작업이 끝나면 멈춥니다.' });
+    return;
+  }
+
+  // v884: 전체 장면 썸네일 생성은 공통 성인확인 후 사용한다.
+  if (typeof requireVideoWorldCupAdultVerifiedV883 === 'function' && !(await requireVideoWorldCupAdultVerifiedV883())) {
     return;
   }
 
@@ -150629,7 +150695,7 @@ document
 
 document
   .getElementById('videoRangeViewBtn')
-  ?.addEventListener('click', event => {
+  ?.addEventListener('click', async event => {
     event.preventDefault();
     event.stopPropagation();
     // v697: 노모 규칙 리스트도 메타검색 계열 보기. 활성 중에는 이 버튼으로 바로 종료한다.
@@ -150643,6 +150709,10 @@ document
       deactivateVideoDmmWorkSearch({ render: true });
       syncVideoRangeViewUI();
       return;
+    }
+    // v884: 이미 메타검색이 열린 상태에서는 닫기는 언제든 허용하고, 새로 열 때만 공통 성인확인을 요구한다.
+    if (!videoRangeViewOn) {
+      if (typeof requireVideoWorldCupAdultVerifiedV883 === 'function' && !(await requireVideoWorldCupAdultVerifiedV883())) return;
     }
     toggleVideoRangeView();
   });
@@ -155157,6 +155227,415 @@ async function downloadVideoWorldCupSharedTagData() {
   }finally{setVideoWorldCupShareBusy(false);}
 }
 
+// v884: 고정태그/태그매치/메타검색/분석/썸네일은 하나의 공통 성인 자기확인을 공유한다.
+// 생년월일이나 주민번호는 받지 않고 "만 19세 이상 성인이 맞습니까?"에 예/아니오로만 확인한다.
+// 예를 한 번 선택하면 localStorage에는 통과 여부와 확인 시각만 저장하며 이후 모든 대상 기능을 공통 해제한다.
+let videoWorldCupAdultVerifyPromiseV883 = null;
+let videoWorldCupAdultVerifyResolveV883 = null;
+
+function isVideoWorldCupAdultVerifiedV883() {
+  try { return localStorage.getItem(VIDEO_WORLD_CUP_ADULT_VERIFIED_KEY_V883) === '1'; }
+  catch (_) { return false; }
+}
+
+function refreshVideoWorldCupAdultVerificationStatusV883() {
+  const el = document.getElementById('videoAdultVerificationStatus');
+  if (!el) return;
+  const verified = isVideoWorldCupAdultVerifiedV883();
+  el.textContent = verified ? '확인됨 · 만 19세 이상' : '미확인';
+  el.style.color = verified ? '#8fd6a7' : '#9aa7b8';
+}
+
+function resetVideoWorldCupAdultVerificationV883() {
+  try {
+    localStorage.removeItem(VIDEO_WORLD_CUP_ADULT_VERIFIED_KEY_V883);
+    localStorage.removeItem(VIDEO_WORLD_CUP_ADULT_VERIFIED_AT_KEY_V883);
+    localStorage.removeItem(VIDEO_WORLD_CUP_ADULT_PROMPTED_KEY_V883);
+  } catch (_) {}
+  refreshVideoWorldCupAdultVerificationStatusV883();
+  const editor = document.getElementById('videoWorldCupSceneTagEditorLayer');
+  if (editor?.classList.contains('is-visible')) {
+    const input = editor.querySelector('#videoWorldCupSceneTagEditorInput');
+    const suggest = editor.querySelector('#videoWorldCupSceneTagEditorSuggest');
+    if (suggest) renderVideoWorldCupSceneTagSuggestV880(suggest, input);
+  }
+  if (typeof showToast === 'function') showToast('성인확인 상태를 초기화했습니다.', 2300);
+}
+
+function closeVideoWorldCupAdultVerifyV883(result) {
+  const layer = document.getElementById('videoWorldCupAdultVerifyLayer');
+  layer?.classList.remove('is-visible');
+  const resolve = videoWorldCupAdultVerifyResolveV883;
+  videoWorldCupAdultVerifyResolveV883 = null;
+  if (resolve) resolve(!!result);
+}
+
+function ensureVideoWorldCupAdultVerifyLayerV883() {
+  let layer = document.getElementById('videoWorldCupAdultVerifyLayer');
+  if (layer) return layer;
+  layer = document.createElement('div');
+  layer.id = 'videoWorldCupAdultVerifyLayer';
+  layer.innerHTML = `
+    <div class="videoWorldCupAdultVerifyPanel" role="dialog" aria-modal="true" aria-labelledby="videoWorldCupAdultVerifyTitle">
+      <div class="videoWorldCupAdultVerifyTitle" id="videoWorldCupAdultVerifyTitle">성인 확인</div>
+      <div class="videoWorldCupAdultVerifyText" style="font-size:15px;line-height:1.6;margin-top:14px;color:#f1f3f7;"><b>만 19세 이상 성인이 맞습니까?</b></div>
+      <div class="videoWorldCupAdultVerifyPrivacy" style="font-size:11px;line-height:1.55;margin-top:10px;">예를 선택하면 고정태그·태그매치·메타검색·분석·썸네일 기능을 사용할 수 있습니다.<br>한 번 확인하면 이 브라우저에서는 다시 묻지 않습니다.</div>
+      <div class="videoWorldCupAdultVerifyActions" style="margin-top:18px;">
+        <button type="button" class="videoWorldCupAdultVerifyCancel" data-adult-verify-cancel>아니오</button>
+        <button type="button" class="videoWorldCupAdultVerifyConfirm" id="videoWorldCupAdultVerifyConfirm">예</button>
+      </div>
+    </div>`;
+  document.body.appendChild(layer);
+  layer.querySelectorAll('[data-adult-verify-cancel]').forEach(btn => btn.addEventListener('click', () => closeVideoWorldCupAdultVerifyV883(false)));
+  layer.addEventListener('mousedown', e => { if (e.target === layer) closeVideoWorldCupAdultVerifyV883(false); });
+  layer.querySelector('#videoWorldCupAdultVerifyConfirm')?.addEventListener('click', () => {
+    try {
+      localStorage.setItem(VIDEO_WORLD_CUP_ADULT_VERIFIED_KEY_V883, '1');
+      localStorage.setItem(VIDEO_WORLD_CUP_ADULT_VERIFIED_AT_KEY_V883, new Date().toISOString());
+      localStorage.setItem(VIDEO_WORLD_CUP_ADULT_PROMPTED_KEY_V883, '1');
+    } catch (_) {}
+    refreshVideoWorldCupAdultVerificationStatusV883();
+    const editor = document.getElementById('videoWorldCupSceneTagEditorLayer');
+    if (editor?.classList.contains('is-visible')) {
+      const input = editor.querySelector('#videoWorldCupSceneTagEditorInput');
+      const suggest = editor.querySelector('#videoWorldCupSceneTagEditorSuggest');
+      if (suggest) renderVideoWorldCupSceneTagSuggestV880(suggest, input);
+    }
+    if (typeof showToast === 'function') showToast('성인확인 완료 · 성인용 기능을 사용할 수 있습니다.', 2600);
+    closeVideoWorldCupAdultVerifyV883(true);
+  });
+  return layer;
+}
+
+async function requestVideoWorldCupAdultVerificationV883(options = {}) {
+  if (isVideoWorldCupAdultVerifiedV883()) return true;
+  const auto = !!options.auto;
+  if (auto) {
+    try {
+      if (localStorage.getItem(VIDEO_WORLD_CUP_ADULT_PROMPTED_KEY_V883) === '1') return false;
+      localStorage.setItem(VIDEO_WORLD_CUP_ADULT_PROMPTED_KEY_V883, '1');
+    } catch (_) {}
+  }
+  if (videoWorldCupAdultVerifyPromiseV883) return await videoWorldCupAdultVerifyPromiseV883;
+  const layer = ensureVideoWorldCupAdultVerifyLayerV883();
+  layer.classList.add('is-visible');
+  videoWorldCupAdultVerifyPromiseV883 = new Promise(resolve => {
+    videoWorldCupAdultVerifyResolveV883 = resolve;
+  }).finally(() => {
+    videoWorldCupAdultVerifyPromiseV883 = null;
+  });
+  requestAnimationFrame(() => layer.querySelector('#videoWorldCupAdultVerifyConfirm')?.focus?.());
+  return await videoWorldCupAdultVerifyPromiseV883;
+}
+
+async function requireVideoWorldCupAdultVerifiedV883() {
+  if (isVideoWorldCupAdultVerifiedV883()) return true;
+  return await requestVideoWorldCupAdultVerificationV883({ auto:false });
+}
+
+function bindVideoWorldCupAdultVerificationSettingsV883() {
+  const resetBtn = document.getElementById('videoAdultVerificationResetBtn');
+  if (resetBtn && !resetBtn.dataset.boundAdultV883) {
+    resetBtn.dataset.boundAdultV883 = '1';
+    resetBtn.addEventListener('click', () => {
+      if (!isVideoWorldCupAdultVerifiedV883()) {
+        try { localStorage.removeItem(VIDEO_WORLD_CUP_ADULT_PROMPTED_KEY_V883); } catch (_) {}
+        refreshVideoWorldCupAdultVerificationStatusV883();
+        if (typeof showToast === 'function') showToast('현재 성인확인 상태는 미확인입니다.', 2100);
+        return;
+      }
+      if (confirm('성인확인 상태를 초기화할까요?\n고정태그·태그매치·메타검색·분석·썸네일은 다시 성인확인이 필요합니다.')) {
+        resetVideoWorldCupAdultVerificationV883();
+      }
+    });
+  }
+  refreshVideoWorldCupAdultVerificationStatusV883();
+}
+
+bindVideoWorldCupAdultVerificationSettingsV883();
+
+// v879: 장면 태그 고정 카탈로그. 괄호 안 문구는 저장 태그가 아니라 설명으로만 표시한다.
+const VIDEO_WORLD_CUP_FIXED_TAG_GROUPS_V879 = Object.freeze([
+  {
+    key: 'caress', label: '애무종류', items: [
+      ['펠라치오',''], ['커닐링구스',''], ['이라마치오','머리잡고 깊이넣기'], ['더블펠라',''], ['진공펠라',''],
+      ['청소펠라',''], ['성기 애무',''], ['보지 애무',''], ['귀두 애무',''], ['음낭 애무',''], ['발 애무',''], ['가슴 애무',''],
+      ['귀 애무',''], ['애널 애무',''], ['겨드랑이 애무',''], ['목 애무',''], ['손가락 애무',''],
+      ['허리 애무',''], ['허벅지 애무',''], ['무릎 애무',''], ['머리잡기',''], ['목잡기',''],
+      ['스팽킹','체벌'], ['키스',''], ['딥키스',''], ['타액교환',''], ['침 뱉기',''], ['침 흘리기',''],
+      ['입술 빨기',''], ['혀 빨기','']
+    ]
+  },
+  {
+    key: 'position', label: '체위종류', items: [
+      ['정상위',''], ['굴곡위','정상위+여성다리들고'], ['교차위','가위'], ['교배프레스',''], ['기승위','마주보는 여성상위'],
+      ['역기승위','뒤돌아서 여성상위'], ['안면승마','남자얼굴 여성상위'], ['후배위',''], ['누워 후배위',''], ['서서 후배위',''],
+      ['대면입위','서서 정상위'], ['배면입위','서서 뒤치기'], ['대면좌위','마주보고 앉아'], ['배면좌위','뒤돌아서 앉아'],
+      ['전측위','마주보고 옆누워 안아'], ['후측위','뒤에서 옆누워 안아'], ['측와위','후측위+남자는 앉자'], ['69',''], ['들박','들어서 박기']
+    ]
+  },
+  {
+    key: 'rub', label: '비비기종류', items: [
+      ['스마타','성기 비비기'], ['허벅지잡','허벅지 비비기'], ['힙잡','엉덩이 비비기'],
+      ['와키코기','겨드랑이 비비기'], ['풋잡','발 비비기'], ['종아리잡',''], ['무릎잡',''],
+      ['핸드잡',''], ['파이즈리','가슴 비비기']
+    ]
+  },
+  {
+    key: 'finish', label: '사정관련', items: [
+      ['질싸','질내사정'], ['입싸',''], ['곳쿤','삼키기'], ['얼싸',''], ['붓카케',''], ['가슴사정',''],
+      ['배싸',''], ['등싸',''], ['발싸',''], ['머리카락싸',''], ['겨드랑이싸',''], ['허벅지싸',''],
+      ['애널사정',''], ['체외사정','']
+    ]
+  },
+  {
+    key: 'costume', label: '복장종류', items: [
+      ['여경',''], ['수사관',''], ['OL녀',''], ['비서',''], ['여교사',''], ['가정교사',''], ['여상사',''],
+      ['아나운서',''], ['간호사',''], ['여의사',''], ['치과',''], ['마사지',''], ['에스테틱',''],
+      ['스튜어디스',''], ['메이드',''], ['소프',''], ['핀살롱',''], ['세일러복',''], ['수영복',''],
+      ['체육복',''], ['부루마',''], ['치어리더',''], ['매니저',''], ['여대생',''], ['교복',''],
+      ['무녀',''], ['수녀',''], ['레이싱걸',''], ['바니걸',''], ['아이돌',''], ['제복','']
+    ]
+  },
+  {
+    key: 'etc', label: '그외', items: [
+      ['얼굴',''], ['표정',''], ['뒤태',''], ['전신',''], ['스타킹',''], ['속옷',''], ['벗기기',''],
+      ['코스프레',''], ['절정',''], ['시오후키',''], ['아헤가오',''], ['경련',''], ['실금',''], ['아이컨택',''],
+      ['키스마크',''], ['쓰리썸',''], ['포썸',''], ['난교',''], ['로터',''], ['바이브',''], ['덴마',''], ['페더','깃털']
+    ]
+  }
+]);
+
+function getVideoWorldCupFixedTagKeySetV879() {
+  const keys = new Set();
+  for (const group of VIDEO_WORLD_CUP_FIXED_TAG_GROUPS_V879) {
+    for (const item of group.items) {
+      const key = normalizeVideoWorldCupSceneTagKey(item?.[0] || '');
+      if (key) keys.add(key);
+    }
+  }
+  return keys;
+}
+
+function getVideoWorldCupSceneTagInputListV879(input) {
+  return String(input?.value || '')
+    .split(/[,\n]+/)
+    .map(normalizeVideoWorldCupSceneTagName)
+    .filter(Boolean);
+}
+
+function syncVideoWorldCupSceneTagSuggestSelectionV879(suggest, input) {
+  if (!suggest) return;
+  const selected = new Set(
+    getVideoWorldCupSceneTagInputListV879(input)
+      .map(normalizeVideoWorldCupSceneTagKey)
+      .filter(Boolean)
+  );
+  suggest.querySelectorAll('[data-scene-tag-key]').forEach(btn => {
+    btn.classList.toggle('is-selected', selected.has(String(btn.dataset.sceneTagKey || '')));
+  });
+}
+
+function toggleVideoWorldCupSceneTagInputV879(input, label) {
+  if (!input) return;
+  const wanted = normalizeVideoWorldCupSceneTagName(label);
+  const wantedKey = normalizeVideoWorldCupSceneTagKey(wanted);
+  if (!wantedKey) return;
+  const current = getVideoWorldCupSceneTagInputListV879(input);
+  const index = current.findIndex(v => normalizeVideoWorldCupSceneTagKey(v) === wantedKey);
+  if (index >= 0) current.splice(index, 1);
+  else current.push(wanted);
+  input.value = current.join(', ');
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.focus();
+}
+
+function buildVideoWorldCupSceneTagSuggestGroupV880(group, input, selectedKeys = new Set()) {
+  const panel = document.createElement('div');
+  panel.className = 'videoWorldCupSceneTagSuggestGroup';
+
+  const head = document.createElement('div');
+  head.className = 'videoWorldCupSceneTagSuggestGroupHead';
+  const title = document.createElement('span');
+  title.textContent = String(group?.label || '태그');
+  const count = document.createElement('span');
+  count.className = 'videoWorldCupSceneTagSuggestCount';
+  count.textContent = `${Array.isArray(group?.items) ? group.items.length : 0}개`;
+  head.append(title, count);
+  panel.appendChild(head);
+
+  const grid = document.createElement('div');
+  grid.className = 'videoWorldCupSceneTagSuggestGrid';
+
+  for (const item of (Array.isArray(group?.items) ? group.items : [])) {
+    const label = normalizeVideoWorldCupSceneTagName(item?.[0] || '');
+    const desc = String(item?.[1] || '').trim();
+    const key = normalizeVideoWorldCupSceneTagKey(label);
+    if (!key) continue;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'videoWorldCupSceneTagSuggestBtn';
+    btn.dataset.sceneTagKey = key;
+    btn.title = desc ? `${label} · ${desc}` : label;
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'videoWorldCupSceneTagSuggestLabel';
+    labelEl.textContent = label;
+    btn.appendChild(labelEl);
+
+    if (desc) {
+      const descEl = document.createElement('small');
+      descEl.className = 'videoWorldCupSceneTagSuggestDesc';
+      descEl.textContent = desc;
+      btn.appendChild(descEl);
+    }
+
+    if (selectedKeys.has(key)) btn.classList.add('is-selected');
+    btn.addEventListener('click', () => toggleVideoWorldCupSceneTagInputV879(input, label));
+    grid.appendChild(btn);
+  }
+
+  panel.appendChild(grid);
+  return panel;
+}
+
+function renderVideoWorldCupSceneTagSuggestV880(suggest, input, preferredGroupKey = '') {
+  if (!suggest) return;
+  suggest.innerHTML = '';
+
+  const verified = isVideoWorldCupAdultVerifiedV883();
+  const hint = document.createElement('div');
+  hint.className = 'videoWorldCupSceneTagEditorHint';
+  hint.textContent = verified
+    ? '배우월처럼 위 분류명을 누르면 아래에 해당 태그가 펼쳐집니다. 작은 글자는 설명이며 실제 태그에는 저장되지 않습니다.'
+    : '사용자태그는 바로 사용할 수 있습니다. 고정태그는 만 19세 이상 성인확인 후 표시·선택할 수 있습니다.';
+  suggest.appendChild(hint);
+
+  const selectedKeys = new Set(
+    getVideoWorldCupSceneTagInputListV879(input)
+      .map(normalizeVideoWorldCupSceneTagKey)
+      .filter(Boolean)
+  );
+
+  const groups = VIDEO_WORLD_CUP_FIXED_TAG_GROUPS_V879.map(group => ({
+    key: group.key,
+    label: group.label,
+    items: group.items,
+    requiresAdult: true
+  }));
+
+  // 직접 만든 태그 중 고정 카탈로그에 없는 것만 사용자태그 분류로 유지한다.
+  const fixedKeys = getVideoWorldCupFixedTagKeySetV879();
+  const customItems = getAllVideoWorldCupSceneTagNames()
+    .filter(label => !fixedKeys.has(normalizeVideoWorldCupSceneTagKey(label)))
+    .map(label => [label, '사용자가 직접 만든 태그']);
+
+  // 사용자태그는 비어 있어도 항상 보여서 미인증 상태에서도 직접 태그를 쓸 수 있음을 명확히 한다.
+  groups.push({ key: 'custom', label: '사용자태그', items: customItems, requiresAdult: false });
+
+  const bar = document.createElement('div');
+  bar.className = 'videoWorldCupSceneTagCategoryBar';
+  const content = document.createElement('div');
+  content.className = 'videoWorldCupSceneTagCategoryContent';
+
+  let activeKey = String(preferredGroupKey || '');
+  if (!groups.some(group => group.key === activeKey)) activeKey = '';
+
+  // 지정 분류가 없으면 이미 선택된 태그가 속한 첫 분류를 자동으로 펼친다.
+  if (!activeKey) {
+    for (const group of groups) {
+      const hasSelected = group.items.some(item => selectedKeys.has(normalizeVideoWorldCupSceneTagKey(item?.[0] || '')));
+      if (hasSelected) { activeKey = group.key; break; }
+    }
+  }
+
+  const renderActive = () => {
+    const nowVerified = isVideoWorldCupAdultVerifiedV883();
+    bar.querySelectorAll('.videoWorldCupSceneTagCategoryBtn').forEach(btn => {
+      btn.classList.toggle('is-active', String(btn.dataset.groupKey || '') === activeKey);
+      const g = groups.find(item => item.key === String(btn.dataset.groupKey || ''));
+      btn.classList.toggle('is-adult-locked', !!g?.requiresAdult && !nowVerified);
+    });
+    content.innerHTML = '';
+    const group = groups.find(g => g.key === activeKey);
+    if (!group) {
+      const empty = document.createElement('div');
+      empty.className = 'videoWorldCupSceneTagCategoryEmpty';
+      empty.textContent = '위에서 태그 분류를 선택하세요.';
+      content.appendChild(empty);
+      return;
+    }
+    if (group.requiresAdult && !nowVerified) {
+      const locked = document.createElement('div');
+      locked.className = 'videoWorldCupSceneTagAdultLocked';
+      const msg = document.createElement('span');
+      msg.textContent = '이 고정태그 분류는 만 19세 이상 성인확인 후 사용할 수 있습니다.';
+      const verifyBtn = document.createElement('button');
+      verifyBtn.type = 'button';
+      verifyBtn.textContent = '성인 확인';
+      verifyBtn.addEventListener('click', async () => {
+        const ok = await requireVideoWorldCupAdultVerifiedV883();
+        if (ok) renderVideoWorldCupSceneTagSuggestV880(suggest, input, group.key);
+      });
+      locked.append(msg, verifyBtn);
+      content.appendChild(locked);
+      return;
+    }
+    if (group.key === 'custom' && !group.items.length) {
+      const empty = document.createElement('div');
+      empty.className = 'videoWorldCupSceneTagCategoryEmpty';
+      empty.textContent = '아직 저장된 사용자태그가 없습니다. 위 입력칸에 원하는 태그를 직접 입력할 수 있습니다.';
+      content.appendChild(empty);
+      return;
+    }
+    content.appendChild(buildVideoWorldCupSceneTagSuggestGroupV880(group, input, new Set(
+      getVideoWorldCupSceneTagInputListV879(input)
+        .map(normalizeVideoWorldCupSceneTagKey)
+        .filter(Boolean)
+    )));
+  };
+
+  for (const group of groups) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'videoWorldCupSceneTagCategoryBtn';
+    btn.dataset.groupKey = group.key;
+    if (group.requiresAdult && !verified) btn.classList.add('is-adult-locked');
+
+    const label = document.createElement('span');
+    label.textContent = `${group.requiresAdult && !verified ? '🔒 ' : ''}${group.label}`;
+    const count = document.createElement('span');
+    count.className = 'videoWorldCupSceneTagCategoryCount';
+    count.textContent = group.requiresAdult && !verified ? '성인' : `${group.items.length}`;
+    btn.append(label, count);
+
+    btn.addEventListener('click', async () => {
+      // 같은 분류를 다시 누르면 배우월의 확장영역처럼 접을 수 있다.
+      if (activeKey === group.key) {
+        activeKey = '';
+        renderActive();
+        return;
+      }
+      activeKey = group.key;
+      renderActive();
+      if (group.requiresAdult && !isVideoWorldCupAdultVerifiedV883()) {
+        const ok = await requireVideoWorldCupAdultVerifiedV883();
+        if (ok) renderVideoWorldCupSceneTagSuggestV880(suggest, input, group.key);
+      }
+    });
+    bar.appendChild(btn);
+  }
+
+  suggest.append(bar, content);
+  renderActive();
+
+  if (input) {
+    input.oninput = () => syncVideoWorldCupSceneTagSuggestSelectionV879(suggest, input);
+  }
+  syncVideoWorldCupSceneTagSuggestSelectionV879(suggest, input);
+}
+
 function normalizeVideoWorldCupSceneTagName(value) {
   return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 24);
 }
@@ -155225,6 +155704,255 @@ function setVideoWorldCupSceneTags(entry, tags) {
   saveVideoWorldCupSceneTagMap(map);
   return unique;
 }
+
+// v881: 사용자가 과거에 붙인 장면 태그명을 전체 일괄 변경한다.
+// 장면 태그맵뿐 아니라 개인 태그매치(sceneTag) 전적 id/tag도 함께 이전해서 랭킹 기록을 보존한다.
+function getVideoWorldCupSceneTagUsageCountsV881() {
+  const map = loadVideoWorldCupSceneTagMap();
+  const counts = new Map();
+  for (const row of Object.values(map || {})) {
+    const seen = new Set();
+    for (const raw of Array.isArray(row?.tags) ? row.tags : []) {
+      const label = normalizeVideoWorldCupSceneTagName(raw);
+      const key = normalizeVideoWorldCupSceneTagKey(label);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      const old = counts.get(key);
+      if (old) old.count += 1;
+      else counts.set(key, { key, label, count: 1 });
+    }
+  }
+  return counts;
+}
+
+function getVideoWorldCupAllTagSuggestionsV881() {
+  const map = new Map();
+  const fixedKeys = getVideoWorldCupFixedTagKeySetV879();
+  const verified = isVideoWorldCupAdultVerifiedV883();
+  if (verified) {
+    for (const group of VIDEO_WORLD_CUP_FIXED_TAG_GROUPS_V879) {
+      for (const item of Array.isArray(group?.items) ? group.items : []) {
+        const label = normalizeVideoWorldCupSceneTagName(item?.[0] || '');
+        const key = normalizeVideoWorldCupSceneTagKey(label);
+        if (key && !map.has(key)) map.set(key, label);
+      }
+    }
+  }
+  for (const label of getAllVideoWorldCupSceneTagNames()) {
+    const key = normalizeVideoWorldCupSceneTagKey(label);
+    // 미인증 상태에서는 시스템 고정태그 이름을 추천목록에서도 노출하지 않는다.
+    // 사용자가 직접 만든 일반 태그는 그대로 유지한다.
+    if (!verified && fixedKeys.has(key)) continue;
+    if (key && !map.has(key)) map.set(key, label);
+  }
+  return Array.from(map.values()).sort((a,b)=>a.localeCompare(b,'ko',{numeric:true,sensitivity:'base'}));
+}
+
+function mergeVideoWorldCupTagStatRowsV881(a, b, id, tag, sceneKey) {
+  if (!a) return { ...b, id, kind:'sceneTag', tag, sceneKey, updatedAt:Math.max(Number(b?.updatedAt)||0,Date.now()) };
+  if (!b) return { ...a, id, kind:'sceneTag', tag, sceneKey, updatedAt:Math.max(Number(a?.updatedAt)||0,Date.now()) };
+  const newer = (Number(b?.updatedAt)||0) >= (Number(a?.updatedAt)||0) ? b : a;
+  const older = newer === b ? a : b;
+  return {
+    ...older, ...newer, id, kind:'sceneTag', tag, sceneKey,
+    matches:(Number(a?.matches)||0)+(Number(b?.matches)||0),
+    wins:(Number(a?.wins)||0)+(Number(b?.wins)||0),
+    losses:(Number(a?.losses)||0)+(Number(b?.losses)||0),
+    tournaments:(Number(a?.tournaments)||0)+(Number(b?.tournaments)||0),
+    championships:(Number(a?.championships)||0)+(Number(b?.championships)||0),
+    updatedAt:Math.max(Number(a?.updatedAt)||0,Number(b?.updatedAt)||0,Date.now())
+  };
+}
+
+async function renameVideoWorldCupSceneTagEverywhereV881(fromName, toName) {
+  const fromLabel = normalizeVideoWorldCupSceneTagName(fromName);
+  const toLabel = normalizeVideoWorldCupSceneTagName(toName);
+  const fromKey = normalizeVideoWorldCupSceneTagKey(fromLabel);
+  const toKey = normalizeVideoWorldCupSceneTagKey(toLabel);
+  if (!fromKey || !toKey) throw new Error('변경 전/후 태그명을 입력하세요.');
+  if (fromKey === toKey) throw new Error('변경 전과 변경 후 태그가 같습니다.');
+
+  const map = loadVideoWorldCupSceneTagMap();
+  let changedScenes = 0;
+  let mergedSceneTags = 0;
+  const changedSceneKeys = new Set();
+
+  for (const [sceneKey, row] of Object.entries(map || {})) {
+    const original = Array.isArray(row?.tags) ? row.tags : [];
+    if (!original.some(v => normalizeVideoWorldCupSceneTagKey(v) === fromKey)) continue;
+    const next = [];
+    const seen = new Set();
+    let hadTarget = false;
+    for (const raw of original) {
+      let label = normalizeVideoWorldCupSceneTagName(raw);
+      let key = normalizeVideoWorldCupSceneTagKey(label);
+      if (!key) continue;
+      if (key === toKey) hadTarget = true;
+      if (key === fromKey) { label = toLabel; key = toKey; }
+      if (seen.has(key)) { mergedSceneTags++; continue; }
+      seen.add(key);
+      next.push(label);
+    }
+    if (hadTarget) mergedSceneTags++;
+    row.tags = next;
+    row.updatedAt = Date.now();
+    changedScenes++;
+    changedSceneKeys.add(String(sceneKey));
+  }
+  if (!changedScenes) throw new Error(`'${fromLabel}' 태그가 붙은 장면이 없습니다.`);
+  saveVideoWorldCupSceneTagMap(map);
+
+  // 개인 태그매치 전적의 id에는 태그 key가 들어가므로 함께 이전한다.
+  let movedStats = 0;
+  let mergedStats = 0;
+  const db = await openVideoWorldCupDb();
+  try {
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(VIDEO_WORLD_CUP_STATS_STORE, 'readwrite');
+      const store = tx.objectStore(VIDEO_WORLD_CUP_STATS_STORE);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        const all = Array.isArray(req.result) ? req.result : [];
+        const byId = new Map(all.filter(r=>r&&r.id).map(r=>[String(r.id),r]));
+        const oldRows = all.filter(row => {
+          const id = String(row?.id || '');
+          const kind = String(row?.kind || '');
+          return (kind === 'sceneTag' || id.startsWith('sceneTag:')) && normalizeVideoWorldCupSceneTagKey(row?.tag) === fromKey;
+        });
+        for (const oldRow of oldRows) {
+          const oldId = String(oldRow?.id || '');
+          let sceneKey = String(oldRow?.sceneKey || '').trim();
+          if (!sceneKey && oldId.startsWith(`sceneTag:${fromKey}:`)) sceneKey = oldId.slice(`sceneTag:${fromKey}:`.length);
+          if (!sceneKey) continue;
+          const newId = `sceneTag:${toKey}:${sceneKey}`;
+          const existing = byId.get(newId) || null;
+          const changed = { ...oldRow, id:newId, kind:'sceneTag', tag:toLabel, sceneKey, updatedAt:Date.now() };
+          const merged = existing ? mergeVideoWorldCupTagStatRowsV881(existing, changed, newId, toLabel, sceneKey) : changed;
+          if (existing) mergedStats++;
+          store.put(merged);
+          if (oldId && oldId !== newId) store.delete(oldId);
+          byId.set(newId, merged);
+          byId.delete(oldId);
+          movedStats++;
+        }
+      };
+      req.onerror = () => reject(req.error || new Error('태그매치 전적 조회 실패'));
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('태그매치 전적 변경 실패'));
+      tx.onabort = () => reject(tx.error || new Error('태그매치 전적 변경 중단'));
+    });
+  } finally { try { db.close(); } catch (_) {} }
+
+  videoWorldCupStatsCache = null;
+  try { invalidateVideoActressCareerRankingCache(); } catch (_) {}
+  if (normalizeVideoWorldCupSceneTagKey(videoWorldCupTagName) === fromKey) videoWorldCupTagName = toLabel;
+
+  // 다음 공유 업로드에서는 새 이름을 신규 태그로 인식하게 한다.
+  // 서버에 이미 올라간 예전 이름의 데이터는 서버 자동 삭제/변경하지 않는다.
+  try { localStorage.removeItem(VIDEO_SHARE_PENDING_UPLOAD_KEY); } catch (_) {}
+  try {
+    const state = loadVideoShareJson(VIDEO_SHARE_UPLOAD_STATE_KEY, {});
+    let changed = false;
+    for (const key of Object.keys(state || {})) {
+      if (String(key).toLocaleLowerCase().includes(fromKey)) { delete state[key]; changed = true; }
+    }
+    if (changed) saveVideoShareJson(VIDEO_SHARE_UPLOAD_STATE_KEY, state);
+  } catch (_) {}
+
+  return { fromLabel, toLabel, changedScenes, mergedSceneTags, movedStats, mergedStats };
+}
+
+function ensureVideoWorldCupTagRenameLayerV881() {
+  let layer = document.getElementById('videoWorldCupTagRenameLayer');
+  if (layer) return layer;
+  layer = document.createElement('div');
+  layer.id = 'videoWorldCupTagRenameLayer';
+  layer.innerHTML = `
+    <div class="videoWorldCupTagRenamePanel" role="dialog" aria-modal="true">
+      <div class="videoWorldCupTagRenameHead">
+        <div class="videoWorldCupTagRenameTitle">태그 일괄 이름변경</div>
+        <button type="button" class="videoWorldCupTagRenameClose" data-tag-rename-close>×</button>
+      </div>
+      <div class="videoWorldCupTagRenameHint">지금까지 장면에 붙인 같은 태그를 한 번에 다른 이름으로 바꿉니다. 고정태그로 변경하거나 사용자태그끼리 이름을 바꿀 수도 있습니다.</div>
+      <div class="videoWorldCupTagRenameGrid">
+        <div class="videoWorldCupTagRenameField"><label>변경할 기존 태그</label><select id="videoWorldCupTagRenameFrom"></select></div>
+        <div class="videoWorldCupTagRenameArrow">→</div>
+        <div class="videoWorldCupTagRenameField"><label>새 태그 이름</label><input id="videoWorldCupTagRenameTo" list="videoWorldCupTagRenameSuggestions" placeholder="예: 후배위"><datalist id="videoWorldCupTagRenameSuggestions"></datalist></div>
+      </div>
+      <div class="videoWorldCupTagRenameInfo" id="videoWorldCupTagRenameInfo"></div>
+      <div class="videoWorldCupTagRenameActions">
+        <button type="button" class="videoWorldCupTagRenameCancel" data-tag-rename-close>취소</button>
+        <button type="button" class="videoWorldCupTagRenameApply" id="videoWorldCupTagRenameApply">일괄 변경</button>
+      </div>
+    </div>`;
+  document.body.appendChild(layer);
+  const close = () => layer.classList.remove('is-visible');
+  layer.querySelectorAll('[data-tag-rename-close]').forEach(btn=>btn.addEventListener('click',close));
+  layer.addEventListener('mousedown',e=>{if(e.target===layer)close();});
+  const from = layer.querySelector('#videoWorldCupTagRenameFrom');
+  const to = layer.querySelector('#videoWorldCupTagRenameTo');
+  const info = layer.querySelector('#videoWorldCupTagRenameInfo');
+  const apply = layer.querySelector('#videoWorldCupTagRenameApply');
+  const refreshInfo = () => {
+    const counts = getVideoWorldCupSceneTagUsageCountsV881();
+    const row = counts.get(String(from?.value || ''));
+    if (info) info.innerHTML = row ? `<strong>${row.label}</strong> · 현재 ${row.count}개 장면에서 사용 중` : '변경할 태그를 선택하세요.';
+    if (apply) apply.disabled = !row;
+  };
+  from?.addEventListener('change',refreshInfo);
+  apply?.addEventListener('click', async () => {
+    const counts = getVideoWorldCupSceneTagUsageCountsV881();
+    const row = counts.get(String(from?.value || ''));
+    const target = normalizeVideoWorldCupSceneTagName(to?.value || '');
+    if (!row || !target) { if(typeof showToast==='function')showToast('변경할 태그와 새 태그 이름을 확인하세요.',2500); return; }
+    if (row.key === normalizeVideoWorldCupSceneTagKey(target)) { if(typeof showToast==='function')showToast('같은 태그 이름입니다.',2200); return; }
+    const ok = confirm(`태그를 일괄 변경할까요?\n\n${row.label} → ${target}\n대상: ${row.count}개 장면\n\n같은 장면에 '${target}' 태그가 이미 있으면 하나로 합쳐집니다.`);
+    if (!ok) return;
+    apply.disabled = true; apply.textContent = '변경 중...';
+    try {
+      const result = await renameVideoWorldCupSceneTagEverywhereV881(row.label, target);
+      close();
+      const editor = document.getElementById('videoWorldCupSceneTagEditorLayer');
+      if (editor?.classList.contains('is-visible')) {
+        const input = editor.querySelector('#videoWorldCupSceneTagEditorInput');
+        const suggest = editor.querySelector('#videoWorldCupSceneTagEditorSuggest');
+        if (videoWorldCupTagEditorTarget && input) input.value = getVideoWorldCupSceneTags(videoWorldCupTagEditorTarget).join(', ');
+        if (suggest) renderVideoWorldCupSceneTagSuggestV880(suggest, input);
+      }
+      if (document.getElementById('videoWorldCupRankingLayer')?.classList.contains('on')) void renderVideoWorldCupRanking();
+      if (document.getElementById('videoWorldCupOptionLayer')?.classList.contains('on') && videoWorldCupMode === 'tag') void setVideoWorldCupOptionMode('tag');
+      const msg = `${result.fromLabel} → ${result.toLabel} · ${result.changedScenes}개 장면 변경` + (result.movedStats ? ` · 태그매치 전적 ${result.movedStats}건 이전` : '');
+      if(typeof showToast==='function')showToast(msg,4200); else alert(msg);
+    } catch (error) {
+      const msg = `태그 일괄 변경 실패 · ${String(error?.message || error)}`;
+      if(typeof showToast==='function')showToast(msg,4200); else alert(msg);
+    } finally { apply.disabled = false; apply.textContent = '일괄 변경'; }
+  });
+  layer.__refreshV881 = () => {
+    const counts = Array.from(getVideoWorldCupSceneTagUsageCountsV881().values()).sort((a,b)=>a.label.localeCompare(b.label,'ko',{numeric:true,sensitivity:'base'}));
+    if (from) {
+      const prev = String(from.value || '');
+      from.innerHTML = '';
+      for (const row of counts) {
+        const opt = document.createElement('option'); opt.value = row.key; opt.textContent = `${row.label} (${row.count})`; from.appendChild(opt);
+      }
+      if (counts.some(v=>v.key===prev)) from.value=prev;
+    }
+    const dl = layer.querySelector('#videoWorldCupTagRenameSuggestions');
+    if (dl) { dl.innerHTML=''; for (const label of getVideoWorldCupAllTagSuggestionsV881()) { const opt=document.createElement('option'); opt.value=label; dl.appendChild(opt); } }
+    if (to) to.value='';
+    refreshInfo();
+  };
+  return layer;
+}
+
+function showVideoWorldCupTagRenameManagerV881() {
+  const layer = ensureVideoWorldCupTagRenameLayerV881();
+  layer.__refreshV881?.();
+  layer.classList.add('is-visible');
+  requestAnimationFrame(()=>layer.querySelector('#videoWorldCupTagRenameTo')?.focus?.());
+}
+
 function getVideoWorldCupTagPools() {
   const map = loadVideoWorldCupSceneTagMap();
   const pools = new Map();
@@ -155472,7 +156200,10 @@ function ensureVideoWorldCupSceneTagEditorLayer() {
     <div class="videoWorldCupSceneTagEditorPanel" role="dialog" aria-modal="true">
       <div class="videoWorldCupSceneTagEditorHead">
         <div class="videoWorldCupSceneTagEditorTitle">장면 태그</div>
-        <button type="button" class="videoWorldCupSceneTagEditorClose" data-scene-tag-close>×</button>
+        <div class="videoWorldCupSceneTagEditorHeadTools">
+          <button type="button" class="videoWorldCupSceneTagManageBtn" id="videoWorldCupSceneTagManageBtn">태그 관리</button>
+          <button type="button" class="videoWorldCupSceneTagEditorClose" data-scene-tag-close>×</button>
+        </div>
       </div>
       <div class="videoWorldCupSceneTagEditorScene" id="videoWorldCupSceneTagEditorScene"></div>
       <div class="videoWorldCupSceneTagEditorField">
@@ -155488,6 +156219,7 @@ function ensureVideoWorldCupSceneTagEditorLayer() {
   document.body.appendChild(layer);
   const close = () => { layer.classList.remove('is-visible'); videoWorldCupTagEditorTarget = null; };
   layer.querySelectorAll('[data-scene-tag-close]').forEach(btn=>btn.addEventListener('click', close));
+  layer.querySelector('#videoWorldCupSceneTagManageBtn')?.addEventListener('click', showVideoWorldCupTagRenameManagerV881);
   layer.addEventListener('mousedown', e=>{ if(e.target===layer) close(); });
   layer.querySelector('#videoWorldCupSceneTagEditorSave')?.addEventListener('click', async ()=>{
     const target = videoWorldCupTagEditorTarget;
@@ -155532,19 +156264,18 @@ function showVideoWorldCupSceneTagEditor(entry) {
   if (scene) scene.textContent = `${getVideoWorldCupTitle(entry)} · ${formatVideoSceneTime(entry?.sceneTime || 0)}`;
   if (input) input.value = getVideoWorldCupSceneTags(entry).join(', ');
   if (suggest) {
-    suggest.innerHTML = '';
-    getAllVideoWorldCupSceneTagNames().forEach(label=>{
-      const btn=document.createElement('button'); btn.type='button'; btn.className='videoWorldCupSceneTagSuggestBtn'; btn.textContent=label;
-      btn.addEventListener('click',()=>{
-        if(!input)return; const current=input.value.split(/[,\n]+/).map(normalizeVideoWorldCupSceneTagName).filter(Boolean);
-        if(!current.some(v=>normalizeVideoWorldCupSceneTagKey(v)===normalizeVideoWorldCupSceneTagKey(label))) current.push(label);
-        input.value=current.join(', '); input.focus();
-      });
-      suggest.appendChild(btn);
-    });
+    renderVideoWorldCupSceneTagSuggestV880(suggest, input);
   }
   layer.classList.add('is-visible');
   requestAnimationFrame(()=>input?.focus?.());
+  if (!isVideoWorldCupAdultVerifiedV883()) {
+    setTimeout(async () => {
+      const ok = await requestVideoWorldCupAdultVerificationV883({ auto:true });
+      if (ok && layer.classList.contains('is-visible')) {
+        renderVideoWorldCupSceneTagSuggestV880(suggest, input);
+      }
+    }, 0);
+  }
 }
 
 function getVideoWorldCupSharedTagPools() {
@@ -155726,6 +156457,7 @@ function renderVideoWorldCupSharedTagMatchButtons() {
   renderVideoWorldCupSharedCatalog();
 }
 async function startVideoWorldCupSharedTagTournament(tagName) {
+  if (!(await requireVideoWorldCupAdultVerifiedV883())) return;
   const label=normalizeVideoWorldCupSceneTagName(tagName);
   const candidates=getVideoWorldCupSharedTagPlayableEntries(label);
   if(candidates.length<16){
@@ -155824,6 +156556,7 @@ function getVideoWorldCupTagPlayableEntries(tagName) {
   return result;
 }
 async function startVideoWorldCupTagTournament(tagName) {
+  if (!(await requireVideoWorldCupAdultVerifiedV883())) return;
   const label=normalizeVideoWorldCupSceneTagName(tagName);
   const candidates=getVideoWorldCupTagPlayableEntries(label);
   if(candidates.length<16){const msg=`${label} 태그의 재생 가능한 후보가 부족합니다. 현재 ${candidates.length}장 / 필요 16장`;if(typeof showToast==='function')showToast(msg,3200);else alert(msg);return;}
@@ -156851,6 +157584,8 @@ function renderVideoWorldCupScenePresetButtons() {
 async function handleVideoWorldCupOptionModeChoice(mode) {
   const nextMode = mode === 'scene' ? 'scene' : (mode === 'tag' ? 'tag' : (mode === 'sharedtag' ? 'sharedtag' : 'poster'));
 
+  if ((nextMode === 'tag' || nextMode === 'sharedtag') && !(await requireVideoWorldCupAdultVerifiedV883())) return;
+
   if (videoWorldCupOptionPurpose === 'ranking') {
     // v844: 공유 태그매치도 sharedSceneTag 전적만 사용해 개인 태그매치와 완전히 분리한다.
     videoWorldCupMode = nextMode;
@@ -156975,6 +157710,7 @@ async function setVideoWorldCupOptionMode(mode) {
 
 function openVideoWorldCupOptionLayer() {
   ensureVideoWorldCupLayers();
+  if (!isVideoWorldCupAdultVerifiedV883() && (videoWorldCupMode === 'tag' || videoWorldCupMode === 'sharedtag')) videoWorldCupMode = 'poster';
   videoWorldCupOptionPurpose = 'play';
   document.getElementById('videoWorldCupOptionLayer')?.classList.add('on');
   void setVideoWorldCupOptionMode(videoWorldCupMode);
@@ -156982,6 +157718,7 @@ function openVideoWorldCupOptionLayer() {
 
 function openVideoWorldCupRankingChoiceLayer() {
   ensureVideoWorldCupLayers();
+  if (!isVideoWorldCupAdultVerifiedV883() && (videoWorldCupMode === 'tag' || videoWorldCupMode === 'sharedtag')) videoWorldCupMode = 'poster';
   videoWorldCupOptionPurpose = 'ranking';
   document.getElementById('videoWorldCupOptionLayer')?.classList.add('on');
   void setVideoWorldCupOptionMode(videoWorldCupMode);
@@ -157763,6 +158500,8 @@ function queueVideoWorldCupRankPreview(entry, poster, startTime = null) {
 }
 
 async function openVideoWorldCupRanking(mode = videoWorldCupMode) {
+  const requestedModeV883 = mode === 'scene' ? 'scene' : (mode === 'tag' ? 'tag' : (mode === 'sharedtag' ? 'sharedtag' : 'poster'));
+  if ((requestedModeV883 === 'tag' || requestedModeV883 === 'sharedtag') && !(await requireVideoWorldCupAdultVerifiedV883())) return;
   ensureVideoWorldCupLayers();
   videoWorldCupMode = mode === 'scene'
     ? 'scene'
@@ -160723,13 +161462,14 @@ document.addEventListener(
     bindVideoWorldCupCollectionLazyV675(body);
   }
 
-  function openVideoWorldCupCollectionV675() {
+  async function openVideoWorldCupCollectionV675() {
     if (videoWorldCupOptionPurpose !== 'play' || !['tag','sharedtag'].includes(videoWorldCupMode)) {
       try {
         showToast?.('컬렉션은 태그매치 또는 공유 태그매치 선택 화면에서 사용할 수 있습니다.', 2200);
       } catch (_) {}
       return;
     }
+    if (!(await requireVideoWorldCupAdultVerifiedV883())) return;
 
     const layer = ensureVideoWorldCupCollectionLayerV675();
     layer.dataset.collectionMode = videoWorldCupMode === 'sharedtag' ? 'sharedtag' : 'tag';
@@ -167962,7 +168702,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 878;
+  const VIEWER_BUILD_V789 = 884;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -168968,6 +169708,12 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v838: JAVXXX 보안코드 2단계 검사 · 원본 품번을 Worker로 먼저 검사하고 exists:false일 때만 숫자/H_숫자 보안 prefix 제거 품번을 재검사 · 예 300MAAN-949 -> MAAN-949 · 제거 품번에서 확인되면 JAVXXX 보기 링크도 제거 품번 사용 · MissAV 품번 판정과 JAVXXX 판정을 분리 · 화면 빌드838 -->
 <!-- v859: 잠정/중복/중복보류/수동확정 모두 로컬 Posters/Scenes 후보를 건너뛰고 인덱스DB imageRef(i) 포스터를 우선 사용 -->
 
+<!-- v879: 장면 태그 편집창을 920px급으로 확대 · 애무/체위/비비기/사정/복장/그외 고정 태그를 접기/펼치기 분류로 추가 · 괄호 안 문구는 작은 설명으로 표시하고 실제 저장 태그에서는 제외 · 버튼 재클릭 선택해제 및 기존 사용자 태그 별도 분류 유지 · 중복 귀 애무 1회로 정리 · 화면/최신버전 빌드 879 갱신 -->
+<!-- v881: 장면 태그창에 '태그 관리' 추가 · 기존 태그의 사용 장면 수 표시 · 기존 태그→고정태그/사용자태그 일괄 이름변경 · 대상 태그가 이미 같은 장면에 있으면 중복 제거 · 개인 sceneTag 월드컵 전적 id/tag까지 함께 이전/병합 · 공유 서버의 이미 업로드된 과거 태그는 자동 변경하지 않음 · 화면/최신버전 빌드 881 갱신 -->
+<!-- v883: 고정 장면태그와 개인/공유 태그매치에 성인확인 추가 · 생년월일로 오늘 기준 만19세 판정 · 생년월일 원문은 저장/전송하지 않고 통과 여부/확인시각만 localStorage 저장 · 미인증 상태에서도 사용자태그 직접입력/사용 가능 · 고정태그 분류는 잠금표시 후 확인 시 해제 · 첫 태그창 자동확인은 1회만 안내하고 취소 후 수동 재확인 가능 · 설정에 성인확인 상태/초기화 추가 · 화면/최신버전 빌드 883 갱신 -->
+<!-- v884: 성인확인을 생년월일 입력 대신 “만 19세 이상 성인이 맞습니까?” 예/아니오 방식으로 단순화 · 고정태그/태그매치/메타검색/분석/전체썸네일 생성이 동일한 성인확인 상태를 공유 · 어느 기능에서든 예를 한 번 선택하면 이후 모두 재확인 없이 사용 · 아니오는 해당 기능 진입만 취소 · 설정 초기화 시 다시 확인 · 화면/최신버전 빌드 884 갱신 -->
+<!-- v882: 고정 태그 애무종류에 성기 애무/보지 애무 추가 · 귀두만 애무→귀두 애무 변경 · 이라마치오/스팽킹 및 체위 태그 설명 추가 · 화면/최신버전 빌드 882 갱신 -->
+<!-- v880: 태그 편집창을 배우월식 분류 선택 UI로 변경 · 상단 분류명을 클릭하면 아래 전체 폭에 해당 태그만 표시 · 같은 분류 재클릭 시 접기 · 기존 태그 명칭을 사용자태그로 변경 · 태그명/설명 글자 한 단계 확대 · 화면/최신버전 빌드 880 갱신 -->
 <!-- v878: 로컬 file:// 웹뷰어 실행 시 Cloudflare Worker /viewer-run으로 한국 날짜 기준 하루 1회 실행 집계 · 사용자/설치 ID 전송 없음 · localStorage로 당일 중복 전송 방지 · 8초 시간제한 및 실패 시 웹뷰어 시작에 영향 없이 다음 실행에서 재시도 · 온라인 GitHub Pages에서는 미실행 · 화면/최신버전 빌드 878 갱신 -->
 <!-- v877: 온라인 초기설정 GitHub 배우DB 설치 무한대기 방지 · version.json 15초/배우 Release Asset 90초/작품 파일 90초 네트워크 시간제한 추가 · 배우 GitHub 설치 진행창에 확인/다운로드/JSON해석/IndexedDB 저장 단계 표시 · GitHub 동기화 대상별 Promise 추적으로 배우/작품 서로 다른 설치가 기존 Promise를 잘못 공유하는 문제 수정 · 콘솔에 v877 GitHub DB 단계 로그 추가 · 화면/최신버전 빌드 877 갱신 -->
 <!-- v876: 최초 빈 라이브러리 가이드에서 동영상 폴더 전에 웹뷰어 루트 폴더 1회 연결 단계 추가 · 선택한 한 폴더의 Posters/Actors/Scenes를 포스터·배우사진·썸네일 공용으로 사용 · GitHub 온라인도 PC Posters/Actors를 FileSystem Handle로 우선 읽고 없으면 온라인 fallback · 가이드 시작/단계 대기 1초로 단축 · AVDBS↔AVWiki 완료 안내 7초→3초 · 화면/최신버전 빌드 876 갱신 -->
