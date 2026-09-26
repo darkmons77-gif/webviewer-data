@@ -41,6 +41,7 @@
 })();
 </script>
 
+<!-- v885: 공유 태그매치 화면 문구 정리 · 서버기록→태그기록 · 공유영상→공유태그 · D1 내부구조 설명 제거 -->
 <!-- v884: 성인확인을 생년월일 입력 대신 만19세 이상 예/아니오 자기확인으로 단순화 · 고정태그/태그매치/메타검색/분석/썸네일이 하나의 공통 성인확인 상태를 공유 · 셋 중 한 기능에서 예를 누르면 이후 모두 사용 가능 -->
 <!-- v878: 로컬(file://) 웹뷰어 실행을 한국 날짜 기준 하루 1회만 Cloudflare Worker에 집계 -->
 <!-- v879: 장면 태그창 고정 분류 태그 추가 · 분류 접기/펼치기 · 괄호 설명 분리 · 태그창 확대 -->
@@ -10634,7 +10635,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span>버전 4.1(빌드881) 모드 : </span>
+<span>버전 4.1(빌드885) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -12379,7 +12380,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span>버전 4.1(빌드881) 모드 :</span>
+        <span>버전 4.1(빌드885) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-pressed="false">레일숨기기</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -154247,7 +154248,7 @@ function ensureVideoWorldCupLayers() {
         <div class="videoWorldCupShareTools" id="videoWorldCupShareTools">
           <button type="button" class="videoWorldCupShareBtn" id="videoWorldCupShareUpload" title="내 태그와 아직 공유하지 않은 태그매치 전적 증가분을 D1에 업로드">공유 업로드</button>
           <button type="button" class="videoWorldCupShareBtn" id="videoWorldCupShareForceRepair" title="임시 1회용 · 공유 받기로 확인한 D1 실제값과 내 로컬 전적을 직접 비교해서 부족한 값만 강제로 보정 업로드">강제 보정 1회</button>
-          <button type="button" class="videoWorldCupShareBtn" id="videoWorldCupShareDownload" title="D1의 공유 기록을 전부 받은 뒤 내 보유영상과 로컬에서 매칭 상태를 판정">공유 받기</button>
+          <button type="button" class="videoWorldCupShareBtn" id="videoWorldCupShareDownload" title="공유 태그를 받은 뒤 내 보유영상과 로컬에서 매칭 상태를 판정">공유 받기</button>
           <button type="button" class="videoWorldCupShareBtn" id="videoWorldCupTagStatsReset" title="개인/공유 태그매치 로컬 전적과 공유 업로드 상태/받은 캐시만 초기화 · 태그와 썸네일은 유지">로컬전적 초기화</button>
           <span id="videoWorldCupShareStatus">개인/공유 태그매치 분리</span>
         </div>
@@ -154595,7 +154596,7 @@ async function resetVideoWorldCupTagStatsLocalV852() {
     '로컬 태그매치 전적을 초기화할까요?\n\n' +
     '삭제: 개인 태그매치 전적, 이 브라우저의 공유태그매치 전적, 공유 업로드 상태/받은 캐시\n' +
     '유지: 장면 태그, TagThumb/SharedTagThumb 사진, 포스터 월드컵/썸네일 월드컵 기록\n\n' +
-    '※ D1 서버의 업로드된 공유 기록은 이 버튼으로 삭제되지 않습니다.'
+    '※ 이미 공유된 태그는 이 버튼으로 삭제되지 않습니다.'
   );
   if (!ok) return;
 
@@ -154676,7 +154677,7 @@ async function collectVideoShareForceRepairCandidatesV850() {
   let skipped = 0;
 
   if (!remoteDownloaded || !Object.keys(remoteDownloaded).length) {
-    throw new Error('먼저 공유 받기를 실행해서 현재 D1 기록을 받아주세요.');
+    throw new Error('먼저 공유 받기를 실행해서 현재 공유 태그를 받아주세요.');
   }
 
   const cleanStats = source => ({
@@ -155028,7 +155029,7 @@ async function uploadVideoWorldCupSharedTagData() {
 
     const collected = await collectVideoShareUploadCandidates();
     if (!collected.records.length) {
-      const msg=`새로 공유할 기록 없음 · 공유대상 ${collected.total}건${collected.skipped?` · 영상정보 부족 ${collected.skipped}장`:''}`;
+      const msg=`새로 공유할 태그 없음 · 공유대상 ${collected.total}건${collected.skipped?` · 영상정보 부족 ${collected.skipped}장`:''}`;
       setVideoWorldCupShareStatus(msg);
       if(typeof showToast==='function')showToast(msg,2800);
       return;
@@ -155206,7 +155207,7 @@ async function downloadVideoWorldCupSharedTagData() {
     const limit=500;
     let total=null;
     while(true){
-      setVideoWorldCupShareStatus(total==null?`공유 전체기록 받는 중… ${offset}건`:`공유 전체기록 받는 중… ${Math.min(offset,total)}/${total}`);
+      setVideoWorldCupShareStatus(total==null?`공유 태그 받는 중… ${offset}건`:`공유 태그 받는 중… ${Math.min(offset,total)}/${total}`);
       const data=await getVideoShareJson(`/share/all?limit=${limit}&offset=${offset}`);
       if(total==null)total=Math.max(0,Math.round(Number(data?.total)||0));
       const page=Array.isArray(data?.items)?data.items:[];
@@ -155217,7 +155218,7 @@ async function downloadVideoWorldCupSharedTagData() {
       offset=next;
     }
     const merged=await mergeDownloadedVideoShareItems(allItems);
-    const msg=`공유 받기 완료 · 서버기록 ${allItems.length}건 · 공유영상 ${merged.videos}개 · 사용 가능 ${merged.matchedVideos}개 · 시간정보 없음 ${merged.timeMissing}개 · 미보유 ${merged.noOwned}개`;
+    const msg=`공유 받기 완료 · 태그기록 ${allItems.length}건 · 공유태그 ${merged.videos}개 · 사용 가능 ${merged.matchedVideos}개 · 시간정보 없음 ${merged.timeMissing}개 · 미보유 ${merged.noOwned}개`;
     setVideoWorldCupShareStatus(msg);
     if(typeof showToast==='function')showToast(msg,4300);
   }catch(error){
@@ -156359,7 +156360,7 @@ function renderVideoWorldCupSharedCatalog(){
   if(!catalog.length){
     const empty=document.createElement('div');
     empty.className='videoWorldCupTagMatchEmpty';
-    empty.textContent='받아둔 공유 영상 기록이 없습니다.';
+    empty.textContent='받아둔 공유 태그가 없습니다.';
     box.appendChild(empty);
     return;
   }
@@ -156370,7 +156371,7 @@ function renderVideoWorldCupSharedCatalog(){
 
   const summary=document.createElement('div');
   summary.className='videoWorldCupSharedCatalogSummary';
-  summary.innerHTML=`<span>공유영상 <b>${catalog.length}</b></span><span>사용 가능 <b>${counts.match}</b></span><span>시간정보 없음 <b>${counts.time_missing}</b></span><span>시간불일치 <b>${counts.time_mismatch}</b></span><span>배우불일치 <b>${counts.actress_mismatch}</b></span><span>미보유 <b>${counts.no_owned}</b></span>`;
+  summary.innerHTML=`<span>공유태그 <b>${catalog.length}</b></span><span>사용 가능 <b>${counts.match}</b></span><span>시간정보 없음 <b>${counts.time_missing}</b></span><span>시간불일치 <b>${counts.time_mismatch}</b></span><span>배우불일치 <b>${counts.actress_mismatch}</b></span><span>미보유 <b>${counts.no_owned}</b></span>`;
 
   const toggle=document.createElement('button');
   toggle.type='button';
@@ -156432,7 +156433,7 @@ function renderVideoWorldCupSharedTagMatchButtons() {
   if(!pools.length){
     const empty=document.createElement('div');
     empty.className='videoWorldCupTagMatchEmpty';
-    empty.textContent='공유받은 기록이 없습니다. 위의 공유 받기를 눌러 D1 데이터를 받아주세요.';
+    empty.textContent='공유받은 태그가 없습니다. 위의 공유 받기를 눌러주세요.';
     list.appendChild(empty);
     renderVideoWorldCupSharedCatalog();
     return;
@@ -156905,7 +156906,7 @@ async function renderVideoWorldCupSharedTagRankingV846() {
   if (!rows.length) {
     const empty = document.createElement('div');
     empty.className = 'videoWorldCupRankEmpty';
-    empty.textContent = `${selected.label} 공유 랭킹 기록이 없습니다.`;
+    empty.textContent = `${selected.label} 공유 랭킹 결과가 없습니다.`;
     content.appendChild(empty);
     if (pager) pager.style.display='none';
     return;
@@ -157671,7 +157672,7 @@ async function setVideoWorldCupOptionMode(mode) {
 
   if (videoWorldCupMode === 'sharedtag') {
     tagBox?.classList.add('on');
-    setVideoWorldCupShareStatus('공유 태그매치 · 공유 받기로 D1 기록 새로고침');
+    setVideoWorldCupShareStatus('공유 태그매치 · 공유 받기로 공유 태그 새로고침');
     renderVideoWorldCupSharedTagMatchButtons();
     const pools=Array.from(getVideoWorldCupSharedTagPools().values());
     const ready=pools.filter(pool=>pool.items.size>=16).length;
@@ -157679,8 +157680,8 @@ async function setVideoWorldCupOptionMode(mode) {
     const catalog=buildVideoShareRemoteCatalog();
     const matched=catalog.filter(v=>v.classification.status==='match').length;
     if(title)title.textContent='공유 태그매치';
-    if(countEl)countEl.textContent=`서버기록 ${records}건 · 공유영상 ${catalog.length}개 · 사용 가능 ${matched}개 · 태그 ${pools.length}개 · 16강 가능 ${ready}개`;
-    if(hint)hint.innerHTML='D1의 공유 기록을 <b>전부 받아둔 뒤</b> 내 보유영상과 로컬에서 비교합니다.<br>위에는 완전 매칭된 태그매치가 나오고, 아래 목록에는 시간정보 없음·불일치·미보유 기록도 모두 표시됩니다.';
+    if(countEl)countEl.textContent=`태그기록 ${records}건 · 공유태그 ${catalog.length}개 · 사용 가능 ${matched}개 · 태그 ${pools.length}개 · 16강 가능 ${ready}개`;
+    if(hint)hint.innerHTML='위에는 완전 매칭된 태그매치가 나오고, 아래 목록에는 시간정보 없음·불일치·미보유 태그도 표시됩니다.';
     return;
   }
 
@@ -157690,7 +157691,7 @@ async function setVideoWorldCupOptionMode(mode) {
     renderVideoWorldCupTagMatchButtons();
     const pools = Array.from(getVideoWorldCupTagPools().values());
     const ready = pools.filter(pool => pool.items.size >= 16).length;
-    setVideoWorldCupShareStatus('내 태그매치 · 공유 업로드는 개인 기록만 전송');
+    setVideoWorldCupShareStatus('내 태그매치 · 공유 업로드는 내 태그매치만 반영');
     if (title) title.textContent = '장면 태그매치';
     if (countEl) countEl.textContent = `태그 ${pools.length}개 · 16강 가능 ${ready}개`;
     if (hint) hint.innerHTML = '주차 4강 장면에 붙인 <b>태그별 후보 풀</b>에서 매번 16장을 무작위로 뽑습니다.<br>후보가 16장 미만인 태그는 시작할 수 없습니다. 태그매치 승패·우승은 주차/월 기록과 별도로 계속 누적됩니다.';
@@ -158116,7 +158117,7 @@ async function chooseVideoWorldCupWinner(winner, loser) {
       } else if (state.mode==='tag') {
         if (state.sharedTag) {
           await finalizeVideoWorldCupSharedTagTournament(state.tagName,winner);
-          if (typeof showToast==='function') showToast(`${state.tagName} 공유 태그매치 결과를 내 기기에 별도 기록했습니다.`,2800);
+          if (typeof showToast==='function') showToast(`${state.tagName} 공유 태그매치 결과를 내 기기에 별도로 저장했습니다.`,2800);
         } else {
           await finalizeVideoWorldCupTagTournament(state.tagName,winner);
           if (typeof showToast==='function') showToast(`${state.tagName} 태그매치 결과를 누적했습니다.`,2600);
@@ -168702,7 +168703,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 884;
+  const VIEWER_BUILD_V789 = 885;
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const VIEWER_DOWNLOAD_ALLOWED_PREFIXES_V789 = Object.freeze([
@@ -169712,6 +169713,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 <!-- v881: 장면 태그창에 '태그 관리' 추가 · 기존 태그의 사용 장면 수 표시 · 기존 태그→고정태그/사용자태그 일괄 이름변경 · 대상 태그가 이미 같은 장면에 있으면 중복 제거 · 개인 sceneTag 월드컵 전적 id/tag까지 함께 이전/병합 · 공유 서버의 이미 업로드된 과거 태그는 자동 변경하지 않음 · 화면/최신버전 빌드 881 갱신 -->
 <!-- v883: 고정 장면태그와 개인/공유 태그매치에 성인확인 추가 · 생년월일로 오늘 기준 만19세 판정 · 생년월일 원문은 저장/전송하지 않고 통과 여부/확인시각만 localStorage 저장 · 미인증 상태에서도 사용자태그 직접입력/사용 가능 · 고정태그 분류는 잠금표시 후 확인 시 해제 · 첫 태그창 자동확인은 1회만 안내하고 취소 후 수동 재확인 가능 · 설정에 성인확인 상태/초기화 추가 · 화면/최신버전 빌드 883 갱신 -->
 <!-- v884: 성인확인을 생년월일 입력 대신 “만 19세 이상 성인이 맞습니까?” 예/아니오 방식으로 단순화 · 고정태그/태그매치/메타검색/분석/전체썸네일 생성이 동일한 성인확인 상태를 공유 · 어느 기능에서든 예를 한 번 선택하면 이후 모두 재확인 없이 사용 · 아니오는 해당 기능 진입만 취소 · 설정 초기화 시 다시 확인 · 화면/최신버전 빌드 884 갱신 -->
+<!-- v885: 공유 태그매치의 사용자 노출 문구에서 서버/D1 기록 표현을 제거 · 서버기록→태그기록 · 공유영상→공유태그 · 내부 데이터 수집처럼 보이는 안내문 삭제 · 화면/최신버전 빌드 885 갱신 -->
 <!-- v882: 고정 태그 애무종류에 성기 애무/보지 애무 추가 · 귀두만 애무→귀두 애무 변경 · 이라마치오/스팽킹 및 체위 태그 설명 추가 · 화면/최신버전 빌드 882 갱신 -->
 <!-- v880: 태그 편집창을 배우월식 분류 선택 UI로 변경 · 상단 분류명을 클릭하면 아래 전체 폭에 해당 태그만 표시 · 같은 분류 재클릭 시 접기 · 기존 태그 명칭을 사용자태그로 변경 · 태그명/설명 글자 한 단계 확대 · 화면/최신버전 빌드 880 갱신 -->
 <!-- v878: 로컬 file:// 웹뷰어 실행 시 Cloudflare Worker /viewer-run으로 한국 날짜 기준 하루 1회 실행 집계 · 사용자/설치 ID 전송 없음 · localStorage로 당일 중복 전송 방지 · 8초 시간제한 및 실패 시 웹뷰어 시작에 영향 없이 다음 실행에서 재시도 · 온라인 GitHub Pages에서는 미실행 · 화면/최신버전 빌드 878 갱신 -->
