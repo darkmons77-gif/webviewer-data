@@ -41,6 +41,18 @@
 })();
 </script>
 
+<!-- v950: 자동공유 안내문에서 Cloudflare IP/접속메타데이터 문구 제거 · '자동공유창을 닫아도 전송에는 문제없습니다.' 안내 추가 · 자동공유 성공 송신/수신 횟수를 브라우저 localStorage에 누적 저장하고 진단줄에 '누적전송 N건 · 누적받음 N건' 표시 · 송신은 수신자의 저장완료(completed) 확인 후 1회, 수신은 실제 파일 close 성공 후 1회 집계 · Worker 변경 불필요 · 화면 빌드950 -->
+<!-- v949: 자동공유 품번 hover/click 포스터 팝업 가로폭 240→480px로 2배 확대 · 팝업 위치계산 예상폭/높이도 확대 크기에 맞게 조정 · 화면 밖에서는 기존처럼 viewport 안쪽으로 자동 보정 · 송수신 동시성 구조는 변경하지 않음 · Worker 변경 불필요 · 화면 빌드949 -->
+<!-- v948: 자동공유창 최대폭을 1720→1480px로 240px 축소해 4개 목록이 각각 약 60px씩 좁아지도록 조정 · 자동공유 4개 목록의 모든 품번에 포스터 미리보기 연결 · 품번 hover 시 임시 표시, 클릭 시 고정/해제 · 작품DB exact imageRef 우선, 없으면 기존 품번그룹 포스터 후보 fallback · 팝업은 body fixed라 개별목록 스크롤에 잘리지 않음 · Worker 변경 불필요 · 화면 빌드948 -->
+<!-- v947: 자동공유 4개 목록(내 요청/내가 보유한 새 요청/공유가능 작품/내 공유등록)을 한 줄 4열로 고정 · 자동공유 패널 폭을 데스크톱 기준 최대 1720px로 확대 · 전체 패널 스크롤 제거하고 각 목록만 독립 세로스크롤 · renderLists 갱신 때 각 목록 scrollTop 보존 · 공유가능 작품에서 현재 로컬 보유중인 품번은 제외 · Worker 변경 불필요 · 화면 빌드947 -->
+<!-- v946: 요청이 없어도 보유작을 자발적으로 알릴 수 있는 '공유등록' 추가 · 보유카드의 수동공유 옆 공유등록 버튼으로 품번만 서버에 등록/해제 · 브라우저 ID당 공유등록 최대20개/7일 자동만료 · 자동공유창에 '공유가능 작품'과 '내 공유등록' 추가 · 다른 사용자는 공유가능 작품의 받기요청을 누르면 기존 자동공유 요청으로 연결 · 작품DB가 있으면 공유가능 목록에 로컬 제목/배우/포스터 보조표시, 없으면 품번만 표시 · Worker v946 필요 · 화면 빌드946 -->
+<!-- v945: 자동공유 요청을 브라우저 ID 기준 최대 20개로 로컬 선제 제한 + Worker 서버에서도 20개 재검증 · 요청 TTL을 7일로 변경 · 각 요청의 expiresAt을 브라우저가 로컬 타이머로 만료 처리해 별도 서버 polling/주기조회 없이 UI에서 자동 제거 · 서버 저장은 다음 연결/요청 처리 때 lazy cleanup되어 Cloudflare 사용량 추가를 최소화 · 안내문에 최대20개/7일만료 표기 · Worker v945 필요 · 화면 빌드945 -->
+<!-- v944: 상단 자동공유 버튼에 내 요청에 공유자가 붙은 수를 '받기 N'으로 상시 표시 · 깜빡임 없이 claimed/offered/transferring 상태를 카운트해 자동공유창을 열지 않아도 공유 준비 사실 확인 · 기존 보유요청 숫자 배지는 별도 유지 · 요청 반납/완료/취소 시 즉시 감소 · Worker 변경 불필요 · 화면 빌드944 -->
+<!-- v943: 보유카드 수동공유 버튼을 포스터 좌하단 메타에서 포스터 아래 텍스트 메타행으로 이동 · hover 미리보기 시작 직후 포스터 메타가 숨겨져 버튼 클릭이 재생으로 빠지던 문제 제거 · 미리보기 2~5/겹침/전체미리보기 중에도 수동공유 버튼만 visibility/z-index를 유지하고 버튼 진입 시 hover 미리보기 즉시 정지 · 화면 빌드943 -->
+<!-- v942: 자동공유 안내문을 익명/보유목록 비전송/P2P 중심으로 정리하되 Cloudflare가 네트워크상 IP 등 접속 메타데이터를 처리할 수 있다는 사실은 명시 · Worker 주소 편집/저장/재연결 UI 제거하고 HTML 내장 고정주소만 사용 · 미보유/메타검색 포스터의 요청 버튼을 '공유요청'으로 변경하고 자동공유창을 열지 않은 채 즉시 요청 추가 · 화면 빌드942 -->
+<!-- v935: 자동공유 Cloudflare Worker 기본주소를 HTML에 내장해 새 사용자도 설정 없이 실행 즉시 WebSocket 자동연결 · 저장된 사용자 지정 URL이 있으면 그것을 우선 사용 · 자동공유 설정창에서 서버주소 수정 가능 · 기존 서버없는 수동공유와 v934 P2P/요청/signaling 구조 유지 · 화면 빌드935 -->
+<!-- v934: 기존 서버없는 수동 P2P 공유를 그대로 유지하고 Cloudflare Durable Object WebSocket Hibernation 기반 자동공유 추가 · 품번 요청은 서버가 push하고 각 PC가 로컬 보유목록으로 자체판정 · 첫 공유자 선점/offer-answer signaling만 Cloudflare 사용, 실제 파일은 WebRTC P2P 직접전송 · 요청자에게 토큰형 받기링크 생성 · 1분 polling 없음 · 화면 빌드934 -->
+<!-- v933: 보유영상 카드에 P2P 공유 추가 · 서버 업로드 없이 WebRTC DataChannel로 파일을 64KiB 청크 스트리밍 전송 · 메타검색/자막정리 옆 P2P받기 버튼 추가 · 별도 signaling 서버 없이 송신코드/응답코드 수동 교환으로 즉시 사용 · 수신은 File System Access API로 디스크에 바로 저장해 대용량도 RAM 누적 방지 · 진행률/속도/취소/완료 상태 표시 · 화면 빌드933 -->
 <!-- v932: 세로 포스터 모두보기에서 확장자와 FPS가 같은 줄에 붙던 배치를 분리 · 맨윗줄/맨아랫줄 기존 구조는 유지하고 중간 메타 배지는 한 줄에 하나씩 쌓이도록 확장자 아래·FPS 위 독립줄 배치 · FPS가 실제 존재하는 카드에서만 자막/노모유모/재생·썸 배지를 한 줄씩 추가 상승 · 화면 빌드932 -->
 <!-- v931: 기존 파일명 노모/유모 자동판정(모파·uncensored·노모·유출작·모자이크·모작·유모)을 그대로 유지 · display의 명시적 [노모]/[유모] 태그는 자동판정보다 최우선 · 자동판정도 안 되는 보유작에만 회색 노모/유모 선택 버튼 표시 · 직접 선택 시 display 끝에 [노모]/[유모] 저장 · 노모/유모 전용보기 필터도 동일 통합판정 기준 사용 · 화면 빌드931 -->
 <!-- v929: 사용자 제공 유출작 324개 품번 목록 내장 · 메타검색 시리즈 옆 유출작 버튼으로 보유/미보유 통합목록 즉시 표시 · 일반 보유카드와 메타검색/미보유 카드의 출시일 옆에 유출작 배지 표시 · 작품DB code/codeAliases까지 확인해 별칭 품번도 유출작 판정 · 화면 빌드929 -->
@@ -10530,6 +10542,276 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   color: #fff !important;
 }
 </style>
+
+<style id="v933-video-p2p-share-style">
+.videoP2PShareBadgeV933 {
+  position: static;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(34, 101, 178, .92);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 14px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.9);
+  box-shadow: 0 1px 4px rgba(0,0,0,.7);
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+}
+.videoP2PShareBadgeV933:hover { background: rgba(49, 135, 235, .98); }
+#videoP2PLayerV933 {
+  position: fixed; inset: 0; z-index: 1000000; display: none;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,.76); padding: 18px;
+}
+#videoP2PLayerV933.is-visible { display: flex; }
+#videoP2PPanelV933 {
+  width: min(920px, 96vw); max-height: 92vh; overflow: auto;
+  box-sizing: border-box; padding: 16px;
+  border: 1px solid #555; border-radius: 12px;
+  background: #151515; color: #eee;
+  box-shadow: 0 14px 45px rgba(0,0,0,.65);
+}
+.videoP2PHeadV933 { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.videoP2PHeadV933 strong { font-size:18px; }
+.videoP2PHeadV933 #videoP2PCloseBtnV933 { margin-left:auto; }
+.videoP2PNoteV933 { font-size:12px; color:#bbb; line-height:1.5; padding:8px 10px; background:#202020; border-radius:8px; margin-bottom:10px; }
+.videoP2PTabsV933, .videoP2PRowV933 { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0; }
+.videoP2PTabsV933 .active { outline:2px solid #5da8ff; }
+.videoP2PPaneV933 label { display:block; font-size:12px; font-weight:800; margin:10px 0 5px; color:#ddd; }
+.videoP2PPaneV933 textarea {
+  width:100%; min-height:96px; box-sizing:border-box; resize:vertical;
+  border:1px solid #444; border-radius:8px; background:#0c0c0c; color:#dfeaff;
+  padding:9px; font:11px/1.35 Consolas, monospace; word-break:break-all;
+}
+.videoP2PFileV933 { margin:8px 0; padding:9px 10px; border-radius:8px; background:#222; font-weight:800; word-break:break-all; }
+.videoP2PStatusV933 { margin-top:10px; font-size:12px; min-height:18px; color:#d7e8ff; word-break:break-word; }
+.videoP2PProgressTrackV933 { height:8px; border-radius:999px; background:#333; overflow:hidden; margin-top:7px; }
+.videoP2PProgressTrackV933 > div { width:0; height:100%; background:#4d9fff; transition:width .12s linear; }
+</style>
+
+
+<style id="v934-video-auto-share-style">
+.videoP2PShareBadgeV933 {
+  min-width: 0;
+  white-space: nowrap;
+}
+.videoAutoShareRequestBtnV934 {
+  position: absolute;
+  left: 126px;
+  top: 5px;
+  z-index: 31;
+  padding: 2px 5px;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(184, 103, 25, .96);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.65);
+  text-shadow: 0 1px 2px rgba(0,0,0,.9);
+  cursor: pointer;
+  user-select: none;
+  pointer-events: auto;
+}
+.videoAutoShareRequestBtnV934:hover {
+  background: rgba(225, 127, 31, .99);
+}
+#videoAutoShareBtnV934.has-request-v934::after {
+  content: attr(data-count-v934);
+  display: inline-flex;
+  min-width: 15px;
+  height: 15px;
+  margin-left: 4px;
+  padding: 0 3px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #e7662f;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+#videoAutoShareLayerV934 {
+  position: fixed;
+  inset: 0;
+  z-index: 1000002;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,.78);
+}
+#videoAutoShareLayerV934.is-visible { display: flex; }
+#videoAutoSharePanelV934 {
+  width: min(980px, 97vw);
+  max-height: 94vh;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #565b66;
+  border-radius: 13px;
+  background: #15171b;
+  color: #eee;
+  box-shadow: 0 18px 55px rgba(0,0,0,.7);
+}
+.videoAutoShareHeadV934 {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.videoAutoShareHeadV934 strong { font-size:18px; }
+.videoAutoShareHeadV934 button:last-child { margin-left:auto; }
+.videoAutoShareNoteV934 {
+  padding:9px 10px;
+  border-radius:9px;
+  background:#20232a;
+  color:#c3c9d4;
+  font-size:12px;
+  line-height:1.55;
+}
+.videoAutoShareGridV934 {
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto auto;
+  gap:7px;
+  align-items:center;
+  margin-top:10px;
+}
+.videoAutoShareGridV934 input {
+  min-width:0;
+  width:100%;
+  box-sizing:border-box;
+  padding:7px 9px;
+  border:1px solid #444a55;
+  border-radius:7px;
+  background:#0c0e12;
+  color:#eef5ff;
+}
+.videoAutoShareStatusV934 {
+  margin-top:7px;
+  min-height:18px;
+  font-size:12px;
+  color:#bfd9ff;
+  word-break:break-word;
+}
+.videoAutoShareSectionsV934 {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+.videoAutoShareSectionV934 {
+  min-width:0;
+  padding:10px;
+  border:1px solid #343942;
+  border-radius:10px;
+  background:#111319;
+}
+.videoAutoShareSectionTitleV934 {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.videoAutoShareListV934 {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.videoAutoShareEmptyV934 {
+  padding:10px;
+  border-radius:7px;
+  color:#858d9a;
+  background:#191c22;
+  font-size:12px;
+}
+.videoAutoShareRowV934 {
+  padding:8px;
+  border-radius:8px;
+  background:#1d2027;
+  border:1px solid #333943;
+}
+.videoAutoShareRowTopV934 {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  min-width:0;
+}
+.videoAutoShareCodeV934 {
+  font-weight:900;
+  color:#fff;
+  flex:0 0 auto;
+}
+.videoAutoShareStateV934 {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#aeb8c7;
+  font-size:11px;
+}
+.videoAutoShareRowActionsV934 {
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:7px;
+}
+.videoAutoShareRowActionsV934 select {
+  min-width:0;
+  flex:1 1 240px;
+  max-width:100%;
+  padding:5px 7px;
+  border:1px solid #444a55;
+  border-radius:6px;
+  background:#0e1015;
+  color:#eee;
+}
+.videoAutoShareRowActionsV934 button {
+  white-space:nowrap;
+}
+.videoAutoShareLinkV934 {
+  margin-top:7px;
+  padding:6px 7px;
+  border-radius:6px;
+  background:#0d1015;
+  color:#8bc3ff;
+  font:11px/1.35 Consolas, monospace;
+  word-break:break-all;
+}
+.videoAutoShareTransferV934 {
+  margin-top:12px;
+  padding:10px;
+  border:1px solid #343942;
+  border-radius:10px;
+  background:#111319;
+}
+.videoAutoShareProgressV934 {
+  height:8px;
+  margin-top:7px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#30353d;
+}
+.videoAutoShareProgressV934 > div {
+  width:0;
+  height:100%;
+  background:#4d9fff;
+  transition:width .12s linear;
+}
+@media (max-width: 760px) {
+  .videoAutoShareSectionsV934 { grid-template-columns:1fr; }
+  .videoAutoShareGridV934 { grid-template-columns:1fr; }
+}
+</style>
+
 </head>
 <body>
 <div id="videoFullscreenHoverZone" aria-hidden="true"></div>
@@ -11257,6 +11539,20 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   aria-pressed="false"
   style="display:none;"
 >자막정리</button>
+<button
+  class="zoomBtn"
+  id="videoAutoShareBtnV934"
+  title="Cloudflare 자동공유 · 품번 요청/보유요청 확인 · 실제 파일은 WebRTC P2P 직접전송"
+  aria-pressed="false"
+  style="display:none;"
+>자동공유</button>
+<button
+  class="zoomBtn"
+  id="videoP2PReceiveBtnV933"
+  title="서버 없이 연결코드를 직접 주고받는 수동 P2P 공유"
+  aria-pressed="false"
+  style="display:none;"
+>수동공유</button>
 <button
   class="zoomBtn"
   id="videoActressBulkMatchBtn"
@@ -83535,6 +83831,15 @@ async function removeDeletedVideoFromViewer(
     return null;
   }
 
+  // v939: 자동공유 스크립트는 이 메인 영상 IIFE 바깥에 있으므로
+  // 내부 함수 resolveVideoHandle을 직접 참조할 수 없다.
+  // 외부 기능은 이 브리지를 통해서만 실제 FileSystemFileHandle을 얻는다.
+  try {
+    window.__resolveVideoHandleForAutoShareV939 = async entry => {
+      return await resolveVideoHandle(entry);
+    };
+  } catch (_) {}
+
   function readVideoSubtitleChoice(key, allowedValues, fallback) {
     try {
       const value = String(VTLS.getRaw(key) || '').trim();
@@ -110815,6 +111120,37 @@ function appendVideoMissingCardsResolved(items, box) {
 
     poster.appendChild(torrentBtn);
 
+    // v934: 실제 미보유 품번을 Cloudflare 자동공유 요청으로 바로 등록.
+    // 보유 여부는 서버가 아니라 각 웹뷰어가 로컬에서 자체 판정한다.
+    if (!item?.owned) {
+      const autoShareReqBtnV934 = document.createElement('span');
+      autoShareReqBtnV934.className = 'videoAutoShareRequestBtnV934';
+      autoShareReqBtnV934.textContent = '공유요청';
+      autoShareReqBtnV934.setAttribute('role', 'button');
+      autoShareReqBtnV934.tabIndex = 0;
+      autoShareReqBtnV934.title = `${item.code} 자동공유 요청`;
+      autoShareReqBtnV934.setAttribute('aria-label', `${item.code} 자동공유 요청`);
+
+      const runAutoShareRequestV934 = event => {
+        event?.preventDefault?.();
+        event?.stopPropagation?.();
+        try { stopVideoHoverPreview?.(); } catch (_) {}
+        const requestCodeV934 =
+          getVideoSpecialExternalCode(item) ||
+          item?.realCode ||
+          item?.externalCode ||
+          item?.code ||
+          '';
+        window.requestVideoAutoShareV942?.(requestCodeV934);
+      };
+
+      autoShareReqBtnV934.addEventListener('click', runAutoShareRequestV934);
+      autoShareReqBtnV934.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') runAutoShareRequestV934(event);
+      });
+      poster.appendChild(autoShareReqBtnV934);
+    }
+
     // v603: DMM 상세 jp-1.jpg 미리보기.
     // 배우월 보유/미보유와 메타검색/범위/임의/DMM검색이 이 카드 렌더러를 공유하므로
     // 여기 한 번만 추가하면 모든 canonical 포스터에서 같은 버튼을 사용한다.
@@ -111272,6 +111608,7 @@ function appendVideoMissingCardsResolved(items, box) {
         event?.target?.closest?.('.videoMissingViewBtn') ||
         event?.target?.closest?.('.videoMissingTorrentBtn') ||
         event?.target?.closest?.('.videoMissingFavoriteBtn') ||
+        event?.target?.closest?.('.videoAutoShareRequestBtnV934') ||
         event?.target?.closest?.('.videoDmmPreviewBtn')
       ) {
         return;
@@ -112270,7 +112607,7 @@ function isVideoTouchPosterControlV803(target, root) {
     'button,a,input,select,textarea,[contenteditable="true"],' +
     '.videoActualDeleteBadge,.videoCodeBadge,.videoExtFpsGroup,.videoFpsBadge,.videoPosterBadge,' +
     '.videoTopRightMeta,.videoBottomLeftMeta,.videoOnlinePosterControls,' +
-    '.videoMissingViewBtn,.videoMissingTorrentBtn,.videoMissingFavoriteBtn,' +
+    '.videoMissingViewBtn,.videoMissingTorrentBtn,.videoMissingFavoriteBtn,.videoAutoShareRequestBtnV934,' +
     '.videoDmmPreviewBtn,.videoWorkDuplicateBadgeV767'
   );
   return !!(control && control !== root && root.contains(control));
@@ -112417,6 +112754,617 @@ function bindVideoTouchPreviewPlayV803(root, { preview, play } = {}) {
     event.stopPropagation();
   }, true);
 }
+
+
+// ============================================================
+// v933: WebRTC P2P 다이렉트 파일 공유
+// - signaling 서버 없이 offer/answer 연결코드를 수동 교환한다.
+// - 실제 영상 데이터는 서버에 업로드하지 않고 DataChannel로 직접 전송한다.
+// - 64KiB 청크 + bufferedAmount backpressure로 대용량 파일을 RAM에 올리지 않는다.
+// - 수신은 showSaveFilePicker/createWritable로 바로 디스크에 쓴다.
+// ============================================================
+const VIDEO_P2P_CHUNK_BYTES_V933 = 64 * 1024;
+const VIDEO_P2P_BUFFER_HIGH_V933 = 8 * 1024 * 1024;
+const VIDEO_P2P_BUFFER_LOW_V933 = 2 * 1024 * 1024;
+let videoP2PSessionV933 = null;
+
+function videoP2PEncodeCodeV933(value) {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
+  let binary = '';
+  const step = 0x8000;
+  for (let i = 0; i < bytes.length; i += step) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + step));
+  }
+  return btoa(binary);
+}
+
+function videoP2PDecodeCodeV933(raw) {
+  const clean = String(raw || '').replace(/\s+/g, '');
+  if (!clean) throw new Error('연결코드가 비어 있습니다.');
+  const binary = atob(clean);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function formatVideoP2PBytesV933(bytes) {
+  const value = Math.max(0, Number(bytes) || 0);
+  const units = ['B','KiB','MiB','GiB','TiB'];
+  let n = value;
+  let index = 0;
+  while (n >= 1024 && index < units.length - 1) { n /= 1024; index++; }
+  return `${n >= 100 || index === 0 ? n.toFixed(0) : n.toFixed(2)} ${units[index]}`;
+}
+
+function formatVideoP2PRateV933(bytesPerSecond) {
+  return `${formatVideoP2PBytesV933(bytesPerSecond)}/s`;
+}
+
+async function copyVideoP2PTextV933(textValue, textarea) {
+  const value = String(textValue || '');
+  if (!value) return false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch (_) {}
+  try {
+    if (textarea) {
+      textarea.focus();
+      textarea.select();
+      return !!document.execCommand?.('copy');
+    }
+  } catch (_) {}
+  return false;
+}
+
+function waitVideoP2PIceCompleteV933(pc, timeoutMs = 12000) {
+  if (!pc || pc.iceGatheringState === 'complete') return Promise.resolve();
+  return new Promise(resolve => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      try { pc.removeEventListener('icegatheringstatechange', check); } catch (_) {}
+      clearTimeout(timer);
+      resolve();
+    };
+    const check = () => {
+      if (pc.iceGatheringState === 'complete') finish();
+    };
+    const timer = setTimeout(finish, timeoutMs);
+    pc.addEventListener('icegatheringstatechange', check);
+  });
+}
+
+function createVideoP2PPeerV933() {
+  if (typeof RTCPeerConnection !== 'function') {
+    throw new Error('이 브라우저는 WebRTC P2P를 지원하지 않습니다.');
+  }
+  return new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  });
+}
+
+function ensureVideoP2PLayerV933() {
+  let layer = document.getElementById('videoP2PLayerV933');
+  if (layer) return layer;
+  layer = document.createElement('div');
+  layer.id = 'videoP2PLayerV933';
+  layer.innerHTML = `
+    <div id="videoP2PPanelV933" role="dialog" aria-modal="true" aria-label="P2P 파일 공유">
+      <div class="videoP2PHeadV933">
+        <strong>수동공유 · P2P 다이렉트 파일 공유</strong>
+        <button type="button" class="zoomBtn" id="videoP2PCloseBtnV933">닫기</button>
+      </div>
+      <div class="videoP2PNoteV933">파일 데이터는 서버에 업로드하지 않고 브라우저끼리 직접 전송합니다. 수동공유는 signaling 서버 없이 송신코드/응답코드를 서로 한 번씩 주고받는 기존 방식입니다.</div>
+      <div class="videoP2PTabsV933">
+        <button type="button" class="zoomBtn" id="videoP2PSendTabV933">보내기</button>
+        <button type="button" class="zoomBtn" id="videoP2PRecvTabV933">받기</button>
+      </div>
+      <div id="videoP2PSendPaneV933" class="videoP2PPaneV933">
+        <div class="videoP2PFileV933" id="videoP2PSendFileV933">공유할 영상을 선택하세요.</div>
+        <label>① 이 송신코드를 상대방에게 전달</label>
+        <textarea id="videoP2POfferOutV933" readonly placeholder="공유 버튼을 누르면 송신코드가 생성됩니다."></textarea>
+        <div class="videoP2PRowV933"><button type="button" class="zoomBtn" id="videoP2PCopyOfferV933">송신코드 복사</button></div>
+        <label>② 상대방이 만든 응답코드를 여기에 붙여넣기</label>
+        <textarea id="videoP2PAnswerInV933" placeholder="응답코드 붙여넣기"></textarea>
+        <div class="videoP2PRowV933"><button type="button" class="zoomBtn" id="videoP2PApplyAnswerV933">연결 · 전송 시작</button><button type="button" class="zoomBtn" id="videoP2PCancelSendV933">중지</button></div>
+        <div class="videoP2PStatusV933" id="videoP2PSendStatusV933">대기</div>
+        <div class="videoP2PProgressTrackV933"><div id="videoP2PSendProgressV933"></div></div>
+      </div>
+      <div id="videoP2PRecvPaneV933" class="videoP2PPaneV933" hidden>
+        <label>① 상대방의 송신코드 붙여넣기</label>
+        <textarea id="videoP2POfferInV933" placeholder="송신코드 붙여넣기"></textarea>
+        <div class="videoP2PFileV933" id="videoP2PRecvFileV933">송신코드를 확인하면 파일정보가 표시됩니다.</div>
+        <div class="videoP2PRowV933"><button type="button" class="zoomBtn" id="videoP2PMakeAnswerV933">저장위치 선택 · 응답코드 만들기</button></div>
+        <label>② 만들어진 응답코드를 상대방에게 전달</label>
+        <textarea id="videoP2PAnswerOutV933" readonly placeholder="응답코드가 여기에 생성됩니다."></textarea>
+        <div class="videoP2PRowV933"><button type="button" class="zoomBtn" id="videoP2PCopyAnswerV933">응답코드 복사</button><button type="button" class="zoomBtn" id="videoP2PCancelRecvV933">중지</button></div>
+        <div class="videoP2PStatusV933" id="videoP2PRecvStatusV933">대기</div>
+        <div class="videoP2PProgressTrackV933"><div id="videoP2PRecvProgressV933"></div></div>
+      </div>
+    </div>`;
+  document.body.appendChild(layer);
+
+  const setPane = mode => {
+    const send = mode !== 'recv';
+    layer.querySelector('#videoP2PSendPaneV933').hidden = !send;
+    layer.querySelector('#videoP2PRecvPaneV933').hidden = send;
+    layer.querySelector('#videoP2PSendTabV933')?.classList.toggle('active', send);
+    layer.querySelector('#videoP2PRecvTabV933')?.classList.toggle('active', !send);
+  };
+  layer.__videoP2PSetPaneV933 = setPane;
+  layer.querySelector('#videoP2PSendTabV933')?.addEventListener('click', () => setPane('send'));
+  layer.querySelector('#videoP2PRecvTabV933')?.addEventListener('click', () => setPane('recv'));
+  layer.querySelector('#videoP2PCloseBtnV933')?.addEventListener('click', () => { layer.classList.remove('is-visible'); });
+  layer.addEventListener('mousedown', event => { if (event.target === layer) layer.classList.remove('is-visible'); });
+  layer.querySelector('#videoP2PCopyOfferV933')?.addEventListener('click', async () => {
+    const ta = layer.querySelector('#videoP2POfferOutV933');
+    const ok = await copyVideoP2PTextV933(ta?.value, ta);
+    if (typeof showToast === 'function') showToast(ok ? '송신코드 복사 완료' : '복사 실패 · 직접 선택해서 복사하세요.', 2200);
+  });
+  layer.querySelector('#videoP2PCopyAnswerV933')?.addEventListener('click', async () => {
+    const ta = layer.querySelector('#videoP2PAnswerOutV933');
+    const ok = await copyVideoP2PTextV933(ta?.value, ta);
+    if (typeof showToast === 'function') showToast(ok ? '응답코드 복사 완료' : '복사 실패 · 직접 선택해서 복사하세요.', 2200);
+  });
+  layer.querySelector('#videoP2PApplyAnswerV933')?.addEventListener('click', () => void applyVideoP2PAnswerAndStartV933());
+  layer.querySelector('#videoP2PMakeAnswerV933')?.addEventListener('click', () => void makeVideoP2PAnswerV933());
+  layer.querySelector('#videoP2PCancelSendV933')?.addEventListener('click', () => cancelVideoP2PSessionV933('사용자가 송신을 중지했습니다.'));
+  layer.querySelector('#videoP2PCancelRecvV933')?.addEventListener('click', () => cancelVideoP2PSessionV933('사용자가 수신을 중지했습니다.'));
+  return layer;
+}
+
+function openVideoP2PLayerV933(mode = 'send') {
+  const layer = ensureVideoP2PLayerV933();
+  layer.__videoP2PSetPaneV933?.(mode === 'recv' ? 'recv' : 'send');
+  layer.classList.add('is-visible');
+  return layer;
+}
+
+function setVideoP2PStatusV933(mode, textValue, doneBytes = null, totalBytes = null, startedAt = null) {
+  const layer = ensureVideoP2PLayerV933();
+  const status = layer.querySelector(mode === 'recv' ? '#videoP2PRecvStatusV933' : '#videoP2PSendStatusV933');
+  const bar = layer.querySelector(mode === 'recv' ? '#videoP2PRecvProgressV933' : '#videoP2PSendProgressV933');
+  let text = String(textValue || '');
+  const done = Number(doneBytes);
+  const total = Number(totalBytes);
+  if (Number.isFinite(done) && Number.isFinite(total) && total > 0) {
+    const pct = Math.max(0, Math.min(100, done / total * 100));
+    if (bar) bar.style.width = `${pct}%`;
+    text += ` · ${formatVideoP2PBytesV933(done)} / ${formatVideoP2PBytesV933(total)} · ${pct.toFixed(1)}%`;
+    if (startedAt && done > 0) {
+      const seconds = Math.max(0.001, (performance.now() - startedAt) / 1000);
+      text += ` · ${formatVideoP2PRateV933(done / seconds)}`;
+    }
+  } else if (bar && totalBytes === 0) {
+    bar.style.width = '0%';
+  }
+  if (status) status.textContent = text;
+}
+
+async function cleanupVideoP2PSessionV933({ abortWritable = false } = {}) {
+  const session = videoP2PSessionV933;
+  videoP2PSessionV933 = null;
+  if (!session) return;
+  session.cancelled = true;
+  try { session.channel?.close?.(); } catch (_) {}
+  try { session.pc?.close?.(); } catch (_) {}
+  if (session.writable) {
+    try {
+      if (abortWritable && typeof session.writable.abort === 'function') await session.writable.abort();
+      else if (!session.receiveDone && typeof session.writable.close === 'function') await session.writable.close();
+    } catch (_) {}
+  }
+}
+
+function cancelVideoP2PSessionV933(message = '중지') {
+  const mode = videoP2PSessionV933?.mode || 'send';
+  void cleanupVideoP2PSessionV933({ abortWritable: mode === 'recv' });
+  setVideoP2PStatusV933(mode, message, null, null, null);
+}
+
+async function prepareVideoP2PSendV933(entry) {
+  const layer = openVideoP2PLayerV933('send');
+  await cleanupVideoP2PSessionV933({ abortWritable: true });
+  const fileBox = layer.querySelector('#videoP2PSendFileV933');
+  const offerOut = layer.querySelector('#videoP2POfferOutV933');
+  const answerIn = layer.querySelector('#videoP2PAnswerInV933');
+  if (offerOut) offerOut.value = '';
+  if (answerIn) answerIn.value = '';
+  setVideoP2PStatusV933('send', '파일 권한 확인 중…', 0, 0);
+
+  try {
+    const handle = await resolveVideoHandle(entry);
+    if (!handle) throw new Error('영상 파일 접근 권한을 얻지 못했습니다.');
+    const file = await handle.getFile();
+    if (fileBox) fileBox.textContent = `${file.name} · ${formatVideoP2PBytesV933(file.size)}`;
+
+    const pc = createVideoP2PPeerV933();
+    const channel = pc.createDataChannel('webviewer-file-v933', { ordered: true });
+    channel.binaryType = 'arraybuffer';
+    channel.bufferedAmountLowThreshold = VIDEO_P2P_BUFFER_LOW_V933;
+    const session = {
+      mode: 'send', pc, channel, file, entry, cancelled: false, sending: false,
+      startedAt: 0, sentBytes: 0, remoteReady: false
+    };
+    videoP2PSessionV933 = session;
+
+    pc.addEventListener('connectionstatechange', () => {
+      if (videoP2PSessionV933 !== session) return;
+      const state = pc.connectionState;
+      if (state === 'failed' || state === 'disconnected') {
+        setVideoP2PStatusV933('send', `연결 상태: ${state} · 같은 네트워크가 아니면 NAT 환경에 따라 직접연결이 실패할 수 있습니다.`);
+      }
+    });
+
+    channel.addEventListener('open', () => {
+      if (videoP2PSessionV933 !== session) return;
+      setVideoP2PStatusV933('send', 'P2P 연결됨 · 상대방 저장 준비 대기 중…');
+    });
+    channel.addEventListener('message', event => {
+      if (videoP2PSessionV933 !== session || typeof event.data !== 'string') return;
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg?.type === 'ready') {
+          session.remoteReady = true;
+          if (!session.sending) void sendVideoP2PFileV933(session);
+        } else if (msg?.type === 'cancel') {
+          cancelVideoP2PSessionV933('상대방이 수신을 중지했습니다.');
+        }
+      } catch (_) {}
+    });
+    channel.addEventListener('close', () => {
+      if (videoP2PSessionV933 === session && !session.cancelled && session.sentBytes < file.size) {
+        setVideoP2PStatusV933('send', '연결이 종료되었습니다.', session.sentBytes, file.size, session.startedAt || null);
+      }
+    });
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await waitVideoP2PIceCompleteV933(pc);
+    const code = videoP2PEncodeCodeV933({
+      v: 933,
+      kind: 'offer',
+      sdp: pc.localDescription,
+      file: { name: file.name, size: file.size, type: file.type || '', lastModified: file.lastModified || 0 }
+    });
+    if (offerOut) offerOut.value = code;
+    setVideoP2PStatusV933('send', '송신코드 생성 완료 · 상대방에게 전달하세요.');
+  } catch (error) {
+    console.warn('[v933 P2P send prepare]', error);
+    setVideoP2PStatusV933('send', `준비 실패: ${error?.message || error}`);
+  }
+}
+
+async function applyVideoP2PAnswerAndStartV933() {
+  const session = videoP2PSessionV933;
+  const layer = ensureVideoP2PLayerV933();
+  if (!session || session.mode !== 'send' || !session.pc) {
+    setVideoP2PStatusV933('send', '먼저 포스터의 공유 버튼으로 보낼 파일을 선택하세요.');
+    return;
+  }
+  try {
+    const decoded = videoP2PDecodeCodeV933(layer.querySelector('#videoP2PAnswerInV933')?.value);
+    if (decoded?.kind !== 'answer' || !decoded?.sdp) throw new Error('올바른 응답코드가 아닙니다.');
+    await session.pc.setRemoteDescription(decoded.sdp);
+    setVideoP2PStatusV933('send', '응답 적용 완료 · P2P 연결 중…');
+    if (session.channel?.readyState === 'open' && session.remoteReady && !session.sending) {
+      void sendVideoP2PFileV933(session);
+    }
+  } catch (error) {
+    console.warn('[v933 P2P answer apply]', error);
+    setVideoP2PStatusV933('send', `응답코드 오류: ${error?.message || error}`);
+  }
+}
+
+function waitVideoP2PBufferLowV933(channel) {
+  if (!channel || channel.bufferedAmount <= VIDEO_P2P_BUFFER_HIGH_V933) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = fn => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try { channel.removeEventListener('bufferedamountlow', low); } catch (_) {}
+      fn();
+    };
+    const low = () => finish(resolve);
+    const timer = setTimeout(() => {
+      if (channel.readyState === 'open') finish(resolve);
+      else finish(() => reject(new Error('P2P 연결이 끊어졌습니다.')));
+    }, 15000);
+    channel.addEventListener('bufferedamountlow', low, { once: true });
+  });
+}
+
+async function sendVideoP2PFileV933(session) {
+  if (!session || session.sending || session.cancelled) return;
+  const { channel, file } = session;
+  if (!channel || channel.readyState !== 'open') return;
+  session.sending = true;
+  session.startedAt = performance.now();
+  session.sentBytes = 0;
+  try {
+    channel.send(JSON.stringify({ type: 'meta', name: file.name, size: file.size, mime: file.type || '' }));
+    for (let offset = 0; offset < file.size; offset += VIDEO_P2P_CHUNK_BYTES_V933) {
+      if (session.cancelled || videoP2PSessionV933 !== session) throw new Error('전송이 중지되었습니다.');
+      if (channel.readyState !== 'open') throw new Error('P2P 연결이 끊어졌습니다.');
+      await waitVideoP2PBufferLowV933(channel);
+      const end = Math.min(file.size, offset + VIDEO_P2P_CHUNK_BYTES_V933);
+      const chunk = await file.slice(offset, end).arrayBuffer();
+      channel.send(chunk);
+      session.sentBytes = end;
+      if ((end % (4 * 1024 * 1024)) < VIDEO_P2P_CHUNK_BYTES_V933 || end === file.size) {
+        setVideoP2PStatusV933('send', '전송 중', end, file.size, session.startedAt);
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+    }
+    while (channel.readyState === 'open' && channel.bufferedAmount > 0) {
+      await new Promise(resolve => setTimeout(resolve, 60));
+    }
+    if (channel.readyState !== 'open') throw new Error('완료 신호 전에 연결이 끊어졌습니다.');
+    channel.send(JSON.stringify({ type: 'done', size: file.size }));
+    setVideoP2PStatusV933('send', '전송 완료', file.size, file.size, session.startedAt);
+  } catch (error) {
+    if (!session.cancelled) setVideoP2PStatusV933('send', `전송 실패: ${error?.message || error}`, session.sentBytes, file.size, session.startedAt);
+  } finally {
+    session.sending = false;
+  }
+}
+
+async function makeVideoP2PAnswerV933() {
+  const layer = openVideoP2PLayerV933('recv');
+  await cleanupVideoP2PSessionV933({ abortWritable: true });
+  const raw = layer.querySelector('#videoP2POfferInV933')?.value;
+  const answerOut = layer.querySelector('#videoP2PAnswerOutV933');
+  if (answerOut) answerOut.value = '';
+  try {
+    const decoded = videoP2PDecodeCodeV933(raw);
+    if (decoded?.kind !== 'offer' || !decoded?.sdp || !decoded?.file) throw new Error('올바른 송신코드가 아닙니다.');
+    const meta = decoded.file;
+    const fileBox = layer.querySelector('#videoP2PRecvFileV933');
+    if (fileBox) fileBox.textContent = `${meta.name || '파일'} · ${formatVideoP2PBytesV933(meta.size)}`;
+
+    if (typeof window.showSaveFilePicker !== 'function') {
+      throw new Error('대용량 직접저장을 위해 Chromium의 파일 저장 API가 필요합니다. Chrome/Edge에서 실행하세요.');
+    }
+    setVideoP2PStatusV933('recv', '저장 위치 선택 중…', 0, Number(meta.size) || 0);
+    const saveHandle = await window.showSaveFilePicker({
+      suggestedName: String(meta.name || 'received.bin'),
+      types: [{ description: '받는 파일', accept: { [String(meta.type || 'application/octet-stream')]: ['.' + String(meta.name || 'bin').split('.').pop()] } }]
+    });
+    const writable = await saveHandle.createWritable();
+
+    const pc = createVideoP2PPeerV933();
+    const session = {
+      mode: 'recv', pc, writable, saveHandle, meta,
+      channel: null, cancelled: false, receiveDone: false, receivedBytes: 0,
+      startedAt: 0, writeChain: Promise.resolve()
+    };
+    videoP2PSessionV933 = session;
+
+    pc.addEventListener('datachannel', event => {
+      const channel = event.channel;
+      session.channel = channel;
+      channel.binaryType = 'arraybuffer';
+      channel.addEventListener('open', () => {
+        if (videoP2PSessionV933 !== session) return;
+        session.startedAt = performance.now();
+        setVideoP2PStatusV933('recv', 'P2P 연결됨 · 수신 대기', 0, Number(meta.size) || 0, session.startedAt);
+        try { channel.send(JSON.stringify({ type: 'ready' })); } catch (_) {}
+      });
+      channel.addEventListener('message', event => {
+        if (videoP2PSessionV933 !== session || session.cancelled) return;
+        if (typeof event.data === 'string') {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg?.type === 'meta') {
+              if (Number(msg.size) !== Number(meta.size)) throw new Error('송신 파일 크기가 연결코드와 다릅니다.');
+            } else if (msg?.type === 'done') {
+              session.writeChain = session.writeChain.then(async () => {
+                if (session.cancelled) return;
+                const expected = Number(meta.size) || 0;
+                if (expected > 0 && session.receivedBytes !== expected) {
+                  if (typeof session.writable.abort === 'function') await session.writable.abort();
+                  throw new Error(`파일 크기 불일치 · ${session.receivedBytes} / ${expected}`);
+                }
+                await session.writable.close();
+                session.receiveDone = true;
+                setVideoP2PStatusV933('recv', '수신 완료 · 파일 저장 완료', session.receivedBytes, expected || session.receivedBytes, session.startedAt);
+              }).catch(error => setVideoP2PStatusV933('recv', `저장 마무리 실패: ${error?.message || error}`));
+            } else if (msg?.type === 'cancel') {
+              cancelVideoP2PSessionV933('상대방이 송신을 중지했습니다.');
+            }
+          } catch (error) {
+            setVideoP2PStatusV933('recv', `제어정보 오류: ${error?.message || error}`);
+          }
+          return;
+        }
+
+        const data = event.data instanceof ArrayBuffer
+          ? event.data
+          : (ArrayBuffer.isView(event.data) ? event.data.buffer.slice(event.data.byteOffset, event.data.byteOffset + event.data.byteLength) : null);
+        if (!data) return;
+        const size = data.byteLength;
+        session.writeChain = session.writeChain.then(async () => {
+          if (session.cancelled) return;
+          await session.writable.write(data);
+          session.receivedBytes += size;
+          if ((session.receivedBytes % (4 * 1024 * 1024)) < VIDEO_P2P_CHUNK_BYTES_V933 || session.receivedBytes >= Number(meta.size)) {
+            setVideoP2PStatusV933('recv', '수신 중', session.receivedBytes, Number(meta.size) || session.receivedBytes, session.startedAt);
+          }
+        }).catch(error => {
+          setVideoP2PStatusV933('recv', `디스크 저장 실패: ${error?.message || error}`);
+          try { channel.send(JSON.stringify({ type: 'cancel' })); } catch (_) {}
+          cancelVideoP2PSessionV933('디스크 저장 실패');
+        });
+      });
+      channel.addEventListener('close', () => {
+        if (videoP2PSessionV933 === session && !session.receiveDone && !session.cancelled) {
+          setVideoP2PStatusV933('recv', '연결이 완료 전에 종료되었습니다.', session.receivedBytes, Number(meta.size) || session.receivedBytes, session.startedAt);
+        }
+      });
+    });
+
+    await pc.setRemoteDescription(decoded.sdp);
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    await waitVideoP2PIceCompleteV933(pc);
+    const answerCode = videoP2PEncodeCodeV933({ v: 933, kind: 'answer', sdp: pc.localDescription });
+    if (answerOut) answerOut.value = answerCode;
+    setVideoP2PStatusV933('recv', '응답코드 생성 완료 · 상대방에게 전달하세요.', 0, Number(meta.size) || 0);
+  } catch (error) {
+    console.warn('[v933 P2P receive answer]', error);
+    setVideoP2PStatusV933('recv', `받기 준비 실패: ${error?.message || error}`);
+    await cleanupVideoP2PSessionV933({ abortWritable: true });
+  }
+}
+
+function createVideoP2PShareBadgeV933(entry) {
+  const badge = document.createElement('span');
+  badge.className = 'videoP2PShareBadgeV933';
+  badge.textContent = '수동공유';
+  badge.title = '서버 없이 연결코드를 직접 주고받아 이 영상 파일을 WebRTC P2P로 전송';
+  badge.setAttribute('role', 'button');
+  badge.tabIndex = 0;
+  const run = event => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    try { stopVideoHoverPreview?.(); } catch (_) {}
+    void prepareVideoP2PSendV933(entry);
+  };
+  badge.addEventListener('click', run);
+
+  // v943: hover 미리보기가 이미 시작된 뒤 버튼으로 이동한 경우
+  // 먼저 미리보기를 정리하고 포스터 click/mousedown/pointerdown으로 전달하지 않는다.
+  badge.addEventListener('mouseenter', () => {
+    try { stopVideoHoverPreview?.(); } catch (_) {}
+  });
+  badge.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    try { stopVideoHoverPreview?.(); } catch (_) {}
+  });
+  badge.addEventListener('mousedown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  badge.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') run(event);
+  });
+  return badge;
+}
+
+
+// ============================================================
+// v946: 자발적 자동공유 등록 버튼
+// - 파일 자체/보유목록을 올리지 않고 이 카드의 품번만 서버에 등록한다.
+// - 실제 서버 동작은 뒤쪽 videoAutoShareV934Script의 공개 bridge를 호출한다.
+// ============================================================
+function getVideoAutoSharePublishCodeV946(entry) {
+  let code = String(entry?.code || '').trim();
+
+  try {
+    const row =
+      typeof getVideoWorkRecordForEntry === 'function'
+        ? getVideoWorkRecordForEntry(entry)
+        : null;
+    if (row?.code) code = String(row.code).trim();
+  } catch (_) {}
+
+  return code.normalize('NFKC').toUpperCase();
+}
+
+function createVideoAutoSharePublishBadgeV946(entry) {
+  const badge = document.createElement('span');
+  badge.className = 'videoAutoSharePublishBadgeV946';
+  badge.setAttribute('role', 'button');
+  badge.tabIndex = 0;
+
+  const code = getVideoAutoSharePublishCodeV946(entry);
+  badge.dataset.autoSharePublishCodeV946 = code;
+
+  const sync = () => {
+    const checker = window.isVideoAutoSharePublishedV946;
+    const active =
+      !!code &&
+      typeof checker === 'function' &&
+      !!checker(code);
+
+    badge.classList.toggle('is-active', active);
+    badge.textContent = active ? '공유등록됨' : '공유등록';
+    badge.title = active
+      ? `${code || '이 작품'} 자발적 공유등록 해제`
+      : `${code || '이 작품'}을 공유가능 작품으로 7일 등록`;
+  };
+
+  const run = event => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+
+    try { stopVideoHoverPreview?.(); } catch (_) {}
+
+    if (!code) {
+      try { showToast?.('공유등록할 품번을 찾지 못했습니다.', 2400); } catch (_) {}
+      return;
+    }
+
+    const toggle = window.toggleVideoAutoSharePublishedV946;
+    if (typeof toggle !== 'function') {
+      try { showToast?.('자동공유 초기화 중입니다. 잠시 후 다시 눌러주세요.', 2400); } catch (_) {}
+      return;
+    }
+
+    void Promise.resolve(toggle(code))
+      .finally(() => setTimeout(sync, 0));
+  };
+
+  badge.addEventListener('click', run);
+  badge.addEventListener('mouseenter', () => {
+    try { stopVideoHoverPreview?.(); } catch (_) {}
+  });
+  badge.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    try { stopVideoHoverPreview?.(); } catch (_) {}
+  });
+  badge.addEventListener('mousedown', event => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  badge.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') run(event);
+  });
+
+  document.addEventListener(
+    'videoAutoSharePublicationsChangedV946',
+    sync
+  );
+
+  queueMicrotask(sync);
+  return badge;
+}
+
+function initVideoP2PReceiveButtonV933() {
+  const btn = document.getElementById('videoP2PReceiveBtnV933');
+  if (!btn || btn.dataset.boundV933 === '1') return;
+  btn.dataset.boundV933 = '1';
+  btn.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    openVideoP2PLayerV933('recv');
+    setTimeout(() => document.getElementById('videoP2POfferInV933')?.focus(), 0);
+  });
+}
+
+setTimeout(initVideoP2PReceiveButtonV933, 0);
 
 function appendVideoCards(list, box) {
 for (const entry of list) {
@@ -112816,6 +113764,8 @@ bottomLeftMeta.appendChild(
   actualDeleteBadge
 );
 
+// v943: 수동공유는 hover 미리보기와 충돌하지 않도록
+// 포스터 메타가 아닌 아래 텍스트 메타행에 배치한다.
 
 // 왼쪽 아래 메타 추가
 posterWrap.appendChild(
@@ -113255,6 +114205,28 @@ if (
     workRating
   );
 }
+
+// v943: 포스터 재생영역 바깥의 텍스트 메타행에 수동공유 버튼 배치.
+// 제목/배우/품번 줄은 원래 포스터 클릭 재생과 분리되어 있으므로
+// hover 미리보기 중 클릭해도 playOwnedPoster로 떨어지지 않는다.
+const manualShareBadgeV943 =
+  createVideoP2PShareBadgeV933(entry);
+
+manualShareBadgeV943.classList.add(
+  'videoP2PShareCaptionV943'
+);
+
+metaRow.appendChild(
+  manualShareBadgeV943
+);
+
+// v946: 요청이 없어도 이 보유작을 "공유가능 작품"으로 알릴 수 있다.
+const voluntaryShareBadgeV946 =
+  createVideoAutoSharePublishBadgeV946(entry);
+
+metaRow.appendChild(
+  voluntaryShareBadgeV946
+);
 
 const actressCareerRankLine =
   createVideoActressCareerRankLine(entry);
@@ -120757,6 +121729,16 @@ const videoSubtitleOrganizerBtnV917 =
     'videoSubtitleOrganizerBtnV917'
   );
 
+const videoAutoShareBtnV934 =
+  document.getElementById(
+    'videoAutoShareBtnV934'
+  );
+
+const videoP2PReceiveBtnV933 =
+  document.getElementById(
+    'videoP2PReceiveBtnV933'
+  );
+
 const videoActressBulkMatchBtn =
   document.getElementById(
     'videoActressBulkMatchBtn'
@@ -120948,6 +121930,16 @@ if (videoRangeViewBtn) {
 
 if (videoSubtitleOrganizerBtnV917) {
   videoSubtitleOrganizerBtnV917.style.display =
+    isVideo ? '' : 'none';
+}
+
+if (videoAutoShareBtnV934) {
+  videoAutoShareBtnV934.style.display =
+    isVideo ? '' : 'none';
+}
+
+if (videoP2PReceiveBtnV933) {
+  videoP2PReceiveBtnV933.style.display =
     isVideo ? '' : 'none';
 }
 
@@ -172030,7 +173022,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 932;
+  const VIEWER_BUILD_V789 = 950;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -172743,15 +173735,25 @@ try {
       }
     }
 
-    // 메타검색 → 자막정리 → 리스트 한 줄 개수 순으로 고정한다.
+    // 메타검색 → 자막정리 → 자동공유 → 수동공유 → 리스트 한 줄 개수 순으로 고정한다.
     const metaBtn = document.getElementById('videoRangeViewBtn');
     const subtitleOrganizerBtn = document.getElementById('videoSubtitleOrganizerBtnV917');
+    const autoShareBtnV934 = document.getElementById('videoAutoShareBtnV934');
+    const p2pReceiveBtnV933 = document.getElementById('videoP2PReceiveBtnV933');
     const cols = document.getElementById('wtColsThumb');
     if (metaBtn && subtitleOrganizerBtn) {
       placeImmediatelyAfterV915(metaBtn, subtitleOrganizerBtn);
     }
+    if (subtitleOrganizerBtn && autoShareBtnV934) {
+      placeImmediatelyAfterV915(subtitleOrganizerBtn, autoShareBtnV934);
+    }
+    if (autoShareBtnV934 && p2pReceiveBtnV933) {
+      placeImmediatelyAfterV915(autoShareBtnV934, p2pReceiveBtnV933);
+    } else if (subtitleOrganizerBtn && p2pReceiveBtnV933) {
+      placeImmediatelyAfterV915(subtitleOrganizerBtn, p2pReceiveBtnV933);
+    }
     if (cols) {
-      const anchor = subtitleOrganizerBtn || metaBtn;
+      const anchor = p2pReceiveBtnV933 || autoShareBtnV934 || subtitleOrganizerBtn || metaBtn;
       if (anchor) placeImmediatelyAfterV915(anchor, cols);
       if (cols.title !== '리스트 한 줄에 표시할 포스터 개수') {
         cols.title = '리스트 한 줄에 표시할 포스터 개수';
@@ -173237,6 +174239,2610 @@ try {
 <!-- End Cloudflare Web Analytics -->
 
 <!-- v931: 기존 파일명/제목 노모·유모 자동판정 복원 · display [노모]/[유모] 직접확정은 최우선 · 자동판정까지 실패한 작품에만 회색 노모/유모 선택 버튼 표시 · 전용필터도 통합판정 기준 -->
+<script id="videoAutoShareV934Script">
+(() => {
+  'use strict';
+
+  // ============================================================
+  // v934 자동공유
+  // - Cloudflare Worker + SQLite-backed Durable Object
+  // - WebSocket Hibernation push: 1분 polling 없음
+  // - 서버에는 요청 품번/선점/signaling만 저장
+  // - 보유 여부는 각 PC의 로컬 videolist에서만 판정
+  // - 실제 파일은 기존 WebRTC DataChannel을 재사용해 P2P 직접전송
+  // ============================================================
+  const ENDPOINT_KEY = 'video_auto_share_worker_url_v934'; // 구버전 호환용 키(이제 읽지 않음)
+  const CLIENT_ID_KEY = 'video_auto_share_client_id_v934';
+  // v942: 자동공유 서버 주소는 배포 HTML에 고정한다.
+  // 주소를 바꿀 때는 HTML의 이 값만 수정해 새 버전을 배포한다.
+  const DEFAULT_ENDPOINT_V935 =
+    'https://webviewer-auto-share-worker.darkmons77.workers.dev';
+
+  // v945: 브라우저 로컬 선제 제한. Worker에서도 같은 20개 제한을 다시 검증한다.
+  const MAX_ACTIVE_REQUESTS_V945 = 20;
+
+  // v946: 자발적 공유등록도 요청과 별도로 브라우저 ID당 최대 20개.
+  const MAX_ACTIVE_PUBLICATIONS_V946 = 20;
+
+  // v950: 자동공유 성공 송수신 누적횟수는 서버가 아니라 이 브라우저에만 저장한다.
+  const AUTO_SHARE_SENT_COUNT_KEY_V950 = 'video_auto_share_sent_count_v950';
+  const AUTO_SHARE_RECEIVED_COUNT_KEY_V950 = 'video_auto_share_received_count_v950';
+
+
+  // ============================================================
+  // v940 자동공유 전용 P2P 유틸
+  // 수동공유(v933)의 내부 스코프 함수/상수에 의존하지 않는다.
+  // ============================================================
+  const AUTO_P2P_CHUNK_BYTES_V940 = 64 * 1024;
+  const AUTO_P2P_BUFFER_HIGH_V940 = 8 * 1024 * 1024;
+  const AUTO_P2P_BUFFER_LOW_V940 = 2 * 1024 * 1024;
+
+  function autoP2PFormatBytesV940(bytes) {
+    const value = Math.max(0, Number(bytes) || 0);
+    const units = ['B','KiB','MiB','GiB','TiB'];
+    let n = value;
+    let index = 0;
+    while (n >= 1024 && index < units.length - 1) { n /= 1024; index++; }
+    return `${n >= 100 || index === 0 ? n.toFixed(0) : n.toFixed(2)} ${units[index]}`;
+  }
+
+  function autoP2PFormatRateV940(bytesPerSecond) {
+    return `${autoP2PFormatBytesV940(bytesPerSecond)}/s`;
+  }
+
+  async function autoP2PCopyTextV940(value) {
+    const textValue = String(value || '');
+    if (!textValue) return false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textValue);
+        return true;
+      }
+    } catch (_) {}
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = textValue;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = !!document.execCommand?.('copy');
+      ta.remove();
+      return ok;
+    } catch (_) { return false; }
+  }
+
+  function autoP2PCreatePeerV940() {
+    if (typeof RTCPeerConnection !== 'function') {
+      throw new Error('이 브라우저는 WebRTC P2P를 지원하지 않습니다.');
+    }
+    return new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    });
+  }
+
+  function autoP2PWaitIceCompleteV940(pc, timeoutMs = 12000) {
+    if (!pc || pc.iceGatheringState === 'complete') return Promise.resolve();
+    return new Promise(resolve => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        try { pc.removeEventListener('icegatheringstatechange', check); } catch (_) {}
+        resolve();
+      };
+      const check = () => { if (pc.iceGatheringState === 'complete') finish(); };
+      const timer = setTimeout(finish, timeoutMs);
+      pc.addEventListener('icegatheringstatechange', check);
+    });
+  }
+
+  function autoP2PWaitBufferLowV940(channel) {
+    if (!channel || channel.bufferedAmount <= AUTO_P2P_BUFFER_HIGH_V940) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const finish = fn => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try { channel.removeEventListener('bufferedamountlow', low); } catch (_) {}
+        fn();
+      };
+      const low = () => finish(resolve);
+      const timer = setTimeout(() => {
+        if (channel.readyState === 'open') finish(resolve);
+        else finish(() => reject(new Error('P2P 연결이 끊어졌습니다.')));
+      }, 15000);
+      channel.addEventListener('bufferedamountlow', low, { once: true });
+    });
+  }
+
+  const state = {
+    endpoint: '',
+    clientId: '',
+    ws: null,
+    reconnectTimer: 0,
+    reconnectAttempt: 0,
+    intentionalClose: false,
+    requests: new Map(),
+    publications: new Map(), // publicationId -> {id,code,codeKey,mine,createdAt,expiresAt}
+    pendingClaims: new Map(), // requestId -> {entry,handle}
+    pendingRequestCode: '',
+    pendingPublicationCodesV946: new Set(),
+    pendingOfferWaitersV941: new Map(),
+    autoSession: null,
+  };
+
+  function readAutoShareCounterV950(key) {
+    try {
+      const n = Number(localStorage.getItem(key) || 0);
+      return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function getAutoShareStatsV950() {
+    return {
+      sent: readAutoShareCounterV950(AUTO_SHARE_SENT_COUNT_KEY_V950),
+      received: readAutoShareCounterV950(AUTO_SHARE_RECEIVED_COUNT_KEY_V950),
+    };
+  }
+
+  function bumpAutoShareCounterV950(kind) {
+    const key =
+      kind === 'sent'
+        ? AUTO_SHARE_SENT_COUNT_KEY_V950
+        : AUTO_SHARE_RECEIVED_COUNT_KEY_V950;
+
+    let next = 1;
+
+    try {
+      next = readAutoShareCounterV950(key) + 1;
+      localStorage.setItem(key, String(next));
+    } catch (_) {}
+
+    try { syncReceiveDiagnosticV936(); } catch (_) {}
+    return next;
+  }
+
+  function getClientId() {
+    if (state.clientId) return state.clientId;
+    try {
+      let id = String(localStorage.getItem(CLIENT_ID_KEY) || '').trim();
+      if (!id) {
+        id = crypto.randomUUID
+          ? crypto.randomUUID()
+          : ('client-' + Math.random().toString(36).slice(2) + '-' + Date.now());
+        localStorage.setItem(CLIENT_ID_KEY, id);
+      }
+      state.clientId = id;
+      return id;
+    } catch (_) {
+      state.clientId = state.clientId ||
+        (crypto.randomUUID ? crypto.randomUUID() : ('client-' + Math.random().toString(36).slice(2)));
+      return state.clientId;
+    }
+  }
+
+  function normalizeBaseUrl(raw) {
+    let value = String(raw || '').trim();
+    if (!value) return '';
+    if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
+    const url = new URL(value);
+    url.hash = '';
+    url.search = '';
+    url.pathname = url.pathname.replace(/\/+$/, '');
+    return url.toString().replace(/\/+$/, '');
+  }
+
+  function getSavedEndpoint() {
+    // v942: 사용자별 서버 주소 설정은 사용하지 않는다.
+    // 모든 배포본은 HTML에 내장된 동일 Worker로 자동연결한다.
+    try {
+      return normalizeBaseUrl(DEFAULT_ENDPOINT_V935);
+    } catch (_) {
+      return DEFAULT_ENDPOINT_V935;
+    }
+  }
+
+  function setSavedEndpoint(value) {
+    // 구버전 코드 호환용. UI에서는 더 이상 노출하지 않는다.
+    state.endpoint = getSavedEndpoint();
+    return state.endpoint;
+  }
+
+  function makeWsUrl(base) {
+    const url = new URL(base);
+    url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
+    url.pathname = url.pathname.replace(/\/+$/, '') + '/ws';
+    url.search = '';
+    url.searchParams.set('clientId', getClientId());
+    return url.toString();
+  }
+
+  function makeReceiveLink(request) {
+    if (!request?.id || !request?.receiveToken || !state.endpoint) return '';
+    return state.endpoint.replace(/\/+$/, '') +
+      '/share/' + encodeURIComponent(request.id) +
+      '?token=' + encodeURIComponent(request.receiveToken);
+  }
+
+  function normalizeRequestCode(raw) {
+    const source = String(raw || '').trim();
+    if (!source) return '';
+    try {
+      if (typeof normalizeVideoActressMissingWorks === 'function') {
+        const parsed = normalizeVideoActressMissingWorks([source]);
+        const first = Array.isArray(parsed) ? String(parsed[0] || '').trim() : '';
+        if (first) return first.toUpperCase();
+      }
+    } catch (_) {}
+    return source
+      .normalize('NFKC')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '');
+  }
+
+  function codeKey(raw) {
+    try {
+      if (typeof normalizeVideoMissingCodeKey === 'function') {
+        return normalizeVideoMissingCodeKey(raw);
+      }
+    } catch (_) {}
+    return String(raw || '')
+      .normalize('NFKC')
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '');
+  }
+
+  function addLikelyCodeTokensV938(value, out) {
+    const text = String(value || '').normalize('NFKC').toUpperCase();
+    if (!text) return;
+
+    // 자동공유 전용 안전 폴백:
+    // 기존 entry.code가 비어 있을 때 파일명 안의 일반적인 품번 토큰만 보조 추출한다.
+    // 배우명/제목 전체를 유사도 비교하지 않고 영문+숫자 품번 형태만 exact key로 만든다.
+    const matches = text.match(/[A-Z][A-Z0-9]{1,15}[-_ ]?\d{2,6}(?:[-_ ]?\d{1,3})?/g) || [];
+    for (const match of matches) {
+      const key = codeKey(match);
+      if (key) out.add(key);
+    }
+  }
+
+  function addEntryCandidateKeys(entry, out) {
+    const add = value => {
+      const key = codeKey(value);
+      if (key) out.add(key);
+    };
+
+    // 로컬 영상 자체의 확정/추출 품번
+    add(entry?.code);
+    add(entry?.realCode);
+    add(entry?.externalCode);
+    add(entry?.dmmCode);
+
+    // v938: auto-share script는 메인 videoViewScript IIFE 밖에 있으므로
+    // 내부 parseVideoFilename/getVideoRamIndex를 직접 참조하지 않는다.
+    // 대신 실제 파일명/경로/display에서 품번 형태만 보조 exact 추출한다.
+    [
+      entry?.fileName,
+      entry?.relPath,
+      entry?.baseName,
+      entry?.display
+    ].filter(Boolean).forEach(value => addLikelyCodeTokensV938(value, out));
+
+    // 작품DB는 메인 스크립트가 명시적으로 window에 공개한 함수를 사용한다.
+    try {
+      const getWork = window.getVideoWorkRecordForEntry;
+      if (typeof getWork === 'function') {
+        const row = getWork(entry);
+        add(row?.code);
+        add(row?.contentId);
+        if (Array.isArray(row?.codeAliases)) row.codeAliases.forEach(add);
+        if (Array.isArray(row?.lookupKeys)) row.lookupKeys.forEach(add);
+      }
+    } catch (_) {}
+  }
+
+  function getOwnedEntrySourceV938() {
+    // 핵심 수정:
+    // 메인 영상 시스템이 외부 도구용으로 공개한 실제 videolist RAM snapshot을 사용한다.
+    // 이 함수는 별도 script/IIFE에서도 접근 가능하고, 현재 화면의 보유영상과 같은 데이터다.
+    try {
+      const getter = window.getVideoListSnapshot;
+      if (typeof getter === 'function') {
+        const list = getter();
+        if (Array.isArray(list)) return list.filter(Boolean);
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  function findOwnedEntries(code) {
+    const target = codeKey(code);
+    if (!target) return [];
+
+    const list = getOwnedEntrySourceV938();
+    const out = [];
+
+    for (const entry of list) {
+      const keys = new Set();
+      addEntryCandidateKeys(entry, keys);
+      if (keys.has(target)) out.push(entry);
+    }
+
+    return out;
+  }
+
+  function entryLabel(entry) {
+    return String(
+      entry?.fileName ||
+      entry?.relPath ||
+      entry?.display ||
+      entry?.code ||
+      '영상'
+    );
+  }
+
+  function wsReady() {
+    return state.ws && state.ws.readyState === WebSocket.OPEN;
+  }
+
+  function sendWs(payload) {
+    if (!wsReady()) return false;
+    try {
+      state.ws.send(JSON.stringify(payload));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function statusLabel(status) {
+    switch (String(status || '')) {
+      case 'waiting': return '공유자 대기';
+      case 'claimed': return '공유자가 준비 중';
+      case 'offered': return '받기 준비됨';
+      case 'transferring': return 'P2P 전송 중';
+      default: return status || '대기';
+    }
+  }
+
+  function upsertRequest(request) {
+    if (!request?.id) return;
+    const old = state.requests.get(request.id) || {};
+    const merged = { ...old, ...request };
+
+    // public broadcast는 같은 요청을 mine:false로 보낼 수 있으므로,
+    // 한 번 자기 요청으로 확인된 id의 private 상태는 snapshot/삭제 전까지 보존한다.
+    if (old.mine && request.mine !== true) merged.mine = true;
+    if (old.receiveToken && !request.receiveToken) merged.receiveToken = old.receiveToken;
+    if (old.file && !request.file && ['offered','transferring'].includes(String(request.status || ''))) {
+      merged.file = old.file;
+    }
+
+    state.requests.set(request.id, merged);
+  }
+
+  function removeRequest(id) {
+    const key = String(id || '');
+    if (!key) return;
+    state.requests.delete(key);
+    state.pendingClaims.delete(key);
+  }
+
+
+  function upsertPublicationV946(publication) {
+    if (!publication?.id) return;
+
+    const old = state.publications.get(publication.id) || {};
+    const merged = { ...old, ...publication };
+
+    // broadcast에서는 mine:false가 와도 snapshot/created로 확인한 내 등록 상태를 유지.
+    if (old.mine && publication.mine !== true) merged.mine = true;
+
+    state.publications.set(publication.id, merged);
+  }
+
+  function removePublicationV946(id) {
+    const key = String(id || '');
+    if (!key) return;
+    state.publications.delete(key);
+  }
+
+  function isActivePublicationV946(pub, now = Date.now()) {
+    if (!pub?.id) return false;
+    const expiresAt = Number(pub.expiresAt || 0);
+    return !expiresAt || expiresAt > now;
+  }
+
+  function getMinePublicationForCodeV946(rawCode) {
+    const key = codeKey(rawCode);
+    if (!key) return null;
+
+    const now = Date.now();
+
+    for (const pub of state.publications.values()) {
+      if (
+        pub?.mine &&
+        isActivePublicationV946(pub, now) &&
+        codeKey(pub.code) === key
+      ) {
+        return pub;
+      }
+    }
+
+    return null;
+  }
+
+  function getMineActivePublicationCountV946() {
+    const now = Date.now();
+    let count = 0;
+
+    for (const pub of state.publications.values()) {
+      if (pub?.mine && isActivePublicationV946(pub, now)) count++;
+    }
+
+    return count;
+  }
+
+  function canCreateAnotherPublicationV946() {
+    const count = getMineActivePublicationCountV946();
+    if (count < MAX_ACTIVE_PUBLICATIONS_V946) return true;
+
+    const message =
+      `공유등록은 동시에 최대 ${MAX_ACTIVE_PUBLICATIONS_V946}개까지 가능합니다. ` +
+      `기존 공유등록을 해제하거나 7일 만료를 기다려 주세요.`;
+
+    setConnectionStatus(message, false);
+    if (typeof showToast === 'function') showToast(message, 3600);
+    return false;
+  }
+
+  let publicationExpiryTimerV946 = 0;
+
+  function pruneExpiredPublicationsV946() {
+    publicationExpiryTimerV946 = 0;
+    const now = Date.now();
+    let changed = false;
+
+    for (const [id, pub] of state.publications) {
+      const expiresAt = Number(pub?.expiresAt || 0);
+      if (expiresAt > 0 && expiresAt <= now) {
+        state.publications.delete(id);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      renderLists();
+      notifyPublicationBadgesV946();
+    } else {
+      schedulePublicationExpiryV946();
+    }
+  }
+
+  function schedulePublicationExpiryV946() {
+    clearTimeout(publicationExpiryTimerV946);
+    publicationExpiryTimerV946 = 0;
+
+    const now = Date.now();
+    let nearest = Infinity;
+
+    for (const pub of state.publications.values()) {
+      const expiresAt = Number(pub?.expiresAt || 0);
+      if (expiresAt > now && expiresAt < nearest) nearest = expiresAt;
+    }
+
+    if (!Number.isFinite(nearest)) return;
+
+    const delay =
+      Math.max(
+        50,
+        Math.min(2147483000, nearest - now + 100)
+      );
+
+    publicationExpiryTimerV946 =
+      setTimeout(pruneExpiredPublicationsV946, delay);
+  }
+
+  function notifyPublicationBadgesV946() {
+    try {
+      document.dispatchEvent(
+        new CustomEvent('videoAutoSharePublicationsChangedV946')
+      );
+    } catch (_) {}
+  }
+
+  function isActiveRequestV945(req, now = Date.now()) {
+    if (!req?.id) return false;
+    const expiresAt = Number(req.expiresAt || 0);
+    return !expiresAt || expiresAt > now;
+  }
+
+  function getMineActiveRequestCountV945() {
+    const now = Date.now();
+    let count = 0;
+    for (const req of state.requests.values()) {
+      if (req?.mine && isActiveRequestV945(req, now)) count++;
+    }
+    return count;
+  }
+
+  function canCreateAnotherRequestV945(code = '') {
+    const count = getMineActiveRequestCountV945();
+    if (count < MAX_ACTIVE_REQUESTS_V945) return true;
+
+    const message =
+      `자동공유 요청은 동시에 최대 ${MAX_ACTIVE_REQUESTS_V945}개까지 가능합니다. ` +
+      `기존 요청을 취소하거나 7일 만료를 기다려 주세요.`;
+
+    setConnectionStatus(message, false);
+    if (typeof showToast === 'function') showToast(message, 3600);
+    return false;
+  }
+
+  let requestExpiryTimerV945 = 0;
+
+  function pruneExpiredRequestsV945() {
+    requestExpiryTimerV945 = 0;
+    const now = Date.now();
+    let changed = false;
+
+    for (const [id, req] of state.requests) {
+      const expiresAt = Number(req?.expiresAt || 0);
+      if (expiresAt > 0 && expiresAt <= now) {
+        state.requests.delete(id);
+        state.pendingClaims.delete(String(id));
+        changed = true;
+      }
+    }
+
+    if (changed) renderLists();
+    else scheduleRequestExpiryV945();
+  }
+
+  function scheduleRequestExpiryV945() {
+    clearTimeout(requestExpiryTimerV945);
+    requestExpiryTimerV945 = 0;
+
+    const now = Date.now();
+    let nearest = Infinity;
+
+    for (const req of state.requests.values()) {
+      const expiresAt = Number(req?.expiresAt || 0);
+      if (expiresAt > now && expiresAt < nearest) nearest = expiresAt;
+    }
+
+    if (!Number.isFinite(nearest)) return;
+
+    // 7일은 setTimeout 최대 범위 안이지만, 안전하게 상한을 둔다.
+    const delay = Math.max(50, Math.min(2147483000, nearest - now + 100));
+    requestExpiryTimerV945 = setTimeout(pruneExpiredRequestsV945, delay);
+  }
+
+  function setConnectionStatus(text, ok = null) {
+    const layer = ensureLayer();
+    const el = layer.querySelector('#videoAutoShareConnectionV934');
+    if (!el) return;
+    el.textContent = String(text || '');
+    el.style.color = ok === true ? '#9fe0ae' : ok === false ? '#ff9e9e' : '#bfd9ff';
+  }
+
+  function setTransferStatus(text, done = null, total = null, startedAt = null) {
+    const layer = ensureLayer();
+    const status = layer.querySelector('#videoAutoShareTransferStatusV934');
+    const bar = layer.querySelector('#videoAutoShareProgressBarV934');
+    let out = String(text || '');
+
+    const d = Number(done);
+    const t = Number(total);
+    if (Number.isFinite(d) && Number.isFinite(t) && t > 0) {
+      const pct = Math.max(0, Math.min(100, d / t * 100));
+      if (bar) bar.style.width = pct + '%';
+      out += ` · ${autoP2PFormatBytesV940(d)} / ${autoP2PFormatBytesV940(t)} · ${pct.toFixed(1)}%`;
+      if (startedAt && d > 0) {
+        const sec = Math.max(.001, (performance.now() - startedAt) / 1000);
+        out += ` · ${autoP2PFormatRateV940(d / sec)}`;
+      }
+    } else if (bar && total === 0) {
+      bar.style.width = '0%';
+    }
+
+    if (status) status.textContent = out;
+  }
+
+  function syncReceiveDiagnosticV936() {
+    const layer = ensureLayer();
+    const el = layer.querySelector('#videoAutoShareReceiveDiagV936');
+    if (!el) return;
+
+    let active = 0;
+    let owned = 0;
+    for (const request of state.requests.values()) {
+      if (!request || request.mine || request.status !== 'waiting') continue;
+      if (Number(request.expiresAt || 0) <= Date.now()) continue;
+      active++;
+      if (findOwnedEntries(request.code).length) owned++;
+    }
+
+    const localCount = getOwnedEntrySourceV938().length;
+    const statsV950 = getAutoShareStatsV950();
+
+    el.textContent =
+      `서버 활성요청 ${active}건 · 로컬 영상 ${localCount}건 · 보유매칭 ${owned}건` +
+      ` · 누적전송 ${statsV950.sent}건 · 누적받음 ${statsV950.received}건` +
+      (active > 0 && localCount > 0 && owned === 0
+        ? ' · 요청은 수신됐지만 품번 exact 매칭이 없습니다.'
+        : active > 0 && localCount === 0
+          ? ' · 로컬 videolist 복원 전입니다.'
+          : '');
+    el.dataset.activeV936 = String(active);
+    el.dataset.ownedV936 = String(owned);
+  }
+
+  function syncTopButton() {
+    const btn = document.getElementById('videoAutoShareBtnV934');
+    if (!btn) return;
+
+    let ownedRequestCount = 0;
+    let receiveCountV944 = 0;
+
+    const nowV944 = Date.now();
+
+    for (const request of state.requests.values()) {
+      if (!request || !isActiveRequestV945(request, nowV944)) continue;
+
+      // 다른 사람이 요청했고 내가 보유한 작품 수
+      if (!request.mine && request.status === 'waiting') {
+        if (findOwnedEntries(request.code).length) ownedRequestCount++;
+        continue;
+      }
+
+      // v944:
+      // 내가 요청한 작품에 공유자가 "공유"를 눌러 선점한 순간(claimed)부터
+      // 실제 받기 준비/전송 상태(offered/transferring)까지 상단에 받기 N으로 표시한다.
+      if (
+        request.mine &&
+        ['claimed', 'offered', 'transferring'].includes(String(request.status || ''))
+      ) {
+        receiveCountV944++;
+      }
+    }
+
+    // 구버전 ::after 숫자배지는 CSS에서 숨기고 실제 span 두 개를 사용한다.
+    btn.classList.toggle('has-request-v934', ownedRequestCount > 0);
+    if (ownedRequestCount > 0) btn.dataset.countV934 = String(ownedRequestCount);
+    else delete btn.dataset.countV934;
+
+    let ownedBadge = btn.querySelector('.videoAutoShareOwnedCountV944');
+    if (!ownedBadge) {
+      ownedBadge = document.createElement('span');
+      ownedBadge.className = 'videoAutoShareOwnedCountV944';
+      ownedBadge.setAttribute('aria-hidden', 'true');
+      btn.appendChild(ownedBadge);
+    }
+    ownedBadge.textContent = String(ownedRequestCount);
+    ownedBadge.style.display = ownedRequestCount > 0 ? 'inline-flex' : 'none';
+
+    let receiveBadge = btn.querySelector('.videoAutoShareReceiveCountV944');
+    if (!receiveBadge) {
+      receiveBadge = document.createElement('span');
+      receiveBadge.className = 'videoAutoShareReceiveCountV944';
+      receiveBadge.setAttribute('aria-hidden', 'true');
+      btn.appendChild(receiveBadge);
+    }
+    receiveBadge.textContent = `받기 ${receiveCountV944}`;
+    receiveBadge.style.display = receiveCountV944 > 0 ? 'inline-flex' : 'none';
+
+    btn.classList.toggle('has-receive-v944', receiveCountV944 > 0);
+    if (receiveCountV944 > 0) btn.dataset.receiveCountV944 = String(receiveCountV944);
+    else delete btn.dataset.receiveCountV944;
+
+    const conn = wsReady() ? '연결됨' : (state.endpoint ? '연결 끊김' : '서버 미설정');
+    btn.title =
+      `Cloudflare 자동공유 · ${conn}` +
+      (ownedRequestCount ? ` · 내가 보유한 요청 ${ownedRequestCount}건` : '') +
+      (receiveCountV944 ? ` · 내 요청 공유준비/받기 ${receiveCountV944}건` : '');
+
+    btn.setAttribute(
+      'aria-label',
+      `자동공유${ownedRequestCount ? ` · 보유요청 ${ownedRequestCount}` : ''}${receiveCountV944 ? ` · 받기 ${receiveCountV944}` : ''}`
+    );
+  }
+
+  function renderLists() {
+    const layer = ensureLayer();
+    const mineBox = layer.querySelector('#videoAutoShareMineListV934');
+    const ownedBox = layer.querySelector('#videoAutoShareOwnedListV934');
+    const publishedBox = layer.querySelector('#videoAutoSharePublishedListV946');
+    const minePublishedBox = layer.querySelector('#videoAutoShareMinePublishedListV946');
+
+    if (!mineBox || !ownedBox || !publishedBox || !minePublishedBox) return;
+
+    // v947: WebSocket 상태변경으로 목록을 다시 그려도 각 칸의 스크롤 위치 유지.
+    const scrollTopV947 = {
+      mine: mineBox.scrollTop,
+      owned: ownedBox.scrollTop,
+      published: publishedBox.scrollTop,
+      minePublished: minePublishedBox.scrollTop,
+    };
+
+    mineBox.innerHTML = '';
+    ownedBox.innerHTML = '';
+    publishedBox.innerHTML = '';
+    minePublishedBox.innerHTML = '';
+
+    const requests = Array.from(state.requests.values())
+      .filter(req => Number(req?.expiresAt || 0) > Date.now())
+      .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+    const mine = requests.filter(req => !!req.mine);
+    if (!mine.length) {
+      const empty = document.createElement('div');
+      empty.className = 'videoAutoShareEmptyV934';
+      empty.textContent = '내 활성 요청이 없습니다.';
+      mineBox.appendChild(empty);
+    } else {
+      mine.forEach(req => mineBox.appendChild(makeMineRow(req)));
+    }
+
+    let ownedCount = 0;
+    for (const req of requests) {
+      if (req.mine || req.status !== 'waiting') continue;
+      const entries = findOwnedEntries(req.code);
+      if (!entries.length) continue;
+      ownedCount++;
+      ownedBox.appendChild(makeOwnedRow(req, entries));
+    }
+
+    if (!ownedCount) {
+      const empty = document.createElement('div');
+      empty.className = 'videoAutoShareEmptyV934';
+      empty.textContent = '현재 로컬 보유작과 일치하는 새 요청이 없습니다.';
+      ownedBox.appendChild(empty);
+    }
+
+    // v946: 다른 사용자의 자발적 공유등록을 품번별로 묶어 표시.
+    const publications = Array.from(state.publications.values())
+      .filter(pub => isActivePublicationV946(pub))
+      .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+    const publicGroups = new Map();
+
+    for (const pub of publications) {
+      if (pub.mine) continue;
+
+      const key = codeKey(pub.code);
+      if (!key) continue;
+
+      const current =
+        publicGroups.get(key) ||
+        {
+          code: pub.code,
+          count: 0,
+          latestCreatedAt: 0,
+        };
+
+      current.count++;
+      current.latestCreatedAt =
+        Math.max(
+          Number(current.latestCreatedAt || 0),
+          Number(pub.createdAt || 0)
+        );
+
+      publicGroups.set(key, current);
+    }
+
+    const grouped = Array.from(publicGroups.values())
+      // v947: 내가 이미 로컬에 보유한 작품은 발견목록에서 다시 보여줄 필요가 없다.
+      .filter(group => findOwnedEntries(group.code).length === 0)
+      .sort((a, b) => Number(b.latestCreatedAt || 0) - Number(a.latestCreatedAt || 0));
+
+    if (!grouped.length) {
+      const empty = document.createElement('div');
+      empty.className = 'videoAutoShareEmptyV934';
+      empty.textContent = '현재 다른 사용자가 등록한 공유가능 작품이 없습니다.';
+      publishedBox.appendChild(empty);
+    } else {
+      grouped.forEach(group => {
+        publishedBox.appendChild(
+          makeAvailablePublicationRowV946(group)
+        );
+      });
+    }
+
+    const minePublications =
+      publications.filter(pub => !!pub.mine);
+
+    if (!minePublications.length) {
+      const empty = document.createElement('div');
+      empty.className = 'videoAutoShareEmptyV934';
+      empty.textContent = '내가 등록한 공유가능 작품이 없습니다.';
+      minePublishedBox.appendChild(empty);
+    } else {
+      minePublications.forEach(pub => {
+        minePublishedBox.appendChild(
+          makeMinePublicationRowV946(pub)
+        );
+      });
+    }
+
+    // v947: 각 목록의 독립 스크롤 위치 복원.
+    mineBox.scrollTop = scrollTopV947.mine;
+    ownedBox.scrollTop = scrollTopV947.owned;
+    publishedBox.scrollTop = scrollTopV947.published;
+    minePublishedBox.scrollTop = scrollTopV947.minePublished;
+
+    syncReceiveDiagnosticV936();
+    syncTopButton();
+    scheduleRequestExpiryV945();
+    schedulePublicationExpiryV946();
+    notifyPublicationBadgesV946();
+  }
+
+
+
+  // ============================================================
+  // v948: 자동공유 품번 포스터 hover/click 미리보기
+  // - hover: 마우스가 품번 위에 있는 동안 표시
+  // - click: 고정, 같은 품번 재클릭 또는 바깥 클릭으로 해제
+  // - body fixed popup이라 각 목록의 overflow 스크롤에 잘리지 않는다.
+  // ============================================================
+  let autoSharePosterPopupV948 = null;
+  let autoSharePosterPinnedV948 = false;
+  let autoSharePosterOwnerV948 = null;
+  let autoSharePosterHideTimerV948 = 0;
+
+  function ensureAutoSharePosterPopupV948() {
+    if (autoSharePosterPopupV948?.isConnected) return autoSharePosterPopupV948;
+
+    const popup = document.createElement('div');
+    popup.id = 'videoAutoSharePosterPopupV948';
+    popup.innerHTML = `
+      <div class="videoAutoSharePosterCodeV948"></div>
+      <img class="videoAutoSharePosterImageV948" alt="">
+      <div class="videoAutoSharePosterEmptyV948">포스터 없음</div>
+    `;
+
+    popup.addEventListener('mouseenter', () => {
+      clearTimeout(autoSharePosterHideTimerV948);
+    });
+
+    popup.addEventListener('mouseleave', () => {
+      if (!autoSharePosterPinnedV948) {
+        autoSharePosterHideTimerV948 =
+          setTimeout(hideAutoSharePosterV948, 100);
+      }
+    });
+
+    document.body.appendChild(popup);
+    autoSharePosterPopupV948 = popup;
+    return popup;
+  }
+
+  function getAutoSharePosterCandidatesV948(rawCode) {
+    const code = String(rawCode || '').trim();
+    const out = [];
+    const seen = new Set();
+
+    const addUrl = value => {
+      const url = String(value || '').trim();
+      if (!/^https?:\/\//i.test(url) || seen.has(url)) return;
+      seen.add(url);
+      out.push(url);
+    };
+
+    const resolveRef = value => {
+      const ref = String(value || '').trim();
+      if (!ref) return;
+
+      try {
+        const resolver = window.resolveVideoAvwikidbWorkPosterUrl;
+        if (typeof resolver === 'function') {
+          addUrl(resolver(ref));
+          return;
+        }
+      } catch (_) {}
+
+      addUrl(ref);
+    };
+
+    // 1순위: 작품DB exact 작품의 imageRef
+    try {
+      const work = getPublicationWorkMetaV946(code);
+      if (work?.imageRef) resolveRef(work.imageRef);
+    } catch (_) {}
+
+    // 2순위: AVWikiDB 품번그룹 템플릿 fallback
+    try {
+      const getter = window.getVideoAvwikiPosterGroupCandidateRefs;
+      if (typeof getter === 'function') {
+        const refs = getter(code);
+        if (Array.isArray(refs)) refs.forEach(resolveRef);
+      }
+    } catch (_) {}
+
+    return out;
+  }
+
+  function positionAutoSharePosterV948(anchor) {
+    const popup = ensureAutoSharePosterPopupV948();
+    if (!anchor?.getBoundingClientRect) return;
+
+    const rect = anchor.getBoundingClientRect();
+    const gap = 9;
+
+    // 먼저 오른쪽, 공간이 부족하면 왼쪽.
+    const estimatedWidth = 490;
+    let left = rect.right + gap;
+    if (left + estimatedWidth > window.innerWidth - 8) {
+      left = Math.max(8, rect.left - estimatedWidth - gap);
+    }
+
+    let top = rect.top - 10;
+    const estimatedHeight = Math.min(760, window.innerHeight - 16);
+    if (top + estimatedHeight > window.innerHeight - 8) {
+      top = Math.max(8, window.innerHeight - estimatedHeight - 8);
+    }
+
+    popup.style.left = `${Math.round(left)}px`;
+    popup.style.top = `${Math.round(top)}px`;
+  }
+
+  function showAutoSharePosterV948(anchor, rawCode, pin = false) {
+    const code = String(rawCode || '').trim();
+    if (!code) return;
+
+    clearTimeout(autoSharePosterHideTimerV948);
+
+    const popup = ensureAutoSharePosterPopupV948();
+    const codeEl = popup.querySelector('.videoAutoSharePosterCodeV948');
+    const img = popup.querySelector('.videoAutoSharePosterImageV948');
+    const empty = popup.querySelector('.videoAutoSharePosterEmptyV948');
+
+    autoSharePosterOwnerV948 = anchor;
+    if (pin) autoSharePosterPinnedV948 = true;
+
+    codeEl.textContent = code;
+    img.style.display = 'none';
+    empty.style.display = 'none';
+    popup.classList.add('is-visible');
+
+    positionAutoSharePosterV948(anchor);
+
+    const candidates = getAutoSharePosterCandidatesV948(code);
+    let index = 0;
+
+    const tryNext = () => {
+      if (index >= candidates.length) {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+        empty.style.display = 'flex';
+        return;
+      }
+
+      const url = candidates[index++];
+      img.style.display = 'block';
+      empty.style.display = 'none';
+      img.src = url;
+    };
+
+    img.onload = () => {
+      img.style.display = 'block';
+      empty.style.display = 'none';
+      positionAutoSharePosterV948(anchor);
+    };
+
+    img.onerror = () => {
+      tryNext();
+    };
+
+    tryNext();
+  }
+
+  function hideAutoSharePosterV948(force = false) {
+    if (autoSharePosterPinnedV948 && !force) return;
+
+    clearTimeout(autoSharePosterHideTimerV948);
+
+    autoSharePosterPinnedV948 = false;
+    autoSharePosterOwnerV948 = null;
+
+    const popup = autoSharePosterPopupV948;
+    if (!popup) return;
+
+    popup.classList.remove('is-visible');
+
+    const img = popup.querySelector('.videoAutoSharePosterImageV948');
+    if (img) {
+      img.onload = null;
+      img.onerror = null;
+      img.removeAttribute('src');
+    }
+  }
+
+  function bindAutoShareCodePosterV948(codeEl, rawCode) {
+    if (!codeEl) return codeEl;
+
+    const code = String(rawCode || '').trim();
+    if (!code) return codeEl;
+
+    codeEl.classList.add('videoAutoShareCodePosterV948');
+    codeEl.title = `${code} · 마우스=포스터 / 클릭=포스터 고정`;
+
+    codeEl.addEventListener('mouseenter', () => {
+      if (
+        autoSharePosterPinnedV948 &&
+        autoSharePosterOwnerV948 !== codeEl
+      ) {
+        return;
+      }
+
+      showAutoSharePosterV948(codeEl, code, false);
+    });
+
+    codeEl.addEventListener('mouseleave', () => {
+      if (autoSharePosterPinnedV948) return;
+
+      clearTimeout(autoSharePosterHideTimerV948);
+      autoSharePosterHideTimerV948 =
+        setTimeout(() => hideAutoSharePosterV948(), 120);
+    });
+
+    codeEl.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (
+        autoSharePosterPinnedV948 &&
+        autoSharePosterOwnerV948 === codeEl
+      ) {
+        hideAutoSharePosterV948(true);
+        return;
+      }
+
+      autoSharePosterPinnedV948 = true;
+      showAutoSharePosterV948(codeEl, code, true);
+    });
+
+    return codeEl;
+  }
+
+  document.addEventListener('pointerdown', event => {
+    if (!autoSharePosterPinnedV948) return;
+
+    const popup = autoSharePosterPopupV948;
+    if (popup?.contains(event.target)) return;
+    if (autoSharePosterOwnerV948?.contains?.(event.target)) return;
+
+    hideAutoSharePosterV948(true);
+  });
+
+  function getPublicationWorkMetaV946(code) {
+    try {
+      const getter = window.getVideoWorkRecordForEntry;
+      if (typeof getter !== 'function') return null;
+      return getter({ code: String(code || '') }) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function getPublicationPosterV946(work) {
+    try {
+      const resolver = window.resolveVideoAvwikidbWorkPosterUrl;
+      const imageRef = String(work?.imageRef || '').trim();
+      if (typeof resolver === 'function' && imageRef) {
+        return String(resolver(imageRef) || '').trim();
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  function formatPublicationRemainV946(expiresAt) {
+    const remain = Math.max(0, Number(expiresAt || 0) - Date.now());
+    if (!remain) return '곧 만료';
+
+    const hours = Math.ceil(remain / 3600000);
+    if (hours < 24) return `${hours}시간 남음`;
+
+    return `${Math.ceil(hours / 24)}일 남음`;
+  }
+
+  function makeAvailablePublicationRowV946(group) {
+    const row = document.createElement('div');
+    row.className = 'videoAutoShareRowV934 videoAutoSharePublicationRowV946';
+
+    const work = getPublicationWorkMetaV946(group.code);
+    const posterUrl = getPublicationPosterV946(work);
+
+    if (posterUrl) {
+      const img = document.createElement('img');
+      img.className = 'videoAutoSharePublicationPosterV946';
+      img.src = posterUrl;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
+      img.addEventListener('error', () => img.remove(), { once: true });
+      row.appendChild(img);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'videoAutoSharePublicationBodyV946';
+
+    const top = document.createElement('div');
+    top.className = 'videoAutoShareRowTopV934';
+
+    const code = document.createElement('span');
+    code.className = 'videoAutoShareCodeV934';
+    code.textContent = group.code || '-';
+    bindAutoShareCodePosterV948(code, group.code);
+
+    const st = document.createElement('span');
+    st.className = 'videoAutoShareStateV934';
+    st.textContent = `공유등록 ${group.count}명`;
+
+    top.append(code, st);
+    body.appendChild(top);
+
+    const titleText =
+      String(work?.titleKo || work?.titleJa || '').trim();
+
+    const actresses =
+      Array.isArray(work?.actresses)
+        ? work.actresses.filter(Boolean).slice(0, 5)
+        : [];
+
+    if (titleText || actresses.length) {
+      const meta = document.createElement('div');
+      meta.className = 'videoAutoSharePublicationMetaV946';
+
+      const bits = [];
+      if (titleText) bits.push(titleText);
+      if (actresses.length) bits.push(actresses.join(' · '));
+
+      meta.textContent = bits.join(' / ');
+      meta.title = meta.textContent;
+      body.appendChild(meta);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'videoAutoShareRowActionsV934';
+
+    const request = document.createElement('button');
+    request.type = 'button';
+    request.className = 'zoomBtn';
+
+    const owned = findOwnedEntries(group.code).length > 0;
+    const mineReq = Array.from(state.requests.values()).find(req =>
+      req?.mine &&
+      isActiveRequestV945(req) &&
+      codeKey(req.code) === codeKey(group.code)
+    );
+
+    if (owned) {
+      request.textContent = '보유중';
+      request.disabled = true;
+    } else if (mineReq) {
+      request.textContent = '요청중';
+      request.disabled = true;
+    } else {
+      request.textContent = '받기요청';
+      request.addEventListener('click', () => {
+        submitRequest(group.code);
+      });
+    }
+
+    actions.appendChild(request);
+    body.appendChild(actions);
+    row.appendChild(body);
+
+    return row;
+  }
+
+  function makeMinePublicationRowV946(pub) {
+    const row = document.createElement('div');
+    row.className = 'videoAutoShareRowV934';
+
+    const top = document.createElement('div');
+    top.className = 'videoAutoShareRowTopV934';
+
+    const code = document.createElement('span');
+    code.className = 'videoAutoShareCodeV934';
+    code.textContent = pub.code || '-';
+    bindAutoShareCodePosterV948(code, pub.code);
+
+    const st = document.createElement('span');
+    st.className = 'videoAutoShareStateV934';
+    st.textContent = `공유가능 등록 · ${formatPublicationRemainV946(pub.expiresAt)}`;
+
+    top.append(code, st);
+
+    const actions = document.createElement('div');
+    actions.className = 'videoAutoShareRowActionsV934';
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'zoomBtn';
+    remove.textContent = '등록해제';
+    remove.addEventListener('click', () => {
+      if (sendWs({ type: 'unpublish_share', publicationId: pub.id })) {
+        setConnectionStatus(`${pub.code} 공유등록 해제 전달`, true);
+      }
+    });
+
+    actions.appendChild(remove);
+    row.append(top, actions);
+
+    return row;
+  }
+
+  function makeMineRow(req) {
+    const row = document.createElement('div');
+    row.className = 'videoAutoShareRowV934';
+
+    const top = document.createElement('div');
+    top.className = 'videoAutoShareRowTopV934';
+
+    const code = document.createElement('span');
+    code.className = 'videoAutoShareCodeV934';
+    code.textContent = req.code || '-';
+    bindAutoShareCodePosterV948(code, req.code);
+
+    const st = document.createElement('span');
+    st.className = 'videoAutoShareStateV934';
+    const fileText = req.file?.name ? ` · ${req.file.name}` : '';
+    st.textContent = `${statusLabel(req.status)}${fileText}`;
+
+    top.append(code, st);
+    row.appendChild(top);
+
+    const actions = document.createElement('div');
+    actions.className = 'videoAutoShareRowActionsV934';
+
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'zoomBtn';
+    cancel.textContent = '요청취소';
+    cancel.addEventListener('click', () => {
+      if (sendWs({ type: 'cancel_request', requestId: req.id })) {
+        setConnectionStatus(`${req.code} 요청 취소 전달`, true);
+      }
+    });
+    actions.appendChild(cancel);
+
+    const link = makeReceiveLink(req);
+    if (link && ['offered','transferring'].includes(String(req.status || ''))) {
+      const receive = document.createElement('button');
+      receive.type = 'button';
+      receive.className = 'zoomBtn';
+      receive.textContent = '받기';
+      receive.title = '새 탭 없이 현재 자동공유창에서 바로 받기';
+      receive.addEventListener('click', () => {
+        void startInlineAutoReceiveV941(req);
+      });
+
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'zoomBtn';
+      copy.textContent = '외부링크복사';
+      copy.title = '다른 브라우저나 다른 기기에서 받을 때 사용하는 비상용 링크';
+      copy.addEventListener('click', async () => {
+        const ok = await autoP2PCopyTextV940(link);
+        if (typeof showToast === 'function') {
+          showToast(ok ? '외부 받기 링크 복사 완료' : '링크 복사 실패', 2200);
+        }
+      });
+
+      actions.prepend(copy);
+      actions.prepend(receive);
+
+      const linkEl = document.createElement('div');
+      linkEl.className = 'videoAutoShareLinkV934';
+      linkEl.textContent = '같은 창 받기 사용 가능 · 외부기기용 링크: ' + link;
+      row.append(actions, linkEl);
+      return row;
+    }
+
+    row.appendChild(actions);
+    return row;
+  }
+
+  function makeOwnedRow(req, entries) {
+    const row = document.createElement('div');
+    row.className = 'videoAutoShareRowV934';
+
+    const top = document.createElement('div');
+    top.className = 'videoAutoShareRowTopV934';
+
+    const code = document.createElement('span');
+    code.className = 'videoAutoShareCodeV934';
+    code.textContent = req.code || '-';
+    bindAutoShareCodePosterV948(code, req.code);
+
+    const st = document.createElement('span');
+    st.className = 'videoAutoShareStateV934';
+    st.textContent = `로컬 보유 ${entries.length}개 · 첫 공유자 1명만 선점`;
+
+    top.append(code, st);
+
+    const actions = document.createElement('div');
+    actions.className = 'videoAutoShareRowActionsV934';
+
+    const select = document.createElement('select');
+    entries.forEach((entry, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = entryLabel(entry);
+      select.appendChild(option);
+    });
+
+    const share = document.createElement('button');
+    share.type = 'button';
+    share.className = 'zoomBtn';
+    share.textContent = '공유';
+    share.addEventListener('click', () => {
+      const index = Math.max(0, Math.min(entries.length - 1, Number(select.value) || 0));
+      void claimRequest(req, entries[index]);
+    });
+
+    actions.append(select, share);
+    row.append(top, actions);
+    return row;
+  }
+
+  function ensureLayer() {
+    let layer = document.getElementById('videoAutoShareLayerV934');
+    if (layer) return layer;
+
+    layer = document.createElement('div');
+    layer.id = 'videoAutoShareLayerV934';
+    layer.innerHTML = `
+      <div id="videoAutoSharePanelV934" role="dialog" aria-modal="true" aria-label="자동공유">
+        <div class="videoAutoShareHeadV934">
+          <strong>자동공유</strong>
+          <span style="font-size:11px;color:#8f98a7;">익명 요청/공유 · 실제 파일은 P2P</span>
+          <button type="button" class="zoomBtn" id="videoAutoShareCloseV934">닫기</button>
+        </div>
+        <div class="videoAutoShareNoteV934">
+          모든 요청과 공유는 별도 계정정보 없이 익명 식별자로 처리하며, 보유목록 전체는 서버로 보내지 않습니다.
+          자동공유 요청은 브라우저 ID 기준 동시에 최대 20개까지 가능하며, 자발적 공유등록도 별도로 최대 20개까지 가능합니다.
+          요청과 공유등록은 모두 등록 후 7일이 지나면 자동 만료됩니다.
+          웹뷰어와 자동공유 Worker는 사용자 정보(IP)를 저장하거나 사용자 식별에 사용하지 않습니다.
+          실제 파일전송은 서버를 거치지 않는 WebRTC P2P 방식입니다.
+          자동공유창을 닫아도 전송에는 문제없습니다.
+        </div>
+        <div class="videoAutoShareStatusV934" id="videoAutoShareConnectionV934">기본 Cloudflare 서버 자동연결 준비</div>
+        <div class="videoAutoShareStatusV934" id="videoAutoShareReceiveDiagV936"
+             style="margin-top:4px;color:#aeb8c8;">서버 활성요청 0건 · 로컬 영상 0건 · 보유매칭 0건 · 누적전송 0건 · 누적받음 0건</div>
+
+        <div class="videoAutoShareGridV934">
+          <input id="videoAutoShareRequestCodeV934" type="text" placeholder="요청 품번 예: ABC-123">
+          <button type="button" class="zoomBtn" id="videoAutoShareRequestBtnV934">품번 요청</button>
+          <span></span>
+        </div>
+
+        <div class="videoAutoShareSectionsV934">
+          <section class="videoAutoShareSectionV934">
+            <div class="videoAutoShareSectionTitleV934">내 요청</div>
+            <div class="videoAutoShareListV934" id="videoAutoShareMineListV934"></div>
+          </section>
+          <section class="videoAutoShareSectionV934">
+            <div class="videoAutoShareSectionTitleV934">내가 보유한 새 요청</div>
+            <div class="videoAutoShareListV934" id="videoAutoShareOwnedListV934"></div>
+          </section>
+          <section class="videoAutoShareSectionV934">
+            <div class="videoAutoShareSectionTitleV934">공유가능 작품</div>
+            <div class="videoAutoShareListV934" id="videoAutoSharePublishedListV946"></div>
+          </section>
+          <section class="videoAutoShareSectionV934">
+            <div class="videoAutoShareSectionTitleV934">내 공유등록</div>
+            <div class="videoAutoShareListV934" id="videoAutoShareMinePublishedListV946"></div>
+          </section>
+        </div>
+
+        <div class="videoAutoShareTransferV934">
+          <div class="videoAutoShareSectionTitleV934" id="videoAutoShareTransferTitleV941">현재 자동공유 전송</div>
+          <div class="videoAutoShareStatusV934" id="videoAutoShareTransferStatusV934">대기</div>
+          <div class="videoAutoShareProgressV934"><div id="videoAutoShareProgressBarV934"></div></div>
+          <div style="margin-top:8px;">
+            <button type="button" class="zoomBtn" id="videoAutoShareStopSendV934">전송중지</button>
+          </div>
+        </div>
+      </div>`;
+
+    document.body.appendChild(layer);
+
+    layer.querySelector('#videoAutoShareCloseV934')?.addEventListener('click', () => {
+      layer.classList.remove('is-visible');
+    });
+    layer.addEventListener('mousedown', event => {
+      if (event.target === layer) layer.classList.remove('is-visible');
+    });
+
+    layer.querySelector('#videoAutoShareRequestBtnV934')?.addEventListener('click', () => {
+      const input = layer.querySelector('#videoAutoShareRequestCodeV934');
+      submitRequest(input?.value || '');
+    });
+
+    layer.querySelector('#videoAutoShareRequestCodeV934')?.addEventListener('keydown', event => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      submitRequest(event.currentTarget?.value || '');
+    });
+
+    layer.querySelector('#videoAutoShareStopSendV934')?.addEventListener('click', () => {
+      const session = state.autoSession;
+      const requestId = session?.autoRequestId || '';
+
+      if (session?.mode === 'receive') {
+        if (requestId) sendWs({ type: 'cancel_receive', requestId });
+        void stopAutoSession('자동공유 수신을 중지했습니다. 요청은 다시 대기 상태가 됩니다.');
+        return;
+      }
+
+      if (requestId) sendWs({ type: 'release', requestId });
+      void stopAutoSession('자동공유 송신을 중지하고 요청을 반납했습니다.');
+    });
+
+    return layer;
+  }
+
+  function openLayer() {
+    const layer = ensureLayer();
+    state.endpoint = state.endpoint || getSavedEndpoint();
+    layer.classList.add('is-visible');
+    renderLists();
+
+    if (state.endpoint) connect(false);
+    else setConnectionStatus('내장 자동공유 서버 주소를 불러오지 못했습니다.', false);
+
+    return layer;
+  }
+
+  function setAutoTransferModeV941(mode = '') {
+    const layer = ensureLayer();
+    const title = layer.querySelector('#videoAutoShareTransferTitleV941');
+    const stop = layer.querySelector('#videoAutoShareStopSendV934');
+
+    if (title) {
+      title.textContent =
+        mode === 'send' ? '현재 자동공유 송신'
+        : mode === 'receive' ? '현재 자동공유 수신'
+        : '현재 자동공유 전송';
+    }
+
+    if (stop) {
+      stop.textContent =
+        mode === 'send' ? '전송중지·요청반납'
+        : mode === 'receive' ? '수신중지'
+        : '전송중지';
+    }
+  }
+
+  function resolveOfferWaitersV941(request) {
+    const requestId = String(request?.id || '');
+    if (!requestId || !request?.offer) return;
+    const waiters = state.pendingOfferWaitersV941.get(requestId);
+    if (!Array.isArray(waiters) || !waiters.length) return;
+
+    state.pendingOfferWaitersV941.delete(requestId);
+    waiters.forEach(waiter => {
+      clearTimeout(waiter.timer);
+      try { waiter.resolve(request); } catch (_) {}
+    });
+  }
+
+  function rejectOfferWaitersV941(requestId, message) {
+    const key = String(requestId || '');
+    const waiters = state.pendingOfferWaitersV941.get(key);
+    if (!Array.isArray(waiters) || !waiters.length) return;
+
+    state.pendingOfferWaitersV941.delete(key);
+    waiters.forEach(waiter => {
+      clearTimeout(waiter.timer);
+      try { waiter.reject(new Error(message || '받기 연결정보를 가져오지 못했습니다.')); } catch (_) {}
+    });
+  }
+
+  function waitForOfferV941(requestId, timeoutMs = 10000) {
+    const key = String(requestId || '');
+    const existing = state.requests.get(key);
+    if (existing?.offer) return Promise.resolve(existing);
+
+    return new Promise((resolve, reject) => {
+      const list = state.pendingOfferWaitersV941.get(key) || [];
+      const waiter = { resolve, reject, timer: 0 };
+
+      waiter.timer = setTimeout(() => {
+        const current = state.pendingOfferWaitersV941.get(key) || [];
+        const next = current.filter(item => item !== waiter);
+        if (next.length) state.pendingOfferWaitersV941.set(key, next);
+        else state.pendingOfferWaitersV941.delete(key);
+        reject(new Error('공유 연결정보 응답 시간이 초과되었습니다.'));
+      }, Math.max(1000, Number(timeoutMs) || 10000));
+
+      list.push(waiter);
+      state.pendingOfferWaitersV941.set(key, list);
+
+      if (!sendWs({ type: 'get_offer', requestId: key })) {
+        clearTimeout(waiter.timer);
+        state.pendingOfferWaitersV941.delete(key);
+        reject(new Error('Cloudflare signaling 연결이 끊어졌습니다.'));
+      }
+    });
+  }
+
+  async function startInlineAutoReceiveV941(req) {
+    if (!req?.id || !['offered','transferring'].includes(String(req.status || ''))) return;
+
+    if (!wsReady()) {
+      setConnectionStatus('자동공유 서버와 연결되어 있지 않습니다.', false);
+      connect(false);
+      return;
+    }
+
+    if (typeof window.showSaveFilePicker !== 'function') {
+      setTransferStatus('같은 창 받기는 Chrome/Edge의 파일 저장 API가 필요합니다.');
+      return;
+    }
+
+    const requestId = String(req.id || '');
+    const initialMeta = req.file || {};
+    let writable = null;
+    let pc = null;
+
+    try {
+      // 파일 선택창은 사용자 클릭 제스처가 살아 있을 때 가장 먼저 띄운다.
+      setAutoTransferModeV941('receive');
+      setTransferStatus(
+        `${req.code || ''} 저장 위치 선택 중…`,
+        0,
+        Number(initialMeta.size) || 0
+      );
+
+      const safeName = String(initialMeta.name || `${req.code || 'received'}.bin`);
+      const dot = safeName.lastIndexOf('.');
+      const ext = dot >= 0 ? safeName.slice(dot) : '.bin';
+      const mime = String(initialMeta.type || 'application/octet-stream');
+
+      const saveHandle = await window.showSaveFilePicker({
+        suggestedName: safeName,
+        types: [{
+          description: '자동공유 받는 파일',
+          accept: { [mime]: [ext || '.bin'] }
+        }]
+      });
+      writable = await saveHandle.createWritable();
+
+      // 기존 송수신 세션이 있으면 닫고 새 수신 세션으로 전환.
+      await stopAutoSession('새 자동공유 수신 준비');
+      setAutoTransferModeV941('receive');
+
+      let latest = state.requests.get(requestId) || req;
+      if (!latest?.offer) {
+        setTransferStatus(
+          'Cloudflare에서 P2P 연결정보 확인 중…',
+          0,
+          Number(initialMeta.size) || 0
+        );
+        latest = await waitForOfferV941(requestId, 10000);
+      }
+
+      if (!latest?.offer) {
+        throw new Error('공유자의 WebRTC 연결정보가 없습니다.');
+      }
+
+      const meta = latest.file || initialMeta;
+      pc = autoP2PCreatePeerV940();
+
+      const session = {
+        mode: 'receive',
+        autoMode: true,
+        autoRequestId: requestId,
+        pc,
+        channel: null,
+        writable,
+        meta,
+        received: 0,
+        startedAt: 0,
+        writeChain: Promise.resolve(),
+        cancelled: false,
+        done: false,
+      };
+      state.autoSession = session;
+
+      pc.addEventListener('connectionstatechange', () => {
+        if (state.autoSession !== session || session.done || session.cancelled) return;
+        if (['failed','disconnected'].includes(pc.connectionState)) {
+          setTransferStatus(
+            `P2P 연결 상태: ${pc.connectionState}`,
+            session.received,
+            Number(meta.size) || 0,
+            session.startedAt || null
+          );
+        }
+      });
+
+      pc.addEventListener('datachannel', event => {
+        if (state.autoSession !== session) return;
+
+        const channel = event.channel;
+        session.channel = channel;
+        channel.binaryType = 'arraybuffer';
+
+        channel.addEventListener('open', () => {
+          if (state.autoSession !== session) return;
+          session.startedAt = performance.now();
+          setTransferStatus(
+            'P2P 연결됨 · 수신 시작 대기',
+            session.received,
+            Number(meta.size) || 0,
+            session.startedAt
+          );
+          try { channel.send(JSON.stringify({ type: 'ready' })); } catch (_) {}
+        });
+
+        channel.addEventListener('message', event => {
+          if (state.autoSession !== session || session.done || session.cancelled) return;
+
+          if (typeof event.data === 'string') {
+            try {
+              const msg = JSON.parse(event.data);
+
+              if (msg?.type === 'meta') {
+                if (
+                  Number(meta.size) > 0 &&
+                  Number(msg.size) !== Number(meta.size)
+                ) {
+                  throw new Error('송신 파일 크기가 공유정보와 다릅니다.');
+                }
+                return;
+              }
+
+              if (msg?.type === 'cancel') {
+                throw new Error('공유자가 전송을 중지했습니다.');
+              }
+
+              if (msg?.type === 'done') {
+                session.writeChain = session.writeChain.then(async () => {
+                  const expected = Number(meta.size) || 0;
+
+                  if (expected > 0 && session.received !== expected) {
+                    if (writable?.abort) await writable.abort();
+                    throw new Error(
+                      `파일 크기 불일치 · ${session.received} / ${expected}`
+                    );
+                  }
+
+                  await writable.close();
+                  session.done = true;
+
+                  // v950: 실제 디스크 저장까지 성공한 자동공유 수신만 누적 1건.
+                  bumpAutoShareCounterV950('received');
+
+                  sendWs({
+                    type: 'complete_receive',
+                    requestId
+                  });
+
+                  setTransferStatus(
+                    '수신 완료 · 파일 저장 완료',
+                    session.received,
+                    expected || session.received,
+                    session.startedAt
+                  );
+
+                  try { channel.close(); } catch (_) {}
+                  try { pc.close(); } catch (_) {}
+                  if (state.autoSession === session) state.autoSession = null;
+                  setAutoTransferModeV941('');
+                }).catch(async error => {
+                  console.warn('[v941 inline receive finish]', error);
+                  setTransferStatus(
+                    `저장 마무리 실패: ${error?.message || error}`,
+                    session.received,
+                    Number(meta.size) || 0,
+                    session.startedAt || null
+                  );
+                });
+                return;
+              }
+            } catch (error) {
+              console.warn('[v941 inline receive control]', error);
+              setTransferStatus(
+                `수신 제어정보 오류: ${error?.message || error}`,
+                session.received,
+                Number(meta.size) || 0,
+                session.startedAt || null
+              );
+            }
+            return;
+          }
+
+          const buffer =
+            event.data instanceof ArrayBuffer
+              ? event.data
+              : ArrayBuffer.isView(event.data)
+                ? event.data.buffer.slice(
+                    event.data.byteOffset,
+                    event.data.byteOffset + event.data.byteLength
+                  )
+                : null;
+
+          if (!buffer) return;
+
+          session.writeChain = session.writeChain.then(async () => {
+            await writable.write(buffer);
+            session.received += buffer.byteLength;
+
+            if (
+              (session.received % (4 * 1024 * 1024)) < AUTO_P2P_CHUNK_BYTES_V940 ||
+              session.received >= Number(meta.size || 0)
+            ) {
+              setTransferStatus(
+                '자동공유 수신 중',
+                session.received,
+                Number(meta.size) || session.received,
+                session.startedAt
+              );
+            }
+          }).catch(async error => {
+            session.cancelled = true;
+            setTransferStatus(
+              `디스크 저장 실패: ${error?.message || error}`,
+              session.received,
+              Number(meta.size) || 0,
+              session.startedAt || null
+            );
+            try { channel.send(JSON.stringify({ type: 'cancel' })); } catch (_) {}
+            try { if (writable?.abort) await writable.abort(); } catch (_) {}
+            sendWs({ type: 'cancel_receive', requestId });
+          });
+        });
+
+        channel.addEventListener('close', () => {
+          if (
+            state.autoSession === session &&
+            !session.done &&
+            !session.cancelled
+          ) {
+            setTransferStatus(
+              '연결이 완료 전에 종료되었습니다.',
+              session.received,
+              Number(meta.size) || session.received,
+              session.startedAt || null
+            );
+          }
+        });
+      });
+
+      setTransferStatus(
+        'WebRTC 수신 연결 준비 중…',
+        0,
+        Number(meta.size) || 0
+      );
+
+      await pc.setRemoteDescription(latest.offer);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      await autoP2PWaitIceCompleteV940(pc);
+
+      if (!sendWs({
+        type: 'accept_offer',
+        requestId,
+        sdp: pc.localDescription
+      })) {
+        throw new Error('Cloudflare signaling 연결이 끊어졌습니다.');
+      }
+
+      setTransferStatus(
+        '수신 응답 전달 완료 · 공유자와 연결 중…',
+        0,
+        Number(meta.size) || 0
+      );
+    } catch (error) {
+      console.warn('[v941 inline auto receive]', error);
+      try { if (writable?.abort) await writable.abort(); } catch (_) {}
+      try { pc?.close(); } catch (_) {}
+
+      if (
+        state.autoSession?.mode === 'receive' &&
+        state.autoSession?.autoRequestId === requestId
+      ) {
+        state.autoSession = null;
+      }
+
+      setAutoTransferModeV941('');
+      setTransferStatus(`받기 준비 실패: ${error?.message || error}`);
+    }
+  }
+
+  async function stopAutoSession(message = '중지') {
+    const session = state.autoSession;
+    state.autoSession = null;
+
+    if (session) {
+      session.cancelled = true;
+
+      if (session.mode === 'receive') {
+        try {
+          if (session.channel?.readyState === 'open') {
+            session.channel.send(JSON.stringify({ type: 'cancel' }));
+          }
+        } catch (_) {}
+        try {
+          if (session.writable?.abort) await session.writable.abort();
+        } catch (_) {}
+      }
+
+      try { session.channel?.close?.(); } catch (_) {}
+      try { session.pc?.close?.(); } catch (_) {}
+    }
+
+    setAutoTransferModeV941('');
+    setTransferStatus(message, null, null, null);
+  }
+
+  function closeSocket() {
+    clearTimeout(state.reconnectTimer);
+    state.reconnectTimer = 0;
+    if (state.ws) {
+      try {
+        state.ws.__videoAutoShareIntentionalV934 = true;
+        state.ws.close(1000, 'reconnect');
+      } catch (_) {}
+    }
+    state.ws = null;
+  }
+
+  function scheduleReconnect() {
+    if (!state.endpoint) return;
+    clearTimeout(state.reconnectTimer);
+    const delay = Math.min(60000, 1500 * Math.pow(2, Math.min(6, state.reconnectAttempt++)));
+    setConnectionStatus(`자동공유 연결 끊김 · ${Math.ceil(delay / 1000)}초 뒤 재연결`, false);
+    state.reconnectTimer = setTimeout(() => connect(false), delay);
+  }
+
+  function connect(force = false) {
+    state.endpoint = state.endpoint || getSavedEndpoint();
+    if (!state.endpoint) {
+      setConnectionStatus('Cloudflare Worker URL을 불러오지 못했습니다.', false);
+      return;
+    }
+
+    if (!force && wsReady()) {
+      setConnectionStatus('자동공유 연결됨 · polling 없음', true);
+      return;
+    }
+
+    if (force) closeSocket();
+    if (state.ws && [WebSocket.CONNECTING, WebSocket.OPEN].includes(state.ws.readyState)) return;
+
+    let wsUrl = '';
+    try {
+      wsUrl = makeWsUrl(state.endpoint);
+    } catch (error) {
+      setConnectionStatus(`Worker URL 오류: ${error?.message || error}`, false);
+      return;
+    }
+
+    state.intentionalClose = false;
+    setConnectionStatus('Cloudflare 자동공유 연결 중…', null);
+
+    let ws;
+    try {
+      ws = new WebSocket(wsUrl);
+    } catch (error) {
+      setConnectionStatus(`WebSocket 생성 실패: ${error?.message || error}`, false);
+      scheduleReconnect();
+      return;
+    }
+
+    state.ws = ws;
+
+    ws.addEventListener('open', () => {
+      if (state.ws !== ws) return;
+      state.reconnectAttempt = 0;
+      setConnectionStatus('자동공유 연결됨 · WebSocket push · 1분 조회 없음', true);
+      syncReceiveDiagnosticV936();
+      syncTopButton();
+
+      if (state.pendingRequestCode) {
+        const code = state.pendingRequestCode;
+        state.pendingRequestCode = '';
+        submitRequest(code);
+      }
+
+      if (state.pendingPublicationCodesV946.size) {
+        const pending = Array.from(state.pendingPublicationCodesV946);
+        state.pendingPublicationCodesV946.clear();
+        pending.forEach(code => submitPublicationV946(code));
+      }
+    });
+
+    ws.addEventListener('message', event => {
+      if (state.ws !== ws || typeof event.data !== 'string') return;
+      let msg;
+      try { msg = JSON.parse(event.data); } catch (_) { return; }
+      handleServerMessage(msg);
+    });
+
+    ws.addEventListener('close', () => {
+      const wasCurrent = state.ws === ws;
+      if (wasCurrent) state.ws = null;
+      syncTopButton();
+      if (ws.__videoAutoShareIntentionalV934) return;
+      // 이미 더 새 WebSocket이 열려 있으면 이전 연결의 늦은 close로 재연결하지 않는다.
+      if (!wasCurrent && state.ws) return;
+      scheduleReconnect();
+    });
+
+    ws.addEventListener('error', () => {
+      if (state.ws === ws) setConnectionStatus('자동공유 WebSocket 오류 · 재연결 대기', false);
+    });
+  }
+
+  function handleServerMessage(msg) {
+    switch (msg?.type) {
+      case 'snapshot': {
+        state.requests.clear();
+        state.publications.clear();
+
+        (Array.isArray(msg.requests) ? msg.requests : []).forEach(upsertRequest);
+        (Array.isArray(msg.publications) ? msg.publications : []).forEach(upsertPublicationV946);
+
+        notifyPublicationBadgesV946();
+
+        // 페이지 새로고침으로 WebRTC 객체가 사라졌는데 서버에는 내가 공유자로 남아 있으면
+        // 그 요청만 즉시 반납한다. 단순 WebSocket 재연결이고 기존 P2P 세션이 살아 있으면 유지.
+        for (const req of state.requests.values()) {
+          if (!req?.providerMine) continue;
+          const liveSameSession =
+            state.autoSession &&
+            state.autoSession.autoRequestId === req.id &&
+            !state.autoSession.cancelled;
+          if (!liveSameSession) sendWs({ type: 'release', requestId: req.id });
+        }
+
+        renderLists();
+        break;
+      }
+
+      case 'new_request': {
+        upsertRequest(msg.request);
+        const req = state.requests.get(msg.request?.id);
+        if (req && !req.mine && req.status === 'waiting') {
+          const matches = findOwnedEntries(req.code);
+          if (matches.length && typeof showToast === 'function') {
+            showToast(`자동공유 요청 · ${req.code} · 보유 ${matches.length}개`, 4200);
+          }
+        }
+        renderLists();
+        break;
+      }
+
+      case 'request_created':
+        upsertRequest({ ...(msg.request || {}), mine: true });
+        renderLists();
+        if (typeof showToast === 'function') {
+          showToast(msg.existing ? '이미 같은 품번을 요청 중입니다.' : `${msg.request?.code || ''} 자동공유 요청 등록`, 2600);
+        }
+        break;
+
+      case 'request_update':
+        upsertRequest(msg.request);
+        renderLists();
+        break;
+
+      case 'request_removed': {
+        const requestId = String(msg.requestId || '');
+        rejectOfferWaitersV941(requestId, '요청이 종료되었거나 만료되었습니다.');
+
+        // v950: 수신자가 파일 저장까지 끝내 서버가 completed를 보낸 경우에만
+        // 실제 송신자로 동작한 이 브라우저의 누적전송을 1건 증가시킨다.
+        const completingSessionV950 = state.autoSession;
+        if (
+          msg.reason === 'completed' &&
+          completingSessionV950?.mode === 'send' &&
+          completingSessionV950?.autoRequestId === requestId &&
+          !completingSessionV950.countedSentV950
+        ) {
+          completingSessionV950.countedSentV950 = true;
+          bumpAutoShareCounterV950('sent');
+        }
+
+        removeRequest(requestId);
+        if (state.autoSession?.autoRequestId === requestId) {
+          void stopAutoSession(
+            msg.reason === 'completed' ? '자동공유 전송 완료 · 요청 종료' : '자동공유 요청 종료'
+          );
+        }
+        renderLists();
+        break;
+      }
+
+      case 'claim_ok': {
+        upsertRequest(msg.request);
+        const requestId = String(msg.request?.id || '');
+        const pending = state.pendingClaims.get(requestId);
+        state.pendingClaims.delete(requestId);
+        renderLists();
+        if (pending) void prepareProvider(requestId, pending.entry, pending.handle);
+        break;
+      }
+
+      case 'claim_failed':
+        state.pendingClaims.delete(String(msg.requestId || ''));
+        setTransferStatus(`공유 선점 실패: ${msg.message || '다른 사용자가 먼저 공유했습니다.'}`);
+        if (typeof showToast === 'function') showToast(msg.message || '공유 선점 실패', 3200);
+        renderLists();
+        break;
+
+      case 'offer_available': {
+        const next = { ...(msg.request || {}), mine: true };
+        upsertRequest(next);
+        resolveOfferWaitersV941(next);
+        renderLists();
+        if (typeof showToast === 'function') {
+          showToast(`${msg.request?.code || ''} 공유자가 나타났습니다 · 자동공유에서 바로 받기를 누르세요.`, 5200);
+        }
+        break;
+      }
+
+      case 'receive_started':
+        setTransferStatus('수신 세션 승인됨 · P2P 연결 중…');
+        break;
+
+      case 'receiver_cancelled':
+        if (
+          state.autoSession?.mode === 'send' &&
+          state.autoSession?.autoRequestId === String(msg.requestId || '')
+        ) {
+          void stopAutoSession('수신자가 받기를 중지했습니다. 요청이 다시 대기 상태가 되었습니다.');
+        }
+        break;
+
+      case 'answer':
+        void applyProviderAnswer(msg);
+        break;
+
+      case 'publication_created':
+        upsertPublicationV946({ ...(msg.publication || {}), mine: true });
+        renderLists();
+        notifyPublicationBadgesV946();
+        if (typeof showToast === 'function') {
+          showToast(
+            msg.existing
+              ? `${msg.publication?.code || ''}는 이미 공유등록되어 있습니다.`
+              : `${msg.publication?.code || ''} 공유등록 완료 · 7일`,
+            3000
+          );
+        }
+        break;
+
+      case 'publication_added':
+        upsertPublicationV946(msg.publication);
+        renderLists();
+        notifyPublicationBadgesV946();
+        break;
+
+      case 'publication_removed':
+        removePublicationV946(msg.publicationId);
+        renderLists();
+        notifyPublicationBadgesV946();
+        break;
+
+      case 'error':
+        setConnectionStatus(`서버: ${msg.message || '오류'}`, false);
+        if (typeof showToast === 'function') showToast(msg.message || '자동공유 서버 오류', 3200);
+        break;
+    }
+  }
+
+  function submitRequest(rawCode) {
+    const code = normalizeRequestCode(rawCode);
+    if (!code) {
+      setConnectionStatus('요청할 품번을 입력하세요.', false);
+      return;
+    }
+
+    const key = codeKey(code);
+    const nowV945 = Date.now();
+    const existing = Array.from(state.requests.values())
+      .find(req =>
+        req.mine &&
+        isActiveRequestV945(req, nowV945) &&
+        codeKey(req.code) === key
+      );
+
+    if (existing) {
+      setConnectionStatus(`${existing.code}는 이미 요청 중입니다.`, null);
+      renderLists();
+      return;
+    }
+
+    if (!canCreateAnotherRequestV945(code)) return;
+
+    if (!state.endpoint) {
+      openLayer();
+      const input = document.getElementById('videoAutoShareRequestCodeV934');
+      if (input) input.value = code;
+      setConnectionStatus('자동공유 서버 주소를 불러오지 못했습니다.', false);
+      return;
+    }
+
+    if (!wsReady()) {
+      state.pendingRequestCode = code;
+      connect(false);
+      setConnectionStatus(`${code} 요청 대기 · WebSocket 연결 중…`, null);
+      return;
+    }
+
+    if (!sendWs({ type: 'request', code })) {
+      state.pendingRequestCode = code;
+      setConnectionStatus('요청 전송 실패 · 재연결 후 자동 재시도', false);
+      connect(true);
+      return;
+    }
+
+    const input = document.getElementById('videoAutoShareRequestCodeV934');
+    if (input) input.value = '';
+    setConnectionStatus(`${code} 요청 전송`, true);
+  }
+
+
+  function submitPublicationV946(rawCode) {
+    const code = normalizeRequestCode(rawCode);
+
+    if (!code) {
+      setConnectionStatus('공유등록할 품번을 찾지 못했습니다.', false);
+      return false;
+    }
+
+    const existing = getMinePublicationForCodeV946(code);
+    if (existing) {
+      setConnectionStatus(`${existing.code}는 이미 공유등록되어 있습니다.`, null);
+      renderLists();
+      return true;
+    }
+
+    if (!canCreateAnotherPublicationV946()) return false;
+
+    state.endpoint = state.endpoint || getSavedEndpoint();
+
+    if (!state.endpoint) {
+      setConnectionStatus('자동공유 서버 주소를 불러오지 못했습니다.', false);
+      return false;
+    }
+
+    if (!wsReady()) {
+      state.pendingPublicationCodesV946.add(code);
+      connect(false);
+      setConnectionStatus(`${code} 공유등록 대기 · WebSocket 연결 중…`, null);
+      return true;
+    }
+
+    if (!sendWs({ type: 'publish_share', code })) {
+      state.pendingPublicationCodesV946.add(code);
+      setConnectionStatus('공유등록 전송 실패 · 재연결 후 자동 재시도', false);
+      connect(true);
+      return false;
+    }
+
+    setConnectionStatus(`${code} 공유등록 전송`, true);
+    return true;
+  }
+
+  function unpublishPublicationV946(pub) {
+    if (!pub?.id) return false;
+
+    if (!wsReady()) {
+      setConnectionStatus('자동공유 서버와 연결되어 있지 않습니다.', false);
+      connect(false);
+      return false;
+    }
+
+    return sendWs({
+      type: 'unpublish_share',
+      publicationId: pub.id
+    });
+  }
+
+  async function claimRequest(req, entry) {
+    if (!req?.id || !entry) return;
+    if (!wsReady()) {
+      setConnectionStatus('자동공유 서버와 연결되어 있지 않습니다.', false);
+      connect(false);
+      return;
+    }
+
+    try {
+      // v939:
+      // 공유 버튼 클릭의 사용자 제스처가 살아 있을 때 실제 파일 handle을 먼저 확보한다.
+      // 서버의 claim_ok를 기다린 뒤 권한을 요청하면 브라우저에 따라 사용자 제스처가 끝나
+      // requestPermission이 실패할 수 있으므로 먼저 처리한다.
+      const resolver = window.__resolveVideoHandleForAutoShareV939;
+      if (typeof resolver !== 'function') {
+        throw new Error('영상 파일 연결 브리지를 찾지 못했습니다.');
+      }
+
+      setTransferStatus(`${req.code} 영상 파일 접근 확인 중…`);
+      const handle = await resolver(entry);
+      if (!handle) {
+        throw new Error('영상 파일 접근 권한을 얻지 못했습니다.');
+      }
+
+      state.pendingClaims.set(req.id, { entry, handle });
+      setTransferStatus(`${req.code} 공유 선점 요청 중…`);
+
+      if (!sendWs({ type: 'claim', requestId: req.id })) {
+        state.pendingClaims.delete(req.id);
+        setTransferStatus('공유 선점 메시지 전송 실패');
+      }
+    } catch (error) {
+      state.pendingClaims.delete(req.id);
+      console.warn('[v939 auto share claim prepare]', error);
+      setTransferStatus(`자동공유 준비 실패: ${error?.message || error}`);
+    }
+  }
+
+  async function prepareProvider(requestId, entry, preparedHandle = null) {
+    await stopAutoSession('새 자동공유 준비');
+    setAutoTransferModeV941('send');
+
+    try {
+      setTransferStatus('영상 파일 접근 권한 확인 중…', 0, 0);
+
+      let handle = preparedHandle;
+      if (!handle) {
+        const resolver = window.__resolveVideoHandleForAutoShareV939;
+        if (typeof resolver !== 'function') {
+          throw new Error('영상 파일 연결 브리지를 찾지 못했습니다.');
+        }
+        handle = await resolver(entry);
+      }
+
+      if (!handle) throw new Error('영상 파일 접근 권한을 얻지 못했습니다.');
+      const file = await handle.getFile();
+
+      const pc = autoP2PCreatePeerV940();
+      const channel = pc.createDataChannel('webviewer-auto-share-v934', { ordered: true });
+      channel.binaryType = 'arraybuffer';
+      channel.bufferedAmountLowThreshold = AUTO_P2P_BUFFER_LOW_V940;
+
+      const session = {
+        mode: 'send',
+        autoMode: true,
+        autoRequestId: requestId,
+        pc,
+        channel,
+        file,
+        entry,
+        cancelled: false,
+        sending: false,
+        startedAt: 0,
+        sentBytes: 0,
+        remoteReady: false,
+      };
+
+      state.autoSession = session;
+
+      pc.addEventListener('connectionstatechange', () => {
+        if (state.autoSession !== session) return;
+        if (['failed','disconnected'].includes(pc.connectionState) && !session.cancelled) {
+          setTransferStatus(
+            `P2P 연결 상태: ${pc.connectionState} · 직접연결이 실패하면 요청을 반납할 수 있습니다.`,
+            session.sentBytes,
+            file.size,
+            session.startedAt || null
+          );
+        }
+      });
+
+      channel.addEventListener('open', () => {
+        if (state.autoSession !== session) return;
+        setTransferStatus('P2P 연결됨 · 수신자의 저장 준비 대기 중…', 0, file.size);
+      });
+
+      channel.addEventListener('message', event => {
+        if (state.autoSession !== session || typeof event.data !== 'string') return;
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg?.type === 'ready') {
+            session.remoteReady = true;
+            if (!session.sending) void sendAutoFile(session);
+          } else if (msg?.type === 'cancel') {
+            sendWs({ type: 'release', requestId });
+            void stopAutoSession('수신자가 전송을 취소했습니다. 요청을 반납했습니다.');
+          }
+        } catch (_) {}
+      });
+
+      channel.addEventListener('close', () => {
+        if (
+          state.autoSession === session &&
+          !session.cancelled &&
+          session.sentBytes < file.size
+        ) {
+          setTransferStatus(
+            'P2P 연결이 완료 전에 종료되었습니다.',
+            session.sentBytes,
+            file.size,
+            session.startedAt || null
+          );
+        }
+      });
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await autoP2PWaitIceCompleteV940(pc);
+
+      if (!sendWs({
+        type: 'offer',
+        requestId,
+        sdp: pc.localDescription,
+        file: {
+          name: file.name,
+          size: file.size,
+          type: file.type || '',
+          lastModified: file.lastModified || 0,
+        }
+      })) {
+        throw new Error('Cloudflare signaling 연결이 끊어졌습니다.');
+      }
+
+      setTransferStatus(
+        `${file.name} · 요청자의 같은창 받기 대기 · 받기를 누르면 자동 연결됩니다.`,
+        0,
+        file.size
+      );
+    } catch (error) {
+      console.warn('[v934 auto share provider]', error);
+      sendWs({ type: 'release', requestId });
+      await stopAutoSession(`자동공유 준비 실패: ${error?.message || error}`);
+    }
+  }
+
+  async function applyProviderAnswer(msg) {
+    const session = state.autoSession;
+    const requestId = String(msg?.requestId || '');
+    if (
+      !session ||
+      !session.autoMode ||
+      session.autoRequestId !== requestId ||
+      !session.pc ||
+      !msg?.sdp
+    ) {
+      return;
+    }
+
+    try {
+      await session.pc.setRemoteDescription(msg.sdp);
+      setTransferStatus(
+        '수신자 응답 적용 완료 · P2P 연결 중…',
+        session.sentBytes || 0,
+        session.file?.size || 0,
+        session.startedAt || null
+      );
+    } catch (error) {
+      console.warn('[v934 auto share answer]', error);
+      sendWs({ type: 'release', requestId });
+      await stopAutoSession(`수신자 응답 적용 실패: ${error?.message || error}`);
+    }
+  }
+
+  async function sendAutoFile(session) {
+    if (!session || session.sending || session.cancelled) return;
+    const { channel, file } = session;
+    if (!channel || channel.readyState !== 'open') return;
+
+    session.sending = true;
+    session.startedAt = performance.now();
+    session.sentBytes = 0;
+
+    try {
+      channel.send(JSON.stringify({
+        type: 'meta',
+        name: file.name,
+        size: file.size,
+        mime: file.type || '',
+      }));
+
+      for (let offset = 0; offset < file.size; offset += AUTO_P2P_CHUNK_BYTES_V940) {
+        if (session.cancelled || state.autoSession !== session) {
+          throw new Error('자동공유 전송이 중지되었습니다.');
+        }
+        if (channel.readyState !== 'open') {
+          throw new Error('P2P 연결이 끊어졌습니다.');
+        }
+
+        await autoP2PWaitBufferLowV940(channel);
+        const end = Math.min(file.size, offset + AUTO_P2P_CHUNK_BYTES_V940);
+        const chunk = await file.slice(offset, end).arrayBuffer();
+        channel.send(chunk);
+        session.sentBytes = end;
+
+        if (
+          (end % (4 * 1024 * 1024)) < AUTO_P2P_CHUNK_BYTES_V940 ||
+          end === file.size
+        ) {
+          setTransferStatus('자동공유 전송 중', end, file.size, session.startedAt);
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+
+      while (channel.readyState === 'open' && channel.bufferedAmount > 0) {
+        await new Promise(resolve => setTimeout(resolve, 60));
+      }
+
+      if (channel.readyState !== 'open') {
+        throw new Error('완료 신호 전에 연결이 끊어졌습니다.');
+      }
+
+      channel.send(JSON.stringify({ type: 'done', size: file.size }));
+      setTransferStatus(
+        '송신 완료 · 수신자가 디스크 저장을 마치면 요청이 자동 종료됩니다.',
+        file.size,
+        file.size,
+        session.startedAt
+      );
+    } catch (error) {
+      if (!session.cancelled) {
+        setTransferStatus(
+          `자동공유 전송 실패: ${error?.message || error}`,
+          session.sentBytes,
+          file.size,
+          session.startedAt
+        );
+        sendWs({ type: 'release', requestId: session.autoRequestId });
+      }
+    } finally {
+      session.sending = false;
+    }
+  }
+
+  function initButton() {
+    const btn = document.getElementById('videoAutoShareBtnV934');
+    if (!btn || btn.dataset.boundV934 === '1') return;
+    btn.dataset.boundV934 = '1';
+    btn.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      openLayer();
+    });
+  }
+
+
+  // v946: 보유카드의 공유등록 버튼에서 사용.
+  window.isVideoAutoSharePublishedV946 = rawCode => {
+    return !!getMinePublicationForCodeV946(rawCode);
+  };
+
+  window.toggleVideoAutoSharePublishedV946 = async rawCode => {
+    const code = normalizeRequestCode(rawCode);
+    if (!code) return false;
+
+    const existing = getMinePublicationForCodeV946(code);
+
+    if (existing) {
+      const sent = unpublishPublicationV946(existing);
+
+      if (sent && typeof showToast === 'function') {
+        showToast(`${existing.code} 공유등록 해제 요청`, 2400);
+      }
+
+      return sent;
+    }
+
+    const sent = submitPublicationV946(code);
+
+    if (sent && typeof showToast === 'function') {
+      showToast(`${code} 공유등록 요청`, 2400);
+    }
+
+    return sent;
+  };
+
+  // v942: 미보유/메타검색 포스터의 "공유요청" 버튼에서 호출.
+  // 자동공유창을 열지 않고 해당 품번을 바로 자동공유 요청에 추가한다.
+  window.requestVideoAutoShareV942 = rawCode => {
+    const code = normalizeRequestCode(rawCode);
+    if (!code) return;
+
+    const key = codeKey(code);
+    const nowV945 = Date.now();
+    const existing = Array.from(state.requests.values())
+      .find(req =>
+        req.mine &&
+        isActiveRequestV945(req, nowV945) &&
+        codeKey(req.code) === key
+      );
+
+    if (existing) {
+      if (typeof showToast === 'function') {
+        showToast(`${existing.code}는 이미 자동공유 요청 중입니다.`, 2400);
+      }
+      return;
+    }
+
+    if (!canCreateAnotherRequestV945(code)) return;
+
+    state.endpoint = state.endpoint || getSavedEndpoint();
+    submitRequest(code);
+
+    if (typeof showToast === 'function') {
+      showToast(`${code} 자동공유 요청을 전송했습니다.`, 2400);
+    }
+  };
+
+  // 구버전 카드/외부 호출 호환
+  window.requestVideoAutoShareV934 = window.requestVideoAutoShareV942;
+
+  window.openVideoAutoShareV934 = openLayer;
+  window.connectVideoAutoShareV934 = connect;
+
+  state.endpoint = getSavedEndpoint();
+
+  setTimeout(() => {
+    initButton();
+    syncTopButton();
+
+    // v935: 저장 URL이 없어도 내장된 기본 Worker 주소로 실행 즉시 자동연결한다.
+    // 저장된 사용자 지정 URL이 있으면 그 주소가 우선한다.
+    // 주기적 HTTP polling은 하지 않고 WebSocket push만 유지한다.
+    if (state.endpoint) connect(false);
+  }, 0);
+
+  let __videoAutoShareLocalRematchTimerV938 = 0;
+
+  function scheduleVideoAutoShareLocalRematchV938(delay = 120) {
+    clearTimeout(__videoAutoShareLocalRematchTimerV938);
+    __videoAutoShareLocalRematchTimerV938 = setTimeout(() => {
+      try { renderLists(); } catch (_) {}
+    }, Math.max(0, Number(delay) || 0));
+  }
+
+  // 폴더 복원/추가/제목편집 등으로 실제 videolist가 바뀌면
+  // 서버에 다시 물어보지 않고 이미 받은 요청을 로컬에서만 즉시 재판정한다.
+  window.addEventListener('videolist:changed', () => {
+    scheduleVideoAutoShareLocalRematchV938(80);
+  });
+
+  // 작품DB가 나중에 설치/갱신되면 codeAliases/lookupKeys 보조키도 다시 반영.
+  document.addEventListener('videoWorkJsonImportedV740', () => {
+    scheduleVideoAutoShareLocalRematchV938(120);
+  });
+
+  // 자동공유 WebSocket은 영상목록 복원보다 먼저 열릴 수 있으므로
+  // 시작 직후 몇 번만 로컬 재판정한다. 서버 요청/polling은 발생하지 않는다.
+  [400, 1200, 3000].forEach(delay => {
+    setTimeout(() => scheduleVideoAutoShareLocalRematchV938(0), delay);
+  });
+
+  window.addEventListener('online', () => {
+    if (state.endpoint && !wsReady()) connect(false);
+  });
+
+  window.addEventListener('beforeunload', () => {
+    try {
+      if (state.ws) state.ws.__videoAutoShareIntentionalV934 = true;
+      state.ws?.close(1000, 'page unload');
+    } catch (_) {}
+  });
+})();
+</script>
+
 </body>
 
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
@@ -173433,3 +177039,372 @@ try {
 </style>
 
 <!-- v932: 세로 포스터 모두보기에서 확장자/FPS를 같은 줄에서 분리해 각각 독립 1줄로 표시 · FPS 존재 카드만 위쪽 자막/노모유모/재생·썸 메타를 21px씩 추가 상승 · 맨윗줄/맨아랫줄 기존 배치는 유지 · 화면 빌드932 -->
+
+<!-- v933: WebRTC P2P 직접공유 · 보유카드 공유 버튼 + 상단 P2P받기 · 64KiB 청크 디스크 스트리밍 · 수동 offer/answer 연결코드 방식 · 화면/최신버전 빌드933 -->
+
+<!-- v934: 자동공유 Cloudflare WebSocket Hibernation push + 로컬 보유판정 + 첫 공유자 선점 + 요청자 받기링크 + WebRTC P2P 직접전송 · 기존 수동공유 유지 · 1분 polling 없음 · 화면/최신버전 빌드934 -->
+<!-- v935: 공용 Worker https://webviewer-auto-share-worker.darkmons77.workers.dev 를 자동공유 기본주소로 내장 · localStorage에 사용자 지정 주소가 없으면 이 주소로 즉시 WebSocket 연결 · 다른 사용자도 URL 붙여넣기 불필요 · 설정창 주소 수정 기능은 유지 · 화면/최신버전 빌드935 -->
+
+<!-- v936: 자동공유 수신진단 + 파일명 품번 fallback 보유판정 강화 · 화면 빌드936 -->
+
+<!-- v937: 자동공유 보유판정을 기존 RAM 인덱스 + 작품DB lookupKeys 기준으로 통일 · 화면 빌드937 -->
+
+<!-- v938: 자동공유가 실제 window.getVideoListSnapshot 보유목록을 사용하도록 수정 + 로컬목록 변경 시 서버조회 없이 재판정 · 화면 빌드938 -->
+
+<!-- v939: 자동공유 실제 파일 handle resolver 전역 브리지 + 공유클릭 시 선확보 후 claim · 화면 빌드939 -->
+
+<!-- v940: 자동공유 P2P 유틸을 수동공유 v933 스코프에서 완전 독립 · createVideoP2PPeerV933 등 연쇄 ReferenceError 수정 · 화면 빌드940 -->
+
+<!-- v941: 자동공유 같은창 수신 + WebSocket offer/answer/complete · 화면 빌드941 -->
+
+<!-- v942: 고정 Worker 주소/주소 UI 제거 + 미보유 공유요청 즉시추가 + 개인정보 안내문 정리 · 화면 빌드942 -->
+
+
+<style id="v943-manual-share-caption-fix">
+/* 수동공유는 포스터가 아니라 텍스트 둘째 줄의 고정 컨트롤로 사용 */
+.videoCardMetaRow .videoP2PShareCaptionV943 {
+  position: relative !important;
+  z-index: 120 !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/*
+  미리보기 2~5에서 기존 메타/겹침 caption을 숨겨도
+  수동공유 하나만은 계속 표시·클릭 가능하게 한다.
+  visibility는 자식에서 visible로 복원할 수 있으므로 기존 미리보기 화면은 그대로 유지된다.
+*/
+.videoCard.videoHoverMetaHidden .videoP2PShareCaptionV943 {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 140 !important;
+}
+
+/* 겹침 제목모드에서는 caption 자체의 stacking level을 전체 미리보기보다 위로 올리되,
+   기존 caption 내용은 visibility:hidden 규칙대로 숨고 수동공유만 다시 visible 된다. */
+#wtList.videoCaptionOverlap
+.videoCard.videoHoverMetaHidden:not(.videoMissingCard)
+.videoCardCaption:has(.videoP2PShareCaptionV943) {
+  z-index: 140 !important;
+  pointer-events: none !important;
+}
+
+#wtList.videoCaptionOverlap
+.videoCard.videoHoverMetaHidden:not(.videoMissingCard)
+.videoCardCaption .videoP2PShareCaptionV943 {
+  pointer-events: auto !important;
+}
+
+/* 4·5 전체목록 미리보기 오버레이(z80) 위에서도 수동공유 버튼 클릭 가능 */
+.videoCard.videoHoverMetaHidden .videoP2PShareCaptionV943 {
+  transform: translateZ(0);
+}
+
+/* 텍스트 공간이 좁아도 배우/품번 텍스트가 먼저 줄어들고 버튼은 유지 */
+.videoCardMetaRow .videoCardMeta {
+  min-width: 0 !important;
+}
+</style>
+
+<!-- v943: 수동공유 텍스트영역 이동 + hover preview 클릭가드 · 화면 빌드943 -->
+
+
+<style id="v944-auto-share-top-receive-badge">
+/* v944: 기존 ::after 숫자 대신 실제 span 배지를 사용해 '보유요청'과 '받기'를 동시에 표시 */
+#videoAutoShareBtnV934.has-request-v934::after {
+  display: none !important;
+  content: none !important;
+}
+
+#videoAutoShareBtnV934 {
+  align-items: center;
+  gap: 0;
+}
+
+#videoAutoShareBtnV934 .videoAutoShareOwnedCountV944,
+#videoAutoShareBtnV934 .videoAutoShareReceiveCountV944 {
+  box-sizing: border-box;
+  height: 16px;
+  margin-left: 4px;
+  padding: 0 4px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+#videoAutoShareBtnV934 .videoAutoShareOwnedCountV944 {
+  min-width: 16px;
+  background: #e7662f;
+}
+
+/* 깜빡이지 않고 상시 표시. 내 요청에 공유자가 붙었다는 상태만 명확히 구분 */
+#videoAutoShareBtnV934 .videoAutoShareReceiveCountV944 {
+  min-width: 38px;
+  background: #2f9d66;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.16) inset;
+}
+</style>
+
+<!-- v944: 자동공유 상단 '받기 N' 상시 배지 · 화면 빌드944 -->
+
+<!-- v945: 요청 최대20개 + 7일 로컬만료 타이머 + Worker lazy cleanup 연동 · 화면 빌드945 -->
+
+
+<style id="v946-auto-share-publication-style">
+/* 보유카드의 자발적 공유등록 버튼 */
+.videoAutoSharePublishBadgeV946 {
+  position: relative !important;
+  z-index: 121 !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(95, 94, 104, .95);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 14px;
+  white-space: nowrap;
+  pointer-events: auto !important;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,.6);
+  text-shadow: 0 1px 2px rgba(0,0,0,.9);
+}
+
+.videoAutoSharePublishBadgeV946:hover {
+  background: rgba(123, 122, 135, .98);
+}
+
+.videoAutoSharePublishBadgeV946.is-active {
+  background: rgba(42, 145, 92, .96);
+}
+
+.videoAutoSharePublishBadgeV946.is-active:hover {
+  background: rgba(50, 171, 108, .99);
+}
+
+/* v943 hover-meta hidden 중에도 수동공유와 동일하게 조작 가능 */
+.videoCard.videoHoverMetaHidden .videoAutoSharePublishBadgeV946 {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 141 !important;
+}
+
+#wtList.videoCaptionOverlap
+.videoCard.videoHoverMetaHidden:not(.videoMissingCard)
+.videoCardCaption:has(.videoAutoSharePublishBadgeV946) {
+  z-index: 141 !important;
+}
+
+#wtList.videoCaptionOverlap
+.videoCard.videoHoverMetaHidden:not(.videoMissingCard)
+.videoCardCaption .videoAutoSharePublishBadgeV946 {
+  pointer-events: auto !important;
+}
+
+/* 공유가능 작품: 작품DB가 있으면 작은 로컬 포스터/제목/배우 보조표시 */
+.videoAutoSharePublicationRowV946 {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.videoAutoSharePublicationPosterV946 {
+  width: 44px;
+  height: 62px;
+  flex: 0 0 44px;
+  object-fit: cover;
+  border-radius: 5px;
+  background: #111;
+  border: 1px solid #353a44;
+}
+
+.videoAutoSharePublicationBodyV946 {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.videoAutoSharePublicationMetaV946 {
+  margin-top: 4px;
+  color: #aeb8c7;
+  font-size: 11px;
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+</style>
+
+<!-- v946: 자발적 공유등록 UI/bridge · 화면 빌드946 -->
+
+
+<style id="v947-auto-share-four-column-scroll">
+/*
+  v947
+  - 자동공유 전체 패널은 고정
+  - 4개 목록만 각자 독립적으로 세로 스크롤
+  - 항상 1행 4열
+*/
+#videoAutoSharePanelV934 {
+  width: min(1480px, 98.5vw) !important;
+  max-width: none !important;
+  max-height: 96vh !important;
+  overflow: hidden !important;
+}
+
+.videoAutoShareSectionsV934 {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  margin-top: 10px !important;
+  min-width: 0 !important;
+}
+
+.videoAutoShareSectionV934 {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 8px !important;
+}
+
+.videoAutoShareSectionTitleV934 {
+  flex: 0 0 auto !important;
+}
+
+/* 목록 길이가 늘어나도 전체 자동공유창이 아니라 이 칸만 스크롤 */
+.videoAutoShareSectionsV934 > .videoAutoShareSectionV934 > .videoAutoShareListV934 {
+  height: clamp(230px, 40vh, 470px) !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable !important;
+  padding-right: 3px !important;
+}
+
+/* 좁은 화면에서도 2층/1열로 바꾸지 않고 4열을 유지 */
+@media (max-width: 760px) {
+  #videoAutoSharePanelV934 {
+    width: 99vw !important;
+  }
+
+  .videoAutoShareSectionsV934 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .videoAutoShareSectionsV934 > .videoAutoShareSectionV934 > .videoAutoShareListV934 {
+    height: clamp(190px, 36vh, 360px) !important;
+  }
+}
+
+/* 4열에서 각 행이 좁아져도 내부 내용이 패널 폭을 밀어내지 않도록 */
+.videoAutoShareRowV934,
+.videoAutoShareRowTopV934,
+.videoAutoSharePublicationBodyV946,
+.videoAutoSharePublicationMetaV946 {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.videoAutoShareRowActionsV934 select {
+  flex-basis: 120px !important;
+}
+
+/* 전송영역은 목록 아래 고정, 자체적으로 전체창 스크롤을 만들지 않음 */
+.videoAutoShareTransferV934 {
+  flex: 0 0 auto !important;
+  margin-top: 9px !important;
+}
+</style>
+
+<!-- v947: 자동공유 1행4열 + 목록별 독립스크롤 + 보유 공유가능 숨김 · 화면 빌드947 -->
+
+
+<style id="v948-auto-share-poster-preview">
+/* v948: 자동공유 품번은 포스터 미리보기 가능하다는 것을 약하게 표시 */
+.videoAutoShareCodePosterV948 {
+  cursor: zoom-in !important;
+  text-decoration: underline dotted rgba(255,255,255,.35);
+  text-underline-offset: 2px;
+}
+
+.videoAutoShareCodePosterV948:hover {
+  color: #9fd0ff !important;
+}
+
+/* body에 붙는 fixed 팝업: 리스트 overflow/스크롤에 잘리지 않는다 */
+#videoAutoSharePosterPopupV948 {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483200;
+  width: 480px;
+  max-height: calc(100vh - 16px);
+  box-sizing: border-box;
+  display: none;
+  padding: 7px;
+  border: 1px solid #646c79;
+  border-radius: 9px;
+  background: rgba(12,14,18,.98);
+  color: #fff;
+  box-shadow: 0 14px 42px rgba(0,0,0,.78);
+  pointer-events: auto;
+}
+
+#videoAutoSharePosterPopupV948.is-visible {
+  display: block;
+}
+
+.videoAutoSharePosterCodeV948 {
+  margin: 0 0 6px;
+  font: 900 13px/1.2 Arial, sans-serif;
+  color: #dcecff;
+  text-align: center;
+}
+
+.videoAutoSharePosterImageV948 {
+  display: none;
+  width: 100%;
+  max-height: calc(100vh - 58px);
+  object-fit: contain;
+  border-radius: 5px;
+  background: #08090b;
+}
+
+.videoAutoSharePosterEmptyV948 {
+  display: none;
+  min-height: 120px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: #1b1e24;
+  color: #8e96a3;
+  font-size: 12px;
+}
+</style>
+
+<!-- v948: 자동공유 폭 1480px + 4목록 품번 hover/click 포스터 · 화면 빌드948 -->
+
+<!-- v949: 자동공유 포스터 2배 확대 · 화면 빌드949 -->
+
+<!-- v950: 안내문 정리 + 자동공유 누적전송/누적받음 로컬통계 · 화면 빌드950 -->
