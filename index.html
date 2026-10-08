@@ -41,6 +41,9 @@
 })();
 </script>
 
+<!-- v954: 이미지폴더 재연결창·최초 폴더 가이드에 Posters/품번.jpg·영상파일명.jpg·Actors/배우대표일본명.jpg 규칙과 Scenes 자동 저장 안내 추가 · 모바일 긴 설명 스크롤 · 빌드번호 954 -->
+<!-- v953: 로컬 영상 모드에서 보이는 wtLayer 상단 권한 버튼 옆에 이미지폴더 버튼 배치 및 v914 동적 버튼 재배치에도 위치 유지 · 빌드번호 951 잔존 상수를 953으로 수정 · 영상선택 명칭 유지 · 화면 빌드953 -->
+<!-- v952: 상단 이미지폴더 연결/재연결 버튼 및 상태표시 · 기능창 폴더를 영상선택으로 명칭변경 · 기존 로컬 이미지 루트 연결 함수 재사용 · 빌드952 -->
 <!-- v951: 자동공유 모바일 수신 저장 보강 · Android/모바일에서 showDirectoryPicker가 가능하면 파일 저장창 대신 readwrite 폴더 선택 → 폴더 내부에 수신파일 생성 → createWritable 순서로 저장 · 디렉터리/파일 handle의 readwrite 권한을 확인하고 필요 시 재요청 · 폴더 선택 API가 없으면 기존 showSaveFilePicker 방식 fallback · PC는 기존 저장파일 선택 방식을 그대로 유지 · Worker 변경 불필요 · 화면 빌드951 -->
 <!-- v950: 자동공유 안내문에서 Cloudflare IP/접속메타데이터 문구 제거 · '자동공유창을 닫아도 전송에는 문제없습니다.' 안내 추가 · 자동공유 성공 송신/수신 횟수를 브라우저 localStorage에 누적 저장하고 진단줄에 '누적전송 N건 · 누적받음 N건' 표시 · 송신은 수신자의 저장완료(completed) 확인 후 1회, 수신은 실제 파일 close 성공 후 1회 집계 · Worker 변경 불필요 · 화면 빌드950 -->
 <!-- v949: 자동공유 품번 hover/click 포스터 팝업 가로폭 240→480px로 2배 확대 · 팝업 위치계산 예상폭/높이도 확대 크기에 맞게 조정 · 화면 밖에서는 기존처럼 viewport 안쪽으로 자동 보정 · 송수신 동시성 구조는 변경하지 않음 · Worker 변경 불필요 · 화면 빌드949 -->
@@ -13109,6 +13112,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         <button class="zoomBtn" id="delUiToggleWt"  title="삭제 버튼 표시/숨기기">D</button>
         <button class="zoomBtn" id="toggleFullWt"   title="전체화면 전환">V</button>
         <button class="zoomBtn" id="muPermFixWt"    title="로컬 폴더 사용권한 허용">P</button>
+        <button class="zoomBtn" type="button" id="videoImageFolderConnectV953" title="포스터·배우사진·썸네일 이미지폴더 연결 또는 변경">이미지폴더 !</button>
         <button class="zoomBtn" id="jumpLastWt"     title="마지막 읽은 페이지로 이동">C</button>
         <button class="zoomBtn" id="ratingToggleWt" title="평점 보이기/숨기기">R</button>
         <button class="zoomBtn" id="toggleOrientWt" title="일반만화처럼 좌우넘기는 방식">H</button>
@@ -120935,7 +120939,7 @@ try { syncVideoSortUI(); } catch (_) {}
                           ? '북마크 조건에 맞는 영상이 없습니다.'
                           : '검색 또는 여배우 필터 결과가 없습니다.'
           )
-        : '등록된 동영상이 없습니다. [폴더] 또는 [파일] 버튼으로 추가하세요.';
+        : '등록된 동영상이 없습니다. [영상선택] 또는 [파일] 버튼으로 추가하세요.';
       box.appendChild(empty);
       if (typeof updateWtCountUI === 'function') updateWtCountUI();
       ensureVideoLoadMoreButton();
@@ -154401,8 +154405,8 @@ if (
     // 기존 로컬 버튼은 폴더 추가 전용으로 사용
     const folderBtn = document.getElementById('fsComicLink');
     if (folderBtn) {
-      folderBtn.textContent = '폴더';
-      folderBtn.title = '폴더를 추가하고 만화/동영상으로 자동 분류';
+      folderBtn.textContent = '영상선택';
+      folderBtn.title = '영상 폴더를 추가하고 만화/동영상으로 자동 분류';
       // 기존 bubble listener보다 먼저 실행해 중복 폴더 선택을 막는다.
       folderBtn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -172203,7 +172207,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 
     const panel = document.createElement('div');
     panel.style.cssText = [
-      'width:min(500px,calc(100vw - 32px))','background:#171a20','color:#f4f6f8',
+      'width:min(540px,calc(100vw - 32px))','max-height:calc(100vh - 24px)','overflow-y:auto','box-sizing:border-box','background:#171a20','color:#f4f6f8',
       'border:1px solid #4a505b','border-radius:12px','box-shadow:0 18px 55px rgba(0,0,0,.58)',
       'padding:22px 22px 18px','font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif'
     ].join(';');
@@ -172214,9 +172218,14 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 
     const desc = document.createElement('div');
     desc.textContent =
-      'PC에 저장된 포스터·배우사진·썸네일을 사용하려면 웹뷰어 HTML 파일이 있는 폴더를 선택하세요.\n\n' +
-      '한 번 선택하면 그 아래 Posters / Actors / Scenes 폴더를 함께 사용합니다.\n' +
-      '온라인 GitHub에서도 이 PC 폴더의 이미지를 먼저 사용하고, 없으면 온라인 이미지로 넘어갑니다.';
+      '포스터·배우사진·썸네일을 사용할 PC 폴더를 하나 선택하세요. Posters / Actors / Scenes 폴더를 함께 사용합니다.\n\n' +
+      '【포스터: Posters】 품번.jpg (예: ABC-123.jpg)\n' +
+      '품번 없는 영상은 영상파일명.jpg (예: 내영상.mp4 → 내영상.jpg)\n\n' +
+      '【배우사진: Actors】 배우의 대표 일본어 이름 전체.jpg\n' +
+      '예: 山岸あや花.jpg (괄호가 있으면 괄호까지 동일하게)\n' +
+      '로컬 배우사진을 온라인보다 우선 표시합니다. (.jpg 권장)\n\n' +
+      '【썸네일: Scenes】 캡처·월드컵 이미지가 저장되므로 파일명을 직접 정할 필요 없습니다.\n\n' +
+      'GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나중에 상단 이미지폴더 버튼으로 재연결할 수 있습니다.';
     desc.style.cssText = 'font-size:13px;line-height:1.65;color:#d5dae3;white-space:pre-line;margin-bottom:18px;';
 
     const buttons = document.createElement('div');
@@ -172873,7 +172882,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     showChoice({
       step:'local-media-root-v876',daily:false,
       title:'포스터 · 배우사진 · 썸네일 폴더를 연결하시겠습니까?',
-      message:'웹뷰어 HTML 파일이 있는 폴더를 한 번 선택하면 Posters / Actors / Scenes를 함께 사용합니다.\n\nGitHub 온라인에서도 PC의 로컬 포스터·배우사진·썸네일을 먼저 사용할 수 있습니다.',
+      message:'PC에서 이미지용 폴더 하나를 선택하면 Posters / Actors / Scenes를 함께 사용합니다.\n\n포스터: Posters/품번.jpg (품번이 없다면 영상파일명.jpg)\n배우사진: Actors/대표일본어이름.jpg (이름 전체 일치, 로컬 사진 우선)\n썸네일: Scenes에 캡처·월드컵 이미지 저장\n\nGitHub에서도 연결한 PC 이미지를 먼저 사용합니다.',
       confirmText:'폴더 선택',cancelText:'건너뛰기',
       onConfirm:async()=>{
         if(!isFlowCurrent(flow))return;
@@ -173023,7 +173032,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 951;
+  const VIEWER_BUILD_V789 = 954;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -173734,6 +173743,11 @@ try {
       if (permissionBtn.title !== '로컬 폴더 사용권한 허용') {
         permissionBtn.title = '로컬 폴더 사용권한 허용';
       }
+    }
+    // v953: 영상 모드의 실제 상단 헤더에서 권한 오른쪽에 이미지폴더 버튼 고정.
+    const imageFolderBtnV953 = document.getElementById('videoImageFolderConnectV953');
+    if (permissionBtn && imageFolderBtnV953) {
+      placeImmediatelyAfterV915(permissionBtn, imageFolderBtnV953);
     }
 
     // 메타검색 → 자막정리 → 자동공유 → 수동공유 → 리스트 한 줄 개수 순으로 고정한다.
@@ -177090,6 +177104,105 @@ try {
 })();
 </script>
 
+
+<!-- v953: 사용자 재연결 버튼. 폴더 선택은 click handler 안에서 곧바로 호출하여 사용자 제스처를 유지한다. -->
+<script id="videoImageFolderConnectScriptV953">
+(() => {
+  'use strict';
+  const getButton = () => document.getElementById('videoImageFolderConnectV953');
+  async function refresh() {
+    const button = getButton();
+    if (!button) return;
+    let linked = false;
+    try {
+      const state = await window.getVideoLocalMediaRootStateV876?.();
+      linked = !!state?.hasRoot;
+    } catch (_) {}
+    button.textContent = linked ? '이미지폴더 ✓' : '이미지폴더 !';
+    button.title = linked
+      ? '이미지폴더 등록됨 (실제 접근 권한은 사용 시 확인) · 클릭하면 폴더 변경/재연결'
+      : '이미지폴더 미등록 · 클릭해서 Posters / Actors / Scenes 연결';
+    button.style.borderColor = linked ? '#358d68' : '#aa8050';
+  }
+  function showDialog() {
+    if (document.getElementById('videoImageFolderDialogV952')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'videoImageFolderDialogV952';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:1000750;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;';
+    const panel = document.createElement('div');
+    panel.style.cssText = 'width:min(540px,95vw);max-height:calc(100vh - 24px);overflow-y:auto;box-sizing:border-box;padding:22px;background:#171a20;border:1px solid #4a505b;border-radius:12px;color:#f4f6f8;text-align:left;font-family:system-ui,sans-serif;box-shadow:0 18px 50px #0009;';
+    const heading = document.createElement('div');
+    heading.textContent = '포스터 · 배우사진 · 썸네일 폴더 연결';
+    heading.style.cssText = 'font-size:18px;font-weight:800;margin-bottom:12px;';
+    const info = document.createElement('div');
+    info.textContent =
+      '포스터·배우사진·썸네일을 사용할 PC 폴더를 선택하세요. 선택한 폴더 아래 Posters / Actors / Scenes를 함께 사용합니다.\n\n' +
+      '【포스터 → Posters 폴더】\n' +
+      '• 품번이 있는 영상: 품번.jpg (예: ABC-123.jpg)\n' +
+      '• 품번이 없는 영상: 영상파일명.jpg\n' +
+      '  예: 내영상.mp4 → Posters/내영상.jpg (원본 확장자 제외)\n\n' +
+      '【배우사진 → Actors 폴더】\n' +
+      '• 배우의 대표 일본어 이름 전체.jpg로 저장하세요.\n' +
+      '  예: 山岸あや花.jpg → Actors/山岸あや花.jpg\n' +
+      '• 이름에 괄호가 있으면 괄호까지 동일하게 입력하세요.\n' +
+      '• 일치하는 로컬 사진을 온라인 사진보다 우선 표시합니다.\n' +
+      '  (.jpg 권장, .jpeg/.png/.webp도 지원)\n\n' +
+      '【썸네일 → Scenes 폴더】\n' +
+      '• 캡처·월드컵 등에서 저장한 장면 이미지를 보관합니다. 파일명을 직접 만들 필요는 없습니다.\n\n' +
+      'GitHub 온라인에서도 연결한 PC의 이미지를 우선 사용합니다. 이미 연결했다면 다른 폴더로 변경할 수 있습니다.';
+    info.style.cssText = 'font-size:13px;white-space:pre-line;line-height:1.65;color:#d5dae3;margin-bottom:18px;';
+    const status = document.createElement('div');
+    status.style.cssText = 'font-size:12px;color:#d5dae3;margin-bottom:14px;';
+    status.textContent = '폴더 연결 상태 확인 중…';
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;';
+    const cancel = document.createElement('button');
+    cancel.type = 'button'; cancel.className = 'zoomBtn'; cancel.textContent = '닫기';
+    cancel.style.cssText = 'padding:8px 14px;';
+    const choose = document.createElement('button');
+    choose.type = 'button'; choose.className = 'zoomBtn'; choose.textContent = '폴더 선택';
+    choose.style.cssText = 'padding:8px 14px;background:#237a55;color:white;font-weight:750;';
+    const close = () => { overlay.remove(); void refresh(); };
+    cancel.addEventListener('click',close);
+    overlay.addEventListener('click',e => {if(e.target===overlay)close();});
+    overlay.addEventListener('keydown',e => {if(e.key==='Escape')close();});
+    choose.addEventListener('click',async () => {
+      if (typeof window.pickVideoLocalMediaRootFromUserV876 !== 'function') {
+        status.textContent = '이미지 폴더 연결 기능을 찾지 못했습니다.'; return;
+      }
+      choose.disabled = true;
+      // 사용자 클릭 시에 바로 호출해야 폴더 선택 API의 user activation이 유지됨.
+      const selection = window.pickVideoLocalMediaRootFromUserV876();
+      try {
+        const result = await selection;
+        try { window.showToast?.('이미지 폴더 연결 완료: '+(result?.name||''),2000); } catch(_) {}
+        close();
+      } catch(error) {
+        if(error?.name!=='AbortError')status.textContent = '연결 실패: '+(error?.message||String(error));
+        choose.disabled = false;
+      }
+    });
+    actions.append(cancel,choose); panel.append(heading,info,status,actions); overlay.append(panel);
+    document.body.append(overlay);
+    Promise.resolve(window.getVideoLocalMediaRootStateV876?.()).then(state => {
+      if(!overlay.isConnected)return;
+      status.textContent = state?.hasRoot ? '현재 등록 폴더: '+(state.name||'이름 없음')+' (권한은 이용 시 확인)' : '현재 이미지 폴더가 등록되지 않았습니다.';
+      choose.textContent = state?.hasRoot ? '다른 폴더 선택' : '폴더 선택';
+    }).catch(()=>{status.textContent = '폴더 상태를 확인할 수 없습니다.';});
+  }
+  function init(){
+    const button=getButton();
+    if(!button || button.dataset.boundV953)return;
+    button.dataset.boundV953='1';
+    button.addEventListener('click',showDialog);
+    void refresh();
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh();});
+    window.addEventListener('focus',()=>void refresh());
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
 </body>
 
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
@@ -177656,4 +177769,8 @@ try {
 
 <!-- v950: 안내문 정리 + 자동공유 누적전송/누적받음 로컬통계 · 화면 빌드950 -->
 
+<!-- v953: 로컬 영상 헤더 옵션→권한→이미지폴더 순서·상단 폴더 버튼 노출 수정·버전 상수 953 갱신 · 화면 빌드953 -->
+<!-- v952: 영상 폴더 버튼 명칭 변경 및 이미지폴더 연결 UI 도입 · 화면 빌드952 -->
 <!-- v951: 모바일 수신은 폴더 readwrite 선택 우선 → 파일 생성/쓰기, PC는 기존 save-file picker 유지 · 화면 빌드951 -->
+
+<!-- v954: 이미지 폴더 파일명 가이드 개선(품번/영상파일명/배우대표일본명 · Scenes 자동 저장) -->
