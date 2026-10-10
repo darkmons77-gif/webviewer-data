@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- v993: 만화 최초 안내에 ZIP·CBZ 형식 지원, 압축만화 파일명·하위 폴더 이름 규칙 불필요 설명 추가. 5초/최대10회 유지. -->
 <html lang="ko">
 <head>
 <link rel="icon" type="image/png" href="./image/icon.png">
@@ -35477,7 +35478,10 @@ function buildLightboxPageUrl(root, pad, ext, first, page) {
   return root + num + "." + ext;
 }
 async function openLightboxForValue(v) {
-  if (window.ComicZipV979?.isZip(v)) {
+  // v992: 폴더로 직접 등록한 로컬 만화는 URL/숫자형 이미지 구성정보가 필요 없다.
+  // ZIP과 동일한 라이트박스에 FileSystemFileHandle 이미지 목록을 직접 전달한다.
+  if (window.ComicZipV979?.isZip(v) ||
+      (/^fsdir:/i.test(String(v || '')) && window.ComicFsLocalV990?.getFiles)) {
     await window.ComicZipV979.openLightbox(v);
     return;
   }
@@ -122886,7 +122890,7 @@ function setContentMode(mode) {
   );
 
   if (contentMode === 'comic') {
-    // v990: 탭 진입 안내는 1회/페이지 방문, 누적 최대 10회, 3초 표시.
+    // v991: 탭 진입 안내는 1회/페이지 방문, 누적 최대 10회, 5초 표시.
     try { window.showComicIntroV990?.(); } catch (_) {}
     // v873: 시작 때 미뤘던 만화 초기화는 실제 만화 탭 진입 시에만 수행.
     try { window.viewerAllowComicInitV873?.(); } catch (_) {}
@@ -174041,7 +174045,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 990;
+  const VIEWER_BUILD_V789 = 993;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -179502,11 +179506,23 @@ function attachZipAuthorPanelV988(overlay, currentValue, closeCurrent){
   }
 }
 async function openLightbox(value){
-  const p=parse(value);if(!p)return;
+  // v992: 기존 ZIP 라이트박스를 일반 로컬 이미지 폴더에도 공통 적용.
+  // 이미지 구성 맵과 파일명 숫자 규칙, HTTP 재스캔은 사용하지 않는다.
+  const isFolderV992=/^fsdir:/i.test(String(value||''));
+  const p=isFolderV992 ? {rel:String(value).slice(6),value:String(value)} : parse(value);
+  if(!p)return;
   let file,pages;
-  try{const found=await findFile(value);file=await found.handle.getFile();pages=await central(file);
-    if(!pages.length)throw Error('이미지가 없습니다.');}
-  catch(e){alert('ZIP 열기 실패: '+errText(e));return;}
+  try{
+    if(isFolderV992){
+      if(typeof window.ComicFsLocalV990?.getFiles!=='function')throw Error('로컬 만화 폴더 연결 기능을 찾을 수 없습니다.');
+      const localFiles=await window.ComicFsLocalV990.getFiles(value);
+      pages=localFiles.map(entry=>({name:entry.name,localHandleV992:entry.handle}));
+    }else{
+      const found=await findFile(value);file=await found.handle.getFile();pages=await central(file);
+    }
+    if(!pages.length)throw Error('폴더에서 표시 가능한 이미지가 없습니다.');
+  }catch(e){alert((isFolderV992?'로컬 만화 열기 실패: ':'ZIP 열기 실패: ')+errText(e));return;}
+  const readImageV992=(entry)=> isFolderV992 ? entry.localHandleV992.getFile() : extract(file,entry);
 
   // v985: ZIP 중앙 디렉터리를 한 번 읽은 뒤, 페이지별 상위 폴더와 폴더 내 순서를 계산한다.
   // 원본 ZIP 파일명은 변경하지 않으며 각 페이지 전환에서 재탐색/재압축 해제를 하지 않는다.
@@ -179608,7 +179624,7 @@ async function openLightbox(value){
   async function updateZipLastThumbV988(n,availableUrl=null){
     const token=++lastPreviewTokenV988;
     if(availableUrl){lastImageV988.src=availableUrl;return;}
-    try{const blob=await extract(file,pages[n]);
+    try{const blob=await readImageV992(pages[n]);
       if(token!==lastPreviewTokenV988 || !cover.isConnected)return;
       const url=URL.createObjectURL(blob);
       const prior=lastImageV988.dataset.ownedUrl;
@@ -179716,7 +179732,7 @@ async function openLightbox(value){
       (async()=>{
         let url=null;
         try{
-          const blob=await extract(file,pages[i]);
+          const blob=await readImageV992(pages[i]);
           if(epoch!==verticalEpochV986||destroyed||readDirectionV986!=='vertical')return;
           url=URL.createObjectURL(blob);
           const wrapper=verticalItemsV986[i],img=wrapper?.querySelector('img');
@@ -179811,7 +179827,7 @@ async function openLightbox(value){
     }
     setPageLabelV986(to,true);
     const mine=++seq;
-    try{const data=await extract(file,pages[idx]);
+    try{const data=await readImageV992(pages[idx]);
       if(mine!==seq||destroyed||readDirectionV986!=='horizontal')return;
       const url=URL.createObjectURL(data);
       image.src=url;
@@ -180174,7 +180190,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
 </script>
 <!-- v990: ZIP 로컬 안내(최대 10회) + 일반 이미지 폴더 표지/페이지수 복구 -->
 <style id="comicFsLocalStyleV990">
-#comicFirstEntryToastV990{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147482000;max-width:min(90vw,560px);padding:19px 26px;box-sizing:border-box;border:1px solid rgba(114,173,250,.5);border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.65);background:rgba(16,22,32,.97);color:#edf5ff;font:700 17px/1.7 sans-serif;text-align:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+#comicFirstEntryToastV990{white-space:pre-line;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147482000;max-width:min(90vw,560px);padding:19px 26px;box-sizing:border-box;border:1px solid rgba(114,173,250,.5);border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.65);background:rgba(16,22,32,.97);color:#edf5ff;font:700 17px/1.7 sans-serif;text-align:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
 #comicFirstEntryToastV990.on{opacity:1;visibility:visible}
 </style>
 <script id="comicFsLocalFixV990">
@@ -180190,10 +180206,10 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    if(n>=10)return;
    try{localStorage.setItem(noticeKey,String(n+1));}catch(_){}
    let el=document.getElementById('comicFirstEntryToastV990');
-   if(!el){el=document.createElement('div');el.id='comicFirstEntryToastV990';el.setAttribute('role','status');el.textContent='압축파일 만화 지원합니다. 로컬로 압축파일이 있는 폴더만 선택하시면 됩니다.';document.body.appendChild(el);}
+   if(!el){el=document.createElement('div');el.id='comicFirstEntryToastV990';el.setAttribute('role','status');el.textContent='ZIP · CBZ 압축만화를 지원합니다.\n압축파일이 있는 폴더를 로컬로 선택하시면 됩니다.\n압축만화는 기존 만화의 파일명·폴더명 규칙이 필요 없습니다.\n이미지 파일명을 숫자로 변경하거나 서브폴더 이름을 특정 규칙에 맞출 필요가 없습니다.\n압축파일 폴더는 경로입력 하지마세요.';document.body.appendChild(el);}
    clearTimeout(noticeTimer);
    el.classList.add('on');
-   noticeTimer=setTimeout(()=>el.classList.remove('on'),3000);
+   noticeTimer=setTimeout(()=>el.classList.remove('on'),5000);
  };
  // v990: 페이지가 만화 모드로 시작하여 사용자가 처음 '만화' 탭을 눌러도 안내한다.
  document.addEventListener('click',e=>{
@@ -180278,7 +180294,20 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    };
    if(observe){wrap.__fsStartV990=work;observe.observe(wrap);}else queueTask(work);
  }
- window.ComicFsLocalV990={mount};
+ // v992: 로컬 작품을 클릭했을 때 현재 폴더 핸들에서 이미지를 직접 읽는다.
+ // 표지·장수와 동일한 파일명/자연 정렬. 기존 웹툰 구성 DB는 건드리지 않는다.
+ async function getFiles(value){
+   let rec=recFor(value);
+   if(!rec){
+     // 페이지 복귀 직후 아직 폴더 목록 캐시가 비어 있는 경우에만 권한 요청 없이 복원.
+     try{if(typeof ensureComicFsReady==='function')await ensureComicFsReady(false);}catch(_){}
+     rec=recFor(value);
+   }
+   if(!rec?.handle)throw new Error('연결된 로컬 이미지 폴더를 찾을 수 없습니다. 만화 → 로컬에서 폴더 연결을 확인해 주세요.');
+   if(typeof listFsImages!=='function')throw new Error('로컬 이미지 파일 목록 기능을 찾을 수 없습니다.');
+   return await listFsImages(rec.handle);
+ }
+ window.ComicFsLocalV990={mount,getFiles};
 })();
 </script>
 
@@ -180842,7 +180871,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
 }
 </style>
 
-<!-- v990: 만화 로컬 이미지 폴더 표지·장수 개선 / ZIP 안내 최대 10회 / 경로 문구 변경 -->
+<!-- v991: ZIP 만화 안내 표시시간 5초·절대경로 주의 문구 추가 / v990 기능 유지 -->
 <!-- v948: 자동공유 폭 1480px + 4목록 품번 hover/click 포스터 · 화면 빌드948 -->
 
 <!-- v949: 자동공유 포스터 2배 확대 · 화면 빌드949 -->
