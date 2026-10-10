@@ -39756,6 +39756,9 @@ try {
     } else {
       console.warn('[LB author] ZIP poster loader unavailable:', value);
     }
+  } else if (/^fsdir:/i.test(value)) {
+    // v994: 로컬로만 등록한 이미지 폴더는 URL/구성정보가 아니라 실제 폴더 핸들에서 첫 사진을 읽는다.
+    window.ComicFsLocalV990?.mountAuthorPoster?.(value, thumb);
   } else {
   // 1) ✅ 표지 즐겨찾기(이름=표지) 우선
   const coverFav = getCoverFavRecordForValue?.(value);
@@ -41124,7 +41127,8 @@ function getLightboxTopBarPos() {
     }
   } catch {}
 
-  return 'top';
+  // v996: 저장된 사용자 선택이 없는 경우 상단바를 자동 숨김으로 시작.
+  return 'top-auto';
 }
 
 function applyLightboxTopBarPos(pos) {
@@ -41135,7 +41139,7 @@ function applyLightboxTopBarPos(pos) {
     pos !== 'bottom-auto' &&
     pos !== 'hidden'
   ) {
-    pos = 'top';
+    pos = 'top-auto';
   }
 
   const bar = document.getElementById('imgLightboxTopBar');
@@ -174045,7 +174049,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 993;
+  const VIEWER_BUILD_V789 = 996;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -179483,6 +179487,9 @@ function attachZipAuthorPanelV988(overlay, currentValue, closeCurrent){
     if(parse(value)){
       // ZIP 포스터는 자체 캐시/로더를 사용한다. 일반 만화 URL 구성 함수를 쓰면 빈칸이 된다.
       mountPoster(value,thumb,true);
+    } else if(/^fsdir:/i.test(value)){
+      // v994: ZIP/로컬 공통 뷰어의 같은 작가 목록에서 이미지 폴더 작품도 실제 파일 핸들로 표지를 표시.
+      window.ComicFsLocalV990?.mountAuthorPoster?.(value,thumb);
     } else {
       try{
         const fav=typeof getCoverFavRecordForValue==='function'?getCoverFavRecordForValue(value):null;
@@ -179838,6 +179845,68 @@ async function openLightbox(value){
         counter.textContent=`${pageLabelV985(idx)} · ${errText(e)}`;flashBadge();}
     }
   }
+  // v995: ZIP·CBZ 및 로컬 이미지 폴더에 공통 적용되는 가로 페이지 탐색.
+  // 기존 일반 만화 뷰어와 같이 휠 아래/오른쪽=다음, 위/왼쪽=이전,
+  // 터치는 왼쪽 스와이프=다음, 오른쪽 스와이프=이전.
+  // 세로 연속 보기에서는 브라우저 기본 휠·터치 스크롤을 그대로 살린다.
+  let lastWheelTurnV995=0;
+  let wheelSumV995=0;
+  let lastWheelEventV995=0;
+  const WHEEL_LIMIT_V995=50;
+  const WHEEL_COOLDOWN_V995=180;
+  cover.addEventListener('wheel',event=>{
+    if(destroyed||readDirectionV986!=='horizontal')return;
+    // 같은 작가 패널·마지막 본 페이지·상단 설정은 자체 조작/스크롤을 보존.
+    if(event.target.closest?.('#zipAuthorPanelV988,#zipLastPageV988,.zipLightboxHeaderV984,.zipLightboxTopZoneV984'))return;
+    if(event.ctrlKey)return; // 브라우저 확대/축소 제스처 유지
+    const deltaX=event.deltaX||0,deltaY=event.deltaY||0;
+    let delta=Math.abs(deltaX)>Math.abs(deltaY)?deltaX:deltaY;
+    if(!delta)return;
+    // 단일 wheel 이벤트가 작은 터치패드에서도 자연스럽게 동작하도록 누적.
+    if(event.deltaMode===1)delta*=16;
+    if(event.deltaMode===2)delta*=window.innerHeight||700;
+    event.preventDefault();
+    const now=performance.now();
+    if(now-lastWheelEventV995>280 || (wheelSumV995&&Math.sign(delta)!==Math.sign(wheelSumV995)))wheelSumV995=0;
+    lastWheelEventV995=now;
+    if(now-lastWheelTurnV995<WHEEL_COOLDOWN_V995)return;
+    wheelSumV995+=delta;
+    if(Math.abs(wheelSumV995)<WHEEL_LIMIT_V995)return;
+    const step=wheelSumV995>0?1:-1;
+    wheelSumV995=0;lastWheelTurnV995=now;
+    void go(idx+step);
+  },{passive:false});
+
+  let touchStartV995=null;
+  let suppressClickUntilV995=0;
+  image.addEventListener('touchstart',event=>{
+    touchStartV995=null;
+    if(destroyed||readDirectionV986!=='horizontal'||event.touches.length!==1)return;
+    const p=event.touches[0];
+    touchStartV995={x:p.clientX,y:p.clientY,swiping:false};
+  },{passive:true});
+  image.addEventListener('touchmove',event=>{
+    if(!touchStartV995||readDirectionV986!=='horizontal'||event.touches.length!==1)return;
+    const p=event.touches[0];
+    const dx=p.clientX-touchStartV995.x,dy=p.clientY-touchStartV995.y;
+    if(Math.abs(dx)>Math.abs(dy)*1.5&&Math.abs(dx)>10){
+      touchStartV995.swiping=true;
+      if(event.cancelable)event.preventDefault();
+    }
+  },{passive:false});
+  image.addEventListener('touchend',event=>{
+    const start=touchStartV995;touchStartV995=null;
+    if(!start||destroyed||readDirectionV986!=='horizontal'||event.changedTouches.length!==1)return;
+    const p=event.changedTouches[0];
+    const dx=p.clientX-start.x,dy=p.clientY-start.y;
+    if(Math.abs(dx)<40||Math.abs(dx)<=Math.abs(dy)*1.5)return;
+    // 터치 종료 직후 발생하는 synthetic click에서 페이지가 두 번 넘어가는 것을 방지.
+    suppressClickUntilV995=performance.now()+400;
+    if(event.cancelable)event.preventDefault();
+    void go(idx+(dx<0?1:-1));
+  },{passive:false});
+  image.addEventListener('touchcancel',()=>{touchStartV995=null;},{passive:true});
+
   function destroy(){
     if(destroyed)return;destroyed=true;seq++;
     clearTimeout(controlsTimer);clearTimeout(badgeTimer);
@@ -179869,6 +179938,7 @@ async function openLightbox(value){
   // v987: 가로 보기 img는 화면 전체를 차지하지만 object-fit:contain으로 실제 그림은 가운데 일부다.
   // 그림 자체 클릭은 기존 페이지 이동, 그림 밖의 검은 레터박스 클릭만 뷰어 닫기.
   image.onclick=e=>{
+    if(performance.now()<suppressClickUntilV995){e.preventDefault();e.stopPropagation();return;}
     if(readDirectionV986!=='horizontal')return;
     if(!image.naturalWidth||!image.naturalHeight)return;
     const r=image.getBoundingClientRect();
@@ -180307,7 +180377,14 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    if(typeof listFsImages!=='function')throw new Error('로컬 이미지 파일 목록 기능을 찾을 수 없습니다.');
    return await listFsImages(rec.handle);
  }
- window.ComicFsLocalV990={mount,getFiles};
+ // v994: 같은 작가 패널에는 '페이지 장수' 배지가 없으므로 화면에 보이지 않는 배지를 전달해
+ // 기존 로컬 이미지 표지 로더를 그대로 재사용한다. 실제 파일을 덮어쓰거나 다시 등록하지 않는다.
+ function mountAuthorPoster(value,wrap){
+   if(!wrap)return;
+   const badge=document.createElement('span');
+   mount(value,wrap,badge);
+ }
+ window.ComicFsLocalV990={mount,getFiles,mountAuthorPoster};
 })();
 </script>
 
