@@ -1,4 +1,7 @@
 <!doctype html>
+<!-- v1020: ZIP·로컬 이미지폴더 만화 마지막 페이지 정보를 전용 IndexedDB에 신규 저장하고 구형 localStorage 키만 분할 삭제. -->
+<!-- v1019: L 관리창: 키 우선 목록/80행 추가 로딩/200자 지연 미리보기/요청시 편집·전체보기/용량 수동 계산/선택적 값 검색 -->
+<!-- v1018: 음악목록 music_list_v1 IndexedDB 자동 이전, 영구 저장/원본 백업 및 폴더·수정·삭제 경로 일원화 -->
 <!-- v1017: 음악 자켓 전체 DOM 스크롤 검사 제거·화면 근처 제한 재확인·빠른 스크롤 시 대기 자켓 후순위 작업 생략·개별 URL 참조 관리. -->
 <!-- v1016: 음악 가수 레일 가상 스크롤(고정 스크롤 높이·보이는 행만 DOM 생성) + 가수검색/선택/탭복귀 스크롤 보존. -->
 <!-- v1015: 음악 파일 스캔 제한 10만개/루트로 확장, 음악목록 필터·자켓 카드 120개씩 지연 렌더, 원본 재생 인덱스 유지. -->
@@ -54,6 +57,150 @@
       document.head.appendChild(manifestLinkV874);
     } catch (_) {}
   }
+})();
+</script>
+<!-- v1018: music_list_v1 -> IndexedDB (검증 후 사용, localStorage 원본 보존) -->
+<script id="musicListIDBStoreV1018">
+(() => {
+  'use strict';
+  const LEGACY_KEY = 'music_list_v1';
+  const DB_NAME = 'viewer_music_list_v1018';
+  const STORE = 'records';
+  let readyDone = false, available = false, data = '';
+  let committed = '', revision = '';
+  let chain = Promise.resolve();
+  let issueShown = false;
+  let channel = null;
+  let db = null;
+  const legacy = () => { try { return localStorage.getItem(LEGACY_KEY) || ''; } catch (_) { return ''; } };
+  data = legacy();
+  committed = data;
+  const txDone = tx => new Promise((res, rej) => {
+    tx.oncomplete = () => res();
+    tx.onabort = () => rej(tx.error || new Error('IndexedDB 트랜잭션 취소'));
+    tx.onerror = () => rej(tx.error || new Error('IndexedDB 저장 실패'));
+  });
+  const readRecord = (key) => new Promise((res,rej)=> {
+    const tx=db.transaction(STORE,'readonly');
+    const req=tx.objectStore(STORE).get(key);
+    req.onsuccess=()=>res(req.result||null);
+    req.onerror=()=>rej(req.error||new Error('목록 읽기 실패'));
+  });
+  const open = () => new Promise((res,rej) => {
+    if(!('indexedDB' in window)) { rej(new Error('IndexedDB 미지원')); return; }
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=()=>{
+      if(!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE,{keyPath:'id'});
+    };
+    req.onsuccess=()=>{ const result=req.result; result.onversionchange=()=>result.close(); res(result); };
+    req.onerror=()=>rej(req.error||new Error('IndexedDB 열기 실패'));
+    req.onblocked=()=>rej(new Error('다른 탭이 IndexedDB 변경을 차단하고 있습니다'));
+  });
+  const alertIssue = (error) => {
+    console.error('[music list IndexedDB v1018]',error);
+    if (issueShown) return;
+    issueShown=true;
+    const show=()=> {
+      const existing=document.getElementById('musicStoreWarningV1018');
+      if(existing)return;
+      const div=document.createElement('div');
+      div.id='musicStoreWarningV1018';
+      div.setAttribute('role','alert');
+      div.style.cssText='position:fixed;left:12px;bottom:12px;max-width:min(540px,92vw);z-index:2147483005;padding:12px;background:#5c1e28;color:white;border:1px solid #f99;border-radius:8px;font:13px/1.5 sans-serif;text-align:left;';
+      div.textContent='음악 목록 IndexedDB 저장에 실패했습니다. 기존 목록은 보존했으며 새 변경 사항이 저장되지 않았을 수 있습니다. 새로고침 전에 개발자 도구 오류를 확인하세요. ('+String(error?.message||error)+')';
+      document.body.appendChild(div);
+    };
+    if(document.body) show(); else document.addEventListener('DOMContentLoaded',show,{once:true});
+  };
+  const writeRecord = async (next) => {
+    if(!db) throw new Error('IndexedDB 연결 없음');
+    const proposed = Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+    // 하나의 트랜잭션에서 최신 revision 비교. 다른 탭이 변경했다면 덮어쓰지 않는다.
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(STORE,'readwrite');
+      const obj=tx.objectStore(STORE);
+      const get=obj.get('list');
+      let reason=null;
+      get.onsuccess=()=>{
+        const current=get.result;
+        if(current?.revision !== revision){
+          reason=new Error('다른 탭에서 음악목록이 변경됐습니다. 새로고침해 최신 목록을 불러오세요.');
+          tx.abort(); return;
+        }
+        obj.put({id:'list',text:next,revision:proposed,updatedAt:Date.now()});
+      };
+      tx.oncomplete=()=>res();
+      tx.onabort=()=>rej(reason||tx.error||new Error('음악 목록 저장 취소'));
+      tx.onerror=()=>rej(reason||tx.error||new Error('음악 목록 저장 오류'));
+    });
+    revision=proposed;
+    committed=next;
+    try { channel?.postMessage({type:'changed'}); } catch (_) {}
+    return true;
+  };
+  const initialize = async () => {
+    try {
+      db=await open();
+      let existing=await readRecord('list');
+      if(!existing){
+        // 최초 이전: 기존 문자열과 별도의 이전 시점 백업을 한 트랜잭션으로 저장.
+        const old=legacy();
+        const rev=Date.now().toString(36)+'-migration';
+        await new Promise((res,rej)=>{
+          const tx=db.transaction(STORE,'readwrite');
+          const st=tx.objectStore(STORE);
+          st.put({id:'list',text:old,revision:rev,updatedAt:Date.now()});
+          st.put({id:'migration_backup',text:old,createdAt:Date.now()});
+          tx.oncomplete=()=>res();
+          tx.onerror=()=>rej(tx.error||new Error('이전 저장 실패'));
+          tx.onabort=()=>rej(tx.error||new Error('이전 취소'));
+        });
+        existing=await readRecord('list');
+        const backup=await readRecord('migration_backup');
+        if(existing?.text!==old||backup?.text!==old)throw new Error('음악 목록 이전 검증 실패');
+      }
+      data=String(existing.text||'');
+      committed=data;
+      revision=existing.revision;
+      available=true;
+      // 원본 localStorage의 music_list_v1은 삭제하지 않는다. 더 이상 신규 저장에는 사용하지 않는다.
+      if('BroadcastChannel' in window){
+        try {channel=new BroadcastChannel(DB_NAME); channel.onmessage=(e)=>{
+          if(e.data?.type==='changed')console.info('[music IDB] 다른 탭 변경 감지: 새로고침 권장');
+        };}catch(_){}
+      }
+    } catch (err) {
+      available=false;
+      alertIssue(err);
+    } finally { readyDone=true; }
+    return available;
+  };
+  const ready=initialize();
+  // 화면 갱신은 동기 RAM 복사본을 읽으므로 기존 음악 재생·필터 연산을 유지한다.
+  function read(){return data;}
+  function write(next){
+    if(!readyDone||!available){alertIssue(new Error('음악 DB 준비 실패 또는 준비 중'));return Promise.resolve(false);}
+    next=String(next||'');
+    data=next;
+    const job=chain.then(()=>writeRecord(next));
+    chain=job.catch(err=>{
+      if(data===next)data=committed;
+      alertIssue(err);
+      try { window.muRenderList?.(); } catch (_) {}
+    });
+    return job.then(()=>true,()=>false);
+  }
+  async function writeDurable(next){
+    await ready;
+    if(!available)throw new Error('음악 IndexedDB에 연결할 수 없습니다');
+    next=String(next||'');
+    data=next;
+    const job=chain.then(()=>writeRecord(next));
+    chain=job.catch(err=>{if(data===next)data=committed;alertIssue(err);});
+    return job;
+  }
+  const api={ready,read,write,writeDurable,clear:()=>write(''),isReady:()=>readyDone&&available,dbName:DB_NAME};
+  window.MusicListStoreV1018=api;
 })();
 </script>
 
@@ -933,6 +1080,18 @@ color: #000;
 #lsUsageBar{ position:relative; width:20px; height:8px; background:#333; border-radius:6px; overflow:hidden; display:inline-block; vertical-align:middle; margin-left:6px;}
 #lsUsageBarInner{ position:absolute; left:0; top:0; bottom:0; width:0%; background:#4caf50; }
 #lsTable pre{ white-space:pre-wrap; word-break:break-all; }
+
+/* v1019: L 관리창은 대량 문자열을 자동으로 전부 펼치지 않는다. */
+#lsPanel header { flex-wrap:wrap; }
+#lsPanel header .left { flex-wrap:wrap; min-width:0; }
+#lsSearchValuesWrapV1019 { color:#ddd; font-size:11px; white-space:nowrap; cursor:pointer; }
+#lsSearchValuesV1019 { vertical-align:middle; }
+#lsPagingV1019 { display:flex; align-items:center; justify-content:center; gap:10px; margin:7px 0; color:#ddd; font-size:12px; }
+#lsMoreV1019 { padding:5px 12px; }
+#lsTable td.v pre { margin:0; max-height:5.8em; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; }
+#lsTable td.v textarea { font:12px/1.35 monospace; box-sizing:border-box; }
+#lsTable .lsValueExpandV1019 { margin:4px 0 0; padding:2px 7px; background:#444; color:#fff; border:0; border-radius:4px; cursor:pointer; font-size:11px; }
+
 /* === LocalStorage 뷰어 === */
 
 /* 셀렉트 박스 기본 */
@@ -12188,8 +12347,10 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
       <!-- ✅ 용량 표시(새로고침 앞) -->
       <span id="lsUsageText">용량: -</span>
       <span id="lsUsageBar"><span id="lsUsageBarInner"></span></span>
+      <button type="button" class="lsActionBtn" id="lsUsageCalcV1019" title="로컬스토리지 용량은 필요할 때만 계산합니다">용량계산</button>
 
-      <input id="lsSearch" type="search" placeholder="키/값 검색…" />
+      <input id="lsSearch" type="search" placeholder="키 검색…" />
+      <label id="lsSearchValuesWrapV1019" title="선택 시 대용량 값까지 나누어 검색(시간이 걸릴 수 있음)"><input type="checkbox" id="lsSearchValuesV1019">값 포함</label>
       <button id="lsRefresh">새로고침</button>
     </div>
     <div>
@@ -12230,6 +12391,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
     </thead>
     <tbody id="lsTbody"></tbody>
   </table>
+  <div id="lsPagingV1019"><span id="lsStatsV1019"></span><button id="lsMoreV1019" class="lsActionBtn" type="button">다음 80개 표시</button></div>
   <div id="lsHelp">행의 버튼으로 <b>복</b>(복사), <b>붙</b>(붙여넣기), <b>편/저/취</b>(편집/저장/취소), <b>삭</b>(삭제)을 사용할 수 있습니다.</div>
 </div>
 
@@ -19789,7 +19951,7 @@ async function unlinkMusicFolder(){
 
   if (rec?.name) {
     const remaining = await getMusicFsRootsCached(true);
-    removeMusicRootEntriesFromSavedList(
+    await removeMusicRootEntriesFromSavedList(
       rec.name,
       rec.id,
       remaining.some(other => other.name === rec.name)
@@ -25086,6 +25248,10 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
   const btnExport = $('#lsExport');
   const btnImport = $('#lsImport');
   const fileImport = $('#lsImportFile');
+  const valueSearchV1019 = $('#lsSearchValuesV1019');
+  const moreBtnV1019 = $('#lsMoreV1019');
+  const statsV1019 = $('#lsStatsV1019');
+  const usageCalcBtnV1019 = $('#lsUsageCalcV1019');
 
   const ASSUMED_TOTAL_BYTES = 10 * 1024 * 1024; // 10MB
   const SEARCH_IDLE_MS = 1000; // ← 입력 멈춘 뒤 실행까지 대기시간(ms)
@@ -25160,96 +25326,235 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
     el.textContent = msg; el.style.display = 'block';
     setTimeout(()=>{ el.style.display = 'none'; }, 900);
   }
-  // UTF-16(2 bytes/char) 기준 대략 용량 추정
-  function estimateBytes(){
-    let bytes = 0;
-    for (let i=0; i<localStorage.length; i++){
-      const k = localStorage.key(i) ?? '';
-      const v = localStorage.getItem(k) ?? '';
-      bytes += 2 * (k.length + v.length);
-    }
-    return bytes;
-  }
+  // v1019: 동기 전체 용량 계산은 L 창 열기와 연결하지 않는다.
   function formatBytes(b){
     if (b >= 1024*1024) return (b/1024/1024).toFixed(1) + ' MB';
     if (b >= 1024) return (b/1024).toFixed(1) + ' KB';
     return b + ' B';
   }
+  let usageTokenV1019 = 0;
   function updateUsageUI(){
-    const used = estimateBytes();
-    const pct = Math.min(100, (used / ASSUMED_TOTAL_BYTES) * 100);
-    if (usageEl) usageEl.textContent =
-      `용량: ${formatBytes(used)} / 10MB`;
-    if (usageBar) usageBar.style.width = pct + '%';
+    ++usageTokenV1019;
+    if (usageEl) usageEl.textContent = '용량: 계산 필요';
+    if (usageBar) usageBar.style.width = '0%';
   }
+  function calculateUsageV1019(){
+    const token = ++usageTokenV1019;
+    const keys = [];
+    for (let i=0; i<localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k != null) keys.push(k);
+    }
+    let index=0, bytes=0;
+    if (usageEl) usageEl.textContent = '용량: 계산 중…';
+    function batch(){
+      if (token!==usageTokenV1019) return;
+      const stop=Math.min(keys.length,index+20);
+      for (;index<stop;index++) {
+        const k=keys[index];
+        try { bytes += 2*(k.length+(localStorage.getItem(k)||'').length); } catch (_) {}
+      }
+      if (index<keys.length) { setTimeout(batch,0); return; }
+      if (usageEl) usageEl.textContent = `용량: ${formatBytes(bytes)} / 10MB (추정)`;
+      if (usageBar) usageBar.style.width = Math.min(100,(bytes/ASSUMED_TOTAL_BYTES)*100)+'%';
+    }
+    setTimeout(batch,0);
+  }
+  usageCalcBtnV1019?.addEventListener('click',calculateUsageV1019);
 
   // ---- 데이터 수집/표시 ----
-  function getEntries(){
-    const arr = [];
-    for (let i=0; i<localStorage.length; i++){
-      const k = localStorage.key(i);
-      try{
-        const v = localStorage.getItem(k);
-        arr.push([k, v]);
-      }catch(e){
-        arr.push([k, '(읽기 오류)']);
-      }
-    }
+  const PREVIEW_CHARS_V1019 = 200;
+  const PAGE_SIZE_V1019 = 80;
+  let filteredKeysV1019 = [];
+  let renderedCountV1019 = 0;
+  let renderTokenV1019 = 0;
+  let previewQueueV1019 = [];
+  let previewTimerV1019 = null;
 
-    // v278: IDB의 videolist/webtoonlist를 예전처럼 L 창에서도 편집 가능하게 가상 행 추가
-    for (const virtualKey of VIRTUAL_IDB_STORAGE_KEYS) {
-      if (arr.some(([k]) => k === virtualKey)) continue;
-      try {
-        const v = readStorageValue(virtualKey);
-        if (v != null) arr.push([virtualKey, v]);
-      } catch (_) {}
+  function getEntryKeysV1019(){
+    const keys = new Set();
+    for (let i=0;i<localStorage.length;i++) {
+      try { const k=localStorage.key(i); if (k != null) keys.add(k); } catch (_) {}
     }
-
-    arr.sort((a,b)=> a[0].localeCompare(b[0], 'ko', {sensitivity:'base'}));
-    return arr;
+    // 대용량 IDB 가상 항목은 L 창을 열 때 전체 문자열로 변환하지 않는다.
+    if (typeof window.getVideoListRawForTools === 'function') keys.add('videolist');
+    if (typeof window.getWebtoonListRawForTools === 'function') keys.add('webtoonlist');
+    return Array.from(keys).sort((a,b)=>a.localeCompare(b,'ko',{sensitivity:'base'}));
   }
 
-  function makeValueCell(k, v){
-    const tdV = document.createElement('td');
-    tdV.className = 'v';
-
-    const pre = document.createElement('pre');
-    pre.textContent = v;
-    const editor = document.createElement('textarea');
-    editor.value = v ?? '';
-    editor.style.display = 'none';
-    editor.style.width = '100%';
-    editor.rows = 4;
-
-    tdV.appendChild(pre);
-    tdV.appendChild(editor);
-
-    tdV._enterEdit = () => {
-      editor.value = (readStorageValue(k) ?? '');
-      pre.style.display = 'none';
-      editor.style.display = 'block';
-      editor.focus();
+  function makeValueCell(k){
+    const tdV=document.createElement('td');
+    tdV.className='v';
+    const pre=document.createElement('pre');
+    pre.textContent='미리보기 준비 중…';
+    const expand=document.createElement('button');
+    expand.type='button'; expand.className='lsValueExpandV1019';
+    expand.textContent='전체보기'; expand.style.display='none';
+    let editor=null,expanded=false,hasPreview=false;
+    function setPreview(v){
+      const str=String(v??'');
+      hasPreview=true; expanded=false;
+      pre.textContent=str.length>PREVIEW_CHARS_V1019
+        ? str.slice(0,PREVIEW_CHARS_V1019)+'…'
+        : (str || '(빈 값)');
+      expand.style.display=str.length>PREVIEW_CHARS_V1019?'inline-block':'none';
+      expand.textContent='전체보기';
+    }
+    function currentValue(){ return String(readStorageValue(k)??''); }
+    function loadPreview(){
+      if (hasPreview || editor || !tdV.isConnected) return;
+      try {
+        if (VIRTUAL_IDB_STORAGE_KEYS.has(k)) {
+          pre.textContent='IndexedDB 값 (전체보기 또는 편집으로 확인)';
+          expand.style.display='inline-block';
+          hasPreview=true;
+        } else setPreview(currentValue());
+      } catch (_) {pre.textContent='읽기 실패';}
+    }
+    expand.addEventListener('click',()=>{
+      if (expanded) {setPreview(currentValue());return;}
+      let str;
+      try {str=currentValue();}catch(e){alert('값 읽기 실패: '+e.message);return;}
+      if (str.length>500000 && !confirm(`이 값은 약 ${str.length.toLocaleString()}자입니다. 전체를 화면에 표시하면 느려질 수 있어요. 계속할까요?`))return;
+      pre.textContent=str || '(빈 값)';
+      expand.textContent='접기'; expand.style.display='inline-block';expanded=true;
+    });
+    tdV.append(pre,expand);
+    tdV._loadPreview=loadPreview;
+    tdV._setPreviewText=setPreview;
+    tdV._enterEdit=()=>{
+      if (editor) return;
+      let val;
+      try {val=currentValue();} catch(e){alert('값 읽기 실패: '+e.message);return;}
+      if (val.length>500000 && !confirm(`약 ${val.length.toLocaleString()}자를 편집합니다. 대용량 편집은 느릴 수 있어요. 계속할까요?`))return;
+      editor=document.createElement('textarea');
+      editor.value=val;editor.rows=5;editor.style.width='100%';
+      pre.style.display='none';expand.style.display='none';tdV.appendChild(editor);editor.focus();
     };
-    tdV._saveEdit = () => {
+    tdV._saveEdit=()=>{
+      if (!editor) return;
       try{
-        writeStorageValue(k, editor.value);
-        try { window.VTLS?.invalidate?.(k); } catch {}
+        const newVal=editor.value;
+        writeStorageValue(k,newVal);
+        try {window.VTLS?.invalidate?.(k);}catch(_){}
         markVideoActressAliasDirtyForStorageKey(k);
-        pre.textContent = editor.value;
-        pre.style.display = 'block';
-        editor.style.display = 'none';
-        updateUsageUI();
-        toast('저장됨');
-      }catch(e){
-        alert('저장 실패: ' + e.message);
-      }
+        editor.remove();editor=null;pre.style.display='block';
+        setPreview(newVal);updateUsageUI();toast('저장됨');
+      }catch(e){alert('저장 실패: '+e.message);}
     };
-    tdV._cancelEdit = () => {
-      editor.value = (readStorageValue(k) ?? '');
-      pre.style.display = 'block';
-      editor.style.display = 'none';
+    tdV._cancelEdit=()=>{
+      if (!editor) return;
+      editor.remove();editor=null;pre.style.display='block';
+      hasPreview=false;loadPreview();
     };
     return tdV;
+  }
+
+  function createLSRowV1019(k){
+    const tr=document.createElement('tr');
+    const tdK=document.createElement('td');tdK.className='k';tdK.textContent=k;
+    const tdV=makeValueCell(k);
+    const tdA=document.createElement('td');tdA.className='a';
+    function action(label,title,fn){
+      const btn=document.createElement('button');
+      btn.className='lsActionBtn';btn.textContent=label;btn.title=title;
+      btn.addEventListener('click',fn);return btn;
+    }
+    const copy=action('복','값 복사',async()=>{
+      try{await navigator.clipboard.writeText(readStorageValue(k)??'');toast('복사됨');}
+      catch(e){alert('복사 실패');}
+    });
+    const paste=action('붙','값 붙여넣기',async()=>{
+      const val=await readClipboardText();if(val==null)return;
+      try{
+        writeStorageValue(k,val);
+        try{window.VTLS?.invalidate?.(k);}catch(_){}
+        markVideoActressAliasDirtyForStorageKey(k);
+        tdV._setPreviewText(val);updateUsageUI();toast('붙여넣기 완료');
+      }catch(e){alert('붙여넣기 실패: '+e.message);}
+    });
+    const edit=action('편','편집',()=>tdV._enterEdit());
+    const save=action('저','저장',()=>tdV._saveEdit());
+    const cancel=action('취','취소',()=>tdV._cancelEdit());
+    const del=action('삭','키 삭제',()=>{
+      if(!confirm(`이 키를 삭제할까요?\n${k}`))return;
+      try{
+        removeStorageValue(k);
+        try{window.VTLS?.invalidate?.(k);}catch(_){}
+        markVideoActressAliasDirtyForStorageKey(k);
+        renderLS();updateUsageUI();
+      }catch(e){alert('삭제 실패');}
+    });
+    const row1=document.createElement('div');row1.className='lsBtnRow';row1.append(copy,paste,edit);
+    const row2=document.createElement('div');row2.className='lsBtnRow';row2.append(save,cancel,del);
+    tdA.append(row1,row2);tr.append(tdK,tdV,tdA);
+    return [tr,tdV];
+  }
+
+  function schedulePreviewV1019(token){
+    if(previewTimerV1019!==null)return;
+    function batch(){
+      previewTimerV1019=null;
+      if(token!==renderTokenV1019 || panel.style.display!=='block')return;
+      const pack=previewQueueV1019.splice(0,8);
+      for(const cell of pack){try{cell._loadPreview();}catch(_){}}
+      if(previewQueueV1019.length)previewTimerV1019=setTimeout(batch,0);
+    }
+    previewTimerV1019=setTimeout(batch,0);
+  }
+  function showNextLSPageV1019(){
+    const stop=Math.min(filteredKeysV1019.length,renderedCountV1019+PAGE_SIZE_V1019);
+    const fragment=document.createDocumentFragment();
+    for(let i=renderedCountV1019;i<stop;i++){
+      const [tr,tdV]=createLSRowV1019(filteredKeysV1019[i]);
+      fragment.appendChild(tr);previewQueueV1019.push(tdV);
+    }
+    tbody.appendChild(fragment);renderedCountV1019=stop;
+    if(statsV1019)statsV1019.textContent=`${renderedCountV1019.toLocaleString()} / ${filteredKeysV1019.length.toLocaleString()}개 표시`;
+    if(moreBtnV1019)moreBtnV1019.style.display=renderedCountV1019<filteredKeysV1019.length?'inline-block':'none';
+    schedulePreviewV1019(renderTokenV1019);
+  }
+  moreBtnV1019?.addEventListener('click',showNextLSPageV1019);
+
+  function showFilteredLSKeysV1019(keys,token){
+    if(token!==renderTokenV1019)return;
+    filteredKeysV1019=keys;renderedCountV1019=0;
+    tbody.replaceChildren();
+    if(!keys.length){
+      const tr=document.createElement('tr'),td=document.createElement('td');
+      td.colSpan=3;td.style.opacity='.7';td.textContent='항목이 없습니다.';
+      tr.appendChild(td);tbody.appendChild(tr);
+      if(statsV1019)statsV1019.textContent='검색 결과 0개';
+      if(moreBtnV1019)moreBtnV1019.style.display='none';
+    }else showNextLSPageV1019();
+  }
+
+  function renderLS(){
+    const token=++renderTokenV1019;
+    if(previewTimerV1019!==null){clearTimeout(previewTimerV1019);previewTimerV1019=null;}
+    previewQueueV1019=[];
+    const q=(search?.value||'').toLocaleLowerCase();
+    const keys=getEntryKeysV1019();
+    if(!q){showFilteredLSKeysV1019(keys,token);return;}
+    const keyMatches=keys.filter(k=>k.toLocaleLowerCase().includes(q));
+    if(!valueSearchV1019?.checked){showFilteredLSKeysV1019(keyMatches,token);return;}
+    // 값 검색은 명시적으로 선택했을 때에만, 작은 묶음으로 나누어 수행.
+    tbody.replaceChildren();
+    if(moreBtnV1019)moreBtnV1019.style.display='none';
+    const matched=new Set(keyMatches);
+    let idx=0;
+    function searchBatch(){
+      if(token!==renderTokenV1019 || panel.style.display!=='block')return;
+      const end=Math.min(keys.length,idx+20);
+      for(;idx<end;idx++){
+        const k=keys[idx];if(matched.has(k))continue;
+        try{if(String(readStorageValue(k)??'').toLocaleLowerCase().includes(q))matched.add(k);}catch(_){}
+      }
+      if(statsV1019)statsV1019.textContent=`값 검색 중… ${idx.toLocaleString()} / ${keys.length.toLocaleString()}`;
+      if(idx<keys.length){setTimeout(searchBatch,0);return;}
+      showFilteredLSKeysV1019(keys.filter(k=>matched.has(k)),token);
+    }
+    setTimeout(searchBatch,0);
   }
 
   async function readClipboardText(){
@@ -25261,148 +25566,22 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
     return prompt('붙여넣을 텍스트를 입력하세요(클립보드 접근 불가 시)') ?? '';
   }
 
-function renderLS() {
-  const q = (search.value || '').toLowerCase();
-
-  const rows = getEntries()
-    .filter(([k, v]) => {
-      if (!q) return true;
-      const keyMatch = k && k.toLowerCase().includes(q);
-      const valStr = (v && v.toLowerCase) ? v.toLowerCase() : String(v || '').toLowerCase();
-      const valMatch = valStr.includes(q);
-      return keyMatch || valMatch;
-    })
-    .map(([k, v]) => {
-      const tr = document.createElement('tr');
-
-      // Key 셀
-      const tdK = document.createElement('td');
-      tdK.className = 'k';
-      tdK.textContent = k;
-
-      // Value 셀
-      const tdV = makeValueCell(k, v);
-
-      // Action 셀
-      const tdA = document.createElement('td');
-      tdA.className = 'a';
-
-      // ── 버튼들 생성 ──
-
-      // 복사
-      const btnCopy = document.createElement('button');
-      btnCopy.className = 'lsActionBtn';
-      btnCopy.title = '값 복사';
-      btnCopy.textContent = '복';
-      btnCopy.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(readStorageValue(k) ?? '');
-          toast('복사됨');
-        } catch (e) {
-          alert('복사 실패');
-        }
-      });
-
-      // 붙여넣기
-      const btnPaste = document.createElement('button');
-      btnPaste.className = 'lsActionBtn';
-      btnPaste.title = '값 붙여넣기';
-      btnPaste.textContent = '붙';
-      btnPaste.addEventListener('click', async () => {
-        const text = await readClipboardText();
-        if (text == null) return;
-        try {
-          writeStorageValue(k, text);
-          try { window.VTLS?.invalidate?.(k); } catch {}
-          markVideoActressAliasDirtyForStorageKey(k);
-          tdV.querySelector('pre').textContent = text;
-          updateUsageUI();
-          toast('붙여넣기 완료');
-        } catch (e) {
-          alert('붙여넣기 실패: ' + e.message);
-        }
-      });
-
-      // 편집
-      const btnEdit = document.createElement('button');
-      btnEdit.className = 'lsActionBtn';
-      btnEdit.title = '편집';
-      btnEdit.textContent = '편';
-      btnEdit.addEventListener('click', () => tdV._enterEdit());
-
-      // 저장
-      const btnSave = document.createElement('button');
-      btnSave.className = 'lsActionBtn';
-      btnSave.title = '저장';
-      btnSave.textContent = '저';
-      btnSave.addEventListener('click', () => tdV._saveEdit());
-
-      // 취소
-      const btnCancel = document.createElement('button');
-      btnCancel.className = 'lsActionBtn';
-      btnCancel.title = '취소';
-      btnCancel.textContent = '취';
-      btnCancel.addEventListener('click', () => tdV._cancelEdit());
-
-      // 삭제
-      const btnDel = document.createElement('button');
-      btnDel.className = 'lsActionBtn';
-      btnDel.title = '키 삭제';
-      btnDel.textContent = '삭';
-      btnDel.addEventListener('click', () => {
-        if (!confirm(`이 키를 삭제할까요?\n${k}`)) return;
-        try {
-          removeStorageValue(k);
-          try { window.VTLS?.invalidate?.(k); } catch {}
-          markVideoActressAliasDirtyForStorageKey(k);
-          renderLS();
-          updateUsageUI();
-        } catch (e) {
-          alert('삭제 실패');
-        }
-      });
-
-      // ── 3개씩 2줄 배치 ──
-      const row1 = document.createElement('div');
-      row1.className = 'lsBtnRow';
-      row1.append(btnCopy, btnPaste, btnEdit);
-
-      const row2 = document.createElement('div');
-      row2.className = 'lsBtnRow';
-      row2.append(btnSave, btnCancel, btnDel);
-
-      tdA.append(row1, row2);
-
-      tr.append(tdK, tdV, tdA);
-      return tr;
-    });
-
-  tbody.innerHTML = '';
-  rows.forEach(tr => tbody.appendChild(tr));
-
-  if (rows.length === 0) {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 3;
-    td.style.opacity = .7;
-    td.textContent = '항목이 없습니다.';
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-  }
-}
-
   // ---- 열기/닫기 ----
   function openLS(){
     // VTLS 지연 저장값까지 먼저 localStorage에 반영해서
     // 로컬스토리지 뷰어에는 항상 최신값이 보이게 한다.
-    try { window.VTLS?.flush?.(); } catch {}
-    renderLS();
-    updateUsageUI();
+    // v1019: 열기 자체에서 큰 문자열 flush/용량 계산을 실행하지 않는다.
+    // 편집·백업·일괄수정은 기존 flush 경로를 유지한다.
     overlay.style.display = 'block';
     panel.style.display = 'block';
+    renderLS();
+    updateUsageUI();
     setTimeout(()=>search.focus(), 0);
   }
   function closeLS(){
+    ++renderTokenV1019; ++usageTokenV1019;
+    if(previewTimerV1019!==null){clearTimeout(previewTimerV1019);previewTimerV1019=null;}
+    previewQueueV1019=[];
     overlay.style.display = 'none';
     panel.style.display = 'none';
   }
@@ -25704,6 +25883,7 @@ return changed > 0;
     clearTimeout(_idleTimer);
     _idleTimer = setTimeout(runSearchNow, SEARCH_IDLE_MS);
   }
+  valueSearchV1019?.addEventListener('change',runSearchNow);
   search.addEventListener('input', scheduleSearch);
   search.addEventListener('compositionstart', scheduleSearch);
   search.addEventListener('compositionend', scheduleSearch);
@@ -30253,7 +30433,7 @@ function musicAbsForScannedFileV975(rec, rel){
 // 음악 재생 IIFE 밖에 있는 폴더 재스캔 로직에서도 동일한 변환 규칙 사용.
 window.musicAbsForScannedFileV975 = musicAbsForScannedFileV975;
 // 프리뷰는 변경사항을 저장하지 않고 결과만 반환한다.
-function convertSelectedMusicRootToAbsV975(base, selectedRoot, allRoots, {preview=false}={}){
+async function convertSelectedMusicRootToAbsV975(base, selectedRoot, allRoots, {preview=false}={}){
   base=normalizeBase(base);
   if(!/^(?:[A-Za-z]:\/|file:\/\/\/|https?:\/\/)/i.test(base)) {
     throw new Error('Windows 드라이브 경로, file:/// 또는 http(s):// 주소를 입력하세요.');
@@ -30272,7 +30452,7 @@ function convertSelectedMusicRootToAbsV975(base, selectedRoot, allRoots, {previe
   if(oldBase && oldBase.toLowerCase()!==base.toLowerCase()) {
     throw new Error('이 폴더는 이미 '+oldBase+' 경로로 변환되어 있습니다. 기존 절대경로를 다른 위치로 변경하는 작업은 별도로 해야 안전합니다.');
   }
-  const raw=localStorage.getItem(MUSIC_LIST_KEY)||'';
+  const raw=window.MusicListStoreV1018.read()||'';
   if(!raw.trim()) return {changed:0,total:0,matched:0,ambiguousSkipped:0,out:raw,oldBase};
   let changed=0, total=0, matched=0, ambiguousSkipped=0;
   const delim=getMuDelim();
@@ -30298,18 +30478,19 @@ function convertSelectedMusicRootToAbsV975(base, selectedRoot, allRoots, {previe
   const result={changed,total,matched,ambiguousSkipped,out,oldBase};
   if(preview||changed===0) return result;
   // 실패에 대비해 원본을 먼저 백업한다. 백업 실패 시 목록을 변경하지 않는다.
-  if(!localStorage.getItem('music_list_first_backup_v975')) {
-    localStorage.setItem('music_list_first_backup_v975',raw);
-  }
-  localStorage.setItem('music_list_last_backup_v975',raw);
+  try {
+    if(!localStorage.getItem('music_list_first_backup_v975')) localStorage.setItem('music_list_first_backup_v975',raw);
+    localStorage.setItem('music_list_last_backup_v975',raw);
+  } catch(e) { console.info('[music v1018] legacy quota backup skipped; IDB original retained', e); }
   const oldMapRaw=localStorage.getItem(MUSIC_ABS_ROOT_MAP_V975);
   try {
     localStorage.setItem(MUSIC_ABS_ROOT_MAP_V975,JSON.stringify({...prevMap,[rootId]:base}));
-    localStorage.setItem(MUSIC_LIST_KEY,out);
+    await window.MusicListStoreV1018.writeDurable(out);
     localStorage.setItem(MU_FS_BASE_KEY,base);
   } catch(err){
     if(oldMapRaw===null) localStorage.removeItem(MUSIC_ABS_ROOT_MAP_V975);
     else localStorage.setItem(MUSIC_ABS_ROOT_MAP_V975,oldMapRaw);
+    try {await window.MusicListStoreV1018.writeDurable(raw);}catch(rollbackError){console.error('[music 1018] path rollback failed',rollbackError);}
     throw err;
   }
   return result;
@@ -30331,13 +30512,13 @@ function convertSelectedMusicRootToAbsV975(base, selectedRoot, allRoots, {previe
     return out;
   }
   function loadMusicText(){
-    return localStorage.getItem(MUSIC_LIST_KEY) || '';
+    return window.MusicListStoreV1018.read() || '';
   }
   function saveMusicText(text){
     const std = (text || '').split(/\r?\n/).map(normalize).filter(Boolean);
     const uniqSorted = Array.from(new Set(std))
       .sort((a,b)=> a.localeCompare(b,'ko',{numeric:true, sensitivity:'base'}));
-    localStorage.setItem(MUSIC_LIST_KEY, uniqSorted.join('\n'));
+    window.MusicListStoreV1018.write( uniqSorted.join('\n'));
   }
   function loadEntries(){ return parseLinesToEntries(loadMusicText()); }
 
@@ -30473,7 +30654,7 @@ function setPlayingUI(on){
   async function prepare(preview=true){
     if(!roots.length) throw new Error('등록된 폴더가 없습니다.');
     const r=selected();
-    const out=convertSelectedMusicRootToAbsV975(input.value,r,roots,{preview:true});
+    const out=await convertSelectedMusicRootToAbsV975(input.value,r,roots,{preview:true});
     const parts=[
       '선택한 폴더: '+r.name+' · ID '+String(r.id).slice(0,8),
       '전체 목록: '+out.total+'곡 / 해당 폴더 일치: '+out.matched+'곡',
@@ -30500,7 +30681,7 @@ function setPlayingUI(on){
       if(!summary.changed){report(message+'\n변경할 곡이 없습니다.');return;}
       if(!confirm(message+'\n\n선택한 폴더의 곡만 절대경로로 바꿀까요?')) return;
       applyBtn.disabled=true;
-      const final=convertSelectedMusicRootToAbsV975(input.value,root,roots);
+      const final=await convertSelectedMusicRootToAbsV975(input.value,root,roots);
       report('변환 완료: '+final.changed+'곡\n기존 폴더 연결 및 다른 음악은 유지되었습니다.\n복구용 이전 목록이 저장되었습니다.');
       try{(window.muRenderList||window.renderList)?.();}catch(err){console.warn('[music v975] render',err);}
     }catch(err){report('변환 실패(음악 목록 변경을 중단): '+(err?.message||err));}
@@ -31187,7 +31368,7 @@ const isLocal   = /^(?:file:\/\/|[a-zA-Z]:[\\/]|\\\\|\/(?:Users|home|mnt|Volumes
           if (t.endsWith('|' + ent.value)) return false;
           return true;
         });
-        localStorage.setItem(MUSIC_LIST_KEY, out.join('\n'));
+        window.MusicListStoreV1018.write( out.join('\n'));
         if (ent.value === localStorage.getItem(ACTIVE_MUSIC_KEY)) {
           localStorage.removeItem(ACTIVE_MUSIC_KEY);
         }
@@ -31645,7 +31826,7 @@ function prevTrack(){
 
   clearBtn?.addEventListener('click', ()=>{
     if (!confirm('음악 목록만 비웁니다. 연결된 폴더 기록은 유지됩니다. 계속할까요?')) return;
-    localStorage.removeItem(MUSIC_LIST_KEY);
+    void window.MusicListStoreV1018.clear();
     localStorage.removeItem(ACTIVE_MUSIC_KEY);
     renderList();
   });
@@ -31695,7 +31876,7 @@ if (entryIndex >= 0) playByIndex(entryIndex, {fromClick:true});
   // 초기 상태
   setBtnPressed(btnShuffle, shuffle);
   setBtnPressed(btnRepeat, repeat);
-  renderList();
+  void window.MusicListStoreV1018.ready.then(() => renderList());
 // 로컬 오디오 볼륨 (0~100 저장)
 var VOL_KEY = 'music_volume_percent';
 var volEl   = document.getElementById('muVol');
@@ -32038,7 +32219,7 @@ function getFsdirRootNameFromValue(value){
     .trim();
 }
 
-function sortAndSaveMusicStoredLines(lines){
+async function sortAndSaveMusicStoredLines(lines){
   const clean =
     Array.from(
       new Set(
@@ -32071,10 +32252,7 @@ function sortAndSaveMusicStoredLines(lines){
     );
   });
 
-  localStorage.setItem(
-    'music_list_v1',
-    clean.join('\n')
-  );
+  await window.MusicListStoreV1018.writeDurable(clean.join('\n'));
 }
 
 // v967: 쓰기 직전 기존 사용자 음악목록을 한 번 백업한다(용량초과 시 원본 유지).
@@ -32091,13 +32269,13 @@ function musicBackupListV967(raw) {
 // v967: 실제 스캔한 폴더 ID만 동기화한다. 다른 음악/폴더/수동 목록을 건드리지 않는다.
 // 이전 이름기반 목록은 스캔으로 같은 실파일을 확인한 항목만 고유ID로 옮긴다.
 // 스캔되지 않았거나 존재가 확인되지 않은 구형 항목은 그대로 남겨둔다.
-function syncMusicListForScannedRoots(fsItems, scannedRoots) {
+async function syncMusicListForScannedRoots(fsItems, scannedRoots) {
   const roots = (Array.isArray(scannedRoots) ? scannedRoots : [])
     .filter(r => r && r.id && r.name);
   if (!roots.length) return;
   const ids = new Set(roots.map(r => String(r.id)));
   const byId = new Map(roots.map(r => [String(r.id), r]));
-  const raw = localStorage.getItem('music_list_v1') || '';
+  const raw = window.MusicListStoreV1018.read() || '';
   const oldLines = raw.split(/\r?\n/).map(v => String(v || '').trim()).filter(Boolean);
   const oldByValue = new Map();
   for (const line of oldLines) {
@@ -32168,11 +32346,11 @@ function syncMusicListForScannedRoots(fsItems, scannedRoots) {
   }).join('\n');
   if (before !== next) {
     musicBackupListV967(before);
-    localStorage.setItem('music_list_v1', next);
+    await window.MusicListStoreV1018.writeDurable(next);
   }
 }
 
-function removeMusicRootEntriesFromSavedList(
+async function removeMusicRootEntriesFromSavedList(
   rootName,
   rootId = '',
   preserveLegacy = false
@@ -32188,9 +32366,7 @@ function removeMusicRootEntriesFromSavedList(
   const idPrefix = rootId ? `fsdir:@${rootId}/`.toLocaleLowerCase() : '';
 
   const raw =
-    localStorage.getItem(
-      'music_list_v1'
-    ) || '';
+    window.MusicListStoreV1018.read() || '';
 
   const lines =
     raw
@@ -32211,12 +32387,12 @@ function removeMusicRootEntriesFromSavedList(
       return true;
     });
 
-  sortAndSaveMusicStoredLines(
+  await sortAndSaveMusicStoredLines(
     keep
   );
 }
 
-function renameMusicRootEntriesInSavedList(
+async function renameMusicRootEntriesInSavedList(
   oldName,
   newName
 ){
@@ -32241,9 +32417,7 @@ function renameMusicRootEntriesInSavedList(
     `fsdir:${nextRoot}/`;
 
   const raw =
-    localStorage.getItem(
-      'music_list_v1'
-    ) || '';
+    window.MusicListStoreV1018.read() || '';
 
   const out =
     raw
@@ -32280,7 +32454,7 @@ function renameMusicRootEntriesInSavedList(
         );
       });
 
-  sortAndSaveMusicStoredLines(
+  await sortAndSaveMusicStoredLines(
     out
   );
 }
@@ -32291,6 +32465,8 @@ async function scanAndSyncMusicRoot(
     requestPermission = true
   } = {}
 ){
+  await window.MusicListStoreV1018.ready;
+  if(!window.MusicListStoreV1018.isReady()) throw Error('음악목록 IndexedDB 준비 실패');
   if (!rec?.handle) {
     return [];
   }
@@ -32339,7 +32515,7 @@ async function scanAndSyncMusicRoot(
   musicFsScanStats.filesScanned +=
     decorated.length;
 
-  syncMusicListForScannedRoots(
+  await syncMusicListForScannedRoots(
     decorated,
     [rec]
   );
@@ -32577,7 +32753,7 @@ async function removeRoot(id) {
 
   if (rec?.name) {
     const remaining = await getMusicFsRootsCached(true);
-    removeMusicRootEntriesFromSavedList(
+    await removeMusicRootEntriesFromSavedList(
       rec.name,
       rec.id,
       remaining.some(other => other.name === rec.name)
@@ -32621,7 +32797,7 @@ async function renameRoot(id, newName) {
     const remainingOldName = (await getMusicFsRootsCached(true))
       .some(other => other.id !== id && other.name === oldName);
     if (!remainingOldName) {
-      renameMusicRootEntriesInSavedList(oldName, rec.name);
+      await renameMusicRootEntriesInSavedList(oldName, rec.name);
     }
   }
 
@@ -32708,6 +32884,8 @@ async function rescanAllAndRenderMerged({
     };
   }
 
+  await window.MusicListStoreV1018.ready;
+  if(!window.MusicListStoreV1018.isReady()) throw Error('음악목록 IndexedDB 준비 실패');
   _musicFsFullScanRunning = true;
 
   try {
@@ -32776,7 +32954,7 @@ async function rescanAllAndRenderMerged({
         )
     );
 
-    syncMusicListForScannedRoots(
+    await syncMusicListForScannedRoots(
       merged,
       scannedRootsV967
     );
@@ -33228,7 +33406,7 @@ document.getElementById('fsComicUnlink')?.addEventListener('click', unlinkComicF
 function updateMuListFromFs(fsItems){
   try {
     const MUSIC_LIST_KEY = 'music_list_v1';
-    const raw = localStorage.getItem(MUSIC_LIST_KEY) || '';
+    const raw = window.MusicListStoreV1018.read() || '';
     const lines = raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
 
     // 기존 value 집합 (중복 방지: "…|값" 또는 "값" 둘 다 케이스)
@@ -33267,7 +33445,7 @@ function updateMuListFromFs(fsItems){
       .sort((a,b)=> a.display.localeCompare(b.display,'ko',{numeric:true,sensitivity:'base'}))
       .map(ent => ent.display + '|' + ent.value);
 
-    localStorage.setItem(MUSIC_LIST_KEY, entries.join('\n'));
+    window.MusicListStoreV1018.write( entries.join('\n'));
   } catch (e) {
     console.warn('[updateMuListFromFs] failed:', e);
   }
@@ -174641,7 +174819,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1017;
+  const VIEWER_BUILD_V789 = 1020;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -179407,9 +179585,11 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
   const KEYS = ['music_list_v1','music_roots_order_v1','music_active_root_v1','music_abs_root_paths_v975'];
   let found = null, busy = false;
   const msg = text => {report.textContent=String(text||'');};
-  const snapshot = () => Object.fromEntries(KEYS.map(k=>[k,localStorage.getItem(k)]));
-  const restoreSnapshot = data => {
+  const snapshot = () => Object.fromEntries(KEYS.map(k=>[k,k==='music_list_v1'?window.MusicListStoreV1018.read():localStorage.getItem(k)]));
+  const restoreSnapshot = async data => {
+    await window.MusicListStoreV1018.writeDurable(data['music_list_v1']||'');
     for(const k of KEYS){
+      if(k==='music_list_v1')continue;
       const v=data[k];
       if(v===null||typeof v==='undefined') localStorage.removeItem(k);
       else localStorage.setItem(k,v);
@@ -179638,12 +179818,12 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
       if(!confirm(formatPlan(plan,currentGroups.length)+'\n\n변경 전 음악목록·폴더 핸들을 별도 DB에 백업하고 통합할까요?')){
         msg('취소했어. 원본 데이터 변경 없음.');return;
       }
-      if(KEYS.some(k=>localStorage.getItem(k)!==check[k]))throw new Error('사용 중 저장값이 바뀌었어. 재검사가 필요해.');
+      if(KEYS.some(k=>(k==='music_list_v1'?window.MusicListStoreV1018.read():localStorage.getItem(k))!==check[k]))throw new Error('사용 중 저장값이 바뀌었어. 재검사가 필요해.');
       const backup={id:'last',createdAt:Date.now(),old:check,after:plan.after,
         roots:current.roots.filter(r=>plan.removed.includes(String(r.id)))};
       await saveBackup(backup); // 핸들까지 IndexedDB에 백업 완료 전 삭제 금지
       // 모든 저장값의 쓰기가 성공해야만 중복 핸들을 IDB에서 제거한다.
-      saved=plan.old;wrote=true;restoreSnapshot(plan.after);
+      saved=plan.old;wrote=true;await restoreSnapshot(plan.after);
       await removeRootsAtomic(plan.removed);deleted=true;
       invalidateMusicFsRootsCache();
       found=null;groupsBox.replaceChildren();
@@ -179651,13 +179831,13 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
       msg('통합 완료!\n'+formatPlan(plan,currentGroups.length)+'\n\n직전 통합은 아래 [되돌리기]로 복원할 수 있어.');
     }catch(e){
       // IndexedDB 삭제 트랜잭션 실패 시 이전 로컬 저장정보로 복구한다.
-      if(wrote&&!deleted && saved!==null) {try{restoreSnapshot(saved);}catch(_){}}
+      if(wrote&&!deleted && saved!==null) {try{await restoreSnapshot(saved);}catch(_){}}
       msg('안전 통합 중단: '+(e?.message||e)+'\n기존 목록·폴더 기록을 확인해 줘.');
       console.error('[music dedup v976] merge',e);
     }finally{busy=false;scanBtn.disabled=false;await updateUndoState();}
   }
   async function updateUndoState(){
-    try{const backup=await readBackup();undoBtn.disabled=!backup || KEYS.some(k=>localStorage.getItem(k)!==backup.after[k]);}
+    try{const backup=await readBackup();undoBtn.disabled=!backup || KEYS.some(k=>(k==='music_list_v1'?window.MusicListStoreV1018.read():localStorage.getItem(k))!==backup.after[k]);}
     catch(_){undoBtn.disabled=true;}
   }
   async function undo(){
@@ -179670,7 +179850,7 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
       if(KEYS.some(k=>current[k]!==backup.after[k]))throw new Error('통합 이후 음악 목록이나 폴더 설정이 변경되어 자동 되돌리기를 중지했어. 데이터를 덮어쓰지 않았어.');
       if(!confirm('직전 음악 폴더 통합을 되돌릴까? 이전 음악목록과 중복 폴더 등록이 복원돼.'))return;
       await restoreRootsAtomic(backup.roots);
-      restoreSnapshot(backup.old);
+      await restoreSnapshot(backup.old);
       invalidateMusicFsRootsCache();found=null;groupsBox.replaceChildren();
       try{window.muRenderList?.();window.muArtistOnTabV971?.();}catch(_){}
       msg('직전 통합 이전 음악 목록과 폴더 연결 기록을 복원했어.');
@@ -179764,6 +179944,87 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #comicZipLightboxV984 .zipFileNavV1005 button:disabled{opacity:.35;cursor:not-allowed;background:#272d36;}
 @media(max-width:690px){#comicZipLightboxV984 .zipFileNavV1005{gap:3px;}#comicZipLightboxV984 .zipFileNavV1005 button{font-size:11px;padding:4px 5px;}}
 </style>
+<!-- v1020: ZIP·로컬 이미지폴더 만화 마지막 페이지 기록은 별도 IndexedDB만 사용. 구 LS 키는 이전하지 않고 분할 삭제. -->
+<script id="comicLastPageIndexedDbV1020">
+(()=>{
+  'use strict';
+  const DB='viewer_comic_last_pages_v1020',STORE='pages';
+  const OLD_PREFIX='comic_zip_last_page_';
+  let openPromise=null, warned=false;
+  function warn(err){
+    if(warned)return;warned=true;
+    console.warn('[v1020] 마지막 페이지 IndexedDB 접근 실패. 해당 페이지 기록이 저장되지 않을 수 있습니다.',err);
+  }
+  function open(){
+    if(!openPromise){
+      openPromise=new Promise((resolve,reject)=>{
+        if(typeof indexedDB==='undefined'){reject(new Error('IndexedDB 지원 안 됨'));return;}
+        const req=indexedDB.open(DB,1);
+        req.onupgradeneeded=()=>{
+          const db=req.result;
+          if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE);
+        };
+        req.onsuccess=()=>{
+          const db=req.result;
+          db.onversionchange=()=>{db.close();openPromise=null;};
+          resolve(db);
+        };
+        req.onerror=()=>reject(req.error||new Error('DB 열기 실패'));
+        req.onblocked=()=>console.warn('[v1020] 마지막 페이지 DB가 다른 탭에 의해 차단됨');
+      }).catch(err=>{openPromise=null;warn(err);throw err;});
+    }
+    return openPromise;
+  }
+  async function get(workId){
+    const db=await open();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly');
+      const req=tx.objectStore(STORE).get(String(workId));
+      req.onsuccess=()=>{
+        const n=Number(req.result?.page);
+        resolve(Number.isSafeInteger(n)&&n>0?n:null);
+      };
+      req.onerror=()=>reject(req.error||new Error('페이지 조회 실패'));
+    });
+  }
+  async function put(workId,page){
+    const n=Number(page);
+    if(!Number.isSafeInteger(n)||n<1)return;
+    const db=await open();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put({page:n,updatedAt:Date.now()},String(workId));
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error||new Error('페이지 저장 실패'));
+      tx.onabort=()=>reject(tx.error||new Error('페이지 저장 중단'));
+    });
+  }
+  // 오래된 기록은 어떤 작품에도 복원하지 않는다. 다른 로컬스토리지 키는 절대 삭제하지 않는다.
+  // 키가 수만 개여도 한 번에 삭제하지 않도록 이벤트 루프에 작업을 양보한다.
+  let purgeStarted=false;
+  function purgeLegacy(){
+    if(purgeStarted)return;purgeStarted=true;
+    let index=-1,removed=0;
+    const step=()=>{
+      try{
+        if(index<0)index=localStorage.length-1;
+        let remaining=240;
+        while(index>=0 && remaining-->0){
+          const key=localStorage.key(index--);
+          if(key?.startsWith(OLD_PREFIX)){
+            localStorage.removeItem(key);removed++;
+          }
+        }
+        if(index>=0){setTimeout(step,0);return;}
+        if(removed)console.info('[v1020] 구형 마지막 페이지 로컬스토리지 기록 정리:',removed+'개');
+      }catch(e){console.warn('[v1020] 구형 기록 정리 실패',e);}
+    };
+    setTimeout(step,0);
+  }
+  window.ComicLastPageV1020={get,put,purgeLegacy,warn};
+  purgeLegacy();
+})();
+</script>
 <script id="comicZipArchiveV979">
 /* v982 - cover manager and page count; based on v981 */
 (()=>{
@@ -180479,15 +180740,32 @@ async function openLightbox(value, fileJumpV1005=null){
   lastBoxV988.title='마지막 본 페이지로 이동';
   lastBoxV988.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();void go(Math.max(0,savedLastPageV988-1));});
   cover.append(image,verticalViewV986,topZone,badge,head,lastBoxV988);document.body.appendChild(cover);
-  const lastKeyV988='comic_zip_last_page_v988:'+value;
+  // v1020: 과거 localStorage 기록을 사용하지 않고 IndexedDB에서만 마지막 페이지를 읽는다.
+  // 작품의 기존 고유 ID를 그대로 키로 사용하여 동명이인 작품/서로 다른 루트의 충돌을 방지한다.
   let savedLastPageV988=1;
-  try{savedLastPageV988=Math.min(pages.length,Math.max(1,Number(localStorage.getItem(lastKeyV988))||1));}catch(_){}
+  try{
+    const recorded=await window.ComicLastPageV1020.get(value);
+    if(recorded) savedLastPageV988=Math.min(pages.length,Math.max(1,recorded));
+  }catch(e){window.ComicLastPageV1020.warn(e);}
+  let saveTimerV1020=0,pendingPageV1020=null;
+  function flushLastPageV1020(){
+    if(saveTimerV1020){clearTimeout(saveTimerV1020);saveTimerV1020=0;}
+    if(pendingPageV1020===null)return;
+    const n=pendingPageV1020;pendingPageV1020=null;
+    void window.ComicLastPageV1020.put(value,n).catch(e=>window.ComicLastPageV1020.warn(e));
+  }
+  const onPageHiddenV1020=()=>{if(document.visibilityState==='hidden')flushLastPageV1020();};
+  const onPageUnloadV1020=()=>flushLastPageV1020();
+  document.addEventListener('visibilitychange',onPageHiddenV1020);
+  window.addEventListener('pagehide',onPageUnloadV1020);
   let lastPreviewTokenV988=0;
   function rememberZipPageV988(page){
     const number=Math.min(pages.length,Math.max(1,page|0));
     savedLastPageV988=number;
     lastLabelV988.textContent=`마지막 본 페이지 ${number}/${pages.length}`;
-    try{localStorage.setItem(lastKeyV988,String(number));}catch(_){}
+    pendingPageV1020=number;
+    if(saveTimerV1020)clearTimeout(saveTimerV1020);
+    saveTimerV1020=setTimeout(flushLastPageV1020,220);
   }
   async function updateZipLastThumbV988(n,availableUrl=null){
     const token=++lastPreviewTokenV988;
@@ -180505,11 +180783,8 @@ async function openLightbox(value, fileJumpV1005=null){
 
   let idx=0,u=null,seq=0,controlsTimer=null,badgeTimer=null,destroyed=false;
   let fileMovingV1005=false;
-  if(!fileJumpV1005?.startAtFirst){
-    try{const saved=Number(typeof getLastReadFor==='function'?getLastReadFor(value):0);
-      if(saved>1&&saved<=pages.length)idx=saved-1;
-      if(savedLastPageV988>1)idx=savedLastPageV988-1;}catch(_){}
-  }
+  // v1020: 새 DB의 페이지 번호만 사용. 구형 이어보기 맵은 새 기록에 섞지 않는다.
+  if(!fileJumpV1005?.startAtFirst && savedLastPageV988>1)idx=savedLastPageV988-1;
 
   function showControls(){if(destroyed)return;
     clearTimeout(controlsTimer);head.classList.add('is-visible');
@@ -180802,7 +181077,11 @@ async function openLightbox(value, fileJumpV1005=null){
   if(filePrevV1005)filePrevV1005.onclick=()=>void moveFileV1005(-1);
   if(fileNextV1005)fileNextV1005.onclick=()=>void moveFileV1005(1);
   function destroy(){
-    if(destroyed)return;destroyed=true;seq++;
+    if(destroyed)return;
+    flushLastPageV1020();
+    document.removeEventListener('visibilitychange',onPageHiddenV1020);
+    window.removeEventListener('pagehide',onPageUnloadV1020);
+    destroyed=true;seq++;
     clearTimeout(controlsTimer);clearTimeout(badgeTimer);
     cleanVerticalV986();cover.remove();if(u)URL.revokeObjectURL(u);
     const own=lastImageV988.dataset.ownedUrl;if(own)URL.revokeObjectURL(own);
