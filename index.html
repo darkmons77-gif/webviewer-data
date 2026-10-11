@@ -1,3 +1,5 @@
+<!-- v1029: 영상 무포스터 전체확정 대상을 메인 화면의 실제 '포스터 없음' 카드와 결합하여 누락 수정. -->
+<!-- v1028: 만화 작가/그룹 레일 양옆 폭조절 화살표 추가, 영상 무포스터 10개 후보 랜덤(초반30초 1장 필수), M 메뉴 확인된 무포스터 일괄 자동확정. -->
 <!doctype html>
 <!-- v1026: 만화 초기 기본값 그림/8열, 만화만 초기화 시 ZIP 표지·마지막 페이지 DB 및 미완료 스캔 체크포인트·폴더 백업 누락 제거. -->
 <!-- v1025: 최초 만화 폴더 500개 단위 별도 IndexedDB 스캔 체크포인트, 이전 미완료 ZIP 임시목록 복원, 최종 목록 일괄 저장 후 1회 정렬/화면 갱신, 카드 앵커 위치 복원, 작가·그룹 레일 유휴시간 후순위 집계. -->
@@ -41467,7 +41469,7 @@ const selectOnlyThisFromText = (e) => {
 
   const authHeader = document.createElement('div');
   authHeader.className = 'wtRailHeader';
-  authHeader.style.cssText += ';display:flex;align-items:center;justify-content:center;gap:5px;';
+  authHeader.style.cssText += ';display:grid;grid-template-columns:18px minmax(0,1fr) 18px;align-items:center;justify-content:stretch;gap:2px;padding-left:2px;padding-right:2px;min-width:0;';
   const authList = document.createElement('div');
   authList.className = 'wtRailList';
   // 기존 작가 레일 가상 스크롤 인스턴스를 두 탭이 재사용한다.
@@ -41475,7 +41477,7 @@ const selectOnlyThisFromText = (e) => {
   const groupBtnV1022 = document.createElement('button');
   function creatorButtonV1022(btn, label, type) {
     btn.type = 'button'; btn.textContent = label;
-    btn.style.cssText = 'border:0;border-radius:4px;padding:2px 7px;cursor:pointer;font:12px sans-serif;';
+    btn.style.cssText = 'border:0;border-radius:4px;padding:2px 3px;cursor:pointer;font:11px sans-serif;white-space:nowrap;min-width:0;';
     btn.title = type === 'author' ? '작가 보기' : '그룹 보기';
     btn.addEventListener('click', e => {
       e.preventDefault(); e.stopPropagation();
@@ -41487,8 +41489,34 @@ const selectOnlyThisFromText = (e) => {
     });
     authHeader.appendChild(btn);
   }
+  // v1028: 영상 레일과 동일한 단계/저장값으로 만화 레일 폭을 조절한다.
+  const comicRailWidthLeftV1028 = document.createElement('button');
+  const comicRailWidthRightV1028 = document.createElement('button');
+  for (const [btn, direction, label] of [
+    [comicRailWidthLeftV1028, -1, '◀'], [comicRailWidthRightV1028, 1, '▶']
+  ]) {
+    btn.type = 'button';
+    btn.className = 'videoActressRailWidthBtn comicRailWidthBtnV1028';
+    btn.textContent = label;
+    btn.title = direction < 0 ? '만화 작가·그룹 레일 폭 줄이기' : '만화 작가·그룹 레일 폭 늘리기';
+    btn.style.cssText = 'display:block;min-width:18px;max-width:18px;width:18px;padding:0;';
+    btn.addEventListener('click', event => {
+      event.preventDefault();event.stopPropagation();
+      // 두 탭과 양쪽 화살표를 유지하려면 만화 레일은 최소 106px 필요하다.
+      const steps=VIDEO_ACTRESS_RAIL_WIDTH_STEPS.filter(w=>w>=106);
+      const current=getWtTagRailWidthNow();
+      const candidates=steps.filter(w=>direction<0?w<current-0.5:w>current+0.5);
+      const next=direction<0?(candidates.at(-1)??steps[0]):(candidates[0]??steps.at(-1));
+      applyWtTagRailWidth(next);
+    });
+  }
+  const creatorSwitchV1028 = document.createElement('span');
+  creatorSwitchV1028.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:1px;min-width:0;overflow:hidden;';
+  // 아래 두 버튼은 생성 후 중앙 묶음으로 이동한다.
   creatorButtonV1022(authorBtnV1022, '작가', 'author');
   creatorButtonV1022(groupBtnV1022, '그룹', 'group');
+  creatorSwitchV1028.append(authorBtnV1022, groupBtnV1022);
+  authHeader.replaceChildren(comicRailWidthLeftV1028, creatorSwitchV1028, comicRailWidthRightV1028);
   authSec.appendChild(authHeader);
   authSec.appendChild(authList);
 
@@ -82048,8 +82076,33 @@ function appendVideoAvdbsOnlinePosterCandidates(
 // - 선택 기록은 작은 매핑만 저장하고, 다음 렌더부터 Scenes JPG를 포스터 후보로 재사용
 // =========================================================
 const VIDEO_FRAME_POSTER_MAP_KEY_V814 = 'video_frame_poster_map_v814';
-const VIDEO_FRAME_POSTER_TIMES_V814 = Object.freeze([5, 10, 15, 20, 25, 30, 35, 40, 45, 50]);
+const VIDEO_FRAME_POSTER_COUNT_V1028 = 10;
+// 1장은 반드시 30초 안쪽, 나머지 9장은 영상 전 구간에서 중복되지 않게 추출한다.
+function makeVideoFramePosterTimesV1028(duration, random = Math.random) {
+  const max = Math.max(0, (Number(duration) || 0) - 0.08);
+  if (!Number.isFinite(max) || max < 0.05) return [0];
+  const earlyStart = Math.min(2, Math.max(0, max / 4));
+  const earlyEnd = Math.min(max, 29.9);
+  const first = earlyStart + Math.max(0, earlyEnd - earlyStart) * random();
+  const values = [first];
+  // 균일 랜덤 표본을 중복 없이 구성. 너무 짧은 영상에서는 고유 시간만 반환한다.
+  for (let tries = 0; tries < 150 && values.length < VIDEO_FRAME_POSTER_COUNT_V1028; tries++) {
+    const t = Math.max(0, Math.min(max, max * random()));
+    if (values.every(v => Math.abs(v-t) >= Math.min(0.4, max / 15))) values.push(t);
+  }
+  // 남는 후보는 균등 위치로 보충한다. 짧은 영상이라도 항상 가능한 만큼만 반환.
+  for (let i=1; values.length < VIDEO_FRAME_POSTER_COUNT_V1028 && i <= 100; i++) {
+    const t = max * (i / 101);
+    if (values.every(v=>Math.abs(v-t)>0.035)) values.push(t);
+  }
+  return values.slice(0, VIDEO_FRAME_POSTER_COUNT_V1028);
+}
 let videoFramePosterPickerBusyV814 = false;
+// v1028: 후보 이미지를 모두 시도했지만 실패해 '포스터 없음' 안내가 실제 뜬 보유 영상.
+// 확인되지 않은 영상에 자동 포스터를 써서 기존 정상 포스터를 가리지 않는다.
+const videoFramePosterVerifiedMissingV1028 = new Map();
+let videoFramePosterBulkStopV1028 = false;
+let videoFramePosterBulkBusyV1028 = false;
 
 function getVideoFramePosterEntryKeyV814(entry) {
   const id = String(entry?.id || '').trim();
@@ -82321,7 +82374,7 @@ function canvasToVideoFramePosterBlobV815(canvas) {
 }
 
 async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
-  try { onProgress?.(-2, VIDEO_FRAME_POSTER_TIMES_V814.length, 0, 'handle'); } catch (_) {}
+  try { onProgress?.(-2, VIDEO_FRAME_POSTER_COUNT_V1028, 0, 'handle'); } catch (_) {}
   const handle = await resolveVideoHandle(entry);
   if (!handle) throw new Error('영상 파일을 찾지 못했습니다.');
 
@@ -82329,7 +82382,7 @@ async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
   let video = null;
   const result = [];
   try {
-    try { onProgress?.(-1, VIDEO_FRAME_POSTER_TIMES_V814.length, 0, 'file'); } catch (_) {}
+    try { onProgress?.(-1, VIDEO_FRAME_POSTER_COUNT_V1028, 0, 'file'); } catch (_) {}
     const file = await handle.getFile();
     if (!file || !Number(file.size)) throw new Error('영상 파일이 비어 있거나 읽을 수 없습니다.');
 
@@ -82344,7 +82397,7 @@ async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
     video.style.cssText = 'position:fixed!important;left:-10000px!important;top:-10000px!important;width:2px!important;height:2px!important;opacity:0!important;pointer-events:none!important;z-index:-1!important;';
     document.body.appendChild(video);
 
-    try { onProgress?.(0, VIDEO_FRAME_POSTER_TIMES_V814.length, 0, 'metadata'); } catch (_) {}
+    try { onProgress?.(0, VIDEO_FRAME_POSTER_COUNT_V1028, 0, 'metadata'); } catch (_) {}
     video.src = sourceUrl;
     try { video.load(); } catch (_) {}
     await waitVideoFramePosterMetadataV815(video);
@@ -82354,13 +82407,7 @@ async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
       throw new Error('영상 길이를 읽지 못했습니다.');
     }
 
-    const safeMax = Math.max(0, duration - 0.08);
-    const times = [];
-    for (const wanted of VIDEO_FRAME_POSTER_TIMES_V814) {
-      const actual = Math.min(wanted, safeMax);
-      if (!times.some(value => Math.abs(value - actual) < 0.04)) times.push(actual);
-    }
-    if (!times.length) times.push(0);
+    const times = makeVideoFramePosterTimesV1028(duration);
 
     const vw = Math.max(1, Number(video.videoWidth) || 1280);
     const vh = Math.max(1, Number(video.videoHeight) || 720);
@@ -82381,19 +82428,38 @@ async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
         drawVideoToWebpCanvas(ctx, video, width, height);
         const blob = await canvasToVideoFramePosterBlobV815(canvas);
         result.push({
-          wantedTime: VIDEO_FRAME_POSTER_TIMES_V814[Math.min(i, VIDEO_FRAME_POSTER_TIMES_V814.length - 1)],
+          wantedTime: requestedTime,
           time: actualTime,
           blob,
           url: URL.createObjectURL(blob)
         });
       } catch (error) {
         console.warn('[v815 장면 포스터 프레임 건너뜀]', entry?.fileName, requestedTime, error);
+        // v1028: 첫 후보 실패 시 초반 30초 이내에서 추가로 시도해 초반 장면 1장을 확보한다.
+        if (i === 0) {
+          const earlyLimit = Math.min(29.9, Math.max(0, duration - 0.08));
+          for (const fallbackRatio of [0.15, 0.55, 0.85]) {
+            const earlyTime = Math.max(0, earlyLimit*fallbackRatio);
+            if (Math.abs(earlyTime-requestedTime) < 0.1) continue;
+            try {
+              const actualTime=await seekVideoFramePosterV815(video, earlyTime);
+              drawVideoToWebpCanvas(ctx,video,width,height);
+              const blob=await canvasToVideoFramePosterBlobV815(canvas);
+              result.push({wantedTime:earlyTime,time:actualTime,blob,url:URL.createObjectURL(blob)});
+              break;
+            } catch (_) {}
+          }
+        }
       }
       try { onProgress?.(i + 1, times.length, requestedTime, 'done'); } catch (_) {}
     }
 
     if (!result.length) {
-      throw new Error('5~50초 장면 후보를 디코딩하지 못했습니다. 영상 코덱을 확인해 주세요.');
+      throw new Error('랜덤 장면 후보를 디코딩하지 못했습니다. 영상 코덱을 확인해 주세요.');
+    }
+    if (!result.some(row => row.time <= 30)) {
+      releaseVideoFramePosterCandidatesV814(result);
+      throw new Error('초반 30초 이내 장면을 디코딩하지 못했습니다. 해당 구간이 정상 재생되는지 확인해 주세요.');
     }
     return result;
   } finally {
@@ -82406,6 +82472,162 @@ async function captureVideoFramePosterCandidatesV814(entry, onProgress = null) {
     if (sourceUrl) {
       try { URL.revokeObjectURL(sourceUrl); } catch (_) {}
     }
+  }
+}
+
+
+// v1028: 일괄 확정은 매 영상당 10장을 만들 필요 없이 임의 1장만 JPG로 생성.
+async function captureOneRandomVideoFramePosterV1028(entry) {
+  const handle = await resolveVideoHandle(entry);
+  if (!handle) throw new Error('영상 파일 핸들을 찾을 수 없습니다.');
+  const file = await handle.getFile();
+  if (!file?.size) throw new Error('영상 파일을 읽을 수 없습니다.');
+  const video = document.createElement('video');
+  const url = URL.createObjectURL(file);
+  video.muted = true; video.defaultMuted = true; video.playsInline = true;
+  video.preload = 'metadata';
+  video.style.cssText = 'position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;opacity:0;pointer-events:none';
+  document.body.appendChild(video);
+  try {
+    video.src = url;
+    try { video.load(); } catch (_) {}
+    await waitVideoFramePosterMetadataV815(video);
+    const duration = Number(video.duration);
+    if (!Number.isFinite(duration) || duration <= 0) throw new Error('영상 재생시간 확인 불가');
+    const max = Math.max(0, duration-0.08);
+    // 자동 확정은 임의 한 장을 고르되 시작/종료의 검은 화면 가능성을 조금 줄인다.
+    const start = Math.min(2, max/5);
+    const time = start + Math.random() * Math.max(0, max - start);
+    const actual = await seekVideoFramePosterV815(video, time);
+    const vw = Math.max(1, Number(video.videoWidth) || 1280);
+    const vh = Math.max(1, Number(video.videoHeight) || 720);
+    const scale = Math.min(1,720/Math.max(vw,vh));
+    const width = Math.max(2,Math.round(vw*scale));
+    const height = Math.max(2,Math.round(vh*scale));
+    const canvas=document.createElement('canvas');
+    canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext('2d',{alpha:false});
+    if (!ctx) throw new Error('Canvas 준비 실패');
+    drawVideoToWebpCanvas(ctx,video,width,height);
+    const blob=await canvasToVideoFramePosterBlobV815(canvas);
+    return {blob,time:actual};
+  } finally {
+    try { video.pause();video.removeAttribute('src');video.load();video.remove(); } catch (_) {}
+    URL.revokeObjectURL(url);
+  }
+}
+
+// v1029: 「포스터 없음」 UI를 실제 표시 상태의 우선 근거로 사용한다.
+// 영상 라이브러리에 없는 외부/가상 카드는 일괄 캡처하지 않으며,
+// 저장된 장면이 있어도 화면에서 실제 실패한 경우에는 다시 만들 수 있다.
+function collectVideoMissingPosterBulkEntriesV1029() {
+  const ownedByKey = new Map();
+  try {
+    const source = typeof loadVideoList === 'function' ? loadVideoList() : [];
+    for (const entry of source) {
+      if (!isVideoFramePosterOwnedEntryV814(entry)) continue;
+      const key = getVideoFramePosterEntryKeyV814(entry);
+      if (key && !ownedByKey.has(key)) ownedByKey.set(key, entry);
+    }
+  } catch (_) {}
+
+  const candidates = new Map();
+  const visibleKeys = new Set();
+  const visibleWrapsByKey = new Map();
+  // 먼저 현재 메인 영상 목록에 실제로 「포스터 없음」을 띄운 카드를 수집.
+  // (v1028 기록 Map에서 누락된 카드도 여기서 복구한다.)
+  try {
+    document.querySelectorAll('#wtList .videoCard .videoPosterWrap').forEach(wrap => {
+      if (!wrap.querySelector('.videoFramePosterOfferV814')) return;
+      const key = String(wrap.__videoFrameEntryV1028 ||
+        wrap.closest('.videoCard')?.dataset?.videoEntryId || '').trim();
+      const entry = ownedByKey.get(key);
+      if (!entry) return; // 일반 미보유/검색 가상카드는 제외
+      visibleKeys.add(key);
+      if (!visibleWrapsByKey.has(key)) visibleWrapsByKey.set(key, []);
+      visibleWrapsByKey.get(key).push(wrap);
+      candidates.set(key, entry);
+    });
+  } catch (_) {}
+
+  // 이전에 확인한 무포스터도 합치되, 이미 Scenes 확정된 작품은 중복 저장하지 않음.
+  for (const [key, entry] of videoFramePosterVerifiedMissingV1028) {
+    const owned = ownedByKey.get(key);
+    if (!owned || !isVideoFramePosterOwnedEntryV814(owned)) continue;
+    if (candidates.has(key)) continue;
+    if (getVideoFramePosterInfoV814(owned)?.fileName) continue;
+    candidates.set(key, owned);
+  }
+  return {list: Array.from(candidates.values()), visibleKeys, visibleWrapsByKey};
+}
+
+async function runVideoMissingPosterBulkV1028() {
+  if (videoFramePosterBulkBusyV1028 || videoFramePosterPickerBusyV814) {
+    showToast?.('장면 선택 또는 자동 확정 작업이 진행 중입니다.', 2500);
+    return;
+  }
+  // v1029: 화면의 실제 「포스터 없음」 카드를 일괄 처리 후보에 반드시 합친다.
+  // 기존 v1028 Map은 포스터 로드 성공 콜백/재렌더 과정에서 항목이 삭제될 수 있어
+  // 화면에서는 안내가 보이지만 전체확정 대상에서는 누락되는 문제가 있었다.
+  const {list, visibleKeys, visibleWrapsByKey} = collectVideoMissingPosterBulkEntriesV1029();
+  if (!list.length) {
+    alert('포스터 없음이 확인된 보유 영상이 아직 없습니다.\n목록에서 포스터 후보 검사가 끝나 "포스터 없음"이 표시된 영상들이 일괄 확정 대상입니다.\n아직 화면에 불러오지 않은 영상은 검사 대상에 포함되지 않습니다.');
+    return;
+  }
+  if (!confirm(`포스터 없음이 확인된 보유 영상 ${list.length}개(현재 화면 ${visibleKeys.size}개 포함)에 임의 장면을 자동 저장할까요?\n\n각 영상에서 1장만 추출해 Scenes에 저장합니다.\n기존 정상 포스터는 변경하지 않고, 중간에 취소할 수 있습니다.`)) return;
+  // 폴더 선택/쓰기 권한은 반드시 사용자 클릭 직후에 요청한다.
+  try { await getVideoPosterRootHandle(); }
+  catch (e) { showToast?.('공용 이미지폴더 연결/쓰기 권한이 필요합니다: '+(e?.message||e),3500); return; }
+  const layer=document.createElement('div');
+  layer.id='videoFramePosterBulkLayerV1028';
+  layer.style.cssText='position:fixed;inset:0;z-index:9999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:16px;box-sizing:border-box';
+  const panel=document.createElement('div');
+  panel.style.cssText='width:min(450px,94vw);padding:20px;border:1px solid #555;border-radius:12px;background:#1b1f29;color:#eee;font:13px system-ui;line-height:1.7';
+  const title=document.createElement('h3');title.textContent='포스터 없음 · 전체 자동 확정';title.style.margin='0 0 12px';
+  const status=document.createElement('div');status.style.cssText='min-height:60px;white-space:pre-wrap;word-break:break-word';
+  const stop=document.createElement('button');stop.type='button';stop.textContent='중지';
+  stop.style.cssText='padding:8px 18px;border:1px solid #888;border-radius:6px;background:#333;color:white;cursor:pointer';
+  stop.addEventListener('click',()=>{videoFramePosterBulkStopV1028=true;stop.disabled=true;stop.textContent='중지 요청됨';});
+  panel.append(title,status,stop);layer.appendChild(panel);document.body.appendChild(layer);
+  videoFramePosterBulkBusyV1028=true;videoFramePosterBulkStopV1028=false;
+  let saved=0,failed=0,skipped=0,done=0;
+  try {
+    for (const entry of list) {
+      if (videoFramePosterBulkStopV1028) break;
+      const key=getVideoFramePosterEntryKeyV814(entry);
+      // 화면에서 지금도 '포스터 없음'이 보이면 임시 Map에서 지워졌거나
+      // 저장된 Scenes 사진 경로가 낡았어도 재시도를 허용한다.
+      const stillVisibleMissing = (visibleWrapsByKey.get(key) || []).some(wrap =>
+        wrap.isConnected && !!wrap.querySelector('.videoFramePosterOfferV814'));
+      if (!stillVisibleMissing &&
+          (!videoFramePosterVerifiedMissingV1028.has(key) || getVideoFramePosterInfoV814(entry)?.fileName)) {
+        skipped++;done++;continue;
+      }
+      status.textContent=`${done+1}/${list.length} 처리 중 · 저장 ${saved} / 실패 ${failed}\n${entry.fileName || entry.display || ''}`;
+      try {
+        const candidate=await captureOneRandomVideoFramePosterV1028(entry);
+        await saveVideoFramePosterCandidateV814(entry,candidate);
+        saved++;
+        // 현재 화면에 보이는 해당 카드도 즉시 전환한다.
+        document.querySelectorAll('.videoPosterWrap').forEach(wrap=>{
+          if (wrap.__videoFrameEntryV1028 === key) showVideoFramePosterBlobInWrapV814(wrap,candidate.blob,entry);
+        });
+      } catch(e) {
+        failed++;
+        console.warn('[v1028 무포스터 자동 확정 실패]',entry?.fileName,e);
+      }
+      done++;
+      // 장시간 처리 시 브라우저 UI와 영상 작업에 양보한다.
+      await new Promise(r=>setTimeout(r,60));
+    }
+  } finally {
+    videoFramePosterBulkBusyV1028=false;
+    status.textContent=`${videoFramePosterBulkStopV1028?'중지됨':'완료'} · 저장 ${saved} / 실패 ${failed} / 건너뜀 ${skipped} / 전체 ${list.length}`;
+    stop.disabled=false;stop.textContent='닫기';stop.onclick=()=>layer.remove();
+    stop.replaceWith(stop.cloneNode(true));
+    const close=panel.lastElementChild;
+    close.addEventListener('click',()=>layer.remove());
+    try { if (typeof renderVideoList==='function') renderVideoList(); } catch (_) {}
   }
 }
 
@@ -82538,6 +82760,7 @@ async function saveVideoFramePosterCandidateV814(entry, candidate) {
     fileName,
     time: candidate.time
   });
+  try { videoFramePosterVerifiedMissingV1028.delete(getVideoFramePosterEntryKeyV814(entry)); } catch (_) {}
   return { fileName, time: candidate.time, size: candidate.blob.size };
 }
 
@@ -82564,7 +82787,7 @@ function ensureVideoFramePosterReselectControlV818(wrap, entry) {
   button.type = 'button';
   button.className = 'videoFramePosterReselectBtnV818';
   button.textContent = '재선택';
-  button.title = '5초 간격 10개 장면(5~50초)에서 포스터를 다시 선택';
+  button.title = '초반 30초 이내 1장 + 전 구간 랜덤 9장 중 포스터를 다시 선택';
 
   button.addEventListener('pointerdown', event => {
     event.stopPropagation();
@@ -82665,7 +82888,7 @@ async function openVideoFramePosterPickerV814(entry, wrap = null, triggerButton 
 
   try {
     stopVideoHoverPreview?.();
-    if (sub) sub.textContent = `${entry?.fileName || entry?.display || '영상'} · 5초 간격 10개 · 5~50초`;
+    if (sub) sub.textContent = `${entry?.fileName || entry?.display || '영상'} · 초반 30초 내 1장 + 전 구간 랜덤 9장`;
     if (grid) grid.innerHTML = '';
     if (status) status.textContent = '원본 영상에서 10개 장면을 캡처하는 중...';
     if (triggerButton) {
@@ -82768,12 +82991,18 @@ async function openVideoFramePosterPickerV814(entry, wrap = null, triggerButton 
 
 function showVideoFramePosterOfferV814(wrap, entry, pending = null) {
   if (!wrap || !isVideoFramePosterOwnedEntryV814(entry)) return false;
+  try {
+    const keyV1028 = getVideoFramePosterEntryKeyV814(entry);
+    if (keyV1028) videoFramePosterVerifiedMissingV1028.set(keyV1028, entry);
+  } catch (_) {}
   // v817: 첫 렌더부터 장면 선택 UI 스타일을 적용해 첫 선택 전/후 모습이 바뀌지 않게 한다.
   try { ensureVideoFramePosterPickerStylesV816(); } catch (_) {}
   if (wrap.querySelector('.videoFramePosterOfferV814')) return true;
   if (pending) pending.style.display = 'none';
 
   wrap.dataset.videoFramePosterPickerV814 = '1';
+  wrap.__videoFrameEntryV1028 = getVideoFramePosterEntryKeyV814(entry);
+  wrap.__videoFrameMissingEntryV1029 = entry;
   const offer = document.createElement('div');
   offer.className = 'videoFramePosterOfferV814';
   const title = document.createElement('div');
@@ -82783,10 +83012,10 @@ function showVideoFramePosterOfferV814(wrap, entry, pending = null) {
   button.type = 'button';
   button.className = 'videoFramePosterOfferBtnV814';
   button.textContent = '장면 선택';
-  button.title = '영상의 5~50초 구간을 5초 간격으로 캡처한 10개 장면 중 포스터 선택';
+  button.title = '초반 30초 내 1장 + 전체 영상 랜덤 9장 중 포스터 선택';
   const hint = document.createElement('div');
   hint.className = 'videoFramePosterOfferHintV814';
-  hint.textContent = '5초 간격 · 5~50초 · 10장 중 한 장 선택';
+  hint.textContent = '초반 30초 내 1장 + 전체 랜덤 9장';
 
   button.addEventListener('click', event => {
     event.preventDefault();
@@ -98089,6 +98318,7 @@ function attachPosterWithFallback(
 
     // v459: 실제 포스터가 성공적으로 표시되는 순간 출현효과 시작.
     if (success) {
+      try { videoFramePosterVerifiedMissingV1028.delete(getVideoFramePosterEntryKeyV814(entry)); } catch (_) {}
       try {
         scheduleVideoPosterEntrance(
           wrap,
@@ -151565,7 +151795,18 @@ img.decoding = 'async';
       menuListV956.appendChild(button);
       if (isAux) auxButtonPairsV957.push([button, originalId, label]);
     };
+    // v1028: 후보가 실제로 전부 실패한 보유 영상만 안전하게 일괄 자동 확정.
+    const autoFrameBtnV1028=document.createElement('button');
+    autoFrameBtnV1028.type='button';
+    autoFrameBtnV1028.className='videoRailMenuActionV956';
+    autoFrameBtnV1028.textContent='무포스터 전체확정';
+    autoFrameBtnV1028.title='포스터 없음이 확인된 보유 영상에 랜덤 장면 1장씩 자동 저장 · 원본 포스터는 유지';
+    autoFrameBtnV1028.addEventListener('click',event=>{
+      event.preventDefault();event.stopPropagation();
+      void runVideoMissingPosterBulkV1028();
+    });
     menuItemsV956.forEach(item => appendMenuButtonV957(item));
+    menuListV956.appendChild(autoFrameBtnV1028);
     // v958: 기능들을 한 목록으로 연결해 표시하고, '보조 기능' 구분 라벨은 만들지 않는다.
     auxMenuItemsV957.forEach(item => appendMenuButtonV957(item, true));
 
@@ -175476,7 +175717,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1027;
+  const VIEWER_BUILD_V789 = 1029;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
