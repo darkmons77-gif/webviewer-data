@@ -1,5 +1,7 @@
 <!doctype html>
-<!-- v1014 빌드번호 교정: VIEWER_BUILD_V789=1014, 초기 화면 표시 문구 1014. 음악 기능 변경 없음. -->
+<!-- v1017: 음악 자켓 전체 DOM 스크롤 검사 제거·화면 근처 제한 재확인·빠른 스크롤 시 대기 자켓 후순위 작업 생략·개별 URL 참조 관리. -->
+<!-- v1016: 음악 가수 레일 가상 스크롤(고정 스크롤 높이·보이는 행만 DOM 생성) + 가수검색/선택/탭복귀 스크롤 보존. -->
+<!-- v1015: 음악 파일 스캔 제한 10만개/루트로 확장, 음악목록 필터·자켓 카드 120개씩 지연 렌더, 원본 재생 인덱스 유지. -->
 <!-- v1012: ZIP/CBZ 열기·라이트박스·다음 파일 이동 시 크기/수정시간·실제 장수 비교, 변경된 ZIP만 표지/장수 캐시 무효화 및 갱신. 전체 강제스캔 동작 변경 없음. -->
 <!-- v1010: 만화 루트 재시작/권한 복원/작품 열기에서 전체 자동 재스캔 중지. 저장된 목록·루트핸들만 복원, 만화 탭의 강제스캔 버튼으로만 등록 루트를 재검사. 기존 이미지폴더 경량 핸들 복원 및 ZIP 캐시 유지. -->
 <!-- v1009: 작가·태그 가상 레일 급스크롤 보정. 높이 고정 캔버스+절대위치 행, Chrome 스크롤 앵커 해제, 기존 캐시·선택·탭복귀 유지. -->
@@ -9709,6 +9711,10 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   color: #91cfff;
   font-size: 9px;
 }
+
+/* v1015: 음악목록 분할 로딩 경계는 카드 그리드에서 전체 행을 점유한다. */
+#muList .mu-more-sentinel-v1015 { width:100%; height:1px; pointer-events:none; flex:0 0 100%; }
+#muList.mu-cover-mode .mu-more-sentinel-v1015 { grid-column:1 / -1; }
 </style>
 <!-- v499: 스타일창 번역 모드 파일/일/한 통합 -->
 <!-- v529: 메타검색 가상카드 콜라주/커버플로우 호환 수정 -->
@@ -11606,7 +11612,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span data-viewer-build-label>버전 4.1(빌드1014) 모드 : </span>
+<span data-viewer-build-label>버전 4.1(빌드1017) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -13434,7 +13440,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span data-viewer-build-label>버전 4.1(빌드1014) 모드 :</span>
+        <span data-viewer-build-label>버전 4.1(빌드1017) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-label="레일 숨기기" aria-pressed="false">레일</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -19580,7 +19586,7 @@ window.getMusicFsScanDebug = () => ({
 
 // 깊이/개수 한도(안전장치)
 const FS_MAX_DEPTH = 10;     // 하위 10단계까지
-const FS_MAX_FILES = 10000;  // 최대 1만 파일
+const FS_MAX_FILES = 100000; // v1015: 한 번의 음악 루트 스캔 최대 10만 파일
 
 // 평점 표시 여부 기억
 const RATING_TOGGLE_KEY = 'webtoon_rating_toggle';
@@ -30765,11 +30771,9 @@ function updateMuCountUI() {
 
   // 필터 후 개수 계산
   let filtered = total;
-  if (total && typeof matchesMusicFilter === 'function') {
-    filtered = 0;
-    for (const ent of entries) {
-      if (matchesMusicFilter(ent)) filtered++;
-    }
+  // v1015: 필터 계산 때 구한 결과수를 재사용. 별도 전체 재순회 불필요.
+  if (total && typeof muVisibleIndicesV1015 !== 'undefined') {
+    filtered = muVisibleIndicesV1015.length;
   }
 
   if (!total) {
@@ -30797,6 +30801,54 @@ function updateMuCountUI() {
   let muCoverRenderVersionV963 = 0;
   const MU_COVER_CACHE_MAX_V963 = 180;
   const MU_COVER_MAX_TAG_V963 = 8 * 1024 * 1024;
+  // v1017: URL별로 실제 이미지 사용처만 추적한다. eviction 시 수만 개 카드 DOM 재검색 금지.
+  const muCoverURLUsersV1017 = new Map();
+  const muCoverImageURLV1017 = new WeakMap();
+  const muCoverDeferredRevokeV1017 = new Set();
+  function muCoverReleaseURLV1017(url) {
+    if (!url) return;
+    const users = muCoverURLUsersV1017.get(url);
+    let used = false;
+    if (users) {
+      for (const img of users) {
+        if (!img.isConnected || muCoverImageURLV1017.get(img) !== url || img.src !== url) {
+          users.delete(img);
+        } else used = true;
+      }
+    }
+    if (used) {
+      muCoverDeferredRevokeV1017.add(url);
+    } else {
+      muCoverURLUsersV1017.delete(url);
+      muCoverDeferredRevokeV1017.delete(url);
+      URL.revokeObjectURL(url);
+    }
+  }
+  function muCoverTrackImageV1017(img, url) {
+    const old = muCoverImageURLV1017.get(img);
+    if (old && old !== url) muCoverURLUsersV1017.get(old)?.delete(img);
+    muCoverImageURLV1017.set(img, url);
+    if (url) {
+      let users = muCoverURLUsersV1017.get(url);
+      if (!users) muCoverURLUsersV1017.set(url, users = new Set());
+      users.add(img);
+    }
+    if (old && old !== url && muCoverDeferredRevokeV1017.has(old)) muCoverReleaseURLV1017(old);
+  }
+  // 전체 목록이 교체될 때만 이전 이미지의 참조를 정리한다(스크롤 중에는 실행하지 않음).
+  function muCoverCleanupDetachedV1017() {
+    for (const url of Array.from(muCoverDeferredRevokeV1017)) muCoverReleaseURLV1017(url);
+  }
+  function muCoverNearViewportV1017(img, margin = 260) {
+    if (!img?.isConnected || !listBox?.isConnected || listBox.clientHeight < 1) return false;
+    const root = listBox.getBoundingClientRect();
+    if (!root.height || !root.width) return false;
+    const card = img.closest('.mu-item-wrap');
+    if (!card) return false;
+    const r = card.getBoundingClientRect();
+    return r.bottom >= root.top - margin && r.top <= root.bottom + margin &&
+      r.right >= root.left - 20 && r.left <= root.right + 20;
+  }
 
   function updateMuCoverButtonV963() {
     if (!muCoverButtonV963) return;
@@ -30920,20 +30972,15 @@ function updateMuCountUI() {
   function muCoverRememberV963(key, url) {
     if (muCoverCacheV963.has(key)) {
       const prev = muCoverCacheV963.get(key);
-      if (prev && prev !== url) URL.revokeObjectURL(prev);
       muCoverCacheV963.delete(key);
+      if (prev && prev !== url) muCoverReleaseURLV1017(prev);
     }
     muCoverCacheV963.set(key, url || '');
     while (muCoverCacheV963.size > MU_COVER_CACHE_MAX_V963) {
       const first = muCoverCacheV963.keys().next().value;
       const old = muCoverCacheV963.get(first);
       muCoverCacheV963.delete(first);
-      // 목록의 img가 이 URL을 사용 중일 수 있어 즉시 해제하지 않고 페이지 종료 때 해제.
-      // 최대 캐시 크기만큼만 유지하려고 오프스크린 이미지에서만 회수한다.
-      if (old) {
-        const stillUsed = Array.from(listBox.querySelectorAll('.mu-cover-img-v963')).some(img => img.src === old);
-        if (!stillUsed) URL.revokeObjectURL(old);
-      }
+      if (old) muCoverReleaseURLV1017(old);
     }
   }
 
@@ -30970,12 +31017,21 @@ function updateMuCountUI() {
       const icon = img.parentElement?.querySelector('.mu-cover-icon-v963');
       if (icon) icon.style.display = '';
     };
+    muCoverTrackImageV1017(img, url);
     img.src = url;
   }
   function muCoverPumpV963() {
     while (muCoverActiveV963 < 3 && muCoverQueueV963.length) {
       const job = muCoverQueueV963.shift();
       if (job.version !== muCoverRenderVersionV963 || !job.img.isConnected) continue;
+      // 화면에서 멀리 지나간 *대기* 작업만 취소. 다시 보이면 Observer가 재요청한다.
+      // 이미 시작된 ID3 읽기는 중단하지 않아 권한·파일 읽기 흐름을 보존한다.
+      if (!muCoverNearViewportV1017(job.img, 330)) {
+        delete job.img.dataset.muCoverQueuedV964;
+        const wrap = job.img.closest('.mu-item-wrap');
+        if (muCoverObserverV963 && wrap) muCoverObserverV963.observe(wrap);
+        continue;
+      }
       muCoverActiveV963++;
       muCoverLoadV963(job).finally(() => { muCoverActiveV963--; muCoverPumpV963(); });
     }
@@ -30983,20 +31039,34 @@ function updateMuCountUI() {
   function muCoverQueueCardV963(ent, img) {
     if (!img || img.dataset.muCoverQueuedV964 === '1') return;
     img.dataset.muCoverQueuedV964 = '1';
-    muCoverQueueV963.push({ ent, img, version: muCoverRenderVersionV963 });
+    const job = { ent, img, version: muCoverRenderVersionV963 };
+    // 빠른 스크롤로 새로 보이는 자켓을 이전 화면의 대기 작업보다 우선한다.
+    if (muCoverNearViewportV1017(img, 25)) muCoverQueueV963.unshift(job);
+    else muCoverQueueV963.push(job);
     muCoverPumpV963();
   }
 
-  // v964: 패널 숨김에서 다시 펼칠 때 관찰 이벤트가 누락되어도 보이는 카드부터 읽는다.
+  // v1017: 권한 복원·패널 펼침 시에만 화면 근처 *몇 줄* 검사.
+  // 30,000개 전체 DOM을 매 스크롤마다 querySelectorAll 하지 않는다.
   function muCoverQueueVisibleV964() {
     if (!muCoverModeV963 || !listBox || getComputedStyle(listBox).display === 'none') return;
     const root = listBox.getBoundingClientRect();
-    if (root.height < 1 || root.width < 1) return;
-    const margin = 170;
-    for (const wrap of listBox.querySelectorAll('.mu-item-wrap')) {
-      if (getComputedStyle(wrap).display === 'none') continue;
+    if (root.height < 1 || root.width < 1 || !listBox.clientHeight) return;
+    const first = listBox.firstElementChild;
+    if (!first?.classList?.contains('mu-item-wrap')) return;
+    const css = getComputedStyle(listBox);
+    const cols = Math.max(1, css.gridTemplateColumns?.split(' ').filter(Boolean).length || 1);
+    const rowHeight = Math.max(1, first.getBoundingClientRect().height + (parseFloat(css.rowGap) || 0));
+    const firstRow = Math.max(0, Math.floor(Math.max(0, listBox.scrollTop - 260) / rowHeight) - 2);
+    const lastRow = Math.ceil((listBox.scrollTop + listBox.clientHeight + 260) / rowHeight) + 2;
+    // 고정 8열 카드의 위치 인덱스로 탐색 범위를 직접 계산. 실제 화면 교차 검사는 유지.
+    const from = Math.min(muRenderedCountV1015, firstRow * cols);
+    const to = Math.min(muRenderedCountV1015, lastRow * cols);
+    for (let i = from; i < to; i++) {
+      const wrap = listBox.children[i];
+      if (!wrap?.classList?.contains('mu-item-wrap')) continue;
       const rect = wrap.getBoundingClientRect();
-      if (rect.bottom < root.top - margin || rect.top > root.bottom + margin) continue;
+      if (rect.bottom < root.top - 260 || rect.top > root.bottom + 260) continue;
       const ent = entries[Number(wrap.dataset.musicIndexV963)];
       const img = wrap.querySelector('.mu-cover-img-v963');
       if (ent && img && img.dataset.muCoverQueuedV964 !== '1') {
@@ -31006,8 +31076,10 @@ function updateMuCountUI() {
     }
   }
   window.muCoverQueueVisibleV964 = muCoverQueueVisibleV964;
+  // 일반 Chrome/Edge에서는 IntersectionObserver가 스크롤 시 나타나는 카드만 호출.
+  // IO 미지원 브라우저에서만 위의 가시범위 직접 탐색을 스크롤에 연결한다.
   let muCoverVisibleFrameV964 = 0;
-  listBox.addEventListener('scroll', () => {
+  if (typeof IntersectionObserver !== 'function') listBox.addEventListener('scroll', () => {
     if (!muCoverModeV963 || muCoverVisibleFrameV964) return;
     muCoverVisibleFrameV964 = requestAnimationFrame(() => {
       muCoverVisibleFrameV964 = 0;
@@ -31016,46 +31088,47 @@ function updateMuCountUI() {
   }, { passive: true });
 
   // ========== UI 갱신 ==========
-  function renderList(){
-    const manual = loadEntries();
-    entries = mergeEntriesForRender(manual); // ← FS 엔트리 합치기
-    // v963: 화면에 보이는 카드만 자켓을 읽는다.
-    muCoverRenderVersionV963++;
-    if (muCoverObserverV963) { muCoverObserverV963.disconnect(); muCoverObserverV963 = null; }
-    muCoverQueueV963.length = 0;
-    listBox.classList.toggle('mu-cover-mode', muCoverModeV963);
-    // v964: 펼친 목록에 남은 inline flex를 자켓 8열 grid로 동기화
-    if (listBox.style.display !== 'none') listBox.style.display = muCoverModeV963 ? 'grid' : 'flex';
-    updateMuCoverButtonV963();
-    listBox.innerHTML = '';
-    if (!entries.length){
-      const tip = document.createElement('div');
-      tip.style.opacity = '.8';
-      tip.style.fontSize = 'var(--ui-fs)';
-      tip.textContent = '음악 목록이 비어 있습니다. [수정]을 눌러 항목을 추가하세요.';
-      listBox.appendChild(tip);
-      return;
-    }
-    // 큐 초기화(유튜브 제외)
-const activeVal = localStorage.getItem(ACTIVE_MUSIC_KEY) || '';
-var activeEntryIndex = Math.max(0, entries.findIndex(e=>e.value===activeVal));
-buildAudioQueue(activeEntryIndex); // 오디오만 큐에 넣음
+  // v1015: 재생목록 entries/queue는 전체 곡을 유지하되 화면 카드만 120개씩 표시한다.
+  // 검색·가수 필터도 렌더된 DOM이 아닌 전체 데이터에서 계산한다.
+  const MU_LIST_CHUNK_V1015 = 120;
+  let muVisibleIndicesV1015 = [];
+  let muRenderedCountV1015 = 0;
+  let muMoreSentinelV1015 = null;
+  let muMoreObserverV1015 = null;
+  let muRenderMoreBusyV1015 = false;
+  function muCreateCoverObserverV1015(){
+    muCoverObserverV963?.disconnect();
+    muCoverObserverV963 = null;
+    if (!muCoverModeV963 || typeof IntersectionObserver !== 'function') return;
+    muCoverObserverV963 = new IntersectionObserver((observed) => {
+      for (const hit of observed) {
+        if (!hit.isIntersecting) continue;
+        muCoverObserverV963?.unobserve(hit.target);
+        const ent = entries[Number(hit.target.dataset.musicIndexV963)];
+        const img = hit.target.querySelector('.mu-cover-img-v963');
+        if (ent && img) muCoverQueueCardV963(ent, img);
+      }
+    }, { root: listBox, rootMargin: '220px 0px', threshold: 0.01 });
+  }
+  function muAppendNextChunkV1015(){
+    if (muRenderMoreBusyV1015 || muRenderedCountV1015 >= muVisibleIndicesV1015.length) return;
+    muRenderMoreBusyV1015 = true;
+    try {
+      if (muMoreSentinelV1015) muMoreSentinelV1015.remove();
+      const fragment = document.createDocumentFragment();
+      const muCoverFallbackJobsV1015 = [];
+      const activeVal = localStorage.getItem(ACTIVE_MUSIC_KEY) || '';
+      const limit = Math.min(muVisibleIndicesV1015.length, muRenderedCountV1015 + MU_LIST_CHUNK_V1015);
+      for (; muRenderedCountV1015 < limit; muRenderedCountV1015++) {
+        const visibleIndex = muRenderedCountV1015;
+        const i = muVisibleIndicesV1015[visibleIndex];
+        const ent = entries[i];
+        if (!ent) continue;
 
-    if (muCoverModeV963 && typeof IntersectionObserver === 'function') {
-      muCoverObserverV963 = new IntersectionObserver((observed) => {
-        for (const hit of observed) {
-          if (!hit.isIntersecting) continue;
-          muCoverObserverV963?.unobserve(hit.target);
-          const ent = entries[Number(hit.target.dataset.musicIndexV963)];
-          const img = hit.target.querySelector('.mu-cover-img-v963');
-          if (ent && img) muCoverQueueCardV963(ent, img);
-        }
-      }, { root: listBox, rootMargin: '220px 0px', threshold: 0.01 });
-    }
-    entries.forEach((ent, i)=>{
       const wrap = document.createElement('div');
       wrap.className = 'mu-item-wrap';
-      if (muCoverModeV963) wrap.dataset.musicIndexV963 = String(i);
+      wrap.dataset.index = String(i);
+      wrap.dataset.musicIndexV963 = String(i);
       const btn = document.createElement('button');
       btn.className = 'mu-item';
       if (muCoverModeV963) {
@@ -31123,15 +31196,95 @@ const isLocal   = /^(?:file:\/\/|[a-zA-Z]:[\\/]|\\\\|\/(?:Users|home|mnt|Volumes
 
       wrap.appendChild(btn);
       wrap.appendChild(del);
-      listBox.appendChild(wrap);
+      fragment.appendChild(wrap);
       if (muCoverModeV963) {
         if (muCoverObserverV963) muCoverObserverV963.observe(wrap);
-        else if (i < 20) muCoverQueueCardV963(ent, btn.querySelector('.mu-cover-img-v963'));
+        else if (visibleIndex < 20) muCoverFallbackJobsV1015.push([ent, btn.querySelector('.mu-cover-img-v963')]);
       }
-    });
-	applyMusicFilter();    // ← 마지막에 한 줄
-	updateMuCountUI();   // ← 추가
-    try { window.muArtistOnMusicRenderV971?.(entries); } catch(e) { console.warn('[music artist] render:',e); }
+      }
+      listBox.appendChild(fragment);
+      // IO 미지원 환경에서만 우선 20개를 큐에 넣고, 나머지 가시 카드만 보완한다.
+      for(const [ent,img] of muCoverFallbackJobsV1015) muCoverQueueCardV963(ent,img);
+      if (muCoverFallbackJobsV1015.length) requestAnimationFrame(muCoverQueueVisibleV964);
+      muMoreObserverV1015?.disconnect();
+      if(muRenderedCountV1015 < muVisibleIndicesV1015.length){
+        muMoreSentinelV1015 = document.createElement('div');
+        muMoreSentinelV1015.className='mu-more-sentinel-v1015';
+        muMoreSentinelV1015.setAttribute('aria-hidden','true');
+        listBox.appendChild(muMoreSentinelV1015);
+        muMoreObserverV1015?.observe(muMoreSentinelV1015);
+      }else{
+        muMoreSentinelV1015 = null;
+      }
+    } finally { muRenderMoreBusyV1015 = false; }
+  }
+  function muCheckMoreV1015(){
+    if (!muMoreSentinelV1015 || !listBox.isConnected || listBox.clientHeight < 1) return;
+    if (listBox.scrollTop + listBox.clientHeight + 600 >= listBox.scrollHeight) muAppendNextChunkV1015();
+  }
+  window.muMusicEnsureVisibleV1015 = muCheckMoreV1015;
+  if (typeof IntersectionObserver === 'function'){
+    muMoreObserverV1015=new IntersectionObserver((hits)=>{
+      if(hits.some(x=>x.isIntersecting)) muAppendNextChunkV1015();
+    }, {root:listBox,rootMargin:'600px 0px',threshold:0});
+  }
+  let muMoreFrameV1015=0;
+  listBox.addEventListener('scroll',()=>{
+    if(muMoreFrameV1015) return;
+    muMoreFrameV1015=requestAnimationFrame(()=>{muMoreFrameV1015=0;muCheckMoreV1015();});
+  },{passive:true});
+  function muResetVisibleV1015(force=false){
+    const indices=[];
+    for(let i=0;i<entries.length;i++) if(matchesMusicFilter(entries[i])) indices.push(i);
+    // ID3 가수 정보가 들어올 때마다 호출되더라도 실제 필터 결과가 같으면 카드·스크롤은 유지.
+    if(!force && indices.length===muVisibleIndicesV1015.length &&
+        indices.every((v,i)=>v===muVisibleIndicesV1015[i])){
+      updateMuCountUI();
+      return;
+    }
+    muVisibleIndicesV1015=indices;
+    muRenderedCountV1015=0;
+    muMoreSentinelV1015=null;
+    muMoreObserverV1015?.disconnect();
+    muCoverRenderVersionV963++;
+    muCoverQueueV963.length=0;
+    muCreateCoverObserverV1015();
+    listBox.replaceChildren();
+    muCoverCleanupDetachedV1017();
+    listBox.scrollTop=0;
+    muAppendNextChunkV1015();
+    updateMuCountUI();
+    requestAnimationFrame(muCheckMoreV1015);
+  }
+  // ========== UI 갱신 ==========
+  function renderList(){
+    const manual = loadEntries();
+    entries = mergeEntriesForRender(manual);
+    listBox.classList.toggle('mu-cover-mode',muCoverModeV963);
+    if(listBox.style.display!=='none') listBox.style.display=muCoverModeV963?'grid':'flex';
+    updateMuCoverButtonV963();
+    if(!entries.length){
+      muMoreObserverV1015?.disconnect();
+      muCoverObserverV963?.disconnect();
+      muCoverQueueV963.length=0;
+      muVisibleIndicesV1015=[];
+      muRenderedCountV1015=0;
+      muMoreSentinelV1015=null;
+      listBox.replaceChildren();
+      muCoverCleanupDetachedV1017();
+      const tip=document.createElement('div');
+      tip.style.opacity='.8';tip.style.fontSize='var(--ui-fs)';
+      tip.textContent='음악 목록이 비어 있습니다. [수정]을 눌러 항목을 추가하세요.';
+      listBox.appendChild(tip);
+      updateMuCountUI();
+      try{window.muArtistOnMusicRenderV971?.(entries);}catch(_){}
+      return;
+    }
+    const activeVal=localStorage.getItem(ACTIVE_MUSIC_KEY)||'';
+    const activeEntryIndex=Math.max(0,entries.findIndex(e=>e.value===activeVal));
+    buildAudioQueue(activeEntryIndex);
+    muResetVisibleV1015(true);
+    try{window.muArtistOnMusicRenderV971?.(entries);}catch(e){console.warn('[music artist] render:',e);}
   }
   // ← 여기! 함수가 선언된 "바로 다음 줄"
   window.muRenderList = renderList;
@@ -31157,19 +31310,8 @@ window.fsDirHandle = window.fsDirHandle || null;
     }
   }
 function applyMusicFilter() {
-  const listBox = document.getElementById('muList');
-  if (!listBox) return;
-  if (!Array.isArray(entries)) return;
-
-  const rows = listBox.querySelectorAll('.mu-item-wrap');
-
-  rows.forEach((wrap, i) => {
-    const ent = entries[i];
-    if (!ent) return;
-
-    const ok = matchesMusicFilter(ent);
-    wrap.style.display = ok ? '' : 'none';
-  });
+  if (!listBox || !Array.isArray(entries)) return;
+  muResetVisibleV1015(false);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -31478,7 +31620,7 @@ function prevTrack(){
     hintBox && (hintBox.style.display = hidden ? 'block' : 'none');
     toggleBtn.textContent = hidden ? '▼' : '▲';
     if (hidden && muCoverModeV963) {
-      requestAnimationFrame(muCoverQueueVisibleV964);
+      requestAnimationFrame(() => {muCoverQueueVisibleV964();muCheckMoreV1015();});
       void muCoverRecoverPermissionV964();
     }
   });
@@ -31824,6 +31966,8 @@ async function scanFsDir(handle){
           _fs:     { name, handle: entry, rel: relPath }
         });
         if (++count >= FS_MAX_FILES) break;
+        // v1015: 대량 파일 순회 중 주기적으로 UI 스레드에 제어를 돌려준다.
+        if (count % 512 === 0) await new Promise(resolve => setTimeout(resolve, 0));
       } else if (entry.kind === 'directory') {
         await walk(entry, rel ? (rel + name + '/') : (name + '/'), depth - 1);
         if (count >= FS_MAX_FILES) break;
@@ -34353,7 +34497,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dockMuBoxToLayer();
         // v964: 음악창 열기 클릭에서도 음악 폴더 권한 복원 및 자켓 재탐색.
         void window.muCoverRecoverPermissionV964?.();
-        requestAnimationFrame(() => window.muCoverQueueVisibleV964?.());
+        requestAnimationFrame(() => {window.muCoverQueueVisibleV964?.();window.muMusicEnsureVisibleV1015?.();});
       }
     });
   }
@@ -174497,7 +174641,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1014;
+  const VIEWER_BUILD_V789 = 1017;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -178792,6 +178936,15 @@ body.music-tab-active-v968 #wtTagRail { display:none!important; }
 #wtPanelBody #muArtistButtonsV971 button.active {background:#176cc1; border-color:#58a5ed; color:white;}
 #wtPanelBody #muArtistStatusV971 {flex:0 0 auto; padding:5px; min-height:12px; text-align:center; font-size:10px; color:#9eaec0;}
 #musicTabHostV968 #muBox { min-width:0!important; flex:1 1 auto!important; width:100%!important; }
+/* v1016: 음악 가수 레일은 전체 스크롤 높이만 유지하고 실제 DOM은 화면 근처 행만 만든다.
+   고정 track/absolute stage를 사용해 v1008 만화 레일의 자동 스크롤 보정 문제를 피한다. */
+#wtPanelBody #muArtistButtonsV971 { overflow-anchor:none; }
+#wtPanelBody #muArtistButtonsV971 .mu-artist-virtual-track-v1016 {position:relative; width:100%; min-width:0; overflow-anchor:none;}
+#wtPanelBody #muArtistButtonsV971 .mu-artist-virtual-stage-v1016 {position:absolute; top:0; left:0; right:0; overflow-anchor:none;}
+#wtPanelBody #muArtistButtonsV971 .mu-artist-virtual-stage-v1016 > button {
+  box-sizing:border-box; width:100%; height:34px; min-height:34px; max-height:34px;
+  margin:0!important; padding:6px 5px; overflow:hidden;
+}
 /* v973: 가수레일은 만화/영상 탭줄 바깥에 남고, 기존 레일 버튼과 완전히 동일하게 토글된다. */
 body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #wtLayer.wt-light-rail-hidden #wtPanelBody > #muArtistRailV971 { display:none!important; }
@@ -179057,6 +179210,26 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
     return picked === UNCLASSIFIED ? a.length === 0 : a.includes(picked);
   }
   window.muArtistMatchV971 = matches;
+  // v1016: 메모리에는 전체 가수/곡수 목록만, DOM에는 가시 범위+여유 행만 유지.
+  // 버튼의 실제 높이는 CSS에서도 34px 고정해 전체 스크롤 위치가 흔들리지 않는다.
+  const ARTIST_ROW_H_V1016 = 34;
+  const ARTIST_OVERSCAN_V1016 = 12;
+  const ARTIST_MAX_ROWS_V1016 = 180;
+  let artistRowsV1016 = [];
+  let sortedArtistRowsV1016 = [];
+  let missingArtistCountV1016 = 0;
+  let railVersionV1016 = 0;
+  let lastRailStartV1016 = -1;
+  let lastRailEndV1016 = -1;
+  let lastRailVersionV1016 = -1;
+  let railFrameV1016 = 0;
+  const railTrackV1016 = document.createElement('div');
+  railTrackV1016.className = 'mu-artist-virtual-track-v1016';
+  const railStageV1016 = document.createElement('div');
+  railStageV1016.className = 'mu-artist-virtual-stage-v1016';
+  railTrackV1016.appendChild(railStageV1016);
+  buttons.replaceChildren(railTrackV1016);
+
   function makeButton(label, key, n) {
     const btn = document.createElement('button');
     btn.type='button'; btn.classList.toggle('active', key===picked);
@@ -179067,38 +179240,85 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
     btn.addEventListener('click',()=> {
       picked=key;
       try{localStorage.setItem(PICK_KEY,picked);}catch(_){}
-      updateRail();
+      // 선택만 바뀌면 기존 정렬/가수집계는 재계산할 필요가 없다.
+      railStageV1016.querySelectorAll('button[data-artist]').forEach(x=>x.classList.toggle('active',x.dataset.artist===picked));
       window.muArtistApplyFilterV971?.();
     });
     return btn;
   }
-  function updateRail() {
-    const map = new Map();
-    let missing=0;
-    for(const ent of musicEntries) {
-      const artists=cache.get(ent.value) || [];
-      if(!artists.length) missing++;
-      else for (const a of artists) map.set(a, (map.get(a)||0)+1);
-    }
-    if(count) count.textContent=`${map.size}명`;
+  function renderVisibleArtistsV1016(force=false) {
+    const total=artistRowsV1016.length;
+    // 숨겨진 탭에서도 초기 렌더가 가능하도록 기본 viewport를 제공하고,
+    // 음악 탭 진입 시 실제 높이로 재계산한다.
+    const viewport=Math.max(1,buttons.clientHeight || 480);
+    const maxScroll=Math.max(0,total*ARTIST_ROW_H_V1016-viewport);
+    if(buttons.scrollTop>maxScroll) buttons.scrollTop=maxScroll;
+    const first=Math.min(Math.max(0,Math.floor(buttons.scrollTop/ARTIST_ROW_H_V1016)-ARTIST_OVERSCAN_V1016),Math.max(0,total-1));
+    const countToShow=Math.min(ARTIST_MAX_ROWS_V1016,Math.ceil(viewport/ARTIST_ROW_H_V1016)+ARTIST_OVERSCAN_V1016*2);
+    const end=Math.min(total,first+countToShow);
+    if(!force && first===lastRailStartV1016 && end===lastRailEndV1016 && railVersionV1016===lastRailVersionV1016)return;
+    lastRailStartV1016=first; lastRailEndV1016=end; lastRailVersionV1016=railVersionV1016;
     const frag=document.createDocumentFragment();
-    frag.appendChild(makeButton('전체', '', musicEntries.length));
-    for(const [artist,n] of [...map].sort((a,b)=>a[0].localeCompare(b[0],'ko'))) {
-      if(searchText && !artist.toLocaleLowerCase().includes(searchText)) continue;
-      frag.appendChild(makeButton(artist,artist,n));
+    for(let i=first;i<end;i++){
+      const entry=artistRowsV1016[i];
+      frag.appendChild(makeButton(entry.label,entry.key,entry.n));
     }
-    if (missing && (!searchText || '가수 미상'.includes(searchText))) frag.appendChild(makeButton('가수 미상',UNCLASSIFIED,missing));
-    const top=buttons.scrollTop;
-    buttons.replaceChildren(frag);
-    buttons.scrollTop=top;
-    if(status) status.textContent=scanning ? '가수 정보 읽는 중…' : '가수 선택 시 해당 음악만 표시';
+    railStageV1016.style.transform=`translateY(${first*ARTIST_ROW_H_V1016}px)`;
+    railStageV1016.replaceChildren(frag);
+  }
+  function scheduleVisibleArtistsV1016() {
+    if(railFrameV1016) return;
+    railFrameV1016=requestAnimationFrame(()=>{
+      railFrameV1016=0;
+      renderVisibleArtistsV1016();
+    });
+  }
+  buttons.addEventListener('scroll',scheduleVisibleArtistsV1016,{passive:true});
+  if(typeof ResizeObserver==='function'){
+    const railResizeV1016=new ResizeObserver(scheduleVisibleArtistsV1016);
+    railResizeV1016.observe(buttons);
+  }
+  function renderFilteredArtistsV1016() {
+    const rows=[{label:'전체',key:'',n:musicEntries.length}];
+    for(const artist of sortedArtistRowsV1016){
+      if(searchText && !artist.lower.includes(searchText))continue;
+      rows.push({label:artist.name,key:artist.name,n:artist.n});
+    }
+    if(missingArtistCountV1016 && (!searchText || '가수 미상'.includes(searchText))){
+      rows.push({label:'가수 미상',key:UNCLASSIFIED,n:missingArtistCountV1016});
+    }
+    artistRowsV1016=rows;
+    railVersionV1016++;
+    // 같은 track을 유지해 스크롤 앵커 보정에 따른 급이동을 막는다.
+    const previousTop=buttons.scrollTop;
+    railTrackV1016.style.height=`${rows.length*ARTIST_ROW_H_V1016}px`;
+    // 다른 탭에 숨겨져 있을 때는 원래 위치를 보존하고 복귀 시 다시 계산한다.
+    if(buttons.clientHeight>0){
+      buttons.scrollTop=Math.min(previousTop,Math.max(0,rows.length*ARTIST_ROW_H_V1016-buttons.clientHeight));
+    }
+    renderVisibleArtistsV1016(true);
+    if(status)status.textContent=scanning?'가수 정보 읽는 중…':'가수 선택 시 해당 음악만 표시';
+  }
+  function updateRail() {
+    const map=new Map();
+    let missing=0;
+    for(const ent of musicEntries){
+      const artists=cache.get(ent.value)||[];
+      if(!artists.length)missing++;
+      else for(const a of artists)map.set(a,(map.get(a)||0)+1);
+    }
+    missingArtistCountV1016=missing;
+    if(count)count.textContent=`${map.size}명`;
+    sortedArtistRowsV1016=[...map].sort((a,b)=>a[0].localeCompare(b[0],'ko'))
+      .map(([name,n])=>({name,n,lower:name.toLocaleLowerCase()}));
+    renderFilteredArtistsV1016();
   }
   function scheduleUpdate() {
     if(refreshTimer) return;
     refreshTimer=setTimeout(()=>{
       refreshTimer=0;
       updateRail(); window.muArtistApplyFilterV971?.();
-    }, 180);
+    }, musicEntries.length>=5000 ? 750 : 180); // v1016: 대량 태그 스캔 중 레일 전수 집계 빈도 제한
   }
   async function scan(force=false) {
     if(!window.viewerMusicTabIsActiveV968?.() || scanning) return;
@@ -179147,9 +179367,11 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
   window.muArtistOnTabV971 = () => {
     onRender(window.muArtistGetEntriesV971?.() || []);
     scheduleUpdate();
+    // 숨김→표시 전환 시 실제 viewport 높이로 다시 계산하고 기존 위치를 유지한다.
+    requestAnimationFrame(()=>renderVisibleArtistsV1016(true));
     if(!scanning) void scan();
   };
-  search?.addEventListener('input',e=>{searchText=normalize(e.target.value).toLocaleLowerCase();updateRail();});
+  search?.addEventListener('input',e=>{searchText=normalize(e.target.value).toLocaleLowerCase();renderFilteredArtistsV1016();});
   refresh?.addEventListener('click',async()=>{
     if(scanning) return;
     // 읽기 권한 요청은 반드시 사용자 클릭으로만 발생.
