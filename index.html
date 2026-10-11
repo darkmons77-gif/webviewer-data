@@ -1,3 +1,9 @@
+<!-- v1036: 건의사항 전송 성공 시 브라우저 localStorage에 내 전송내역만 저장(최대 200건), 건의하기 창에서 날짜/내용 조회 및 개별 삭제. 서버 7일 보관과 독립. -->
+<!-- v1035: 건의 관리 버튼은 상단 및 영상 M 메뉴에서 제거, 옵션(O) 영상 개발자 권한 옆으로 이동. 개발자 권한 ON일 때만 노출. -->
+<!-- v1034: Cloudflare Worker 건의함 연결: 익명 건의 전송(전체 사용자)·개발자 전용 관리자 인증/목록/삭제. 인증키는 RAM에만 보관. -->
+<!-- v1033: 만화 작가·그룹·태그 3탭 공용 레일. 기존 태그 필터·즐겨찾기·가상 스크롤 유지, 영상 레일 변경 없음. -->
+<!-- v1032: 영상에서 만화 ZIP표지 버튼만 숨김(만화 유지), 음악 반복 옆 현재 곡 제목을 가용 폭 전체에 표시·긴 제목은 줄바꿈. -->
+<!-- v1030: 영상 M의 흑백 메뉴 중복 항목 제거. 기존 공통 흑백 버튼을 S → 포스터 표현에 고정(다른 보조 슬롯으로 이동 금지). 효과·단축키 보존. -->
 <!-- v1029: 영상 무포스터 전체확정 대상을 메인 화면의 실제 '포스터 없음' 카드와 결합하여 누락 수정. -->
 <!-- v1028: 만화 작가/그룹 레일 양옆 폭조절 화살표 추가, 영상 무포스터 10개 후보 랜덤(초반30초 1장 필수), M 메뉴 확인된 무포스터 일괄 자동확정. -->
 <!doctype html>
@@ -2355,6 +2361,19 @@ padding: 6px 6px;
 /* 태그 섹션은 위에 고정 비율로(원하는 값으로 조절) */
 #wtTagRailTagsSec{ flex: 0 0 35%; }   /* ✅ 태그는 상단 35% */
 #wtTagRailAuthSec{ flex: 1 1 auto; }  /* ✅ 작가는 나머지 */
+/* v1033: 만화는 작가/그룹/태그 3탭을 하나의 레일에서 전환한다.
+   영상의 위쪽 태그/아래 배우 레일 비율 설정은 그대로 둔다. */
+#wtTagRail.comicUnifiedRailV1033 #wtTagRailAuthSec { flex: 1 1 auto; min-height: 0; }
+#wtTagRail.comicUnifiedRailV1033 .comicCreatorTabsV1033 {
+  display: flex; align-items: center; justify-content: stretch; gap: 1px;
+  width: 100%; min-width: 0; overflow: hidden;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicCreatorTabV1033 {
+  flex: 1 1 0; min-width: 0; padding: 2px 1px; border: 0;
+  border-radius: 3px; cursor: pointer; font: 10px sans-serif;
+  white-space: nowrap; text-align: center;
+}
+
 /* W 라이트뷰 왼쪽 레일 표시/숨김 */
 #wtLayer.wt-light-rail-hidden #wtTagRail {
   display: none !important;
@@ -11290,6 +11309,32 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 }
 </style>
 
+<style id="webviewerSuggestionStyleV1034">
+#viewerSuggestionAdminV1034[hidden], .videoRailMenuActionV956[hidden] { display: none !important; }
+#wvSuggestionOverlayV1034 { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.78); padding:12px; z-index:2147483000; box-sizing:border-box; }
+.wvSuggestionPanelV1034 { box-sizing:border-box; width:min(620px,98vw); max-height:calc(100dvh - 24px); overflow-y:auto; background:#1c1f28; color:#f6f8fd; border:1px solid #626878; border-radius:12px; padding:18px; box-shadow:0 24px 70px rgba(0,0,0,.65); font:13px/1.5 system-ui,'Noto Sans KR',sans-serif; }
+.wvSuggestionHeadV1034,.wvSuggestionToolsV1034,.wvSuggestionItemHeadV1034 { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.wvSuggestionHeadV1034 { margin-bottom:12px; font-size:17px; }
+#wvSuggestionOverlayV1034 button { background:#344862; color:#fff; border:1px solid #61718a; border-radius:6px; cursor:pointer; padding:7px 11px; font:inherit; }
+#wvSuggestionOverlayV1034 button:disabled { opacity:.45; cursor:default; }
+#wvSuggestionOverlayV1034 button:hover:not(:disabled) { background:#466081; }
+#wvSuggestionOverlayV1034 textarea,#wvSuggestionOverlayV1034 input { box-sizing:border-box; border:1px solid #586177; background:#10131a; color:#fff; border-radius:6px; padding:10px; font:inherit; }
+#wvSuggestionInputV1034 { resize:vertical; width:100%; min-height:115px; }
+.wvSuggestionHelpV1034 { color:#c9d0de; font-size:12px; margin:9px 0 12px; white-space:pre-wrap; }
+.wvSuggestionStatusV1034 { min-height:18px; margin:10px 0 0; }
+.wvSuggestionAdminLoginV1034 { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.wvSuggestionAdminLoginV1034 input { flex:1 1 190px; min-width:130px; }
+#wvSuggestionItemsV1034 { display:flex; flex-direction:column; gap:9px; margin-top:12px; }
+/* v1036: 본인 브라우저 전송기록만 표시. 서버 기록과 별개. */
+.wvSuggestionOwnSectionV1036 { margin-top:18px; padding-top:14px; border-top:1px solid #454b5b; }
+.wvSuggestionOwnListV1036 { display:flex; flex-direction:column; gap:8px; margin-top:9px; max-height:320px; overflow-y:auto; overscroll-behavior:contain; }
+.wvSuggestionOwnItemV1036 { background:#141923; border:1px solid #454b5b; border-radius:8px; padding:10px; }
+.wvSuggestionOwnCountV1036 { color:#cbd5e1; font-size:12px; }
+
+.wvSuggestionItemV1034 { background:#151923; border:1px solid #454b5b; border-radius:8px; padding:11px; }
+.wvSuggestionItemHeadV1034 { color:#afb8c8; font-size:11px; margin-bottom:7px; }
+.wvSuggestionMessageV1034 { overflow-wrap:anywhere; white-space:pre-wrap; color:#f1f3f8; }
+</style>
 </head>
 <body>
 <div id="videoFullscreenHoverZone" aria-hidden="true"></div>
@@ -11663,8 +11708,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         <div class="videoRandomAuxSlotV789" id="videoRandomAuxDeleteSlotV790" data-aux-mode="common"></div>
       </div>
 
-      <div class="videoRandomAuxRowV789 cols-2" aria-label="공통 화면 표시">
-        <div class="videoRandomAuxSlotV789" id="videoRandomAuxBwSlotV791" data-aux-mode="common"></div>
+      <div class="videoRandomAuxRowV789 cols-1" aria-label="공통 화면 표시">
         <div class="videoRandomAuxSlotV789" id="videoRandomAuxRatingSlotV790" data-aux-mode="common"></div>
       </div>
 
@@ -12823,6 +12867,9 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
     <button class="zoomBtn" id="videoDeveloperAccessUnlockBtnV910" type="button" title="개발자 권한을 활성화해 온라인 포스터/미리보기 일일 제한을 해제">권한 사용</button>
     <button class="zoomBtn" id="videoDeveloperAccessLockBtnV910" type="button" title="개발자 권한을 끄고 일반 일일 제한으로 복귀">잠금</button>
     <span id="videoDeveloperAccessStatusV910" style="margin-left:3px; color:#aaa; font-size:11px; white-space:nowrap;">OFF</span>
+    <button class="zoomBtn" id="viewerSuggestionAdminV1034" type="button" hidden
+            title="개발자 전용 · 관리자 인증 후 건의 목록 조회 및 삭제"
+            style="background:#68448b;color:#fff;font-weight:700;display:none;">건의 관리</button>
   </div>
   <div style="margin-top:3px; color:#888; font-size:10px; line-height:1.35;">
     ON이면 온라인 포스터 1,000개/일 · 미보유 미리보기 100개/일 제한을 적용하지 않습니다.
@@ -13664,6 +13711,9 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         type="button"
         title="최근 웹뷰어 수정내역 보기"
         style="background:#4b5563;color:#fff;font-weight:700;">수정내역</button>
+<button id="viewerSuggestionOpenV1034" class="zoomBtn" type="button"
+        title="웹뷰어 기능 제안·오류 건의 보내기 (익명, 최대 500자, 7일 보관)"
+        style="background:#325e87;color:#fff;font-weight:700;">건의하기</button>
 <button id="viewerLatestVersionBtnWt"
         class="zoomBtn"
         type="button"
@@ -40952,7 +41002,8 @@ function loadComicCreatorTypesV1022() {
 }
 const comicCreatorTypesV1022 = loadComicCreatorTypesV1022();
 let comicCreatorRailModeV1022 = 'author';
-try { if (localStorage.getItem(COMIC_CREATOR_MODE_KEY_V1022) === 'group') comicCreatorRailModeV1022 = 'group'; } catch (_) {}
+const comicCreatorScrollByModeV1033 = { author: 0, group: 0, tag: 0 };
+try { const m = localStorage.getItem(COMIC_CREATOR_MODE_KEY_V1022); if (m === 'group' || m === 'tag') comicCreatorRailModeV1022 = m; } catch (_) {}
 let comicGroupFavV1022 = new Set();
 try { const a = JSON.parse(localStorage.getItem(COMIC_GROUP_FAV_KEY_V1022) || '[]'); if (Array.isArray(a)) comicGroupFavV1022 = new Set(a); } catch (_) {}
 function isFavComicGroupV1022(name) { return comicGroupFavV1022.has(comicCreatorNormV1022(name)); }
@@ -41117,14 +41168,19 @@ function initComicRailVirtualV1008(kind, list, values, makeRowForValue) {
   return instance;
 }
 // 개발 시 브라우저 콘솔에서 렌더 행 수를 확인할 수 있게 별도 읽기 전용 통계 제공.
-window.getComicRailVirtualStatsV1008 = () => ({
-  authorsTotal: comicRailCacheV999.authors.length,
-  tagsTotal: comicRailCacheV999.tags.length,
-  authorRows: comicRailVirtualV1008.authors?.getRenderedCount?.() ??
-    (document.querySelector('#wtTagRailAuthSec .wtRailList')?.querySelectorAll('.wtTagRailRow').length || 0),
-  tagRows: comicRailVirtualV1008.tags?.getRenderedCount?.() ??
-    (document.querySelector('#wtTagRailTagsSec .wtRailList')?.querySelectorAll('.wtTagRailRow').length || 0)
-});
+window.getComicRailVirtualStatsV1008 = () => {
+  const activeRows = comicRailVirtualV1008.authors?.getRenderedCount?.() ??
+    (document.querySelector('#wtTagRailAuthSec .wtRailList')?.querySelectorAll('.wtTagRailRow').length || 0);
+  return {
+    authorsTotal: comicRailCacheV999.authors.length,
+    groupsTotal: comicRailCacheV999.groups.length,
+    tagsTotal: comicRailCacheV999.tags.length,
+    activeMode: comicCreatorRailModeV1022,
+    authorRows: comicCreatorRailModeV1022 === 'author' ? activeRows : 0,
+    groupRows: comicCreatorRailModeV1022 === 'group' ? activeRows : 0,
+    tagRows: comicCreatorRailModeV1022 === 'tag' ? activeRows : 0
+  };
+};
 function invalidateComicRailCacheV999() {
   comicRailCacheV999.dirty = true;
   if (comicRailCacheV999.saved) {
@@ -41188,14 +41244,13 @@ function storeComicRailDomV999() {
   const cache = comicRailCacheV999;
   if (!rail || cache.dirty ||
       Number(rail.dataset.comicRailRevisionV999) !== cache.revision ||
-      !rail.querySelector('#wtTagRailTagsSec') ||
-      !rail.querySelector('#wtTagRailAuthSec')) return false;
-  const tags = rail.querySelector('#wtTagRailTagsSec .wtRailList');
-  const authors = rail.querySelector('#wtTagRailAuthSec .wtRailList');
+      !rail.querySelector('#wtTagRailAuthSec') ||
+      rail.dataset.comicCreatorModeV1033 !== comicCreatorRailModeV1022) return false;
+  const list = rail.querySelector('#wtTagRailAuthSec .wtRailList');
   const saved = {
     revision: cache.revision,
-    tagsScrollTop: tags?.scrollTop || 0,
-    authorsScrollTop: authors?.scrollTop || 0,
+    mode: comicCreatorRailModeV1022,
+    listScrollTop: list?.scrollTop || 0,
     fragment: document.createDocumentFragment()
   };
   while (rail.firstChild) saved.fragment.appendChild(rail.firstChild);
@@ -41207,24 +41262,24 @@ function reuseComicRailDomV999() {
   if (!rail) return false;
   const cache = getComicRailIndexV999();
   const sameDom = Number(rail.dataset.comicRailRevisionV999) === cache.revision &&
-    rail.querySelector('#wtTagRailTagsSec') && rail.querySelector('#wtTagRailAuthSec');
+    rail.dataset.comicCreatorModeV1033 === comicCreatorRailModeV1022 &&
+    rail.querySelector('#wtTagRailAuthSec');
   if (sameDom) {
+    rail.classList.add('comicUnifiedRailV1033');
     syncWtRailCheckboxesOnly();
     restoreComicRailVirtualV1008();
     return true;
   }
   const saved = cache.saved;
   cache.saved = null;
-  if (!saved || saved.revision !== cache.revision) return false;
-  // 영상 모드에서 만든 배우/영상태그 DOM만 제거하고 만화 레일은 그대로 복원.
+  if (!saved || saved.revision !== cache.revision || saved.mode !== comicCreatorRailModeV1022) return false;
   rail.replaceChildren(saved.fragment);
+  rail.classList.add('comicUnifiedRailV1033');
   rail.dataset.comicRailRevisionV999 = String(cache.revision);
-  const tags = rail.querySelector('#wtTagRailTagsSec .wtRailList');
-  const authors = rail.querySelector('#wtTagRailAuthSec .wtRailList');
-  if (tags) tags.scrollTop = saved.tagsScrollTop;
-  if (authors) authors.scrollTop = saved.authorsScrollTop;
+  rail.dataset.comicCreatorModeV1033 = saved.mode;
+  const list = rail.querySelector('#wtTagRailAuthSec .wtRailList');
+  if (list) list.scrollTop = saved.listScrollTop;
   syncWtRailCheckboxesOnly();
-  restoreWtTagRatio();
   restoreComicRailVirtualV1008();
   return true;
 }
@@ -41239,20 +41294,20 @@ function markComicRailRenderedV999() {
 function renderWtTagRail() {
   const rail = document.getElementById('wtTagRail');
   if (!rail) return;
-  // 즐겨찾기 정렬이나 데이터 수정 후 재구축하더라도 스크롤 위치 유지.
-  const previousTagScrollV1008 = rail.querySelector('#wtTagRailTagsSec .wtRailList')?.scrollTop || 0;
-  const previousAuthorScrollV1008 = rail.querySelector('#wtTagRailAuthSec .wtRailList')?.scrollTop || 0;
-
-  // ✅ 태그/작가 목록
-  const tags = buildAllTagsFromWtList();          // ["한국", "로리", ...]
-  const authors = buildAllAuthorsFromWtList();    // ["92m", "3104", ...]
-
-  // 선택 Set 보장
-  window.wtTagMultiSel  = window.wtTagMultiSel  || new Set();
+  // v1033: 별도 태그 상단영역을 제거하고 작가/그룹/태그 중 하나만 표시한다.
+  const previousList = rail.querySelector('#wtTagRailAuthSec .wtRailList');
+  const previousScroll = previousList?.scrollTop || 0;
+  const previousMode = rail.dataset.comicCreatorModeV1033 || comicCreatorRailModeV1022;
+  if (previousList) comicCreatorScrollByModeV1033[previousMode] = previousScroll;
+  // 캐시 인덱스는 한 번만 구성하고, 탭은 결과 배열만 전환한다.
+  const index = getComicRailIndexV999();
+  window.wtTagMultiSel = window.wtTagMultiSel || new Set();
   window.wtTagMultiMode = window.wtTagMultiMode || 'AND';
 
   disposeComicRailVirtualV1008();
-  rail.innerHTML = '';
+  rail.replaceChildren();
+  rail.classList.add('comicUnifiedRailV1033');
+  rail.dataset.comicCreatorModeV1033 = comicCreatorRailModeV1022;
   rail.style.display = 'flex';
   rail.style.flexDirection = 'column';
   rail.style.alignItems = 'stretch';
@@ -41263,22 +41318,12 @@ function renderWtTagRail() {
   rail.style.overflow = 'hidden';
   rail.style.minHeight = '0';
 
-  // ── 상단 AND/OR 토글 버튼(전체 공통)
   const modeBtn = document.createElement('button');
   modeBtn.type = 'button';
   modeBtn.textContent = (window.wtTagMultiMode === 'OR') ? 'OR' : 'AND';
   modeBtn.title = '다중 필터 모드 전환 (AND/OR)';
-  modeBtn.style.width = '100%';
-  modeBtn.style.border = '0';
-  modeBtn.style.background = 'transparent';
-  modeBtn.style.color = '#ddd';
-  modeBtn.style.cursor = 'pointer';
-  modeBtn.style.fontSize = '11px';
-  modeBtn.style.lineHeight = '14px';
-  modeBtn.style.padding = '4px 4px 4px';
-  modeBtn.style.marginTop = '6px';
-  modeBtn.style.textAlign = 'center';
-  modeBtn.addEventListener('click', (e) => {
+  modeBtn.style.cssText = 'width:100%;border:0;background:transparent;color:#ddd;cursor:pointer;font-size:11px;line-height:14px;padding:4px 4px 4px;margin-top:6px;text-align:center;';
+  modeBtn.addEventListener('click', e => {
     e.preventDefault(); e.stopPropagation();
     window.wtTagMultiMode = (window.wtTagMultiMode === 'OR') ? 'AND' : 'OR';
     modeBtn.textContent = window.wtTagMultiMode;
@@ -41286,9 +41331,6 @@ function renderWtTagRail() {
   });
   rail.appendChild(modeBtn);
 
-  // ✅ row 생성 헬퍼 (태그/작가 공용)
-  // ✅ row 생성 헬퍼 (태그/작가 공용)
-// ✅ row 생성 헬퍼 (태그/작가 공용)
 const makeRow = (key, label, title) => {
   // ✅ label이 아니라 div로 만든다
   // label이면 checkbox 클릭과 label 클릭이 겹쳐서 두 번 토글될 수 있음
@@ -41414,157 +41456,98 @@ const selectOnlyThisFromText = (e) => {
   return row;
 };
 
-  // ───────────────── 태그 섹션 ─────────────────
-  const tagsSec = document.createElement('div');
-  tagsSec.id = 'wtTagRailTagsSec';
-  tagsSec.className = 'wtRailSection';
 
-  const tagsHeader = document.createElement('div');
-  tagsHeader.className = 'wtRailHeader videoTagRatioHeader';
-
-  const tagRatioGrowBtn = document.createElement('button');
-  tagRatioGrowBtn.type = 'button';
-  tagRatioGrowBtn.className = 'videoTagRatioBtn';
-  tagRatioGrowBtn.textContent = '▼';
-  tagRatioGrowBtn.title = '태그 영역 늘리기 (최대 100%)';
-  tagRatioGrowBtn.addEventListener('click', event => {
-    event.preventDefault();
-    event.stopPropagation();
-    stepVideoTagRatio(1);
-  });
-
-  const tagRatioLabel = document.createElement('span');
-  tagRatioLabel.className = 'videoTagRatioLabel';
-  tagRatioLabel.textContent = '태그';
-
-  const tagRatioShrinkBtn = document.createElement('button');
-  tagRatioShrinkBtn.type = 'button';
-  tagRatioShrinkBtn.className = 'videoTagRatioBtn';
-  tagRatioShrinkBtn.textContent = '▲';
-  tagRatioShrinkBtn.title = '태그 영역 줄이기 (최소 3%)';
-  tagRatioShrinkBtn.addEventListener('click', event => {
-    event.preventDefault();
-    event.stopPropagation();
-    stepVideoTagRatio(-1);
-  });
-
-  tagsHeader.append(
-    tagRatioGrowBtn,
-    tagRatioLabel,
-    tagRatioShrinkBtn
-  );
-  tagsSec.appendChild(tagsHeader);
-
-  const tagsList = document.createElement('div');
-  tagsList.className = 'wtRailList';
-
-  initComicRailVirtualV1008('tags', tagsList, tags,
-    t => makeRow(t, t, t));
-  tagsSec.appendChild(tagsList);
-
-  // ───────────────── 작가 섹션 ─────────────────
   const authSec = document.createElement('div');
   authSec.id = 'wtTagRailAuthSec';
   authSec.className = 'wtRailSection';
-
+  authSec.style.flex = '1 1 auto';
   const authHeader = document.createElement('div');
   authHeader.className = 'wtRailHeader';
-  authHeader.style.cssText += ';display:grid;grid-template-columns:18px minmax(0,1fr) 18px;align-items:center;justify-content:stretch;gap:2px;padding-left:2px;padding-right:2px;min-width:0;';
+  authHeader.style.cssText += ';display:grid;grid-template-columns:18px minmax(0,1fr) 18px;align-items:center;justify-content:stretch;gap:1px;padding-left:1px;padding-right:1px;min-width:0;';
   const authList = document.createElement('div');
   authList.className = 'wtRailList';
-  // 기존 작가 레일 가상 스크롤 인스턴스를 두 탭이 재사용한다.
-  const authorBtnV1022 = document.createElement('button');
-  const groupBtnV1022 = document.createElement('button');
-  function creatorButtonV1022(btn, label, type) {
-    btn.type = 'button'; btn.textContent = label;
-    btn.style.cssText = 'border:0;border-radius:4px;padding:2px 3px;cursor:pointer;font:11px sans-serif;white-space:nowrap;min-width:0;';
-    btn.title = type === 'author' ? '작가 보기' : '그룹 보기';
-    btn.addEventListener('click', e => {
-      e.preventDefault(); e.stopPropagation();
-      if (comicCreatorRailModeV1022 === type) return;
-      comicCreatorRailModeV1022 = type;
-      try { localStorage.setItem(COMIC_CREATOR_MODE_KEY_V1022, type); } catch (_) {}
-      authList.scrollTop = 0;
-      renderCreatorListV1022();
-    });
-    authHeader.appendChild(btn);
-  }
-  // v1028: 영상 레일과 동일한 단계/저장값으로 만화 레일 폭을 조절한다.
-  const comicRailWidthLeftV1028 = document.createElement('button');
-  const comicRailWidthRightV1028 = document.createElement('button');
-  for (const [btn, direction, label] of [
-    [comicRailWidthLeftV1028, -1, '◀'], [comicRailWidthRightV1028, 1, '▶']
-  ]) {
-    btn.type = 'button';
-    btn.className = 'videoActressRailWidthBtn comicRailWidthBtnV1028';
-    btn.textContent = label;
-    btn.title = direction < 0 ? '만화 작가·그룹 레일 폭 줄이기' : '만화 작가·그룹 레일 폭 늘리기';
-    btn.style.cssText = 'display:block;min-width:18px;max-width:18px;width:18px;padding:0;';
-    btn.addEventListener('click', event => {
-      event.preventDefault();event.stopPropagation();
-      // 두 탭과 양쪽 화살표를 유지하려면 만화 레일은 최소 106px 필요하다.
-      const steps=VIDEO_ACTRESS_RAIL_WIDTH_STEPS.filter(w=>w>=106);
-      const current=getWtTagRailWidthNow();
-      const candidates=steps.filter(w=>direction<0?w<current-0.5:w>current+0.5);
-      const next=direction<0?(candidates.at(-1)??steps[0]):(candidates[0]??steps.at(-1));
-      applyWtTagRailWidth(next);
-    });
-  }
-  const creatorSwitchV1028 = document.createElement('span');
-  creatorSwitchV1028.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:1px;min-width:0;overflow:hidden;';
-  // 아래 두 버튼은 생성 후 중앙 묶음으로 이동한다.
-  creatorButtonV1022(authorBtnV1022, '작가', 'author');
-  creatorButtonV1022(groupBtnV1022, '그룹', 'group');
-  creatorSwitchV1028.append(authorBtnV1022, groupBtnV1022);
-  authHeader.replaceChildren(comicRailWidthLeftV1028, creatorSwitchV1028, comicRailWidthRightV1028);
-  authSec.appendChild(authHeader);
-  authSec.appendChild(authList);
 
-  function renderCreatorListV1022() {
-    const isGroup = comicCreatorRailModeV1022 === 'group';
-    for (const [btn,active] of [[authorBtnV1022,!isGroup],[groupBtnV1022,isGroup]]) {
+  const buttons = new Map();
+  function renderCreatorListV1033() {
+    const mode = comicCreatorRailModeV1022;
+    for (const [type, btn] of buttons) {
+      const active = mode === type;
       btn.style.background = active ? '#2263ae' : '#333';
       btn.style.color = active ? '#fff' : '#bfc5cf';
       btn.setAttribute('aria-pressed', String(active));
     }
-    const index = getComicRailIndexV999();
-    const items = isGroup ? index.groups : index.authors;
-    // v1008의 160명 이하 경로는 appendChild를 사용하므로 탭 변경 때 이전 행 먼저 제거.
+    const items = mode === 'tag' ? index.tags : mode === 'group' ? index.groups : index.authors;
+    // 160개 이하일 때 사용하는 일반 append 경로의 옛 행도 지운다.
     authList.replaceChildren();
+    // 세 모드 모두 기존 가상 스크롤 렌더러 1개만 재사용한다.
     initComicRailVirtualV1008('authors', authList, items, name => {
-      const key = (isGroup ? 'group:' : 'author:') + name;
-      const label = typeof toWtAuthorTitleCase === 'function'
-        ? toWtAuthorTitleCase(name) : name;
+      const isTag = mode === 'tag';
+      const isGroup = mode === 'group';
+      const key = isTag ? name : (isGroup ? 'group:' : 'author:') + name;
+      const label = isTag ? name : (typeof toWtAuthorTitleCase === 'function' ? toWtAuthorTitleCase(name) : name);
       const row = makeRow(key, label, label);
-      // 수동 전환은 원래 [이름] 표기인 경우만 제공. [그룹(작가)]는 분리 유지.
-      if (index.ambiguous.has(name)) {
+      // 모호한 [이름]을 작가↔그룹으로 바꿀 때만 교환 버튼 노출.
+      if (!isTag && index.ambiguous.has(name)) {
         const btn = document.createElement('button');
-        btn.type='button'; btn.textContent='↔';
+        btn.type = 'button'; btn.textContent = '↔';
         btn.title = isGroup ? '이 이름만 그룹 → 작가로 변경 ([이름] 형식)' : '이 이름만 작가 → 그룹으로 변경 ([이름] 형식)';
-        btn.style.cssText='border:0;background:transparent;color:#94bafa;padding:0 3px;cursor:pointer;font-size:13px;flex-shrink:0;';
+        btn.style.cssText = 'border:0;background:transparent;color:#94bafa;padding:0 3px;cursor:pointer;font-size:13px;flex-shrink:0;';
         btn.addEventListener('click', e => {
-          e.preventDefault();e.stopPropagation();
+          e.preventDefault(); e.stopPropagation();
           const target = isGroup ? 'author' : 'group';
-          if (confirm('['+label+'] 항목을 '+(isGroup?'작가':'그룹')+'으로 지정할까요?\nZIP 파일명은 변경하지 않습니다.')) {
-            setComicCreatorTypeV1022(name,target);
+          if (confirm('[' + label + '] 항목을 ' + (isGroup ? '작가' : '그룹') + '으로 지정할까요?\nZIP 파일명은 변경하지 않습니다.')) {
+            setComicCreatorTypeV1022(name, target);
           }
         });
         row.appendChild(btn);
       }
       return row;
     });
-    // 가상 레일의 전체 높이와 표시 영역을 붙인 다음 동기화.
+    rail.dataset.comicCreatorModeV1033 = mode;
+    authList.scrollTop = comicCreatorScrollByModeV1033[mode] || 0;
     restoreComicRailVirtualV1008();
   }
-  renderCreatorListV1022();
 
-  // ✅ 최종 삽입 (태그가 위, 작가가 아래)
-  rail.appendChild(tagsSec);
+  for (const [type, label] of [['author', '작가'], ['group', '그룹'], ['tag', '태그']]) {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.textContent = label;
+    btn.className = 'comicCreatorTabV1033';
+    btn.title = label + ' 목록 보기';
+    btn.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      if (comicCreatorRailModeV1022 === type) return;
+      comicCreatorScrollByModeV1033[comicCreatorRailModeV1022] = authList.scrollTop;
+      comicCreatorRailModeV1022 = type;
+      try { localStorage.setItem(COMIC_CREATOR_MODE_KEY_V1022, type); } catch (_) {}
+      renderCreatorListV1033();
+    });
+    buttons.set(type, btn);
+  }
+  const widthLeft = document.createElement('button');
+  const widthRight = document.createElement('button');
+  for (const [btn, dir, label] of [[widthLeft, -1, '◀'], [widthRight, 1, '▶']]) {
+    btn.type = 'button';
+    btn.className = 'videoActressRailWidthBtn comicRailWidthBtnV1028';
+    btn.textContent = label;
+    btn.title = dir < 0 ? '만화 작가·그룹·태그 레일 폭 줄이기' : '만화 작가·그룹·태그 레일 폭 늘리기';
+    btn.style.cssText = 'display:block;min-width:18px;max-width:18px;width:18px;padding:0;';
+    btn.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      // 3개 탭과 양쪽 화살표가 들어갈 최소 폭 유지.
+      const steps = VIDEO_ACTRESS_RAIL_WIDTH_STEPS.filter(w => w >= 120);
+      const current = getWtTagRailWidthNow();
+      const candidates = steps.filter(w => dir < 0 ? w < current - 0.5 : w > current + 0.5);
+      const next = dir < 0 ? (candidates.at(-1) ?? steps[0]) : (candidates[0] ?? steps.at(-1));
+      applyWtTagRailWidth(next);
+    });
+  }
+  const tabs = document.createElement('span');
+  tabs.className = 'comicCreatorTabsV1033';
+  tabs.append(...buttons.values());
+  authHeader.append(widthLeft, tabs, widthRight);
+  authSec.append(authHeader, authList);
   rail.appendChild(authSec);
-  restoreWtTagRatio();
-  tagsList.scrollTop = previousTagScrollV1008;
-  authList.scrollTop = previousAuthorScrollV1008;
-  // 섹션이 DOM에 붙은 뒤 실제 높이/스크롤에 맞는 행만 만든다.
+  renderCreatorListV1033();
   restoreComicRailVirtualV1008();
 }
 function syncWtRailCheckboxesOnly() {
@@ -51822,10 +51805,17 @@ function getVideoRandomPileVisual(entry) {
   const key = getVideoRandomSortKey(entry) || String(Math.random());
 
   if (!videoRandomPileVisualMap.has(key)) {
+    // v1031: 프리 콜라주는 스택/살짝 콜라주와 차이가 분명히 나도록
+    // 회전 범위를 -90deg ~ +90deg까지 크게 확장한다.
+    const rotRange =
+      videoRandomVisualStyle === 'pile-book-mess'
+        ? 90
+        : 7.5;
+
     const visual = {
       x: Math.round((Math.random() * 2 - 1) * 20),
       y: Math.round((Math.random() * 2 - 1) * 16),
-      rot: Number(((Math.random() * 2 - 1) * 7.5).toFixed(2)),
+      rot: Number(((Math.random() * 2 - 1) * rotRange).toFixed(2)),
       scale: Number((0.95 + Math.random() * 0.09).toFixed(3)),
       z: 1 + Math.floor(Math.random() * 60)
     };
@@ -52792,6 +52782,7 @@ function updateVideoDeveloperAccessUiV910(message = '') {
     unlockBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
   }
   if (lockBtn) lockBtn.disabled = !enabled;
+  try { window.syncSuggestionAdminVisibilityV1034?.(); } catch (_) {}
 }
 
 function bindVideoDeveloperAccessUiV910() {
@@ -123992,6 +123983,11 @@ function toggleVideoToolbarFold() {
     const textBtn = document.getElementById('wtViewText');
     const ratioSel = document.getElementById('wtThumbRatio');
     const isVideo = contentMode === 'video';
+    // v1032: 공유 툴바의 만화 ZIP표지는 만화 탭에서만 표시한다.
+    const comicZipPosterBtnV979 = document.getElementById('comicZipPosterBtnV979');
+    if (comicZipPosterBtnV979) {
+      comicZipPosterBtnV979.style.display = (!isVideo && !musicTabActiveV968) ? '' : 'none';
+    }
     const forceComicScanBtnV1010 = document.getElementById('fsComicForceScanV1010');
     if (forceComicScanBtnV1010) forceComicScanBtnV1010.style.display = (!isVideo && !musicTabActiveV968) ? '' : 'none';
 
@@ -151453,6 +151449,7 @@ img.decoding = 'async';
     window.wtTagMultiMode ||
     'AND';
 
+  rail.classList.remove('comicUnifiedRailV1033');
   rail.innerHTML = '';
 
   rail.style.display = 'flex';
@@ -151760,7 +151757,6 @@ img.decoding = 'async';
       ['포스터+', 'videoPosterCustomSourceBtn'],
       ['체형계산', 'videoBulkActressBodyTypeBtn'],
       ['D 삭제버튼', 'delUiToggleWt'],
-      ['흑백', 'videoRandomCommonBwBtnV791'],
       ['평점보이기', 'ratingToggleWt'],
       ['즐겨찾기', 'favOpenInWt'],
       ['음악목록', 'muOpenInWt'],
@@ -151769,7 +151765,8 @@ img.decoding = 'async';
       ['완전초기화', 'viewerFullResetBtnWt'],
       ['V 전체', 'toggleFullWt'],
       ['라이트뷰', 'wtOpenInWt'],
-      ['썸동기화', 'videoSceneSyncBtnWt']
+      ['썸동기화', 'videoSceneSyncBtnWt'],
+      ['건의하기', 'viewerSuggestionOpenV1034']
     ];
     const auxButtonPairsV957 = [];
     const appendMenuButtonV957 = ([label, originalId], isAux = false) => {
@@ -175717,7 +175714,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1029;
+  const VIEWER_BUILD_V789 = 1036;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -176513,7 +176510,7 @@ try {
     }
     // v955: 레일 토글은 상단 헤더에 둔다 (기능창으로 재이동하지 않음).
     moveIntoSlot('delUiToggleWt', 'videoRandomAuxDeleteSlotV790', true);
-    moveIntoSlot('videoRandomCommonBwBtnV791', 'videoRandomAuxBwSlotV791', true);
+    // v1030: 흑백은 S → 포스터 표현의 원래 위치에 둔다. 보조 영역으로 이동하지 않는다.
     moveIntoSlot('ratingToggleWt', 'videoRandomAuxRatingSlotV790', true);
     moveIntoSlot('favOpenInWt', 'videoRandomAuxFavSlotV790', true);
     moveIntoSlot('muOpenInWt', 'videoRandomAuxMusicSlotV790', true);
@@ -179955,6 +179952,21 @@ GitHub 온라인에서도 연결한 PC의 이미지를 우선 사용합니다. �
   flex:1 1 auto; min-width:0; width:100%; max-width:none;
   max-height:none; min-height:0; overflow-x:hidden; overflow-y:auto;
 }
+/* v1032: 음악 탭에서는 현재 곡 제목이 넓어진 가로 공간을 채우며,
+   긴 제목도 말줄임표 없이 여러 줄로 끝까지 표시한다. */
+#musicTabHostV968 #muBox .mu-ctrl #muNow {
+  flex: 1 1 180px;
+  min-width: 0;
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+#musicTabHostV968 #muBox .mu-ctrl #muVol {
+  flex: 0 0 40px;
+}
 /* v969: 탭 안에서 다시 감싸는 구형 음악 독립창의 프레임을 비활성화.
    #wtBox가 탭의 공통 목록 프레임을 담당하며, 개별 자켓 카드는 유지한다. */
 #wtBox.music-tab-active-v968 > #musicTabHostV968 > #muBox {
@@ -182665,6 +182677,375 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
 })();
 </script>
 
+<script id="webviewerSuggestionV1034">
+(() => {
+  'use strict';
+  // v1034: isolated feedback UI. All authorization decisions remain server-side.
+  const API = 'https://webviewer-auto-share-worker.darkmons77.workers.dev/api/suggestions';
+  const CLIENT_KEY = 'webviewer_suggestion_client_id_v1034';
+  // v1036: 이 브라우저 프로필에만 보이는 건의 전송내역. 서버와 동기화하지 않음.
+  const SENT_HISTORY_KEY = 'webviewer_suggestion_sent_history_v1036';
+  const SENT_HISTORY_MAX = 200;
+  const MAX_CHARS = 500;
+  let adminSecret = ''; // Memory only, never localStorage/IndexedDB.
+  let transientClientId = '';
+  let panel = null;
+  let busy = false;
+  let currentView = 'send';
+
+  const developerOn = () => {
+    try { return typeof window.isVideoDeveloperAccessEnabledV910 === 'function' && window.isVideoDeveloperAccessEnabledV910(); }
+    catch (_) { return false; }
+  };
+
+  function syncAdminVisibility() {
+    const enabled = developerOn();
+    const btn = document.getElementById('viewerSuggestionAdminV1034');
+    if (btn) {
+      btn.hidden = !enabled;
+      btn.style.display = enabled ? '' : 'none';
+    }
+    if (!enabled) {
+      adminSecret = '';
+      if (panel && currentView === 'admin') closePanel();
+    }
+  }
+  window.syncSuggestionAdminVisibilityV1034 = syncAdminVisibility;
+
+  function getClientId() {
+    const valid = /^[A-Za-z0-9._:-]{8,128}$/;
+    try {
+      const saved = String(localStorage.getItem(CLIENT_KEY) || '');
+      if (valid.test(saved)) return saved;
+      // Independent ID: don't reuse identifiers from P2P sharing in the feedback service.
+      const id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `wv-${Date.now()}-${Math.random().toString(36).slice(2, 14)}`;
+      localStorage.setItem(CLIENT_KEY, id);
+      return id;
+    } catch (_) {
+      if (!valid.test(transientClientId)) transientClientId = `wv-${Date.now()}-${Math.random().toString(36).slice(2, 14)}`;
+      return transientClientId;
+    }
+  }
+
+  function announce(text, error = false) {
+    const status = panel?.querySelector('#wvSuggestionStatusV1034');
+    if (!status) return;
+    status.textContent = text;
+    status.style.color = error ? '#ffa6a6' : '#a6ddb8';
+  }
+
+  function setBusy(value) {
+    busy = !!value;
+    if (!panel) return;
+    panel.querySelectorAll('button,textarea,input').forEach(node => {
+      if (node.dataset.dismiss === '1') return;
+      node.disabled = busy;
+    });
+  }
+
+  function closePanel() {
+    if (!panel) return;
+    panel.remove();
+    panel = null;
+    busy = false;
+    currentView = 'send';
+  }
+
+  async function apiCall(path, options = {}, authorized = false) {
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    if (authorized) {
+      if (!adminSecret) throw new Error('관리자 비밀번호를 입력해 주세요.');
+      headers.Authorization = 'Bearer ' + adminSecret;
+    }
+    let response;
+    try {
+      response = await fetch(API + path, { ...options, headers, cache: 'no-store', mode: 'cors' });
+    } catch (_) {
+      throw new Error('서버에 연결하지 못했습니다. 인터넷 연결 또는 Worker 상태를 확인해 주세요.');
+    }
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result?.ok === false) {
+      if (authorized && response.status === 401) adminSecret = '';
+      throw new Error(result.error || `서버 오류 (${response.status})`);
+    }
+    return result;
+  }
+
+  function createPanel(mode) {
+    closePanel();
+    currentView = mode;
+    panel = document.createElement('div');
+    panel.id = 'wvSuggestionOverlayV1034';
+    panel.setAttribute('role', 'presentation');
+    panel.innerHTML = `
+      <section class="wvSuggestionPanelV1034" role="dialog" aria-modal="true" aria-labelledby="wvSuggestionHeadingV1034">
+        <div class="wvSuggestionHeadV1034">
+          <strong id="wvSuggestionHeadingV1034">${mode === 'admin' ? '건의함 관리' : '웹뷰어 건의하기'}</strong>
+          <button type="button" data-dismiss="1" id="wvSuggestionCloseV1034" aria-label="닫기">✕</button>
+        </div>
+        <div id="wvSuggestionBodyV1034"></div>
+        <p class="wvSuggestionStatusV1034" id="wvSuggestionStatusV1034" role="status" aria-live="polite"></p>
+      </section>`;
+    document.body.appendChild(panel);
+    panel.querySelector('#wvSuggestionCloseV1034').addEventListener('click', closePanel);
+    panel.addEventListener('click', e => { if (e.target === panel && !busy) closePanel(); });
+    const onKey = e => {
+      if (e.key === 'Escape' && panel) { e.stopPropagation(); if (!busy) closePanel(); }
+    };
+    panel.addEventListener('keydown', onKey);
+    return panel.querySelector('#wvSuggestionBodyV1034');
+  }
+
+  // v1036: 접수 성공한 메시지만 저장한다. 실패한 요청은 기록하지 않는다.
+  function readSentHistoryV1036() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(SENT_HISTORY_KEY) || '[]');
+      if (!Array.isArray(rows)) return [];
+      return rows.filter(row =>
+        row && typeof row.id === 'string' &&
+        typeof row.message === 'string' && row.message.trim() &&
+        Number.isFinite(Number(row.sentAt))
+      ).slice(0, SENT_HISTORY_MAX);
+    } catch (_) { return []; }
+  }
+
+  function writeSentHistoryV1036(items) {
+    try {
+      localStorage.setItem(SENT_HISTORY_KEY, JSON.stringify(items.slice(0, SENT_HISTORY_MAX)));
+      return true;
+    } catch (_) { return false; }
+  }
+
+  function saveSentHistoryV1036(message) {
+    const id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : 'sent-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    const items = readSentHistoryV1036();
+    items.unshift({ id, sentAt: Date.now(), message });
+    return writeSentHistoryV1036(items);
+  }
+
+  function renderSentHistoryV1036(body) {
+    const listEl = body?.querySelector('#wvSuggestionOwnListV1036');
+    const countEl = body?.querySelector('#wvSuggestionOwnCountV1036');
+    if (!listEl || !countEl) return;
+    const items = readSentHistoryV1036();
+    countEl.textContent = `내 전송 기록 ${items.length}건`;
+    listEl.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'wvSuggestionHelpV1034';
+      empty.textContent = '아직 이 브라우저에 저장된 건의 내역이 없습니다.';
+      listEl.appendChild(empty);
+      return;
+    }
+    for (const item of items) {
+      const row = document.createElement('article');
+      row.className = 'wvSuggestionOwnItemV1036';
+      const head = document.createElement('div');
+      head.className = 'wvSuggestionItemHeadV1034';
+      const date = document.createElement('span');
+      date.textContent = formatDate(item.sentAt) + ' · 전송됨';
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = '기록 삭제';
+      remove.title = '서버 건의는 그대로 두고 내 브라우저의 기록만 삭제';
+      head.append(date, remove);
+      const message = document.createElement('div');
+      message.className = 'wvSuggestionMessageV1034';
+      message.textContent = item.message; // 사용자의 글을 HTML로 삽입하지 않음.
+      row.append(head, message);
+      listEl.appendChild(row);
+      remove.addEventListener('click', () => {
+        if (busy || !confirm('이 건의의 내 브라우저 기록만 삭제할까요?\n서버의 건의는 삭제되지 않습니다.')) return;
+        const next = readSentHistoryV1036().filter(saved => saved.id !== item.id);
+        if (!writeSentHistoryV1036(next)) {
+          announce('브라우저 기록을 삭제하지 못했습니다.', true);
+          return;
+        }
+        renderSentHistoryV1036(body);
+        announce('내 브라우저 기록만 삭제했습니다.');
+      });
+    }
+  }
+
+  function openSend() {
+    const body = createPanel('send');
+    body.innerHTML = `
+      <p class="wvSuggestionHelpV1034">불편한 점이나 추가했으면 하는 기능을 보내주세요. 다른 사용자의 건의는 볼 수 없습니다.</p>
+      <textarea id="wvSuggestionInputV1034" rows="6" maxlength="2000" placeholder="기능 건의나 발견한 오류를 적어주세요."></textarea>
+      <div class="wvSuggestionToolsV1034">
+        <span id="wvSuggestionCountV1034">0 / 500자</span>
+        <button id="wvSuggestionSendV1034" type="button">건의 보내기</button>
+      </div>
+      <p class="wvSuggestionHelpV1034">익명 전송 · 최대 500자 · 하루 3건 · 서버에서 7일 뒤 자동 삭제. 메시지와 남용 방지용 식별정보가 서버에 처리됩니다. 비밀번호·개인정보는 입력하지 마세요.</p>
+      <section class="wvSuggestionOwnSectionV1036" aria-label="내가 보낸 건의 내역">
+        <div class="wvSuggestionToolsV1034">
+          <strong>내가 보낸 건의</strong>
+          <span class="wvSuggestionOwnCountV1036" id="wvSuggestionOwnCountV1036"></span>
+        </div>
+        <p class="wvSuggestionHelpV1034">이 브라우저에서 전송에 성공한 내역만 표시합니다. 서버의 7일 보관과 별개로 최대 200건까지 로컬에 남으며, 다른 브라우저·기기에는 나타나지 않습니다. 로컬스토리지 초기화 시 사라집니다.</p>
+        <div class="wvSuggestionOwnListV1036" id="wvSuggestionOwnListV1036"></div>
+      </section>`;
+    const input = body.querySelector('textarea');
+    const count = body.querySelector('#wvSuggestionCountV1034');
+    const send = body.querySelector('#wvSuggestionSendV1034');
+    renderSentHistoryV1036(body);
+    const update = () => {
+      const n = [...input.value].length;
+      count.textContent = `${n} / ${MAX_CHARS}자`;
+      count.style.color = n > MAX_CHARS ? '#ff9c9c' : '#c9cfda';
+      send.disabled = busy || n < 1 || n > MAX_CHARS || !input.value.trim();
+    };
+    input.addEventListener('input', update);
+    send.addEventListener('click', async () => {
+      const message = input.value.trim();
+      if (!message || [...message].length > MAX_CHARS || busy) return update();
+      setBusy(true);
+      announce('건의사항 전송 중…');
+      let delivered = false;
+      try {
+        await apiCall('', { method:'POST', body:JSON.stringify({ message, clientId:getClientId() }) });
+        // 서버가 접수를 확인한 경우에만 개인 브라우저 기록에 추가.
+        const savedLocally = saveSentHistoryV1036(message);
+        delivered = true;
+        input.value = '';
+        announce(savedLocally
+          ? '건의사항이 접수됐고, 내 전송 기록에도 저장됐습니다.'
+          : '건의사항은 접수됐지만 브라우저에 전송 기록을 저장하지 못했습니다.', !savedLocally);
+      } catch (e) {
+        announce(e.message || '건의 전송 실패', true);
+      } finally {
+        setBusy(false);
+        update();
+        if (delivered) renderSentHistoryV1036(body);
+      }
+    });
+    update();
+    input.focus();
+  }
+
+  function formatDate(ms) {
+    const d = new Date(Number(ms));
+    return Number.isFinite(d.getTime()) ? d.toLocaleString('ko-KR') : '-';
+  }
+
+  async function loadAdminItems() {
+    if (!panel || currentView !== 'admin' || busy || !developerOn()) return;
+    setBusy(true);
+    announce('건의 목록을 가져오는 중…');
+    try {
+      const data = await apiCall('/admin', { method:'GET' }, true);
+      if (!panel || currentView !== 'admin') return;
+      const container = panel.querySelector('#wvSuggestionItemsV1034');
+      if (!container) return;
+      container.replaceChildren();
+      const items = Array.isArray(data.items) ? data.items : [];
+      panel.querySelector('#wvSuggestionTotalV1034').textContent = `건의 ${items.length}건 · 7일 보관`;
+      if (!items.length) {
+        const empty = document.createElement('p');
+        empty.className = 'wvSuggestionHelpV1034';
+        empty.textContent = '현재 접수된 건의가 없습니다.';
+        container.appendChild(empty);
+      }
+      for (const item of items) {
+        const row = document.createElement('article');
+        row.className = 'wvSuggestionItemV1034';
+        const head = document.createElement('div');
+        head.className = 'wvSuggestionItemHeadV1034';
+        const date = document.createElement('span');
+        date.textContent = `${formatDate(item.createdAt)} · 만료 ${formatDate(item.expiresAt)}`;
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = '삭제';
+        del.dataset.itemId = String(item.id || '');
+        head.append(date, del);
+        const message = document.createElement('div');
+        message.className = 'wvSuggestionMessageV1034';
+        message.textContent = String(item.message || ''); // Never inject user content as HTML.
+        row.append(head, message);
+        container.appendChild(row);
+        del.addEventListener('click', async () => {
+          const id = String(item.id || '');
+          if (!id || busy || !confirm('이 건의를 서버에서 삭제할까요?')) return;
+          setBusy(true);
+          announce('건의 삭제 중…');
+          try {
+            await apiCall('/admin/' + encodeURIComponent(id), { method:'DELETE' }, true);
+            row.remove();
+            const remain = container.querySelectorAll('article.wvSuggestionItemV1034').length;
+            panel.querySelector('#wvSuggestionTotalV1034').textContent = `건의 ${remain}건 · 7일 보관`;
+            announce('삭제 완료');
+          } catch (e) { announce(e.message || '삭제 실패', true); }
+          finally { setBusy(false); }
+        });
+      }
+      announce('목록을 불러왔습니다.');
+    } catch (e) {
+      announce(e.message || '목록 조회 실패', true);
+      if (!adminSecret && panel) {
+        const pw = panel.querySelector('#wvSuggestionPasswordV1034');
+        if (pw) { pw.value = ''; pw.focus(); }
+      }
+    } finally { setBusy(false); }
+  }
+
+  function openAdmin() {
+    if (!developerOn()) {
+      try { window.showToast?.('건의 관리는 개발자 모드에서만 사용할 수 있습니다.', 2500); } catch (_) {}
+      return;
+    }
+    const body = createPanel('admin');
+    body.innerHTML = `
+      <p class="wvSuggestionHelpV1034">관리자 비밀번호는 Worker의 <code>SUGGESTIONS_ADMIN_KEY</code>와 비교하며 현재 웹뷰어 탭의 메모리에만 보관됩니다.</p>
+      <div class="wvSuggestionAdminLoginV1034">
+        <input id="wvSuggestionPasswordV1034" type="password" autocomplete="off" placeholder="관리자 비밀번호 (Secret)" />
+        <button id="wvSuggestionLoginV1034" type="button">인증 · 조회</button>
+        <button id="wvSuggestionLogoutV1034" type="button">인증 해제</button>
+      </div>
+      <div class="wvSuggestionToolsV1034"><strong id="wvSuggestionTotalV1034">건의 목록</strong><button id="wvSuggestionReloadV1034" type="button">새로고침</button></div>
+      <div id="wvSuggestionItemsV1034"></div>`;
+    const input = body.querySelector('#wvSuggestionPasswordV1034');
+    const load = async () => {
+      if (!developerOn()) { closePanel(); return; }
+      if (input.value.trim()) { adminSecret = input.value.trim(); input.value = ''; }
+      if (!adminSecret) { announce('관리자 비밀번호를 입력해 주세요.', true); input.focus(); return; }
+      await loadAdminItems();
+    };
+    body.querySelector('#wvSuggestionLoginV1034').addEventListener('click', load);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); void load(); } });
+    body.querySelector('#wvSuggestionReloadV1034').addEventListener('click', load);
+    body.querySelector('#wvSuggestionLogoutV1034').addEventListener('click', () => {
+      adminSecret = '';
+      input.value = '';
+      body.querySelector('#wvSuggestionItemsV1034').replaceChildren();
+      body.querySelector('#wvSuggestionTotalV1034').textContent = '건의 목록';
+      announce('관리자 인증을 해제했습니다.');
+      input.focus();
+    });
+    if (adminSecret) void loadAdminItems();
+    else input.focus();
+  }
+
+  function initialize() {
+    const open = document.getElementById('viewerSuggestionOpenV1034');
+    const admin = document.getElementById('viewerSuggestionAdminV1034');
+    if (open && !open.dataset.boundV1034) {
+      open.dataset.boundV1034 = '1';
+      open.addEventListener('click', openSend);
+    }
+    if (admin && !admin.dataset.boundV1034) {
+      admin.dataset.boundV1034 = '1';
+      admin.addEventListener('click', openAdmin);
+    }
+    syncAdminVisibility();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });
+  else initialize();
+})();
+</script>
 </body>
 
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
