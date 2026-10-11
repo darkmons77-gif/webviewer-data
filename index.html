@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- v1014 빌드번호 교정: VIEWER_BUILD_V789=1014, 초기 화면 표시 문구 1014. 음악 기능 변경 없음. -->
 <!-- v1012: ZIP/CBZ 열기·라이트박스·다음 파일 이동 시 크기/수정시간·실제 장수 비교, 변경된 ZIP만 표지/장수 캐시 무효화 및 갱신. 전체 강제스캔 동작 변경 없음. -->
 <!-- v1010: 만화 루트 재시작/권한 복원/작품 열기에서 전체 자동 재스캔 중지. 저장된 목록·루트핸들만 복원, 만화 탭의 강제스캔 버튼으로만 등록 루트를 재검사. 기존 이미지폴더 경량 핸들 복원 및 ZIP 캐시 유지. -->
 <!-- v1009: 작가·태그 가상 레일 급스크롤 보정. 높이 고정 캔버스+절대위치 행, Chrome 스크롤 앵커 해제, 기존 캐시·선택·탭복귀 유지. -->
@@ -11605,7 +11606,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 <button class="zoomBtn" id="toggleBoxBtn" title="페이지 박스 숨기기/보이기">X</button>
 </div>
 <div>
-<span data-viewer-build-label>버전 4.1(빌드893) 모드 : </span>
+<span data-viewer-build-label>버전 4.1(빌드1014) 모드 : </span>
 <button class="zoomBtn" id="delUiToggleBtn" aria-pressed="false" title="삭제 버튼 표시/숨기기">삭제</button>
 <button class="zoomBtn" id="filterBWBtn" title="컬러를 흑백으로 볼수있게">흑백</button>
 <button class="zoomBtn" id="toggleFullBtn" title="전체화면 전환">전체</button>
@@ -13433,7 +13434,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <!-- 🔽 모드 버튼들 (프록시) -->
       <div class="layerHeadModeButtons">
-        <span data-viewer-build-label>버전 4.1(빌드893) 모드 :</span>
+        <span data-viewer-build-label>버전 4.1(빌드1014) 모드 :</span>
         <button class="zoomBtn" id="wtRailToggleWt" type="button" title="왼쪽 레일 숨기기" aria-label="레일 숨기기" aria-pressed="false">레일</button>
         <button class="zoomBtn" id="wtLayerMaxBtn" title="라이트뷰 최대화/복원" aria-pressed="false">최대</button>
         <button class="zoomBtn" id="videoWorldCupBtn" title="현재 필터에서 포스터 월드컵 또는 실시간 3초 장면 월드컵 선택" style="display:none;">월드컵</button>
@@ -174496,7 +174497,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1005;
+  const VIEWER_BUILD_V789 = 1014;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
