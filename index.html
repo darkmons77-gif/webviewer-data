@@ -1,4 +1,10 @@
 <!doctype html>
+<!-- v1026: 만화 초기 기본값 그림/8열, 만화만 초기화 시 ZIP 표지·마지막 페이지 DB 및 미완료 스캔 체크포인트·폴더 백업 누락 제거. -->
+<!-- v1025: 최초 만화 폴더 500개 단위 별도 IndexedDB 스캔 체크포인트, 이전 미완료 ZIP 임시목록 복원, 최종 목록 일괄 저장 후 1회 정렬/화면 갱신, 카드 앵커 위치 복원, 작가·그룹 레일 유휴시간 후순위 집계. -->
+<!-- v1024: 만화 열기/페이지 조작 후 2초 대기, 최초 폴더 스트리밍 스캔 저속 재개, ZIP 표지·장수 및 이미지폴더 표지 큐 감상 우선 처리(감상 중 신규 작업 1개). -->
+<!-- v1023: 만화 폴더 최초 등록 시 발견 24개부터 즉시 카드 표시, 스크롤 시 설정 배치만큼 추가, 스캔 중 클릭 가능, 진행 모달 비차단 전환. 1024에서 균형 모드 추가. -->
+<!-- v1022: 만화 작가/그룹 전환 레일, [그룹(작가)] 자동 분리, 모호한 [이름] 수동 그룹 지정·영구 보존, 필터·가상 스크롤 통합 · 빌드 1022. -->
+<!-- v1021: L 로컬스토리지 관리창에서 앱설치·최신버전·수정내역·완전초기화 버튼 제거(영상 원본 버튼 보존) · 영상 M 메뉴 정보입력→AVDBS입력, 배우매칭→Wiki매칭 · 빌드 1021. -->
 <!-- v1020: ZIP·로컬 이미지폴더 만화 마지막 페이지 정보를 전용 IndexedDB에 신규 저장하고 구형 localStorage 키만 분할 삭제. -->
 <!-- v1019: L 관리창: 키 우선 목록/80행 추가 로딩/200자 지연 미리보기/요청시 편집·전체보기/용량 수동 계산/선택적 값 검색 -->
 <!-- v1018: 음악목록 music_list_v1 IndexedDB 자동 이전, 영구 저장/원본 백업 및 폴더·수정·삭제 경로 일원화 -->
@@ -12128,11 +12134,11 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   <option value="1">1</option>
   <option value="2">2</option>
   <option value="3">3</option>
-  <option value="4" selected>4</option>
+  <option value="4">4</option>
   <option value="5">5</option>
   <option value="6">6</option>
   <option value="7">7</option>
-  <option value="8">8</option>
+  <option value="8" selected>8</option>
   <option value="9">9</option>
   <option value="10">10</option>
   <option value="11">11</option>
@@ -12173,7 +12179,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 </select>
       <button class="zoomBtn" id="wtViewThumb" title="썸네일로 보기">그림</button>
       <button class="zoomBtn" id="wtViewText"  title="텍스트로 보기">글자</button>
-      <button class="zoomBtn" id="wtClearBtn" title="초기화">리셋</button>
+      <button class="zoomBtn" id="wtClearBtn" title="만화 목록만 비우기 (설정·표지 캐시·폴더 연결은 유지)">리셋</button>
 	  <button class="zoomBtn" id="comicZipPosterBtnV979" title="ZIP/CBZ 표지 캐시 설정·전체 생성">ZIP표지</button>
 	  <button class="zoomBtn" id="wtPathBtn" title="fsdir: 상대경로를 절대경로로 변환">경로</button>
       <button class="zoomBtn" id="fsComicLink" title="로컬 만화 폴더 연결(영구권한)">로컬</button>
@@ -12361,10 +12367,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
       <button id="lsClearAll" title="로컬스토리지 전체 삭제(주의)">삭제</button>
 	  <button id="lsCleanup" title="목록에 없는 작품의 image_config_map_v1 / fav_v2 정리">정리</button>
-      <button id="viewerFullResetBtn" title="초기화 범위 선택: 만화만 / 영상만 / 만화+영상">완전초기화</button>
-      <button id="viewerChangeLogBtn" type="button" title="최근 웹뷰어 수정내역 보기">수정내역</button>
-      <button id="viewerLatestVersionBtn" title="GitHub version.json을 확인하고 최신 웹뷰어 HTML 다운로드">최신버전</button>
-      <button id="viewerPwaInstallBtn" type="button" title="이 웹뷰어를 태블릿/모바일에 PWA 앱으로 설치" style="background:#5b45a8;color:#fff;font-weight:700;">앱설치</button>
+
       <button id="lsClose">닫기</button>
     </div>
   </header>
@@ -13610,7 +13613,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         <button class="zoomBtn" id="delUiToggleWt"  title="삭제 버튼 표시/숨기기">D</button>
         <button class="zoomBtn" id="toggleFullWt"   title="전체화면 전환">V</button>
         <button class="zoomBtn" id="muPermFixWt"    title="로컬 폴더 사용권한 허용">P</button>
-        <button class="zoomBtn" type="button" id="videoImageFolderConnectV953" title="포스터·배우사진·썸네일 이미지폴더 연결 또는 변경">이미지폴더 !</button>
+        <button class="zoomBtn" type="button" id="videoImageFolderConnectV953" title="영상·만화 이미지폴더 연결 또는 변경">이미지폴더 !</button>
         <button class="zoomBtn" id="jumpLastWt"     title="마지막 읽은 페이지로 이동">C</button>
         <button class="zoomBtn" id="ratingToggleWt" title="평점 보이기/숨기기">R</button>
         <button class="zoomBtn" id="toggleOrientWt" title="일반만화처럼 좌우넘기는 방식">H</button>
@@ -16351,7 +16354,7 @@ document.addEventListener('DOMContentLoaded', applyEffectiveTitle);
 const WEBTOON_LIST_MAX_LEN = 100;
 // ===== 작품 목록 보기 모드 (썸네일 / 텍스트) =====
 const WT_VIEW_MODE_KEY = 'webtoon_view_mode_v1';
-let wtViewMode = 'text';  // 'thumb' | 'text'  (기본은 텍스트)
+let wtViewMode = 'thumb'; // 'thumb' | 'text'  (v1026: 미설정/초기화 후 그림 보기 기본)
 // 🔑 wtLayer 위치/크기 저장용 키
 const WT_LAYER_STATE_KEY = 'wtLayerState_v1';
 const FAV_LAYER_STATE_KEY = 'favLayerState_v1';
@@ -16706,7 +16709,7 @@ const WT_RATIO_LAYER_KEY  = 'wt_ratio_layer';
 const WEBTOON_THUMB_RATIO_KEY = 'WEBTOON_THUMB_RATIO';
 
 // ---- globals (단일 소스) ----
-let wtThumbCols  = 4;    // ✅ 지금 화면(모드 적용된) 컬럼
+let wtThumbCols  = 8;    // v1026: 일반/레이어 모두 저장값 없으면 8열 기본
 let wtThumbRatio = 1.5;  // ✅ 지금 화면(모드 적용된) 비율
 
 let wtColsNormal  = null;
@@ -16771,7 +16774,7 @@ function applyThumbGlobalsFromMode() {
   if (wtRatioLayer  == null && wtRatioNormal != null) wtRatioLayer  = wtRatioNormal;
 
   // 기본값
-  if (wtColsNormal == null)  wtColsNormal  = 4;
+  if (wtColsNormal == null)  wtColsNormal  = 8;
   if (wtColsLayer  == null)  wtColsLayer   = wtColsNormal;
   if (wtRatioNormal == null) wtRatioNormal = 1.5;
   if (wtRatioLayer  == null) wtRatioLayer  = wtRatioNormal;
@@ -16797,7 +16800,7 @@ function syncThumbUI() {
 // ✅ setters (변경은 이 함수만 통해서)
 // ===============================
 function setThumbCols(v) {
-  const n = Math.max(1, parseInt(v, 10) || 4);
+  const n = Math.max(1, parseInt(v, 10) || 8);
 
   if (wtLayerOpen) {
     wtColsLayer = n;
@@ -26988,6 +26991,9 @@ function makeWebtoonOpenHandler(value) {
     ev.preventDefault();
     ev.stopPropagation();
     if (typeof value !== 'string') return;
+    const balanceV1024 = window.__comicBalanceV1024;
+    balanceV1024?.beginOpen();
+    try {
 
     try { saveBufferedLastRead(); } catch (_) {} // 마지막 페이지 저장
 
@@ -27017,6 +27023,10 @@ function makeWebtoonOpenHandler(value) {
         }
       }catch(e){console.info('[comic v978] FS handle fallback',e);}
       if(!handled) switchTitleWithReload(value);
+    }
+    } finally {
+      // 압축 해제/첫 페이지 준비가 완료된 시점부터 2초의 조작 대기 시간을 다시 시작.
+      balanceV1024?.endOpen();
     }
   };
 }
@@ -27234,13 +27244,13 @@ function appendWebtoonListChunk() {
 // ✅ start/end 방식 제거
 let i = wtListRenderedCount;  // 스캔 시작 위치
 let added = 0;                // 실제 렌더된 개수
-const target = getWebtoonPageSize();
+const target = (comicScanPreviewV1023?.active && comicScanPreviewV1023.firstPage) ? 24 : getWebtoonPageSize();
 
 if (i >= wtListCache.length) return;
 
   const mode = (wtViewMode === 'thumb') ? 'thumb' : 'text';
 
-  let thumbW = 0, thumbH = 0, cols = 4;
+  let thumbW = 0, thumbH = 0, cols = 8;
 
   if (mode === 'thumb') {
     const listEl  = document.getElementById('wtList');
@@ -27250,9 +27260,9 @@ if (i >= wtListCache.length) return;
     // 👇 여기서부터가 핵심: 레이어/일반에 따라 baseCols 결정
     let baseCols;
     if (inLayer) {
-      baseCols = wtColsLayer  ?? wtColsNormal ?? wtThumbCols ?? 4;
+      baseCols = wtColsLayer  ?? wtColsNormal ?? wtThumbCols ?? 8;
     } else {
-      baseCols = wtColsNormal ?? wtColsLayer  ?? wtThumbCols ?? 4;
+      baseCols = wtColsNormal ?? wtColsLayer  ?? wtThumbCols ?? 8;
     }
 
     cols = Math.max(1, Math.min(20, baseCols)); // wtColsLayer 20까지 확장
@@ -27400,11 +27410,21 @@ for (; i < wtListCache.length && added < target; i++) {
 // ✅ 다중 태그/작가 필터 (AND/OR)
 if (Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
   const hay = (String(display || '') + ' ' + String(v || '')).toLowerCase();
-  const toks = window.wtMultiTokens.map(x => String(x).toLowerCase());
-
+  const toks = window.wtMultiTokens;
+  // 파싱은 작가/그룹 필터가 선택된 작품에서만 시행한다.
+  let creatorV1022 = null;
+  const matchesV1022 = tok => {
+    const lower = String(tok || '').toLocaleLowerCase();
+    if (lower.startsWith('author:') || lower.startsWith('group:')) {
+      if (!creatorV1022) creatorV1022 = getComicCreatorPartsV1022(display);
+      const kind = lower.startsWith('group:') ? 'group' : 'author';
+      const name = lower.slice(kind.length + 1);
+      return comicCreatorNormV1022(creatorV1022[kind]) === name && !!creatorV1022[kind];
+    }
+    return hay.includes(lower);
+  };
   const ok = (window.wtTagMultiMode === 'OR')
-    ? toks.some(tok => hay.includes(tok))
-    : toks.every(tok => hay.includes(tok));
+    ? toks.some(matchesV1022) : toks.every(matchesV1022);
 
   if (!ok) continue;
 }
@@ -27441,6 +27461,7 @@ if (Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
       const wrap = document.createElement('div');
       wrap.className = 'wt-item-wrap';
 	  wrap.dataset.display = display;
+      wrap.dataset.wtValue = value; // v1025: 정렬 전후 현재 작품 위치 복원
       applyFavTagClassToWrap(wrap, display);
 
       const b = document.createElement('button');
@@ -27487,6 +27508,7 @@ if (Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
       const wrap = document.createElement('div');
       wrap.className = 'wtThumbItem';
 	  wrap.dataset.display = display;
+      wrap.dataset.wtValue = value; // v1025: 정렬 전후 현재 작품 위치 복원
       applyFavTagClassToWrap(wrap, display);
 
       const btn = document.createElement('button');
@@ -27609,7 +27631,7 @@ if (Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
         badge.style.pointerEvents = 'none';
 
         thumbWrap.appendChild(badge);
-        if (window.ComicZipV979?.isZip(value)) {
+        if (!comicScanPreviewV1023?.active && window.ComicZipV979?.isZip(value)) {
           // ZIP/CBZ의 페이지 수는 원본의 이미지 목록에서 비동기로 읽어 같은 배지에 채운다.
           window.ComicZipV979.mountPageCount(value, badge, thumbWrap);
         }
@@ -28652,7 +28674,7 @@ if (hitomi) {
 appendKoneLink(cap, display, '0px');
 
 // 3️⃣ 제목 표시 (작가 분리 여부와 무관)
-const parsed = parseMultiTagsAuthorFirst(display);
+const parsed = getComicCreatorPartsV1022(display);
 
 if (parsed && parsed.author) {
   const openB = document.createElement('span');
@@ -28684,7 +28706,7 @@ authorSpan.dataset.author = authorKey;
   // ✅ 단일/더블 통합 핸들러만 사용
   bindChipClickWithDbl(authorSpan, {
     onSingle: () => {
-      applyWtFilterNow(`[${authorKey}]`);
+      selectOnlyOrToggleWtRailKey('author:' + authorKey);
     },
     onDouble: () => {
       const on = toggleFavAuthor(authorKey);
@@ -28767,6 +28789,11 @@ cap.dataset.value = value;
 cap.addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
+  // 스캔 중 새로 발견된 작품은 아직 저장 전: 수정은 저장 완료 후 허용.
+  if (comicScanPreviewV1023?.active) {
+    try { toast('폴더 스캔 완료 후 제목을 수정할 수 있습니다.'); } catch (_) {}
+    return;
+  }
 
   const curDisplay = cap.dataset.display || display;
   const curValue   = cap.dataset.value || value;
@@ -28784,6 +28811,8 @@ cap.addEventListener('click', (e) => {
 
       const del = document.createElement('button');
       del.className = 'wtDel wtThumbDel';
+      // 등록 중인 임시 목록에서 삭제하면 원본 저장 목록과 충돌할 수 있어 숨긴다.
+      if (comicScanPreviewV1023?.active) del.style.display = 'none';
       del.title = '목록에서 삭제';
       del.textContent = '✕';
       del.addEventListener('click', (e) => {
@@ -28938,6 +28967,19 @@ async function quickFindLastIndexForThumb(root, ext, pad, startNum, opts = {}) {
 let isLoadingMore = false;
 
 function maybeAppendMoreWebtoons() {
+  if (comicScanPreviewV1023?.active && comicScanPreviewV1023.started) {
+    const list = document.getElementById('wtList');
+    if (!list) return;
+    const atBottom = list.scrollHeight <= list.clientHeight + 1 ||
+      list.scrollTop + list.clientHeight >= list.scrollHeight - 100;
+    if (atBottom && Date.now() >= wtListCooldownUntil) {
+      wtListCooldownUntil = Date.now() + 300;
+      // 이미 찾아 놓은 항목이 있을 때만 표시 개수를 늘린다.
+      if (comicScanPreviewV1023.items.length > comicScanPreviewV1023.limit)
+        comicScanPreviewMoreV1023();
+    }
+    return;
+  }
   // 남은 게 없으면 그냥 끝
   if (!Array.isArray(wtListCache) || wtListCache.length <= wtListRenderedCount) return;
 
@@ -29206,9 +29248,359 @@ window.getComicListQueryCacheStatsV1000 = () => ({
   resultCount: comicListQueryCacheV1000.result?.length || 0
 });
 
+// v1024: 최초 만화 폴더 스트리밍 중 감상 우선 '균형 모드'.
+// 실제 디스크 작업은 취소하지 않고 안전한 작업 경계에서만 양보한다.
+// 새로 열린 작품/페이지 조작이 끝난 뒤 2초 후 파일명 수집 1개와 표지 작업 1개씩 재개한다.
+(function installComicBalanceV1024(){
+  'use strict';
+  const QUIET_MS = 2000;
+  let openDepth = 0;
+  let readerActive = false;
+  let lastAction = -Infinity;
+  let interactions = 0;
+  let waits = 0;
+  const sleep = ms => new Promise(resolve=>setTimeout(resolve,ms));
+  const scanning = () => window.__comicStreamV1023?.active === true;
+  const reading = () => scanning() && readerActive;
+  const remaining = () => {
+    if (!scanning()) return 0;
+    if (openDepth > 0) return 120;
+    if (!readerActive) return 0;
+    return Math.max(0, QUIET_MS - (Date.now() - lastAction));
+  };
+  const note = () => {
+    if (!scanning()) return;
+    readerActive = true;
+    lastAction = Date.now();
+    interactions++;
+  };
+  const beginOpen = () => {
+    if (!scanning()) return;
+    openDepth++;
+    note();
+  };
+  const endOpen = () => {
+    if (openDepth > 0) openDepth--;
+    if (scanning()) note();
+  };
+  async function waitForScan() {
+    if (!scanning()) return;
+    let delayed = false;
+    while (scanning() && remaining() > 0) {
+      delayed = true;
+      await sleep(Math.min(160, Math.max(25, remaining())));
+    }
+    if (delayed) waits++;
+    // 감상 중에는 한 번에 한 스캔 루프만 진행하고 UI/페이지 해제를 위해 매 배치 양보.
+    await sleep(reading() ? 60 : 0);
+  }
+  const targetInside = (target, id) => {
+    const root = document.getElementById(id);
+    return root && (root===target || (target?.nodeType===1 && root.contains(target)));
+  };
+  const handleUserAction = (ev) => {
+    if (!scanning() || !readerActive || !ev.isTrusted) return;
+    const t=ev.target;
+    if (ev.type === 'keydown') {
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(t?.tagName||'') || t?.isContentEditable) return;
+      if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ','Enter','+','-','Escape'].includes(ev.key)) return;
+      note(); return;
+    }
+    if (ev.type === 'scroll' || ev.type === 'wheel' || ev.type === 'touchmove') {
+      if (targetInside(t,'wtList')) return; // 목록 스크롤은 페이지 감상 동작이 아님
+      if (targetInside(t,'imgContainer') || targetInside(t,'imgLightboxOverlay') || targetInside(t,'comicZipLightboxV984') ||
+          t===document || t===document.documentElement || t===document.body || t===document.scrollingElement)
+        note();
+      return;
+    }
+    if (ev.type === 'pointerdown' || ev.type === 'touchstart') {
+      if (targetInside(t,'imgContainer') || targetInside(t,'imgLightboxOverlay') || targetInside(t,'comicZipLightboxV984')) note();
+    }
+  };
+  document.addEventListener('keydown',handleUserAction,true);
+  document.addEventListener('wheel',handleUserAction,{capture:true,passive:true});
+  document.addEventListener('scroll',handleUserAction,{capture:true,passive:true});
+  document.addEventListener('pointerdown',handleUserAction,{capture:true,passive:true});
+  document.addEventListener('touchstart',handleUserAction,{capture:true,passive:true});
+  document.addEventListener('touchmove',handleUserAction,{capture:true,passive:true});
+  window.__comicBalanceV1024 = {
+    beginOpen,endOpen,activity:note,waitForScan,
+    isBusy:()=>scanning() && remaining()>0,
+    readerMode:reading,
+    retryMs:()=>Math.min(200,Math.max(40,remaining())),
+    getStatus:()=>({scanning:scanning(),readerActive:reading(),opening:openDepth,
+      quietRemainingMs:remaining(),interactions,waits})
+  };
+})();
+
+// v1023: 최초 만화 폴더 등록 중에는 전체 정렬/IDB 저장 전에 발견된 작품부터 보여준다.
+// 표시용 RAM 목록은 기존 webtoonlist 원본과 분리되어, 스캔 도중 데이터 덮어쓰기를 막는다.
+let comicScanPreviewV1023 = null;
+window.__comicStreamV1023 = null;
+function comicScanStatusV1023(s, text) {
+  if (!s) return;
+  let el = document.getElementById('comicScanStatusV1023');
+  if (!el) {
+    const list = document.getElementById('wtList');
+    if (!list?.parentNode) return;
+    el = document.createElement('div');
+    el.id = 'comicScanStatusV1023';
+    el.setAttribute('role', 'status');
+    el.style.cssText = 'padding:5px 9px;margin:3px 2px;border-radius:5px;background:#22354b;color:#eaf1fa;font-size:12px;line-height:1.5;';
+    list.parentNode.insertBefore(el, list);
+  }
+  el.textContent = text || `폴더 스캔 중 · 발견 ${s.items.length.toLocaleString()}개 · 먼저 발견된 만화를 열 수 있습니다`;
+}
+function comicScanRemoveStatusV1023() {
+  document.getElementById('comicScanStatusV1023')?.remove();
+}
+function comicScanAttachScrollV1023() {
+  if (wtListScrollAttached) return;
+  const box = document.getElementById('wtList');
+  if (!box) return;
+  box.addEventListener('scroll', maybeAppendMoreWebtoons);
+  wtListScrollAttached = true;
+}
+function comicScanPreviewRenderV1023(force = false) {
+  const s = comicScanPreviewV1023;
+  if (!s?.active || localStorage.getItem('wt_content_mode_v1') === 'video') return false;
+  const box = document.getElementById('wtList');
+  if (!box) return false;
+  const visibleCount = Math.min(s.items.length, s.limit);
+  if (!s.started && !force) return true;
+  if (!s.rendered || force) {
+    box.innerHTML = '';
+    box.classList.toggle('wtListThumb', wtViewMode === 'thumb');
+    box.classList.toggle('wtListText', wtViewMode === 'text');
+    wtListCache = s.items.slice(0,visibleCount);
+    wtListRenderedCount = 0;
+    s.firstPage = true;
+    appendWebtoonListChunk();
+    s.firstPage = false;
+    s.rendered = true;
+    comicScanAttachScrollV1023();
+  } else if (visibleCount > wtListCache.length) {
+    // 기존 카드를 다시 만들지 않고 필요한 뒤쪽만 점진적으로 렌더링한다.
+    wtListCache.push(...s.items.slice(wtListCache.length, visibleCount));
+    while (wtListRenderedCount < wtListCache.length) appendWebtoonListChunk();
+  }
+  updateWtCountUI();
+  ensureWtLoadMoreButton();
+  comicScanStatusV1023(s);
+  return true;
+}
+function comicScanPreviewMoreV1023() {
+  const s = comicScanPreviewV1023;
+  if (!s?.active || !s.started) return false;
+  s.limit += Math.max(1,getWebtoonPageSize());
+  comicScanPreviewRenderV1023();
+  return true;
+}
+function comicScanPreviewStartV1023(dir) {
+  const state = {
+    active:true, name:String(dir?.name||''), items:[], seen:new Set(),
+    limit:24, started:false, rendered:false, firstPage:false, lastReport:0
+  };
+  comicScanPreviewV1023 = state;
+  window.__comicStreamV1023 = state;
+  return state;
+}
+function comicScanPreviewReceiveV1023(batch, fromCheckpointV1025 = false) {
+  const s = comicScanPreviewV1023;
+  if (!s?.active || !Array.isArray(batch)) return;
+  for (const item of batch) {
+    const value = item?.zipComic ? item.value : 'fsdir:' + item?.name;
+    if (!value) continue;
+    if (s.seen.has(value)) {
+      // 체크포인트로 먼저 보여준 작품은 현재 스캔의 실제 핸들로 갱신한다.
+      const idx=s.handleIndexV1025?.get(value);
+      if (!fromCheckpointV1025 && Number.isInteger(idx) && Array.isArray(window.comicFsTitles))
+        window.comicFsTitles[idx]=item;
+      continue;
+    }
+    s.seen.add(value);
+    s.items.push({display:item.name, value});
+    if (!Array.isArray(window.comicFsTitles)) window.comicFsTitles = [];
+    if (!s.handleIndexV1025) s.handleIndexV1025=new Map();
+    s.handleIndexV1025.set(value,window.comicFsTitles.length);
+    window.comicFsTitles.push(item);
+  }
+  try { comicFsTitles = window.comicFsTitles; } catch (_) {}
+  if (!s.started && s.items.length >= 24) {
+    s.started = true;
+    comicScanPreviewRenderV1023(true);
+  } else if (s.started) {
+    // 화면에 이미 노출된 범위만 갱신하고 수만 개 카드의 재생성은 금지.
+    comicScanPreviewRenderV1023();
+  }
+}
+function comicScanPreviewFinishV1023(keepStatus = false) {
+  const s = comicScanPreviewV1023;
+  if (s) s.active = false;
+  comicScanPreviewV1023 = null;
+  window.__comicStreamV1023 = null;
+  if (!keepStatus) comicScanRemoveStatusV1023();
+}
+// v1025: 메인 webtoonlist를 건드리지 않는 최초 스캔 중간 체크포인트.
+// 후보를 500개씩 별도 IndexedDB 키에 기록하고 정상 목록 커밋 후에만 삭제한다.
+// 스캔을 재시작하면 이전 미완료 ZIP 목록을 먼저 표시하되 전체 디렉터리를 다시 검증한다.
+const COMIC_CP_PREFIX_V1025 = 'comic_scan_checkpoint_v1025:';
+const COMIC_CP_BATCH_V1025 = 500;
+async function comicCheckpointBeginV1025(state, dir) {
+  if (!state || !dir || window.__viewerComicResetInProgressV1026 || typeof idbGetComic !== 'function') return;
+  try {
+    const roots = await getComicRootsV978();
+    let root = roots.find(r => r?.handle === dir);
+    if (!root) {
+      for (const r of roots) {
+        if (r?.handle && await r.handle.isSameEntry?.(dir)) { root = r; break; }
+      }
+    }
+    if (!root?.id) return;
+    const key = COMIC_CP_PREFIX_V1025 + root.id;
+    const prior = await idbGetComic(key);
+    const oldCount = Number(prior?.batches) || 0;
+    state.checkpointV1025 = {
+      key, rootId:String(root.id), batchIndex:0, oldCount,
+      scanned:0, restored:0, pending:[], writing:Promise.resolve(), enabled:true,
+      checkpointWrites:0, failed:false
+    };
+    if (prior?.status === 'incomplete' && oldCount > 0) {
+      for (let i=0; i<oldCount && state.active; i++) {
+        let previous = await idbGetComic(`${key}:chunk:${i}`);
+        if (!Array.isArray(previous)) continue;
+        // FS 이미지 폴더는 복원된 handle 없이 열리지 않으므로 새 스캔 결과만 보여준다.
+        previous = previous.filter(x => x?.zipComic && x?.rootId === String(root.id) && x.value);
+        if (previous.length) {
+          comicScanPreviewReceiveV1023(previous, true);
+          state.checkpointV1025.restored += previous.length;
+        }
+        // 큰 체크포인트 복원도 UI 입력을 가로막지 않도록 양보.
+        if (i % 4 === 3) await new Promise(r=>setTimeout(r,0));
+      }
+      if (state.started) comicScanStatusV1023(state,
+        `이전 스캔 임시목록 ${state.checkpointV1025.restored.toLocaleString()}개 표시 · 실제 폴더 재검사 중`);
+    }
+    // 기존 미완료 메타는 새 배치 첫 저장 전까지 유지한다.
+    // 새 스캔이 500개도 읽기 전에 중단되더라도 이전 체크포인트를 잃지 않는다.
+  } catch(e) {
+    console.warn('[comic checkpoint v1025] 복원/시작 실패; 일반 스캔 계속', e);
+    if (state.checkpointV1025) state.checkpointV1025.enabled=false;
+  }
+}
+function comicCheckpointCaptureV1025(state, batch) {
+  const cp = state?.checkpointV1025;
+  if (!cp?.enabled || window.__viewerComicResetInProgressV1026 || !Array.isArray(batch)) return;
+  for (const x of batch) {
+    if (!x?.name) continue;
+    // FileSystemHandle 자체는 여기에 중복 저장하지 않는다. 새 스캔이 연결한다.
+    cp.pending.push({name:String(x.name),zipComic:!!x.zipComic,
+      value:String(x.value||''),rel:String(x.rel||''),rootId:String(x.rootId||cp.rootId)});
+    cp.scanned++;
+    if (cp.pending.length >= COMIC_CP_BATCH_V1025) comicCheckpointWriteBatchV1025(cp);
+  }
+}
+function comicCheckpointWriteBatchV1025(cp) {
+  if (!cp?.pending.length || !cp.enabled || window.__viewerComicResetInProgressV1026) return;
+  const data=cp.pending.splice(0);
+  const index=cp.batchIndex++;
+  const found=cp.scanned;
+  cp.writing=cp.writing.then(async()=>{
+    if (!cp.enabled || window.__viewerComicResetInProgressV1026) return;
+    await idbPutComic(`${cp.key}:chunk:${index}`,data);
+    if (window.__viewerComicResetInProgressV1026) return;
+    await idbPutComic(cp.key,{version:1,status:'incomplete',rootId:cp.rootId,
+      batches:index+1,found,updatedAt:Date.now()});
+    cp.checkpointWrites++;
+  }).catch(e=>{
+    cp.enabled=false;cp.failed=true;
+    console.warn('[comic checkpoint v1025] 저장 실패; 화면 및 원본 DB 유지',e);
+  });
+}
+async function comicCheckpointEndV1025(state, committed=false) {
+  const cp=state?.checkpointV1025;
+  if (!cp) return;
+  if (cp.enabled && cp.pending.length && !window.__viewerComicResetInProgressV1026) comicCheckpointWriteBatchV1025(cp);
+  try { await cp.writing; } catch(_) {}
+  if (!committed || !cp.enabled) return;
+  // 메인 목록 저장이 확정된 경우에만 미완료 기록 해제.
+  try {
+    for (let i=0; i<Math.max(cp.oldCount,cp.batchIndex);i++)
+      await idbDelComic(`${cp.key}:chunk:${i}`);
+    await idbDelComic(cp.key);
+  } catch(e) { console.warn('[comic checkpoint v1025] 임시 기록 정리 실패',e); }
+}
+// 정렬/재렌더 직전 실제 사용자가 바라보는 작품과 화면 내 상대 위치를 보관.
+function comicScanListAnchorV1025() {
+  const list=document.getElementById('wtList');
+  if (!list) return null;
+  const rect=list.getBoundingClientRect();
+  const cards=list.querySelectorAll('.wtThumbItem[data-wt-value],.wt-item-wrap[data-wt-value]');
+  for (const card of cards) {
+    const r=card.getBoundingClientRect();
+    if (r.bottom>rect.top+1 && r.top<rect.bottom) {
+      return {value:card.dataset.wtValue,offset:r.top-rect.top,scrollTop:list.scrollTop,
+        rendered:wtListRenderedCount};
+    }
+  }
+  return {value:'',offset:0,scrollTop:list.scrollTop,rendered:wtListRenderedCount};
+}
+function comicScanFinalRenderV1025(anchor) {
+  const list=document.getElementById('wtList');
+  if (!list) return;
+  // 초기화 때 바깥 컨테이너의 스크롤 위치는 건드리지 않는다.
+  renderWebtoonList();
+  if (!anchor) return;
+  const find=()=>Array.from(list.querySelectorAll('.wtThumbItem[data-wt-value],.wt-item-wrap[data-wt-value]'))
+    .find(x=>x.dataset.wtValue===anchor.value);
+  let card=anchor.value ? find():null;
+  if (!card && anchor.value && Array.isArray(wtListCache)) {
+    const idx=wtListCache.findIndex(x=>x?.value===anchor.value);
+    // 무한 DOM 생성 금지. 첫 800개 내에 있는 기존 작품만 페이지 단위로 펼친다.
+    if (idx>=0 && idx<800) {
+      let guard=0;
+      while (wtListRenderedCount<=idx && guard++<60) appendWebtoonListChunk();
+      card=find();
+    }
+  }
+  if (card) {
+    const r=card.getBoundingClientRect(), outer=list.getBoundingClientRect();
+    list.scrollTop+=r.top-outer.top-anchor.offset;
+  } else if (Number.isFinite(anchor.scrollTop)) {
+    // 아주 먼 위치는 수천 개 카드를 새로 만들지 않고 픽셀 위치만 보존한다.
+    list.scrollTop=anchor.scrollTop;
+  }
+  ensureWtLoadMoreButton();
+}
+let comicPostScanIndexTimerV1025=0;
+function comicSchedulePostScanIndexV1025() {
+  if (comicPostScanIndexTimerV1025) clearTimeout(comicPostScanIndexTimerV1025);
+  const run=()=>{
+    comicPostScanIndexTimerV1025=0;
+    if (window.__comicStreamV1023?.active || localStorage.getItem('wt_content_mode_v1')==='video') return;
+    try { if (typeof buildWtGroupButtons==='function') buildWtGroupButtons(); } catch(e) {console.warn('[comic index v1025]',e);}
+    try { if (typeof renderWtTagRail==='function') renderWtTagRail(); } catch(e) {console.warn('[comic rail v1025]',e);}
+  };
+  // 처음 포스터를 먼저 보여준 뒤 작가/그룹 레일 집계는 한 번만 수행한다.
+  comicPostScanIndexTimerV1025=setTimeout(()=>{
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(run,{timeout:2400});
+    else run();
+  },650);
+}
+window.getComicCheckpointStatsV1025=()=>{
+  const cp=comicScanPreviewV1023?.checkpointV1025;
+  return cp ? {found:cp.scanned,restored:cp.restored,batches:cp.checkpointWrites,enabled:cp.enabled,failed:cp.failed} : {active:false};
+};
+
+window.getComicStreamStatusV1023 = () => {
+  const s = comicScanPreviewV1023;
+  return s ? {active:s.active,found:s.items.length,shown:wtListRenderedCount,limit:s.limit,started:s.started} : {active:false};
+};
+
 // 렌더러 교체: 표시/실제 분리 적용
 // 렌더러 교체: 텍스트 / 썸네일 모드 지원
 function renderWebtoonList() {
+  if (comicScanPreviewV1023?.active && contentMode === 'comic' && comicScanPreviewRenderV1023(true)) return;
   const box = document.getElementById('wtList');
   if (!box) return;
 
@@ -29747,7 +30139,7 @@ const openPanel = () => {
     });
 
     clearBtn.addEventListener('click', () => {
-      if (!confirm('목록을 모두 비울까요?')) return;
+      if (!confirm('만화 목록만 모두 비울까요?\n설정·표지 캐시·폴더 연결은 유지됩니다.\n전체 초기화는 \"완전초기화 → 만화만 초기화\"를 이용하세요.')) return;
       if (typeof window.clearWebtoonListFromTools === 'function') {
         window.clearWebtoonListFromTools();
       } else {
@@ -33240,7 +33632,7 @@ async function scanComicFolderList(handle, append = false, requestPermissionIfNe
 }
 // ---------- wtBox 목록 갱신 ----------
 // 기존 목록은 유지하면서 새 항목만 추가
-async function updateWtListFromFs(){
+async function updateWtListFromFs(optionsV1025 = null){
   try {
     // v282: 시작 시 comic FS 복원이 webtoonlist IDB preload보다 먼저 실행되면
     // 빈 목록을 원본으로 착각해 전체 목록을 0개로 덮는 문제가 있었다.
@@ -33278,14 +33670,18 @@ async function updateWtListFromFs(){
     // 실제 변화가 있을 때만 dirty/save. 0개 스캔은 기존 목록에 손대지 않는다.
     if (nextRaw !== raw) {
       wtSetRawCached(nextRaw);
-      try { await flushWebtoonListData(); } catch (_) {}
+      await flushWebtoonListData();
     }
 
-    if (typeof buildWtGroupButtons === 'function') buildWtGroupButtons();
-    renderWebtoonList();
+    if (!optionsV1025?.deferUi) {
+      if (typeof buildWtGroupButtons === 'function') buildWtGroupButtons();
+      renderWebtoonList();
+    }
     if (added) console.info('[updateWtListFromFs] webtoonlist 추가', { added });
+    return true;
   } catch (e) {
     console.warn('[updateWtListFromFs] failed:', e);
+    return false;
   }
 }
 // ---------- 폴더 연결 ----------
@@ -34022,6 +34418,7 @@ function ensureWtLoadMoreButton() {
     btn.style.marginTop = '4px';
 
     btn.addEventListener('click', () => {
+      if (comicScanPreviewMoreV1023()) return;
       appendWebtoonListChunk();
       if (typeof updateWtCountUI === 'function') {
         updateWtCountUI();
@@ -35712,6 +36109,7 @@ const lbBackdrop = document.getElementById('imgLightboxBackdrop');
 const lbImg      = document.getElementById('imgLightboxImg');
 
 function openLightboxAtPage(page) {
+  window.__comicBalanceV1024?.activity();
   if (!lbOverlay || !lbImg) return;
   page = Math.max(1, Math.min(__lbState.total, page));
   __lbState.page = page;
@@ -35728,6 +36126,7 @@ function openLightboxAtPage(page) {
 }
 
 function closeLightbox() {
+  window.__comicBalanceV1024?.activity();
   // 🔹 라이트박스 마지막 본 페이지 저장 (버퍼 → localStorage)
   try {
     if (typeof flushLightboxLastRead === 'function') {
@@ -35907,6 +36306,9 @@ function buildLightboxPageUrl(root, pad, ext, first, page) {
   return root + num + "." + ext;
 }
 async function openLightboxForValue(v) {
+  const balanceV1024=window.__comicBalanceV1024;
+  balanceV1024?.beginOpen();
+  try {
   // v992: 폴더로 직접 등록한 로컬 만화는 URL/숫자형 이미지 구성정보가 필요 없다.
   // ZIP과 동일한 라이트박스에 FileSystemFileHandle 이미지 목록을 직접 전달한다.
   if (window.ComicZipV979?.isZip(v) ||
@@ -35978,6 +36380,7 @@ if (overlay) {
 
 // ✅ overlay가 실제로 보인 뒤 저장된 페이지표시 위치 복원
 restoreLightboxPageBadgePosAfterOpen();
+  } finally { balanceV1024?.endOpen(); }
 }
 (function bindLightboxClicksOnce(){
   if (window.__lbClickBound) return;
@@ -36009,6 +36412,7 @@ restoreLightboxPageBadgePosAfterOpen();
 })();
 // 🔥 다음/이전 페이지 (마지막에서 다음 화로 넘어가기)
 async function lightboxNext() {
+  window.__comicBalanceV1024?.activity();
   const now = Date.now();
 
   // ✅ 마지막 페이지에서 4초 쿨다운
@@ -36035,6 +36439,7 @@ async function lightboxNext() {
 
 // 🔥 이전 페이지 (1페이지에서 ← 누르면 이전 화 마지막 페이지)
 async function lightboxPrev() {
+  window.__comicBalanceV1024?.activity();
   if (lbCurrentPage > 1) {
     // 같은 화 안에서 이전 페이지
     showLightboxImage(lbCurrentPage - 1);
@@ -40342,7 +40747,7 @@ function updateWtCaptionTextOnly(cap, display) {
 appendKoneLink(cap, display, '0px');
 
   // 2️⃣ 작가/태그/제목 다시 파싱
-  const parsed = parseMultiTagsAuthorFirst(display);
+  const parsed = getComicCreatorPartsV1022(display);
 
   if (parsed && parsed.author) {
     const openB = document.createElement('span');
@@ -40380,7 +40785,7 @@ authorSpan.dataset.author = authorKey;
             e.stopPropagation();
           }
           if (typeof applyWtFilterNow === 'function') {
-            applyWtFilterNow(`[${authorKey}]`);
+            selectOnlyOrToggleWtRailKey('author:' + authorKey);
           }
         },
         onDouble: (e) => {
@@ -40526,10 +40931,81 @@ function applyFavTagClassToWrap(wrap, display) {
   if (!wrap) return;
   wrap.classList.toggle('hasFavTag', hasFavTagInDisplay(display));
 }
+// v1022: 파일명은 변경하지 않고 [그룹(작가)]를 별개의 작가·그룹으로 인식한다.
+// [이름]은 기존 호환성을 위해 작가로 취급하고, 명시적으로 그룹 변경한 이름만 재분류한다.
+const COMIC_CREATOR_TYPES_KEY_V1022 = 'comic_creator_types_v1022';
+const COMIC_CREATOR_MODE_KEY_V1022 = 'comic_creator_rail_mode_v1022';
+const COMIC_GROUP_FAV_KEY_V1022 = 'comic_group_favorites_v1022';
+function comicCreatorNormV1022(name) {
+  return typeof normalizeWtAuthorKey === 'function'
+    ? normalizeWtAuthorKey(String(name || '').trim())
+    : String(name || '').trim().toLocaleLowerCase();
+}
+function loadComicCreatorTypesV1022() {
+  try {
+    const obj = JSON.parse(localStorage.getItem(COMIC_CREATOR_TYPES_KEY_V1022) || '{}');
+    if (obj && !Array.isArray(obj) && typeof obj === 'object') return new Map(Object.entries(obj).filter(([k,v]) => k && (v === 'group' || v === 'author')));
+  } catch (_) {}
+  return new Map();
+}
+const comicCreatorTypesV1022 = loadComicCreatorTypesV1022();
+let comicCreatorRailModeV1022 = 'author';
+try { if (localStorage.getItem(COMIC_CREATOR_MODE_KEY_V1022) === 'group') comicCreatorRailModeV1022 = 'group'; } catch (_) {}
+let comicGroupFavV1022 = new Set();
+try { const a = JSON.parse(localStorage.getItem(COMIC_GROUP_FAV_KEY_V1022) || '[]'); if (Array.isArray(a)) comicGroupFavV1022 = new Set(a); } catch (_) {}
+function isFavComicGroupV1022(name) { return comicGroupFavV1022.has(comicCreatorNormV1022(name)); }
+function toggleFavComicGroupV1022(name) {
+  const k = comicCreatorNormV1022(name);
+  if (comicGroupFavV1022.has(k)) comicGroupFavV1022.delete(k);
+  else comicGroupFavV1022.add(k);
+  try { localStorage.setItem(COMIC_GROUP_FAV_KEY_V1022, JSON.stringify([...comicGroupFavV1022])); } catch (_) {}
+  invalidateComicRailCacheV999();
+  return comicGroupFavV1022.has(k);
+}
+function getComicCreatorPartsV1022(display) {
+  const old = parseMultiTagsAuthorFirst(display);
+  if (!old) return { author:'', group:'', tags:[], title:String(display||'').trim(), ambiguous:'' };
+  const raw = String(old.author || '').trim();
+  // 전각 괄호도 허용. 마지막 괄호에 작가명을 넣는 [그룹(작가)] 관례.
+  const both = /^(.+?)[(（]([^()（）]*)[)）]\s*$/u.exec(raw);
+  if (both) {
+    return { group:both[1].trim(), author:both[2].trim(), tags:old.tags, title:old.title, ambiguous:'' };
+  }
+  const authorOnly = /^[(（]([^()（）]+)[)）]\s*$/u.exec(raw);
+  if (authorOnly) {
+    return { group:'', author:authorOnly[1].trim(), tags:old.tags, title:old.title, ambiguous:'' };
+  }
+  const k = comicCreatorNormV1022(raw);
+  const groupOnly = comicCreatorTypesV1022.get(k) === 'group';
+  return { group:groupOnly ? raw : '', author:groupOnly ? '' : raw,
+    tags:old.tags, title:old.title, ambiguous:raw };
+}
+function comicCreatorMatchesV1022(display, name, kind) {
+  const parts = getComicCreatorPartsV1022(display);
+  const value = kind === 'group' ? parts.group : parts.author;
+  return !!value && comicCreatorNormV1022(value) === comicCreatorNormV1022(name);
+}
+function setComicCreatorTypeV1022(name, type) {
+  const k = comicCreatorNormV1022(name);
+  if (!k || (type !== 'group' && type !== 'author')) return false;
+  if (type === 'group') comicCreatorTypesV1022.set(k, type);
+  else comicCreatorTypesV1022.delete(k); // [이름]의 기본값은 작가
+  try { localStorage.setItem(COMIC_CREATOR_TYPES_KEY_V1022, JSON.stringify(Object.fromEntries(comicCreatorTypesV1022))); }
+  catch (e) { alert('작가·그룹 분류 저장 실패: ' + (e?.message||e)); return false; }
+  // 이전 유형으로 선택된 필터는 새 유형의 동일 이름으로 이전한다.
+  const from = (type === 'group' ? 'author:' : 'group:') + k;
+  const to = type + ':' + k;
+  if (window.wtTagMultiSel?.has(from)) { window.wtTagMultiSel.delete(from); window.wtTagMultiSel.add(to); }
+  invalidateComicRailCacheV999();
+  try { renderWtTagRail(); } catch (_) {}
+  try { applyWtMultiTagFilterNow(); } catch (_) {}
+  return true;
+}
+window.getComicCreatorPartsV1022 = getComicCreatorPartsV1022;
 // v999: 만화 작가·태그 인덱스. 36,000개 작품을 탭 전환마다 재분석하지 않는다.
 // 작품 목록의 배열 참조 또는 수정 이벤트가 변한 경우에만 한 번 새로 구축한다.
 const comicRailCacheV999 = {
-  entries: null, tags: [], authors: [], dirty: true, revision: 0, saved: null
+  entries: null, tags: [], authors: [], groups: [], ambiguous: new Set(), dirty: true, revision: 0, saved: null
 };
 // v1008: 레일 데이터 배열은 v999 캐시, 렌더링은 가상 viewport에서만 수행.
 // 정렬/즐겨찾기 선택/탭 복귀를 처리하면서 DOM 행은 최대 160개/섹션 유지한다.
@@ -40664,16 +41140,13 @@ function getComicRailIndexV999() {
 
   const tags = new Set();
   const authors = new Set();
+  const groups = new Set();
+  const ambiguous = new Set();
   for (const item of entries) {
-    // 원래 extractTagsFromDisplay/buildAllAuthorsFromWtList와 동일한
-    // 대괄호 규칙: 첫 칸=작가, 다음 칸부터=태그. 한 번만 파싱한다.
-    const parsed = parseMultiTagsAuthorFirst(item?.display);
-    if (!parsed) continue;
-    const rawAuthor = String(parsed.author || '').trim();
-    if (rawAuthor) {
-      const authorKey = normalizeWtAuthorKey(rawAuthor);
-      if (authorKey) authors.add(authorKey);
-    }
+    const parsed = getComicCreatorPartsV1022(item?.display);
+    if (parsed.ambiguous) ambiguous.add(comicCreatorNormV1022(parsed.ambiguous));
+    if (parsed.author) authors.add(comicCreatorNormV1022(parsed.author));
+    if (parsed.group) groups.add(comicCreatorNormV1022(parsed.group));
     for (const tag of parsed.tags) {
       if (tag) tags.add(tag);
     }
@@ -40692,6 +41165,12 @@ function getComicRailIndexV999() {
     const favB = isFavAuthor(b) ? 1 : 0;
     return favB - favA || cmp(a, b);
   });
+  cache.groups = Array.from(groups).sort((a, b) => {
+    const favA = isFavComicGroupV1022(a) ? 1 : 0;
+    const favB = isFavComicGroupV1022(b) ? 1 : 0;
+    return favB - favA || cmp(a, b);
+  });
+  cache.ambiguous = ambiguous;
   cache.entries = entries;
   cache.dirty = false;
   cache.revision++;
@@ -40895,6 +41374,7 @@ const selectOnlyThisFromText = (e) => {
   const isAuthorKey = () => _isAuthorKeyLike(key);
 
   const getFavState = () => {
+    if (key.startsWith('group:')) return isFavComicGroupV1022(key.slice(6));
     if (isAuthorKey()) {
       const nm = _normAuthorNameFromKey(key);
       return isFavAuthor(nm);
@@ -40914,7 +41394,8 @@ const selectOnlyThisFromText = (e) => {
 
       let on = false;
 
-      if (isAuthorKey()) {
+      if (key.startsWith('group:')) on = toggleFavComicGroupV1022(key.slice(6));
+      else if (isAuthorKey()) {
         const nm = _normAuthorNameFromKey(key);
         on = toggleFavAuthor(nm);
       } else {
@@ -40986,20 +41467,68 @@ const selectOnlyThisFromText = (e) => {
 
   const authHeader = document.createElement('div');
   authHeader.className = 'wtRailHeader';
-  authHeader.textContent = `작가`;
-  authSec.appendChild(authHeader);
-
+  authHeader.style.cssText += ';display:flex;align-items:center;justify-content:center;gap:5px;';
   const authList = document.createElement('div');
   authList.className = 'wtRailList';
-
-  initComicRailVirtualV1008('authors', authList, authors, a => {
-    const authorKey = typeof normalizeWtAuthorKey === 'function'
-      ? normalizeWtAuthorKey(a) : String(a || '').trim().toLocaleLowerCase();
-    const authorLabel = typeof toWtAuthorTitleCase === 'function'
-      ? toWtAuthorTitleCase(authorKey) : authorKey;
-    return makeRow('author:' + authorKey, authorLabel, authorLabel);
-  });
+  // 기존 작가 레일 가상 스크롤 인스턴스를 두 탭이 재사용한다.
+  const authorBtnV1022 = document.createElement('button');
+  const groupBtnV1022 = document.createElement('button');
+  function creatorButtonV1022(btn, label, type) {
+    btn.type = 'button'; btn.textContent = label;
+    btn.style.cssText = 'border:0;border-radius:4px;padding:2px 7px;cursor:pointer;font:12px sans-serif;';
+    btn.title = type === 'author' ? '작가 보기' : '그룹 보기';
+    btn.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      if (comicCreatorRailModeV1022 === type) return;
+      comicCreatorRailModeV1022 = type;
+      try { localStorage.setItem(COMIC_CREATOR_MODE_KEY_V1022, type); } catch (_) {}
+      authList.scrollTop = 0;
+      renderCreatorListV1022();
+    });
+    authHeader.appendChild(btn);
+  }
+  creatorButtonV1022(authorBtnV1022, '작가', 'author');
+  creatorButtonV1022(groupBtnV1022, '그룹', 'group');
+  authSec.appendChild(authHeader);
   authSec.appendChild(authList);
+
+  function renderCreatorListV1022() {
+    const isGroup = comicCreatorRailModeV1022 === 'group';
+    for (const [btn,active] of [[authorBtnV1022,!isGroup],[groupBtnV1022,isGroup]]) {
+      btn.style.background = active ? '#2263ae' : '#333';
+      btn.style.color = active ? '#fff' : '#bfc5cf';
+      btn.setAttribute('aria-pressed', String(active));
+    }
+    const index = getComicRailIndexV999();
+    const items = isGroup ? index.groups : index.authors;
+    // v1008의 160명 이하 경로는 appendChild를 사용하므로 탭 변경 때 이전 행 먼저 제거.
+    authList.replaceChildren();
+    initComicRailVirtualV1008('authors', authList, items, name => {
+      const key = (isGroup ? 'group:' : 'author:') + name;
+      const label = typeof toWtAuthorTitleCase === 'function'
+        ? toWtAuthorTitleCase(name) : name;
+      const row = makeRow(key, label, label);
+      // 수동 전환은 원래 [이름] 표기인 경우만 제공. [그룹(작가)]는 분리 유지.
+      if (index.ambiguous.has(name)) {
+        const btn = document.createElement('button');
+        btn.type='button'; btn.textContent='↔';
+        btn.title = isGroup ? '이 이름만 그룹 → 작가로 변경 ([이름] 형식)' : '이 이름만 작가 → 그룹으로 변경 ([이름] 형식)';
+        btn.style.cssText='border:0;background:transparent;color:#94bafa;padding:0 3px;cursor:pointer;font-size:13px;flex-shrink:0;';
+        btn.addEventListener('click', e => {
+          e.preventDefault();e.stopPropagation();
+          const target = isGroup ? 'author' : 'group';
+          if (confirm('['+label+'] 항목을 '+(isGroup?'작가':'그룹')+'으로 지정할까요?\nZIP 파일명은 변경하지 않습니다.')) {
+            setComicCreatorTypeV1022(name,target);
+          }
+        });
+        row.appendChild(btn);
+      }
+      return row;
+    });
+    // 가상 레일의 전체 높이와 표시 영역을 붙인 다음 동기화.
+    restoreComicRailVirtualV1008();
+  }
+  renderCreatorListV1022();
 
   // ✅ 최종 삽입 (태그가 위, 작가가 아래)
   rail.appendChild(tagsSec);
@@ -41254,6 +41783,8 @@ function getWtRailSelectionGroup(key) {
   ) {
     return 'author';
   }
+
+  if (value.startsWith('group:')) return 'group';
 
   if (value.startsWith('actress:')) {
     return 'actress';
@@ -84075,7 +84606,8 @@ function mergeRootVideos(rootName, found) {
     handle,
     append = false,
     progressCbOrRequestPermission = null,
-    maybeProgressCb = null
+    maybeProgressCb = null,
+    partialBatchCbV1023 = null
   ) {
     // v873 호환: 3번째 인자 boolean은 권한 요청 여부, function은 진행 콜백.
     let requestPermissionIfNeeded = true;
@@ -84089,6 +84621,19 @@ function mergeRootVideos(rootName, found) {
 
     const ok = await ensureHandlePermission(handle, requestPermissionIfNeeded);
     if (!ok) return [];
+
+    // 등록 버튼에서만 스트리밍 콜백을 전달한다. 강제스캔 및 기존 호출은 변경하지 않는다.
+    const partialV1023 = typeof partialBatchCbV1023 === 'function' ? partialBatchCbV1023 : null;
+    let partialRootIdV1023 = '';
+    if (partialV1023) {
+      try {
+        for (const root of await getComicRootsV978()) {
+          if (root?.handle && (root.handle === handle || await root.handle.isSameEntry(handle))) {
+            partialRootIdV1023 = String(root.id || ''); break;
+          }
+        }
+      } catch (e) { console.warn('[comic stream] root lookup', e); }
+    }
 
     // v1004: ZIP(깊이 3)과 비압축 이미지 만화(하위폴더 시작 깊이 3)를
     // 같은 디렉터리 순회에서 판정한다. 저장 구조와 이미지 만화의 후보 규칙은 유지한다.
@@ -84106,6 +84651,27 @@ function mergeRootVideos(rootName, found) {
     let zipEntriesSeen = 0;
     let lastName = String(handle?.name || '');
     let lastProgressAt = 0;
+    const partialPendingV1023 = [];
+    let partialEmittedV1023 = 0;
+    const partialImageSeenV1023 = new Set();
+    const emitPartialV1023 = async (force = false) => {
+      if (!partialV1023 || !partialPendingV1023.length) return;
+      // 처음에는 24개를 보이는 즉시 전달, 이후에는 120개씩 묶어서 전달.
+      const target = partialEmittedV1023 === 0 ? 24 : 120;
+      if (!force && partialPendingV1023.length < target) return;
+      const batch = partialPendingV1023.splice(0);
+      partialEmittedV1023 += batch.length;
+      try { partialV1023(batch); } catch (e) { console.warn('[comic stream] partial render',e); }
+      if (window.__comicBalanceV1024)
+        await window.__comicBalanceV1024.waitForScan();
+      else await new Promise(resolve => setTimeout(resolve, 0));
+    };
+    const addPartialV1023 = async (item) => {
+      if (!partialV1023 || !item) return;
+      partialPendingV1023.push(item);
+      if (partialPendingV1023.length >= (partialEmittedV1023 === 0 ? 24 : 120))
+        await emitPartialV1023();
+    };
 
     const report = (phase, name) => {
       if (!progressCb) return;
@@ -84142,10 +84708,24 @@ function mergeRootVideos(rootName, found) {
           if (entry.kind === 'file') {
             if (canImage && IMAGE_EXT_RE.test(name)) {
               if (item.depth === 0) directImage = true;
-              else if (item.subRoot) imageSubRoots.add(item.subRoot);
+              else if (item.subRoot && !imageSubRoots.has(item.subRoot)) {
+                imageSubRoots.add(item.subRoot);
+                if (!partialImageSeenV1023.has(item.subRoot)) {
+                  partialImageSeenV1023.add(item.subRoot);
+                  await addPartialV1023(item.subRoot);
+                }
+              }
             }
             if (canZip && zipEntriesSeen <= 250001 && /\.(?:zip|cbz)$/i.test(name)) {
               archiveCandidates.push({ name, handle: entry, rel: item.rel + name });
+              if (partialRootIdV1023) {
+                const rel = item.rel + name;
+                await addPartialV1023({
+                  name:name.replace(/\.(zip|cbz)$/i,''), handle:entry,
+                  rel, rootId:partialRootIdV1023, zipComic:true,
+                  value:'zipcomic:@' + partialRootIdV1023 + '/' + encodeURIComponent(rel)
+                });
+              }
             }
           } else if (entry.kind === 'directory' && !/^Posters$/i.test(name)) {
             let subRoot = item.subRoot;
@@ -84169,18 +84749,28 @@ function mergeRootVideos(rootName, found) {
             }
           }
 
-          // 이전 30개 간격의 강제 양보를 200개 간격으로 조정.
-          // 30,000개 단일 폴더에서 불필요한 타이머 대기 1,000회를 방지한다.
+          // v1024: 만화 클릭/페이지 이동 중에는 긴 200개 배치를 끝까지 밀지 않는다.
+          // 실제 user-action이 없으면 32개마다 실행하는 비동기 대기 없이 기존 성능 유지.
+          if ((entriesVisited % 32) === 0 && window.__comicBalanceV1024?.isBusy()) {
+            await window.__comicBalanceV1024.waitForScan();
+          }
+          // 평상시에는 기존 200개 간격 양보, 감상 시 1개 스캔만 저속으로 재개.
           if ((entriesVisited - lastProgressAt) >= 200) {
             lastProgressAt = entriesVisited;
             report('comic-enumerate', lastName);
-            await new Promise(resolve => setTimeout(resolve, 0));
+            if (partialV1023 && window.__comicBalanceV1024)
+              await window.__comicBalanceV1024.waitForScan();
+            else await new Promise(resolve => setTimeout(resolve, 0));
           }
         }
       } catch (e) {
         console.warn('[comicFS unified] 폴더 검사 건너뜀', item.rel, e);
       }
     }
+
+    // 24개 미만인 작은 폴더도 스캔 완료 이전에 첫 묶음을 표시한다.
+    if (directImage) await addPartialV1023({name:handle.name || '(이름없는 폴더)', handle});
+    await emitPartialV1023(true);
 
     for (const sub of subDirs) {
       if (imageSubRoots.has(sub)) found.push(sub);
@@ -84485,22 +85075,67 @@ function mergeRootVideos(rootName, found) {
           counts: '영상파일은 무시합니다.'
         }, true);
         await waitFolderImportProgressPaint();
-        const comics = await scanComicFolderListUnified(dir, false, updateComicFolderImportProgress);
+        // 등록 중에는 전체 목록을 여러 번 재파싱/저장하지 않고 화면용 RAM만 갱신한다.
+        if (contentMode !== 'comic') setContentMode('comic');
+        const streamV1023 = comicScanPreviewStartV1023(dir);
+        await comicCheckpointBeginV1025(streamV1023,dir);
+        if (streamV1023.started) hideFolderImportProgress();
+        let comics;
+        try {
+          comics = await scanComicFolderListUnified(dir, false, info => {
+            if (streamV1023.started) {
+              if (info?.phase === 'comic-enumerate' && (Number(info.entriesVisited) - streamV1023.lastReport >= 200)) {
+                streamV1023.lastReport = Number(info.entriesVisited) || 0;
+                comicScanStatusV1023(streamV1023,
+                  `폴더 스캔 중 · ${streamV1023.items.length.toLocaleString()}개 발견 · ` +
+                  `${streamV1023.lastReport.toLocaleString()}개 항목 확인 · 화면의 만화는 바로 열 수 있습니다`);
+              }
+            } else updateComicFolderImportProgress(info);
+          }, null, batch => {
+            const wasStarted = streamV1023.started;
+            comicCheckpointCaptureV1025(streamV1023,batch);
+            comicScanPreviewReceiveV1023(batch);
+            if (!wasStarted && streamV1023.started) hideFolderImportProgress();
+          });
+        } catch (e) {
+          try { await comicCheckpointEndV1025(streamV1023,false); } catch (_) {}
+          comicScanPreviewFinishV1023();
+          hideFolderImportProgress();
+          throw e;
+        }
+        // 스캔 완료 후에도 원본 목록이 IndexedDB에 저장될 때까지 화면은 그대로 유지한다.
+        const hadStreamPreviewV1023 = streamV1023.started;
+        if (hadStreamPreviewV1023) comicScanStatusV1023(streamV1023, '폴더 탐색 완료 · 목록 저장 중…');
+        else hideFolderImportProgress();
+        await comicCheckpointEndV1025(streamV1023,false);
 
-        setFolderImportProgress({
+        // 최초 24개가 표시된 뒤에는 모달을 다시 띄워 클릭을 막지 않는다.
+        if (!hadStreamPreviewV1023) setFolderImportProgress({
           title: '폴더 추가 중 · 만화 목록 저장',
           main: `만화 ${formatFolderProgressNumber(comics?.length)}개를 목록에 반영하는 중…`,
           detail: String(dir?.name || ''),
           counts: '만화 목록과 표지 연결만 갱신합니다.',
           percent: 100
         }, true);
-        if (typeof updateWtListFromFs === 'function') await updateWtListFromFs();
-        setContentMode('comic');
-        if (typeof renderWtTagRail === 'function') renderWtTagRail();
-        renderWebtoonList();
+        // 기존 목록은 한 번만 합치고 저장. 완료 화면/인덱스 갱신은 별도 단계.
+        const committedV1025 = (typeof updateWtListFromFs === 'function')
+          ? await updateWtListFromFs({deferUi:true}) : false;
+        if (!committedV1025) {
+          // 저장이 실패해도 임시 체크포인트를 보존하고 완료 알림을 내지 않는다.
+          comicScanPreviewFinishV1023();
+          hideFolderImportProgress();
+          alert('만화 목록 저장을 완료하지 못했습니다. 기존 목록은 유지되며 중간 스캔 기록도 남아 있습니다. 저장공간과 브라우저 권한을 확인하고 다시 시도하세요.');
+          return;
+        }
+        const anchorV1025=comicScanListAnchorV1025();
+        comicScanPreviewFinishV1023(true);
+        if (contentMode!=='comic') setContentMode('comic');
+        comicScanFinalRenderV1025(anchorV1025);
+        comicSchedulePostScanIndexV1025();
+        await comicCheckpointEndV1025(streamV1023,!!committedV1025);
 
         const comicCount = Array.isArray(comics) ? comics.length : (window.comicFsTitles?.length || 0);
-        setFolderImportProgress({
+        if (!hadStreamPreviewV1023) setFolderImportProgress({
           title: '만화 폴더 추가 완료',
           main: `만화 ${formatFolderProgressNumber(comicCount)}개 등록`,
           detail: String(dir?.name || ''),
@@ -84508,8 +85143,9 @@ function mergeRootVideos(rootName, found) {
           percent: 100,
           done: true
         }, true);
-        await new Promise(resolve => setTimeout(resolve, 650));
+        if (!hadStreamPreviewV1023) await new Promise(resolve => setTimeout(resolve, 650));
         hideFolderImportProgress();
+        comicScanRemoveStatusV1023();
         showVideoJobDoneNotice({
           title: '만화 등록 완료',
           main: `만화 ${comicCount}개`,
@@ -95521,8 +96157,8 @@ function requestVideoPosterRootHandleFromUser() {
       layer.id = 'videoPosterRootPickerGuideLayer';
       layer.innerHTML = `
         <div class="videoPosterRootPickerGuidePanel" role="dialog" aria-modal="true" aria-labelledby="videoPosterRootPickerGuideTitle">
-          <div class="videoPosterRootPickerGuideTitle" id="videoPosterRootPickerGuideTitle">저장 폴더를 선택하세요</div>
-          <div class="videoPosterRootPickerGuideText">처음 한 번만 선택합니다.\n\n웹뷰어 HTML 파일이 있는 폴더를 선택하세요.\n그 안의 Posters / Actors / Scenes 폴더를 사용해 포스터 · 배우사진 · 썸네일을 저장/불러옵니다.</div>
+          <div class="videoPosterRootPickerGuideTitle" id="videoPosterRootPickerGuideTitle">영상·만화 이미지 저장 폴더를 선택하세요</div>
+          <div class="videoPosterRootPickerGuideText">처음 한 번만 선택합니다.\n\n웹뷰어 HTML 파일이 있는 폴더를 선택하세요.\n선택한 폴더는 영상·만화의 공용 이미지폴더로 사용됩니다.\n그 안의 Posters / Actors / Scenes / Posters/Comics를 사용해 영상 포스터 · 배우사진 · 썸네일 · 만화 ZIP 표지를 저장/불러옵니다.</div>
           <div class="videoPosterRootPickerGuideActions">
             <button type="button" id="videoPosterRootPickerCancel">취소</button>
             <button type="button" class="primary" id="videoPosterRootPickerChoose">폴더 선택</button>
@@ -123779,13 +124415,8 @@ applyWtMultiTagFilterNow = function() {
             return '';
           }
 
-          // 작가
-          if (
-            s.startsWith('author:')
-          ) {
-            return `[${s.slice(7)}]`;
-          }
-
+          // v1022: 작가/그룹은 정확한 유형으로 필터하고, 기존 태그는 원래대로 처리.
+          if (s.startsWith('author:') || s.startsWith('group:')) return s;
           // 접두어 없는 기존 태그는 만화 태그
           return `[${s}]`;
         })
@@ -150890,11 +151521,11 @@ img.decoding = 'async';
       ['배우캡처', 'videoBulkActressCaptureBtn'],
       ['포스터캡처', 'videoBulkPosterCaptureBtn'],
       ['Wiki입력', 'videoBulkActressWikiInfoBtn'],
-      ['정보입력', 'videoBulkActressInfoBtn'],
+      ['AVDBS입력', 'videoBulkActressInfoBtn'],
       ['썸네일', 'videoBulkSceneThumbBtn'],
       ['블랙리스트 초기화', 'wtVideoBlacklistResetBtn'],
       ['영상선택', 'fsComicLink'],
-      ['배우매칭', 'videoActressBulkMatchBtn'],
+      ['Wiki매칭', 'videoActressBulkMatchBtn'],
       ['AVDBS매칭', 'videoActressAvdbsBulkMatchBtn'],
       ['포스터+', 'videoPosterCustomSourceBtn'],
       ['체형계산', 'videoBulkActressBodyTypeBtn'],
@@ -165664,7 +166295,10 @@ function installVideoWorldCupUi() {
     'webtoon_list_db_v1',
     'webtoon_image_config_db_v1',
     'webtoon_runtime_data_db_v1',
-    'webtoon_auto_thumb_cache_db_v1'
+    'webtoon_auto_thumb_cache_db_v1',
+    // v1026: 최근 별도 DB로 이전한 ZIP 표지/장수 및 이어보기 기록도 만화 초기화에 포함
+    'comic_zip_posters_v979',
+    'viewer_comic_last_pages_v1020'
   ]);
 
   const VIEWER_VIDEO_RESET_DB_NAMES_V772 = Object.freeze([
@@ -165684,7 +166318,9 @@ function installVideoWorldCupUi() {
   // comic_fs_db_v1은 만화와 영상이 함께 쓰므로 partial reset에서는 DB 전체 삭제 금지.
   const VIEWER_COMIC_SHARED_STORE_KEYS_V772 = Object.freeze([
     'comic_root_list_v1',
-    'comic_active_fs_handle_v1'
+    'comic_active_fs_handle_v1',
+    // v1026: 만화 폴더 변경 직전 백업은 초기화 후 재연결의 원인이 될 수 있으므로 함께 삭제
+    'comic_path_backup_v978'
   ]);
 
   const VIEWER_VIDEO_SHARED_STORE_KEYS_V772 = Object.freeze([
@@ -165814,11 +166450,14 @@ function installVideoWorldCupUi() {
     return removed;
   }
 
-  async function deleteViewerComicFsStoreKeysV772(keys) {
+  async function deleteViewerComicFsStoreKeysV772(keys, prefixes = []) {
     const targets = Array.from(new Set(
       (Array.isArray(keys) ? keys : []).map(v => String(v || '')).filter(Boolean)
     ));
-    if (!targets.length) return { ok:true, deleted:0 };
+    const prefixTargets = Array.from(new Set(
+      (Array.isArray(prefixes) ? prefixes : []).map(v => String(v || '')).filter(Boolean)
+    ));
+    if (!targets.length && !prefixTargets.length) return { ok:true, deleted:0 };
 
     return new Promise(resolve => {
       let settled = false;
@@ -165846,6 +166485,11 @@ function installVideoWorldCupUi() {
             const store = tx.objectStore('fs_comic_root_v1');
 
             for (const key of targets) store.delete(key);
+            // v1026: v1025 스캔 체크포인트는 루트별 가변 키이므로 범위 삭제.
+            // 공유 DB의 video_* 등 다른 종류의 키는 그대로 보존한다.
+            for (const prefix of prefixTargets) {
+              store.delete(IDBKeyRange.bound(prefix, prefix + '\uffff'));
+            }
 
             tx.oncomplete = () => {
               try { db.close(); } catch (_) {}
@@ -165918,7 +166562,7 @@ function installVideoWorldCupUi() {
 
     const detailByScope = {
       comic:
-        '만화 목록, 만화 폴더 연결, 만화 평점/북마크/이어보기/썸네일 캐시 등 만화 데이터만 삭제됩니다.\n영상과 음악 데이터는 유지됩니다.',
+        '만화 목록·폴더 연결·평점·북마크·마지막 페이지·ZIP 표지 캐시·미완료 스캔기록·보기 설정을 삭제합니다.\n영상과 음악 데이터는 유지됩니다.',
       video:
         '영상 목록, 영상 폴더 연결, 배우정보, 작품DB, 평점/북마크/재생수, 제목 번역 캐시 등 영상 데이터만 삭제됩니다.\n월드컵 포스터/썸네일/태그매치 전적·랭킹·태그는 보존됩니다.\n만화와 음악 데이터도 유지됩니다.',
       both:
@@ -165953,9 +166597,15 @@ function installVideoWorldCupUi() {
 
     await new Promise(resolve => requestAnimationFrame(() => resolve()));
 
+    // v1026: 백그라운드 최초 스캔 체크포인트 저장도 새로 시작하지 않게 막는다.
+    if (scope === 'comic' || scope === 'both') window.__viewerComicResetInProgressV1026 = true;
     // reload 직전까지 어떤 영역도 다시 저장하지 못하게 전체 write gate를 잠근다.
     // 선택하지 않은 영역의 영구데이터는 삭제하지 않으므로 reload 후 그대로 복원된다.
     stopViewerWritesForFullResetV285();
+    // 이미 실행 중이던 체크포인트 저장이 끝난 뒤에 공유 DB를 정리한다.
+    if (scope === 'comic' || scope === 'both') {
+      try { await window.__comicStreamV1023?.checkpointV1025?.writing; } catch (_) {}
+    }
 
     // 선택 범위의 LocalStorage / SessionStorage만 제거.
     try { clearViewerStorageByScopeV772(localStorage, scope); } catch (_) {}
@@ -165965,10 +166615,12 @@ function installVideoWorldCupUi() {
     // 둘 다일 때만 만화+영상 데이터가 전부 대상이므로 DB 전체 삭제 가능.
     let dbNames = [];
     let sharedKeys = [];
+    let sharedPrefixes = [];
 
     if (scope === 'comic') {
       dbNames = [...VIEWER_COMIC_RESET_DB_NAMES_V772];
       sharedKeys = [...VIEWER_COMIC_SHARED_STORE_KEYS_V772];
+      sharedPrefixes = ['comic_scan_checkpoint_v1025:'];
     } else if (scope === 'video') {
       dbNames = [...VIEWER_VIDEO_RESET_DB_NAMES_V772];
       sharedKeys = [...VIEWER_VIDEO_SHARED_STORE_KEYS_V772];
@@ -165976,8 +166628,8 @@ function installVideoWorldCupUi() {
       dbNames = [...VIEWER_FULL_RESET_DB_NAMES_V278];
     }
 
-    const sharedDeleteResult = sharedKeys.length
-      ? await deleteViewerComicFsStoreKeysV772(sharedKeys)
+    const sharedDeleteResult = (sharedKeys.length || sharedPrefixes.length)
+      ? await deleteViewerComicFsStoreKeysV772(sharedKeys, sharedPrefixes)
       : { ok:true, deleted:0, detail:'not-needed' };
 
     if (!sharedDeleteResult.ok) {
@@ -166050,8 +166702,8 @@ function installVideoWorldCupUi() {
       return !(c?.ok || d?.ok);
     });
 
-    if (sharedKeys.length && !sharedDeleteResult.ok) {
-      hardFailed.push('comic_fs_db_v1(선택 키)');
+    if ((sharedKeys.length || sharedPrefixes.length) && !sharedDeleteResult.ok) {
+      hardFailed.push('comic_fs_db_v1(만화 키/스캔 임시기록)');
     }
 
     const shellOnly = dbNames.filter(name => {
@@ -174000,19 +174652,24 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     ].join(';');
 
     const title = document.createElement('div');
-    title.textContent = '포스터 · 배우사진 · 썸네일 폴더를 연결하세요';
+    title.textContent = '영상·만화 이미지폴더를 연결하세요';
     title.style.cssText = 'font-size:19px;font-weight:850;margin-bottom:10px;';
 
     const desc = document.createElement('div');
-    desc.textContent =
-      '포스터·배우사진·썸네일을 사용할 PC 폴더를 하나 선택하세요. Posters / Actors / Scenes 폴더를 함께 사용합니다.\n\n' +
-      '【포스터: Posters】 품번.jpg (예: ABC-123.jpg)\n' +
-      '품번 없는 영상은 영상파일명.jpg (예: 내영상.mp4 → 내영상.jpg)\n\n' +
-      '【배우사진: Actors】 배우의 대표 일본어 이름 전체.jpg\n' +
-      '예: 山岸あや花.jpg (괄호가 있으면 괄호까지 동일하게)\n' +
-      '로컬 배우사진을 온라인보다 우선 표시합니다. (.jpg 권장)\n\n' +
-      '【썸네일: Scenes】 캡처·월드컵 이미지가 저장되므로 파일명을 직접 정할 필요 없습니다.\n\n' +
-      'GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나중에 상단 이미지폴더 버튼으로 재연결할 수 있습니다.';
+    desc.textContent = `영상·만화에서 함께 사용할 PC 이미지 폴더를 하나 선택하세요. Posters / Actors / Scenes / Posters/Comics 폴더를 함께 사용합니다.
+
+【영상 포스터: Posters】 품번.jpg (예: ABC-123.jpg)
+품번 없는 영상은 영상파일명.jpg (예: 내영상.mp4 → 내영상.jpg)
+
+【배우사진: Actors】 배우의 대표 일본어 이름 전체.jpg
+예: 山岸あや花.jpg (괄호가 있으면 괄호까지 동일하게)
+로컬 배우사진을 온라인보다 우선 표시합니다. (.jpg 권장)
+
+【썸네일: Scenes】 캡처·월드컵 이미지가 저장되므로 파일명을 직접 정할 필요 없습니다.
+
+【만화 ZIP 표지: Posters/Comics】 ZIP·CBZ 표지를 자동 저장해 다음부터 더 빨리 표시합니다.
+
+GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나중에 상단 이미지폴더 버튼으로 재연결할 수 있습니다.`;
     desc.style.cssText = 'font-size:13px;line-height:1.65;color:#d5dae3;white-space:pre-line;margin-bottom:18px;';
 
     const buttons = document.createElement('div');
@@ -174668,8 +175325,8 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 
     showChoice({
       step:'local-media-root-v876',daily:false,
-      title:'포스터 · 배우사진 · 썸네일 폴더를 연결하시겠습니까?',
-      message:'PC에서 이미지용 폴더 하나를 선택하면 Posters / Actors / Scenes를 함께 사용합니다.\n\n포스터: Posters/품번.jpg (품번이 없다면 영상파일명.jpg)\n배우사진: Actors/대표일본어이름.jpg (이름 전체 일치, 로컬 사진 우선)\n썸네일: Scenes에 캡처·월드컵 이미지 저장\n\nGitHub에서도 연결한 PC 이미지를 먼저 사용합니다.',
+      title:'영상·만화 이미지폴더를 연결하시겠습니까?',
+      message:'PC에서 영상·만화 공용 이미지폴더 하나를 선택하면 Posters / Actors / Scenes / Posters/Comics를 함께 사용합니다.\n\n영상 포스터: Posters/품번.jpg (품번이 없다면 영상파일명.jpg)\n배우사진: Actors/대표일본어이름.jpg (이름 전체 일치, 로컬 사진 우선)\n썸네일: Scenes에 캡처·월드컵 이미지 저장\n만화 ZIP 표지: Posters/Comics에 자동 저장\n\nGitHub에서도 연결한 PC 이미지를 먼저 사용합니다.',
       confirmText:'폴더 선택',cancelText:'건너뛰기',
       onConfirm:async()=>{
         if(!isFlowCurrent(flow))return;
@@ -174819,7 +175476,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1020;
+  const VIEWER_BUILD_V789 = 1027;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -178947,24 +179604,30 @@ try {
     const panel = document.createElement('div');
     panel.style.cssText = 'width:min(540px,95vw);max-height:calc(100vh - 24px);overflow-y:auto;box-sizing:border-box;padding:22px;background:#171a20;border:1px solid #4a505b;border-radius:12px;color:#f4f6f8;text-align:left;font-family:system-ui,sans-serif;box-shadow:0 18px 50px #0009;';
     const heading = document.createElement('div');
-    heading.textContent = '포스터 · 배우사진 · 썸네일 폴더 연결';
+    heading.textContent = '영상·만화 이미지폴더 연결';
     heading.style.cssText = 'font-size:18px;font-weight:800;margin-bottom:12px;';
     const info = document.createElement('div');
-    info.textContent =
-      '포스터·배우사진·썸네일을 사용할 PC 폴더를 선택하세요. 선택한 폴더 아래 Posters / Actors / Scenes를 함께 사용합니다.\n\n' +
-      '【포스터 → Posters 폴더】\n' +
-      '• 품번이 있는 영상: 품번.jpg (예: ABC-123.jpg)\n' +
-      '• 품번이 없는 영상: 영상파일명.jpg\n' +
-      '  예: 내영상.mp4 → Posters/내영상.jpg (원본 확장자 제외)\n\n' +
-      '【배우사진 → Actors 폴더】\n' +
-      '• 배우의 대표 일본어 이름 전체.jpg로 저장하세요.\n' +
-      '  예: 山岸あや花.jpg → Actors/山岸あや花.jpg\n' +
-      '• 이름에 괄호가 있으면 괄호까지 동일하게 입력하세요.\n' +
-      '• 일치하는 로컬 사진을 온라인 사진보다 우선 표시합니다.\n' +
-      '  (.jpg 권장, .jpeg/.png/.webp도 지원)\n\n' +
-      '【썸네일 → Scenes 폴더】\n' +
-      '• 캡처·월드컵 등에서 저장한 장면 이미지를 보관합니다. 파일명을 직접 만들 필요는 없습니다.\n\n' +
-      'GitHub 온라인에서도 연결한 PC의 이미지를 우선 사용합니다. 이미 연결했다면 다른 폴더로 변경할 수 있습니다.';
+    info.textContent = `영상·만화에서 함께 사용할 PC 이미지 폴더를 선택하세요. 선택한 폴더 아래 Posters / Actors / Scenes / Posters/Comics를 함께 사용합니다.
+
+【영상 포스터 → Posters 폴더】
+• 품번이 있는 영상: 품번.jpg (예: ABC-123.jpg)
+• 품번이 없는 영상: 영상파일명.jpg
+  예: 내영상.mp4 → Posters/내영상.jpg (원본 확장자 제외)
+
+【배우사진 → Actors 폴더】
+• 배우의 대표 일본어 이름 전체.jpg로 저장하세요.
+  예: 山岸あや花.jpg → Actors/山岸あや花.jpg
+• 이름에 괄호가 있으면 괄호까지 동일하게 입력하세요.
+• 일치하는 로컬 사진을 온라인 사진보다 우선 표시합니다.
+  (.jpg 권장, .jpeg/.png/.webp도 지원)
+
+【썸네일 → Scenes 폴더】
+• 캡처·월드컵 등에서 저장한 장면 이미지를 보관합니다. 파일명을 직접 만들 필요는 없습니다.
+
+【만화 ZIP 표지 → Posters/Comics 폴더】
+• ZIP·CBZ 표지를 자동 저장해 다음부터 더 빨리 표시합니다.
+
+GitHub 온라인에서도 연결한 PC의 이미지를 우선 사용합니다. 이미 연결했다면 다른 폴더로 변경할 수 있습니다.`;
     info.style.cssText = 'font-size:13px;white-space:pre-line;line-height:1.65;color:#d5dae3;margin-bottom:18px;';
     const status = document.createElement('div');
     status.style.cssText = 'font-size:12px;color:#d5dae3;margin-bottom:14px;';
@@ -180392,8 +181055,17 @@ async function posterFor(value){
 }
 function enqueue(job,priority=false,kind='poster'){return new Promise((resolve,reject)=>{
   (priority?queue.unshift:queue.push).call(queue,{job,resolve,reject,kind});pump();});}
+let balanceWakeV1024=null;
 function pump(){
-  while(running<MAX_ZIP_JOBS_V1011 && queue.length){
+  const balance=window.__comicBalanceV1024;
+  if(queue.length && balance?.isBusy()) {
+    if(!balanceWakeV1024) balanceWakeV1024=setTimeout(()=>{
+      balanceWakeV1024=null; pump();
+    },balance.retryMs());
+    return;
+  }
+  const maxJobs=balance?.readerMode() ? 1 : MAX_ZIP_JOBS_V1011;
+  while(running<maxJobs && queue.length){
     // ZIP표지 창에서 일시정지를 눌러도 일반 목록의 장수 조회는 계속 작동한다.
     const idx=paused?queue.findIndex(t=>t.kind==='count'):0;
     if(idx<0)return;
@@ -180613,6 +181285,9 @@ function zipFileNavigationV1005(currentValue){
   return {values,index};
 }
 async function openLightbox(value, fileJumpV1005=null){
+  const balanceV1024=window.__comicBalanceV1024;
+  balanceV1024?.beginOpen();
+  try {
   // v992: 기존 ZIP 라이트박스를 일반 로컬 이미지 폴더에도 공통 적용.
   // 이미지 구성 맵과 파일명 숫자 규칙, HTTP 재스캔은 사용하지 않는다.
   const isFolderV992=/^fsdir:/i.test(String(value||''));
@@ -180963,6 +181638,7 @@ async function openLightbox(value, fileJumpV1005=null){
   horizontalBtnV986.onclick=()=>void setDirectionV986('horizontal');
   verticalBtnV986.onclick=()=>void setDirectionV986('vertical');
   async function go(n){
+    window.__comicBalanceV1024?.activity();
     if(destroyed)return;
     const to=Math.min(pages.length-1,Math.max(0,n));
     if(readDirectionV986==='vertical'){
@@ -181140,6 +181816,7 @@ async function openLightbox(value, fileJumpV1005=null){
   syncDirectionButtonsV986();refreshBadge();
   if(fileJumpV1005?.direction==='vertical')await setDirectionV986('vertical');
   else await go(idx);
+  } finally { balanceV1024?.endOpen(); }
 }
 // 이미 추출한 표지는 폴더 연결 후 ZIP을 다시 열지 않고 WebP 그대로 저장.
 async function saveTransientPostersV980(){
@@ -181502,9 +182179,22 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
 
  const imageRE=/\.(?:jpe?g|png|webp|avif|gif|bmp)$/i;
  const metaCache=new Map(), maxMeta=250;
- const queue=[];let running=0;
+ const queue=[];let running=0, balanceWakeV1024=null;
  const queueTask=(fn)=>{queue.push(fn);pump();};
- function pump(){while(running<2 && queue.length){running++;const fn=queue.shift();Promise.resolve().then(fn).catch(e=>console.warn('[comic FS preview]',e)).finally(()=>{running--;pump();});}}
+ function pump(){
+   const balance=window.__comicBalanceV1024;
+   if(queue.length && balance?.isBusy()) {
+     if(!balanceWakeV1024) balanceWakeV1024=setTimeout(()=>{
+       balanceWakeV1024=null; pump();
+     },balance.retryMs());
+     return;
+   }
+   const maxJobs=balance?.readerMode() ? 1 : 2;
+   while(running<maxJobs && queue.length){
+     running++;const fn=queue.shift();
+     Promise.resolve().then(fn).catch(e=>console.warn('[comic FS preview]',e)).finally(()=>{running--;pump();});
+   }
+ }
  const observe = typeof IntersectionObserver==='function' ? new IntersectionObserver(entries=>{
    for(const entry of entries){if(!entry.isIntersecting)continue;observe.unobserve(entry.target);const fn=entry.target.__fsStartV990;entry.target.__fsStartV990=null;if(fn)queueTask(fn);}
  },{rootMargin:'450px 0px'}) : null;
