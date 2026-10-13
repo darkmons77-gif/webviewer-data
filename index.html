@@ -1,3 +1,4 @@
+<!-- v1099: 작가별 버튼은 만화 탭에서만 표시, 주요 업데이트 안내에 Chrome/Edge 및 크로미움 호환성 안내 추가 · 빌드 1099. -->
 <!-- v1098: 주요 업데이트 안내 모달 2회 한정 표시. 만화/영상/음악/게임 사용법 안내; 기존 압축만화 팝업 중복 방지, 수동 닫기 · 화면 빌드 1098. -->
 <!-- v1097: 긴 캡션으로 썸네일 카드가 넓어지는 버그 방지. 카드/버튼 폭을 포스터와 동일하게 고정, v1051 레일 자동크기 변동 대응, 2줄 말줄임 유지, 빌드 1097. -->
 <!-- v1095: 2줄 만화 캡션 표시공간 복원(세로 42px, 가로 100%, 재스캔 버튼 동기화). 건의서버 기능 변경없음. -->
@@ -35504,6 +35505,8 @@ document.getElementById('wtViewText')?.addEventListener('click', () => {
   renderWebtoonList();
 });
 document.getElementById('wtViewPixiV1080')?.addEventListener('click', () => {
+  // v1099: 영상/음악 모드에서 만화 전용 보기 상태가 변경되지 않도록 방어.
+  if (window.__isVideoContentMode?.() === true || window.viewerMusicTabIsActiveV968?.() === true) return;
   if (wtViewMode === 'pixi') {
     // ON 상태에서 다시 누르면 마지막 일반 보기로 돌아간다. 정렬 모드는 건드리지 않는다.
     wtViewMode = wtLastNormalViewV1082 === 'text' ? 'text' : 'thumb';
@@ -125783,6 +125786,12 @@ function toggleVideoToolbarFold() {
     const textBtn = document.getElementById('wtViewText');
     const ratioSel = document.getElementById('wtThumbRatio');
     const isVideo = contentMode === 'video';
+    // v1099: 작품목록 헤더는 만화·영상에서 공용으로 사용한다.
+    // 작가별(픽시) 버튼은 만화 전용이며 영상·음악 탭에서는 감춘다.
+    const comicArtistViewBtnV1099 = document.getElementById('wtViewPixiV1080');
+    if (comicArtistViewBtnV1099) {
+      comicArtistViewBtnV1099.style.display = (!isVideo && !musicTabActiveV968) ? '' : 'none';
+    }
     // v1032: 공유 툴바의 만화 ZIP표지는 만화 탭에서만 표시한다.
     const comicZipPosterBtnV979 = document.getElementById('comicZipPosterBtnV979');
     if (comicZipPosterBtnV979) {
@@ -177699,7 +177708,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1098;
+  const VIEWER_BUILD_V789 = 1099;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -182086,6 +182095,7 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #wtBox.music-tab-active-v968 > .wt-head .mu-head > div::-webkit-scrollbar {display:none;}
 #wtBox.music-tab-active-v968 > .wt-head .mu-head > div > * {flex:0 0 auto;}
 #wtBox.music-tab-active-v968 > .wt-head {margin-bottom:2px;}
+#wtBox.music-tab-active-v968 #wtViewPixiV1080 { display:none!important; }
 </style>
 <script id="musicTabIntegrationV968">
 (() => {
@@ -186916,6 +186926,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+<!-- v1099: Chromium 브라우저 호환성 안내 문구 추가 및 새 안내 2회 표시. -->
 <!-- v1098: 2회 한정 주요 기능 업데이트 알림. 기존 압축만화 첫 사용 안내와 중복 팝업 방지. -->
 <style id="wv1098NoticeStyle">
 #wv1098NoticeOverlay{display:none;position:fixed;inset:0;z-index:2147483500;background:rgba(4,8,16,.67);align-items:center;justify-content:center;padding:12px;box-sizing:border-box;}
@@ -186943,7 +186954,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div id="wv1098NoticeOverlay" aria-hidden="true">
   <section class="wv1098Dialog" role="dialog" aria-modal="true" aria-labelledby="wv1098NoticeTitle" aria-describedby="wv1098NoticeSubtitle">
     <div class="wv1098Head">
-      <div class="wv1098HeadTop"><div><div id="wv1098NoticeTitle" class="wv1098Title">✨ 웹뷰어 주요 업데이트 안내</div><div class="wv1098Subtitle" id="wv1098NoticeSubtitle">만화·영상·음악·게임의 새 기능과 이용 방법을 한눈에 확인하세요.</div></div><span class="wv1098Tag">빌드 1098</span></div>
+      <div class="wv1098HeadTop"><div><div id="wv1098NoticeTitle" class="wv1098Title">✨ 웹뷰어 주요 업데이트 안내</div><div class="wv1098Subtitle" id="wv1098NoticeSubtitle">만화·영상·음악·게임의 새 기능과 이용 방법을 한눈에 확인하세요.</div></div><span class="wv1098Tag">빌드 1099</span></div>
     </div>
     <div class="wv1098Body">
       <div class="wv1098Section"><h3>📚 만화 — 찾아보기와 이어보기</h3><ul>
@@ -186972,6 +186983,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <li>기본 조작은 <strong>V = 코인, Enter = 시작</strong>. 상세 키는 게임 화면 하단의 컨트롤 아이콘에서 확인하세요.</li>
         <li>게임패드는 브라우저·장치에 따라 사용 가능하지만, 호환성은 확인이 필요해요.</li>
       </ul><div style="margin-top:7px;font-size:12px">롬셋 안내: <a href="https://dsno.tistory.com/1454" target="_blank" rel="noopener noreferrer">dsno.tistory.com/1454</a></div></div>
+      <div class="wv1098Section"><h3>🌐 웹브라우저 호환성 안내</h3><ul>
+        <li>웹뷰어는 <strong>PC용 Google Chrome(크롬)</strong>을 기준으로 개발·최적화되어 있습니다.</li>
+        <li><strong>Microsoft Edge(엣지)</strong>도 크로미움 기반으로 주요 기능과 호환성이 좋은 편입니다.</li>
+        <li>Brave·Opera·Vivaldi 등 <strong>다른 크로미움 계열 브라우저</strong>는 브라우저별 보안 설정, 로컬 폴더 접근 권한, 저장 기능, 확장기능 및 성능 차이로 일부 기능이 다르게 작동하거나 지원되지 않을 수 있습니다.</li>
+        <li>Firefox·Safari 등은 사용된 웹 API에 따라 기능 제한이 있을 수 있습니다. 문제가 생기면 <strong>최신 크롬에서 먼저 확인</strong>해 주세요.</li>
+      </ul></div>
     </div>
     <div class="wv1098Foot"><span class="wv1098FootInfo">이 안내는 최대 <strong>2회</strong> 표시됩니다. 필요한 내용을 읽고 확인을 눌러주세요. <span id="wv1098NoticeCount"></span></span><button type="button" class="wv1098Close" id="wv1098NoticeClose">확인 · 닫기</button></div>
   </section>
@@ -186979,7 +186996,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="wv1098NoticeScript">
 (()=>{
   'use strict';
-  const KEY='viewer_major_updates_notice_shown_v1098';
+  const KEY='viewer_major_updates_notice_shown_v1099';
   const LIMIT=2;
   const overlay=document.getElementById('wv1098NoticeOverlay');
   const close=document.getElementById('wv1098NoticeClose');
