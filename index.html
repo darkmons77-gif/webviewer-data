@@ -1,3 +1,10 @@
+<!-- v1152: 자동공유 외부연결 문제로 임시 사용중단 안내. 개발자 권한 이외 서버 연결/송수신/공유등록/수동P2P 차단. 기존 기록 보존. -->
+<!-- v1151: 자동공유 송신·수신 실패 영구 이력(원인/단계/품번/전송량), 기존 완료 이력창 재사용, 취소 및 정상대기 제외. -->
+<!-- v1150: 로컬 ZIP·CBZ·이미지폴더 오른쪽 페이지 즐겨찾기 썸네일 패널 · 닫기/썸네일 이동/삭제 · 레이지 로딩 및 페이지 배지 겹침 방지. -->
+<!-- v1149: 만화 하트 크기 1/2(20px), 그림 실제 표시 영역 우측 모서리 고정; 가이드 상단이면 하트 하단 / 가이드 하단이면 하트 상단; 로컬/절대/세로 공통 -->
+<!-- v1148: 만화 공통 가이드 위치/자동숨김 · 절대경로 fav_v2 하트 · ZIP/fsdir 페이지 하트(IDB) -->
+<!-- v1147: 만화 폴더 탭에 기존 ◀ AND/OR ▶ 레일 공통헤더를 재사용. 폭 조절 동일, 폴더에서 AND/OR은 표시만. 원본/DB 불변. -->
+<!-- v1146: 만화 0차 폴더에 ZIP·CBZ만 있으면 중복 '루트 직속' 숨김; 루트 ZIP과 1차 하위폴더 ZIP이 혼재할 때만 표시. 원본·IDB 보존. -->
 <!-- v1145: 신규 업데이트 기록 페이지 추가, 최신 1회 자동 안내. 변환·공유·만화 실제 로직 유지. -->
 <!-- v1144: 영상 배우·태그·메뉴(M/S) 레일 어디서나 기능 버튼 표시, 기존 S 패널과 팝업 사용 호환. 기존 TS/MKV·IndexedDB 유지. -->
 <!-- v1143: 공통 검색창 24px→18px 축소, 영상/만화/음악 탭 변경 때 일반검색 초기화와 지연타이머·목록캐시 정리. v1142 및 변환기 보존. -->
@@ -178,6 +185,23 @@ html.wv1111-light-only #miniToolbar {
       window.dispatchEvent(new Event('viewer-console-mode-changed-v1101'));
     }
   });
+})();
+</script>
+<!-- v1152: 공유 기능 전체 임시 차단. 클라이언트 잠금이며 서버 권한 검증을 대체하지 않는다. -->
+<script id="viewerShareEmergencyGateV1152">
+(()=>{
+  'use strict';
+  const KEY='video_developer_access_v910';
+  const MESSAGE='자동공유 연결 문제가 확인되어 수정 전까지 공유 기능을 사용할 수 없습니다. 현재는 개발자 권한을 켠 경우에만 시험할 수 있습니다.';
+  const allowed=()=>{try{return localStorage.getItem(KEY)==='1';}catch(_){return false;}};
+  function explain(){
+    try { if(typeof window.showToast==='function'){window.showToast(MESSAGE,5000);return false;} } catch(_){}
+    alert(MESSAGE);
+    return false;
+  }
+  window.viewerShareAllowedV1152=allowed;
+  window.viewerShareGateV1152=()=>allowed()||explain();
+  window.viewerShareNoticeV1152=MESSAGE;
 })();
 </script>
 <!-- v1078: 단순 안내는 2초 상한, 최근 50건 텍스트 알림 기록은 IndexedDB 별도 저장 -->
@@ -40970,8 +40994,17 @@ function getComicFirstFolderIndexV1132(){
     group.count++;
   }
   const cmp=(a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'})||a.rootId.localeCompare(b.rootId);
-  for(const groups of byRoot.values())groups.sort(cmp);
-  c.entries=entries;c.byRoot=byRoot;c.all=Array.from(all.values()).sort(cmp);c.dirty=false;
+  // v1146: 루트에 ZIP/CBZ만 있고 하위 ZIP/CBZ 작품 폴더가 없다면
+  // 0차 가로 폴더와 중복되므로 왼쪽 '루트 직속' 행을 표시하지 않는다.
+  // 하위 폴더 ZIP과 루트 직속 ZIP이 혼재하면 둘 모두 선택 가능하게 유지한다.
+  const visible=[];
+  for(const [rootId,groups] of byRoot){
+    const hasSubfolder=groups.some(g=>!g.direct);
+    if(!hasSubfolder){byRoot.delete(rootId);continue;}
+    groups.sort(cmp);
+    visible.push(...groups);
+  }
+  c.entries=entries;c.byRoot=byRoot;c.all=visible.sort(cmp);c.dirty=false;
   return c;
 }
 window.addEventListener('webtoonlist:changed',()=>{comicFirstFolderIndexV1132.dirty=true;});
@@ -41136,12 +41169,15 @@ function renderWtTagRail() {
   modeBtn.style.cssText = 'width:100%;border:0;background:transparent;color:#ddd;cursor:pointer;font-size:11px;line-height:14px;padding:4px 4px 4px;margin-top:6px;text-align:center;';
   modeBtn.addEventListener('click', e => {
     e.preventDefault(); e.stopPropagation();
+    // v1147: 폴더는 단일 폴더 선택 방식이므로 AND/OR 효과가 없다.
+    // 같은 UI는 표시하지만 다른 탭의 AND/OR 선택을 뜻하지 않게 유지한다.
+    if(comicCreatorRailModeV1022==='folder')return;
     window.wtTagMultiMode = (window.wtTagMultiMode === 'OR') ? 'AND' : 'OR';
     modeBtn.textContent = window.wtTagMultiMode;
     applyWtMultiTagFilterNow();
   });
+  // v1147: 폴더 탭에서도 다른 탭과 동일한 AND/OR + ◀▶ 공통 헤더를 재사용한다.
   const commonWidthRowV1132=buildRailCommonWidthRowV1054(modeBtn,true);
-  commonWidthRowV1132.style.display=comicCreatorRailModeV1022==='folder'?'none':'';
   rail.appendChild(commonWidthRowV1132);
 
 const makeRow = (key, label, title) => {
@@ -41328,7 +41364,10 @@ const selectOnlyThisFromText = (e) => {
     }
     // v1132: 폴더 모드에서는 실제 1차 폴더 이름만 나열한다.
     // 체크박스/작가 초성 대신 클릭 가능한 폴더 목록, 160행 가상 스크롤을 재사용한다.
-    commonWidthRowV1132.style.display=mode==='folder'?'none':'';
+    // 폴더에서도 공통 헤더 높이·배치를 보존한다. 폭 버튼은 모든 탭에서 동작한다.
+    // AND/OR는 폴더에 의미가 없으므로 표시만 하고 작가·태그의 필터 모드는 보존한다.
+    modeBtn.title=mode==='folder'?'폴더는 하나씩 선택합니다. AND/OR는 폴더에 적용되지 않습니다.':'다중 필터 모드 전환 (AND/OR)';
+    modeBtn.setAttribute('aria-disabled',String(mode==='folder'));
     if(mode==='folder'){
       railSectionsV1090.replaceChildren();
       railInitialsV1104.replaceChildren();
@@ -42277,6 +42316,8 @@ function applyLightboxTopBarPos(pos) {
   } catch {}
 
   updateLightboxTopBarPosButtons(pos);
+  // v1148: 옵션 변경을 열린 로컬 만화 가이드에도 즉시 반영.
+  window.dispatchEvent(new Event('comic-guide-mode-v1148'));
   const pinnedV1086=document.getElementById('lbHeaderPinV1086');
   if(pinnedV1086)pinnedV1086.checked=(pos==='top'||pos==='bottom');
   // ✅ 숨김시 페이지만 표시 추가
@@ -52724,6 +52765,7 @@ function setVideoDeveloperAccessEnabledV910(enabled) {
     else localStorage.removeItem(VIDEO_DEVELOPER_ACCESS_KEY_V910);
   } catch (_) {}
   updateVideoDeveloperAccessUiV910();
+  try {window.dispatchEvent(new Event('viewer-share-access-changed-v1152'));} catch (_) {}
 }
 
 function updateVideoDeveloperAccessUiV910(message = '') {
@@ -115659,6 +115701,7 @@ function ensureVideoP2PLayerV933() {
 }
 
 function openVideoP2PLayerV933(mode = 'send') {
+  if(!window.viewerShareGateV1152?.()) return null;
   const layer = ensureVideoP2PLayerV933();
   layer.__videoP2PSetPaneV933?.(mode === 'recv' ? 'recv' : 'send');
   layer.classList.add('is-visible');
@@ -115708,6 +115751,7 @@ function cancelVideoP2PSessionV933(message = '중지') {
 }
 
 async function prepareVideoP2PSendV933(entry) {
+  if(!window.viewerShareGateV1152?.()) return;
   const layer = openVideoP2PLayerV933('send');
   await cleanupVideoP2PSessionV933({ abortWritable: true });
   const fileBox = layer.querySelector('#videoP2PSendFileV933');
@@ -115781,6 +115825,7 @@ async function prepareVideoP2PSendV933(entry) {
 }
 
 async function applyVideoP2PAnswerAndStartV933() {
+  if(!window.viewerShareGateV1152?.()) return;
   const session = videoP2PSessionV933;
   const layer = ensureVideoP2PLayerV933();
   if (!session || session.mode !== 'send' || !session.pc) {
@@ -115857,6 +115902,7 @@ async function sendVideoP2PFileV933(session) {
 }
 
 async function makeVideoP2PAnswerV933() {
+  if(!window.viewerShareGateV1152?.()) return;
   const layer = openVideoP2PLayerV933('recv');
   await cleanupVideoP2PSessionV933({ abortWritable: true });
   const raw = layer.querySelector('#videoP2POfferInV933')?.value;
@@ -116426,7 +116472,7 @@ const VideoTsFfmpegV1138=(()=>{
       const overlay=document.createElement('div');overlay.id='videoTsMp4ChoiceV1138';
       const big=size>maxInput;
       overlay.innerHTML=`<div class="videoTsMp4ChoicePanelV1138" role="dialog" aria-modal="true" aria-label="TS 변환 방식 선택">
-        <strong class="videoTsMp4ChoiceTitleV1138">TS → MP4 · 변환 방식 선택 (빌드 1145)</strong>
+        <strong class="videoTsMp4ChoiceTitleV1138">TS → MP4 · 변환 방식 선택 (빌드 1152)</strong>
         <p>원본은 그대로 유지 · ${size?('원본 '+convertSize(size)):'원본 용량 확인 전'} · 출력은 일반 MP4 1개</p>
         <button type="button" data-kind="native"><b>① PC FFmpeg 변환 (대용량 추천)</b><small>메모리 제한이 거의 없으며 영상·음성 손실 없이 복사 우선. CMD 다운로드 후 TS 파일을 끌어다 놓습니다. 별도의 FFmpeg.exe가 필요합니다.</small></button>
         <button type="button" data-kind="wasm" ${big?'disabled':''}><b>② 브라우저 FFmpeg.wasm 변환${big?' (용량 초과)':''}</b><small>180 MB 이하 시험용. 약 31 MB 변환 엔진 인터넷 로딩, 소형 TS 직접 MP4 저장. 메모리·보안 제한으로 일부 PC에서는 실행되지 않을 수 있습니다.</small></button>
@@ -116588,7 +116634,7 @@ function getVideoTsMp4DialogV1134() {
   layer.id='videoTsMp4DialogV1134';
   layer.innerHTML=`
     <section class="videoTsMp4PanelV1134" role="dialog" aria-modal="true" aria-labelledby="videoTsMp4TitleV1134">
-      <div class="videoTsMp4HeadV1134"><strong id="videoTsMp4TitleV1134">TS / MKV → MP4 변환 (1145)</strong><button type="button" class="zoomBtn" data-tsmp4-close>닫기</button></div>
+      <div class="videoTsMp4HeadV1134"><strong id="videoTsMp4TitleV1134">TS / MKV → MP4 변환 (1152)</strong><button type="button" class="zoomBtn" data-tsmp4-close>닫기</button></div>
       <div class="videoTsMp4FileV1134" data-tsmp4-filename></div>
       <div class="videoTsMp4InfoV1134">원본 TS/MKV는 보존하고 별도의 <b>일반 MP4</b>를 만듭니다.<br><b>무손실 복사 우선</b> · 필요하면 재인코딩을 먼저 확인합니다.<br>인터넷 연결이 필요하며 AVI 입력은 현재 정식 엔진에서 지원되지 않습니다.</div>
       <div class="videoTsMp4TrackV1134"><div data-tsmp4-progress></div></div>
@@ -116684,7 +116730,7 @@ const VideoMediaConverterV1141=(()=>{
     const name=getName(entry),ext=getExt(name);
     if(!['ts','mkv','avi'].includes(ext))return;
     if(ext==='avi'){
-      alert('AVI → MP4는 현재 웹뷰어 1145의 Mediabunny 엔진에서 지원되지 않습니다.\nAVI 파일은 MP4 버튼만 연결한다고 변환할 수 없으며, AVI 전용 디먹서가 필요합니다.\n원본 AVI는 변경되지 않았습니다. TS와 MKV는 변환할 수 있습니다.');
+      alert('AVI → MP4는 현재 웹뷰어 1151의 Mediabunny 엔진에서 지원되지 않습니다.\nAVI 파일은 MP4 버튼만 연결한다고 변환할 수 없으며, AVI 전용 디먹서가 필요합니다.\n원본 AVI는 변경되지 않았습니다. TS와 MKV는 변환할 수 있습니다.');
       return;
     }
     if(typeof window.showSaveFilePicker!=='function'){
@@ -116975,6 +117021,12 @@ function initVideoP2PReceiveButtonV933() {
 }
 
 setTimeout(initVideoP2PReceiveButtonV933, 0);
+window.addEventListener('viewer-share-access-changed-v1152',()=>{
+  if(!window.viewerShareAllowedV1152?.()) {
+    cancelVideoP2PSessionV933('공유 기능 임시 중단');
+    document.getElementById('videoP2PLayerV933')?.classList.remove('is-visible');
+  }
+});
 
 function appendVideoCards(list, box) {
 for (const entry of list) {
@@ -161410,7 +161462,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1145;
+  const VIEWER_BUILD_V789 = 1152;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -162969,7 +163021,7 @@ try {
   function openAutoReceiveDbV1120() {
     if (autoReceiveDbPromiseV1120) return autoReceiveDbPromiseV1120;
     autoReceiveDbPromiseV1120 = new Promise((resolve, reject) => {
-      const request = indexedDB.open(AUTO_RECEIVE_DB_NAME_V1120, 2); // v1124: 전송완료 기록 추가
+      const request = indexedDB.open(AUTO_RECEIVE_DB_NAME_V1120, 3); // v1151: 실패기록 store만 추가 · 완료/폴더 기록은 그대로 유지
       request.onupgradeneeded = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', {keyPath:'id'});
@@ -162980,6 +163032,10 @@ try {
         if (!db.objectStoreNames.contains('sent_completed')) {
           const store = db.createObjectStore('sent_completed', {keyPath:'id'});
           store.createIndex('completedAt', 'completedAt');
+        }
+        if (!db.objectStoreNames.contains('transfer_failures')) {
+          const store = db.createObjectStore('transfer_failures', {keyPath:'id'});
+          store.createIndex('failedAt','failedAt');
         }
       };
       request.onsuccess = () => {
@@ -163111,6 +163167,122 @@ try {
       req.onerror = () => reject(req.error || new Error('송신 완료 이력 읽기 실패'));
     });
   }
+  // v1151: 송수신 실패 원인을 브라우저 로컬 IndexedDB에 영구 저장한다.
+  // 성공, 사용자 취소, 상대가 아직 받기를 누르지 않은 5분 대기는 실패로 집계하지 않는다.
+  const autoShareFailureDedupV1151 = new Map();
+  let autoShareFailureCountsV1151={send:0,receive:0};
+  const autoShareFailureReasonsV1151={
+    ice_failed:'WebRTC 직접연결 실패 (ICE)',
+    connection_lost:'P2P 연결 끊김',
+    connection_timeout:'P2P 연결 제한시간 초과',
+    channel_closed:'데이터 채널이 완료 전에 종료됨',
+    send_failed:'영상 전송 중 오류',
+    claim_timeout:'서버 공유 선점 응답 없음',
+    claim_failed:'서버 공유 선점 메시지 실패',
+    permission:'파일 접근 권한 없음',
+    missing_file:'원본 파일이 이동 또는 삭제됨',
+    unavailable:'파일 접근 또는 공유 준비 불가',
+    signaling:'서버 신호 교환 오류',
+    remote_failure:'상대 브라우저에서 전송 실패 알림',
+    storage:'수신 파일 저장 실패',
+    receive_failed:'받기 준비 또는 수신 실패'
+  };
+  const autoShareFailureHintsV1151={
+    ice_failed:'외부 네트워크 NAT/방화벽으로 직접 연결에 실패했을 수 있습니다. 현재 WebRTC에는 TURN 중계가 설정되지 않았습니다.',
+    connection_timeout:'외부 네트워크에서 직접연결이 성립하지 않았을 수 있습니다. 상대 브라우저 상태와 TURN 중계 부재를 확인하세요.',
+    connection_lost:'인터넷 연결이 끊어지거나 절전 상태에 진입했는지 확인하세요.',
+    channel_closed:'상대가 창을 닫았거나 인터넷 연결이 끊어졌을 수 있습니다.',
+    permission:'상단 권한 버튼을 눌러 영상 폴더 읽기 권한을 다시 허용하세요.',
+    missing_file:'원본 파일 경로를 다시 연결하거나 영상 폴더를 확인하세요.',
+    storage:'수신 폴더 쓰기 권한과 남은 저장 공간을 확인하세요.',
+    claim_timeout:'Cloudflare 연결 상태를 확인한 뒤 다시 공유 준비를 요청하세요.',
+    signaling:'서버와의 연결을 확인하고 다시 시도하세요.'
+  };
+  async function readAutoShareFailuresV1151() {
+    const db=await openAutoReceiveDbV1120();
+    return new Promise((resolve,reject)=>{
+      const rows=[];
+      const req=db.transaction('transfer_failures','readonly').objectStore('transfer_failures')
+        .index('failedAt').openCursor(null,'prev');
+      req.onsuccess=()=>{
+        const cursor=req.result;
+        if(!cursor || rows.length>=200){resolve(rows);return;}
+        rows.push(cursor.value);cursor.continue();
+      };
+      req.onerror=()=>reject(req.error||new Error('실패 이력 조회 오류'));
+    });
+  }
+  async function refreshAutoShareFailureCountsV1151(){
+    try{
+      const rows=await readAutoShareFailuresV1151();
+      autoShareFailureCountsV1151={
+        send:rows.filter(x=>x.role==='send').length,
+        receive:rows.filter(x=>x.role==='receive').length
+      };
+      if(document.getElementById('videoAutoShareReceiveDiagV936'))syncReceiveDiagnosticV936();
+    }catch(error){console.warn('[auto share v1151 failure counts]',error);}
+  }
+  function recordAutoShareFailureV1151({role='',requestId='',code='',fileName='',stage='',reason='',detail='',bytes=0,total=0,session=null}={}){
+    role=role==='receive'?'receive':'send';
+    if(session){
+      if(session.failureLoggedV1151 || session.done || session.savedSuccessfullyV1120)return;
+      session.failureLoggedV1151=true;
+    }
+    requestId=String(requestId||session?.autoRequestId||'').slice(0,150);
+    const codeValue=String(code||state.requests.get(requestId)?.code||session?.entry?.code||'').slice(0,120);
+    const dedupKey=role+'|'+requestId+'|'+codeValue;
+    const now=Date.now();
+    const prev=autoShareFailureDedupV1151.get(dedupKey)||0;
+    if(prev && now-prev<5000)return;
+    autoShareFailureDedupV1151.set(dedupKey,now);
+    if(autoShareFailureDedupV1151.size>250){
+      for(const [key,time] of autoShareFailureDedupV1151){
+        if(now-time>60000)autoShareFailureDedupV1151.delete(key);
+      }
+    }
+    const normalizedReason=String(reason||'unavailable').slice(0,100);
+    const row={
+      id:(crypto.randomUUID?.()||now+'-'+Math.random().toString(36).slice(2)),
+      failedAt:now,role,requestId,code:codeValue,
+      fileName:String(fileName||session?.file?.name||session?.receiveFileNameV951||'').slice(0,250),
+      stage:String(stage||'전송').slice(0,80),reason:normalizedReason,
+      detail:String(detail||'').slice(0,500),
+      bytes:Math.max(0,Number(bytes||session?.sentBytes||session?.received)||0),
+      total:Math.max(0,Number(total||session?.file?.size||session?.meta?.size)||0)
+    };
+    void (async()=>{
+      const db=await openAutoReceiveDbV1120();
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction('transfer_failures','readwrite');
+        const store=tx.objectStore('transfer_failures');
+        store.put(row);
+        // 최신 200건만 보존하며 과거 실패는 자동 정리한다.
+        const req=store.index('failedAt').openCursor(null,'prev');
+        let seen=0;
+        req.onsuccess=()=>{const cursor=req.result;if(!cursor)return;if(++seen>200)cursor.delete();cursor.continue();};
+        tx.oncomplete=resolve;
+        tx.onerror=()=>reject(tx.error||new Error('실패 기록 저장 실패'));
+        tx.onabort=()=>reject(tx.error||new Error('실패 기록 저장 취소'));
+      });
+      await refreshAutoShareFailureCountsV1151();
+    })().catch(error=>console.warn('[auto share v1151 failure history]',error));
+  }
+  async function clearAutoShareFailuresV1151(role){
+    const db=await openAutoReceiveDbV1120();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('transfer_failures','readwrite');
+      const req=tx.objectStore('transfer_failures').openCursor();
+      req.onsuccess=()=>{
+        const cursor=req.result;
+        if(cursor){if(cursor.value?.role===role)cursor.delete();cursor.continue();}
+      };
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||new Error('기록 삭제 실패'));
+    });
+    await refreshAutoShareFailureCountsV1151();
+  }
+  // 완료 기록과 같은 로컬 DB를 쓰고, 기존 DB를 초기화하거나 삭제하지 않는다.
+  void refreshAutoShareFailureCountsV1151();
+
   // 별도 웹브라우저 창 대신 팝업으로 표시해 팝업 차단 없이 어느 탭에서든 확인할 수 있다.
   function ensureTransferHistoryPopupV1124() {
     let shade=document.getElementById('videoAutoShareHistoryShadeV1124');
@@ -163122,7 +163294,11 @@ try {
       <section class="videoAutoShareHistoryDialogV1124" role="dialog" aria-modal="true" aria-labelledby="videoAutoShareHistoryTitleV1124">
         <div class="videoAutoShareHistoryHeadV1124">
           <strong id="videoAutoShareHistoryTitleV1124">완료 파일 목록</strong>
-          <button type="button" class="zoomBtn" id="videoAutoShareHistoryCloseV1124">닫기</button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button type="button" class="zoomBtn" id="videoAutoShareFailuresCopyV1151" hidden>기록 복사</button>
+            <button type="button" class="zoomBtn" id="videoAutoShareFailuresClearV1151" hidden>실패기록 삭제</button>
+            <button type="button" class="zoomBtn" id="videoAutoShareHistoryCloseV1124">닫기</button>
+          </div>
         </div>
         <div id="videoAutoShareHistorySummaryV1124" class="videoAutoShareHistorySummaryV1124"></div>
         <div id="videoAutoShareHistoryListV1124" class="videoAutoShareHistoryListV1124"></div>
@@ -163138,6 +163314,8 @@ try {
   }
   async function openTransferHistoryV1124(kind) {
     const sent=kind==='sent';
+    const failed=kind==='failed-send'||kind==='failed-receive';
+    const failureRole=kind==='failed-receive'?'receive':'send';
     const shade=ensureTransferHistoryPopupV1124();
     const title=shade.querySelector('#videoAutoShareHistoryTitleV1124');
     const summary=shade.querySelector('#videoAutoShareHistorySummaryV1124');
@@ -163145,18 +163323,45 @@ try {
     const stats=getAutoShareStatsV950();
     const stamp=String(Date.now())+'-'+Math.random();
     shade.dataset.loadStampV1124=stamp;
-    title.textContent=sent?'송신 완료 파일 목록':'수신 완료 파일 목록';
-    summary.textContent=`누적${sent?'전송':'받음'} ${sent?stats.sent:stats.received}건 · 최근 완료 이력 최대 200건`;
-    list.textContent='완료 파일 이력을 불러오는 중…';
+    title.textContent=failed?(failureRole==='send'?'송신 실패 기록':'수신 실패 기록'):(sent?'송신 완료 파일 목록':'수신 완료 파일 목록');
+    summary.textContent=failed
+      ? '이 브라우저에서 발생한 실패 · 최근 200건 보존 · 원인/진행단계/전송량 (이전 버전 기록은 소급되지 않음)'
+      : `누적${sent?'전송':'받음'} ${sent?stats.sent:stats.received}건 · 최근 완료 이력 최대 200건`;
+    const copyBtn=shade.querySelector('#videoAutoShareFailuresCopyV1151');
+    copyBtn.hidden=!failed;
+    copyBtn.onclick=failed?async()=>{
+      try{
+        const rows=(await readAutoShareFailuresV1151()).filter(x=>x.role===failureRole);
+        const lines=rows.map(x=>[
+          new Date(x.failedAt).toLocaleString('ko-KR'),
+          x.code||'-',x.fileName||'-',x.stage||'-',
+          autoShareFailureReasonsV1151[x.reason]||x.reason||'-',x.detail||'',
+          x.total>0?`${autoP2PFormatBytesV940(x.bytes)} / ${autoP2PFormatBytesV940(x.total)}`:'',
+          x.requestId||''
+        ].join(' | '));
+        const success=await autoP2PCopyTextV940(lines.join('\n'));
+        summary.textContent=success?'실패기록을 클립보드에 복사했습니다.':'복사 실패 · 브라우저 클립보드 권한을 확인해 주세요.';
+      }catch(error){summary.textContent='복사 오류: '+String(error?.message||error);}
+    }:null;
+    const clearBtn=shade.querySelector('#videoAutoShareFailuresClearV1151');
+    clearBtn.hidden=!failed;
+    clearBtn.onclick=failed?async()=>{
+      if(!confirm(`${failureRole==='send'?'송신':'수신'} 실패기록을 이 브라우저에서 삭제하시겠습니까?`))return;
+      clearBtn.disabled=true;
+      try{await clearAutoShareFailuresV1151(failureRole);void openTransferHistoryV1124(kind);}
+      catch(error){list.textContent='실패기록 삭제 실패: '+String(error?.message||error);}
+      finally{clearBtn.disabled=false;}
+    }:null;
+    list.textContent=failed?'실패 이력을 불러오는 중…':'완료 파일 이력을 불러오는 중…';
     shade.hidden=false;
     shade.querySelector('#videoAutoShareHistoryCloseV1124').focus();
     try {
-      const rows=sent?await readCompletedAutoSendsV1124():await readCompletedAutoReceivesV1120();
+      const rows=failed?(await readAutoShareFailuresV1151()).filter(x=>x.role===failureRole):sent?await readCompletedAutoSendsV1124():await readCompletedAutoReceivesV1120();
       if (shade.dataset.loadStampV1124!==stamp) return;
       list.replaceChildren();
       if (!rows.length) {
         const empty=document.createElement('p');
-        empty.textContent=sent
+        empty.textContent=failed?'기록된 실패가 없습니다. (1151 이전 실패는 소급 복원되지 않습니다.)':sent
           ? '기록된 송신 완료 파일이 없습니다. (1124 이전 송신 파일명은 소급 복원되지 않습니다.)'
           : '기록된 수신 완료 파일이 없습니다. (기록을 시작하기 전의 파일명은 소급 복원되지 않습니다.)';
         list.appendChild(empty); return;
@@ -163164,10 +163369,19 @@ try {
       const fragment=document.createDocumentFragment();
       for (const row of rows) {
         const el=document.createElement('div'); el.className='videoAutoShareHistoryRowV1124';
-        const name=document.createElement('strong'); name.textContent=String(row.fileName||'파일');
+        const name=document.createElement('strong'); name.textContent=failed?String(row.fileName||row.code||'파일 이름 미확인'):String(row.fileName||'파일');
         name.title=name.textContent;
         const meta=document.createElement('small');
-        const at=Number(row.completedAt)?new Date(row.completedAt).toLocaleString('ko-KR'):'';
+        const at=Number(row.failedAt||row.completedAt)?new Date(row.failedAt||row.completedAt).toLocaleString('ko-KR'):'';
+        if(failed){
+          const cause=autoShareFailureReasonsV1151[row.reason]||String(row.reason||'알 수 없음');
+          meta.textContent=[at,String(row.code||'-'),String(row.stage||'전송'),cause,
+            row.total>0?`${autoP2PFormatBytesV940(row.bytes)} / ${autoP2PFormatBytesV940(row.total)}`:''].filter(Boolean).join(' · ');
+          const extra=document.createElement('small');
+          extra.style.color='#ffc4b1';
+          extra.textContent=[row.detail?`상세: ${row.detail}`:'',autoShareFailureHintsV1151[row.reason]||'',row.requestId?`요청 ID: ${row.requestId}`:''].filter(Boolean).join(' · ');
+          el.append(name,meta,extra);fragment.appendChild(el);continue;
+        }
         const fields=[at,String(row.code||'-'),autoP2PFormatBytesV940(row.fileSize)];
         if (!sent) fields.push((row.automatic?'자동':'수동')+'수신',String(row.folderName||'파일 선택 저장'));
         meta.textContent=fields.join(' · ');
@@ -163197,6 +163411,7 @@ try {
     status.textContent=`${handle.name||'지정 폴더'} · ${granted?'권한 OK':'권한 필요(P)'}`;
   }
   function scheduleAutoReceiveScanV1120(delay=200) {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if (!state.autoReceiveEnabledV1120) return;
     clearTimeout(state.autoReceiveScanTimerV1120);
     state.autoReceiveScanTimerV1120=setTimeout(() => {
@@ -163570,10 +163785,12 @@ try {
   }
 
   function wsReady() {
+    if(!window.viewerShareAllowedV1152?.()) return false;
     return state.ws && state.ws.readyState === WebSocket.OPEN;
   }
 
   function sendWs(payload) {
+    if(!window.viewerShareAllowedV1152?.()) return false;
     if (!wsReady()) return false;
     try {
       state.ws.send(JSON.stringify(payload));
@@ -163586,6 +163803,13 @@ try {
   function reportP2PFailureV1117(requestId, reason = 'connection_lost') {
     if (!requestId) return;
     state.failedP2PV1117.set(requestId, reason);
+    const failedSession=state.autoSession?.autoRequestId===requestId?state.autoSession:null;
+    recordAutoShareFailureV1151({
+      role:failedSession?.mode||(state.requests.get(requestId)?.mine?'receive':'send'),
+      requestId,reason,stage:'P2P 연결/전송',session:failedSession,
+      fileName:failedSession?.file?.name||failedSession?.receiveFileNameV951||'',
+      bytes:failedSession?.sentBytes||failedSession?.received||0
+    });
     sendWs({ type: 'transfer_failure', requestId, reason });
     renderLists();
   }
@@ -163740,6 +163964,7 @@ try {
   updateAutoSendUiV1115();
 
   function scheduleAutoSendScanV1115(delay = 150) {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if (!state.autoSendEnabledV1115) return;
     clearTimeout(state.autoSendScanTimerV1115);
     state.autoSendScanTimerV1115 = setTimeout(() => {
@@ -163749,6 +163974,7 @@ try {
   }
 
   function autoSendMayStartV1115() {
+    if(!window.viewerShareAllowedV1152?.()) return false;
     return state.autoSendEnabledV1115 && wsReady() &&
       !state.autoSession && !state.autoSendBusyV1115 &&
       !state.autoSendPreparingV1115 && state.pendingClaims.size === 0;
@@ -163911,6 +164137,7 @@ try {
     return [...byKey.values()];
   }
   function startBulkRegistrationV1125() {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if(!stateBulkV1125.enabled||!developerAccessV1125())return;
     if(!state.workerBulkPublicationsV1125){setBulkStatusV1125('Worker 1125 배포 후 사용 가능');return;}
     const existing=new Set([...state.publications.values()].filter(x=>x.mine&&isActivePublicationV946(x)).map(x=>codeKey(x.code)));
@@ -163940,6 +164167,7 @@ try {
     advanceBulkV1125();
   }
   function startBulkUnpublishV1125() {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if(!state.workerBulkPublicationsV1125){setBulkStatusV1125('Worker 기능 확인 필요');return;}
     stateBulkV1125.queue=[...state.publications.values()].filter(x=>x.mine&&x.bulkV1125).map(x=>x.id);
     stateBulkV1125.total=stateBulkV1125.queue.length;
@@ -164249,7 +164477,7 @@ try {
       button.type='button';
       button.className='videoAutoShareHistoryCountBtnV1124';
       button.textContent=label;
-      button.title=kind==='sent'?'저장 완료된 송신 파일 목록 열기':'저장 완료된 수신 파일 목록 열기';
+      button.title=kind==='sent'?'저장 완료된 송신 파일 목록 열기':kind==='received'?'저장 완료된 수신 파일 목록 열기':(kind==='failed-send'?'송신':'수신')+' 실패 기록 및 원인 열기';
       button.addEventListener('click',()=>{void openTransferHistoryV1124(kind);});
       return button;
     };
@@ -164258,6 +164486,10 @@ try {
       mkHistoryBtn('sent',`누적전송 ${statsV950.sent}건`),
       document.createTextNode(' · '),
       mkHistoryBtn('received',`누적받음 ${statsV950.received}건`),
+      document.createTextNode(' · '),
+      mkHistoryBtn('failed-send',`송신실패 ${autoShareFailureCountsV1151.send}건`),
+      document.createTextNode(' · '),
+      mkHistoryBtn('failed-receive',`수신실패 ${autoShareFailureCountsV1151.receive}건`),
       document.createTextNode(active > 0 && localCount > 0 && owned === 0
         ? ' · 요청은 수신됐지만 품번 exact 매칭이 없습니다.'
         : active > 0 && localCount === 0
@@ -164271,6 +164503,10 @@ try {
   function syncTopButton() {
     const btn = document.getElementById('videoAutoShareBtnV934');
     if (!btn) return;
+    const enabledV1152=!!window.viewerShareAllowedV1152?.();
+    btn.classList.toggle('viewerSharePausedV1152',!enabledV1152);
+    btn.title=enabledV1152?'개발자 시험용 자동공유':'자동공유 사용 중단 · 연결 문제 수정 전까지 이용 불가';
+    btn.setAttribute('aria-disabled',enabledV1152?'false':'true');
 
     let ownedRequestCount = 0;
     let receiveCountV944 = 0;
@@ -165243,6 +165479,7 @@ try {
   }
 
   function openLayer() {
+    if(!window.viewerShareGateV1152?.()) return null;
     const layer = ensureLayer();
     updateBulkControlsV1125();
     state.endpoint = state.endpoint || getSavedEndpoint();
@@ -165593,6 +165830,7 @@ try {
   }
 
   async function startInlineAutoReceiveV941(req, { automaticV1120 = false } = {}) {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if (!req?.id || !['offered','transferring'].includes(String(req.status || ''))) return;
 
     if (!wsReady()) {
@@ -165799,7 +166037,11 @@ try {
                     Number(meta.size) || 0,
                     session.startedAt || null
                   );
-                  if (!session.savedSuccessfullyV1120) void stopAutoSession('수신 실패 · 미완료 파일 정리');
+                  if (!session.savedSuccessfullyV1120){
+                    recordAutoShareFailureV1151({role:'receive',requestId,code:req.code,stage:'수신 검증/파일 마무리',
+                      reason:'storage',detail:String(error?.message||error),session});
+                    void stopAutoSession('수신 실패 · 미완료 파일 정리');
+                  }
                 });
                 return;
               }
@@ -165850,7 +166092,9 @@ try {
               Number(meta.size) || 0,
               session.startedAt || null
             );
-            try { channel.send(JSON.stringify({ type: 'cancel' })); } catch (_) {}
+            recordAutoShareFailureV1151({role:'receive',requestId,code:req.code,stage:'수신 디스크 저장',
+              reason:'storage',detail:String(error?.message||error),session});
+            try { channel.send(JSON.stringify({ type: 'cancel', reason:'storage_failed' })); } catch (_) {}
             try { if (writable?.abort) await writable.abort(); } catch (_) {}
             sendWs({ type: 'cancel_receive', requestId });
             void stopAutoSession('디스크 저장 실패 · 미완료 파일 정리');
@@ -165937,6 +166181,12 @@ try {
       } else {
         setTransferStatus(`받기 준비 실패: ${error?.message || error}`);
       }
+      const errText=String(error?.name||'')+' '+String(error?.message||error);
+      if(!/AbortError|사용자 취소|보류했습니다/i.test(errText)){
+        recordAutoShareFailureV1151({role:'receive',requestId,code:req.code,stage:'수신 준비/연결',
+          reason:/권한|permission|NotAllowed|Security/i.test(errText)?'permission':'receive_failed',
+          detail:String(error?.message||error),fileName:initialMeta.name||'',total:initialMeta.size||0});
+      }
     } finally {
       state.autoReceiveLaunchBusyV1120=false;
       // 저장 위치 선택·연결 실패로 수신이 끝난 경우에도 나머지 요청은 이어서 검사.
@@ -165986,6 +166236,7 @@ try {
   }
 
   function scheduleReconnect() {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if (!state.endpoint) return;
     clearTimeout(state.reconnectTimer);
     const delay = Math.min(60000, 1500 * Math.pow(2, Math.min(6, state.reconnectAttempt++)));
@@ -165994,6 +166245,11 @@ try {
   }
 
   function connect(force = false) {
+    if(!window.viewerShareAllowedV1152?.()) {
+      closeSocket();
+      setConnectionStatus('자동공유 사용 중단 · 개발자 권한에서만 시험 가능', false);
+      return;
+    }
     state.endpoint = state.endpoint || getSavedEndpoint();
     if (!state.endpoint) {
       setConnectionStatus('Cloudflare Worker URL을 불러오지 못했습니다.', false);
@@ -166032,6 +166288,7 @@ try {
 
     ws.addEventListener('open', () => {
       if (state.ws !== ws) return;
+      if(!window.viewerShareAllowedV1152?.()){closeSocket();return;}
       state.reconnectAttempt = 0;
       setConnectionStatus('자동공유 연결됨 · WebSocket push · 1분 조회 없음', true);
       syncReceiveDiagnosticV936();
@@ -166053,6 +166310,7 @@ try {
     });
 
     ws.addEventListener('message', event => {
+      if(!window.viewerShareAllowedV1152?.()) return;
       if (state.ws !== ws || typeof event.data !== 'string') return;
       let msg;
       try { msg = JSON.parse(event.data); } catch (_) { return; }
@@ -166183,6 +166441,12 @@ try {
       case 'transfer_failure': {
         const id = String(msg.requestId || '');
         state.failedP2PV1117.set(id, String(msg.reason || 'connection_lost'));
+        const failedSessionV1151=state.autoSession?.autoRequestId===id?state.autoSession:null;
+        recordAutoShareFailureV1151({
+          role:failedSessionV1151?.mode||(state.requests.get(id)?.mine?'receive':'send'),
+          requestId:id,stage:'상대측 전송 실패 알림',reason:String(msg.reason||'remote_failure'),
+          session:failedSessionV1151
+        });
         rejectOfferWaitersV941(id, 'P2P 연결 실패 · 나중에 다시 받기 준비를 요청하세요.');
         if (state.failedP2PV1117.size > 100) state.failedP2PV1117.delete(state.failedP2PV1117.keys().next().value);
         if (state.autoSession?.autoRequestId === id) {
@@ -166424,6 +166688,7 @@ try {
   }
 
   function submitRequest(rawCode) {
+    if(!window.viewerShareAllowedV1152?.()) return;
     const code = normalizeRequestCode(rawCode);
     if (!code) {
       setConnectionStatus('요청할 품번을 입력하세요.', false);
@@ -166476,6 +166741,7 @@ try {
 
 
   function submitPublicationV946(rawCode) {
+    if(!window.viewerShareAllowedV1152?.()) return false;
     const code = normalizeRequestCode(rawCode);
 
     if (!code) {
@@ -166533,6 +166799,7 @@ try {
   }
 
   async function claimRequest(req, entry, { automatic = false } = {}) {
+    if(!window.viewerShareAllowedV1152?.()) return;
     if (!req?.id || !entry) return;
     if (automatic) {
       if (!autoSendMayStartV1115() && !state.autoSendBusyV1115) return;
@@ -166575,6 +166842,7 @@ try {
       if (!sendWs({ type: 'claim', requestId: req.id })) {
         state.pendingClaims.delete(req.id);
         setTransferStatus('공유 선점 메시지 전송 실패');
+        recordAutoShareFailureV1151({role:'send',requestId:req.id,code:req.code,stage:'공유 선점',reason:'claim_failed',detail:'Cloudflare WebSocket 연결 상태를 확인하세요.'});
       } else if (automatic) {
         const expected = state.pendingClaims.get(req.id);
         setTimeout(() => {
@@ -166583,6 +166851,7 @@ try {
           state.autoSendExpiredClaimsV1115.add(req.id);
           sendWs({ type: 'release', requestId: req.id });
           setTransferStatus(`${req.code} 자동 선점 응답 지연 · 요청 반납 후 재시도`);
+          recordAutoShareFailureV1151({role:'send',requestId:req.id,code:req.code,stage:'공유 선점',reason:'claim_timeout'});
           // No repetitive claim loop. Requester may ask for another attempt later.
         }, AUTO_SEND_CLAIM_TIMEOUT_MS_V1115);
       }
@@ -166603,6 +166872,9 @@ try {
       }
       console.warn('[v939 auto share claim prepare]', error);
       setTransferStatus(`${automatic ? '등록작 자동송신' : '자동공유'} 준비 실패: ${error?.message || error}`);
+      const text=String(error?.name||'')+' '+String(error?.message||error);
+      recordAutoShareFailureV1151({role:'send',requestId:req.id,code:req.code,stage:'파일 권한/선점 준비',
+        reason:/권한|permission|NotAllowed|security/i.test(text)?'permission':/파일|NotFound|missing|읽기/i.test(text)?'missing_file':'unavailable',detail:String(error?.message||error)});
     }
   }
 
@@ -166674,8 +166946,14 @@ try {
             session.remoteReady = true;
             if (!session.sending) void sendAutoFile(session);
           } else if (msg?.type === 'cancel') {
+            if(msg?.reason==='storage_failed'){
+              recordAutoShareFailureV1151({role:'send',requestId,stage:'상대 수신파일 저장',reason:'storage',
+                detail:'수신 측에서 저장 오류를 보고했습니다.',session,bytes:session.sentBytes,total:file.size});
+              void stopAutoSession('수신 측 저장 실패 · 요청 반납');
+            }else{
+              void stopAutoSession('수신자가 전송을 취소했습니다. 요청을 반납했습니다.');
+            }
             sendWs({ type: 'release', requestId });
-            void stopAutoSession('수신자가 전송을 취소했습니다. 요청을 반납했습니다.');
           }
         } catch (_) {}
       });
@@ -166738,6 +167016,8 @@ try {
           : /파일|notfound|missing/i.test(text) ? 'missing_file' : 'unavailable';
         reportShareUnavailabilityV1116(state.requests.get(requestId), reason);
       }
+      recordAutoShareFailureV1151({role:'send',requestId,stage:'송신 연결 준비',reason:'unavailable',
+        detail:String(error?.message||error),fileName:entryLabel(entry)});
       await stopAutoSession(`자동공유 준비 실패: ${error?.message || error}`);
     }
   }
@@ -166771,6 +167051,8 @@ try {
     } catch (error) {
       console.warn('[v934 auto share answer]', error);
       sendWs({ type: 'release', requestId });
+      recordAutoShareFailureV1151({role:'send',requestId,stage:'수신자 연결 응답',reason:'signaling',
+        detail:String(error?.message||error),session});
       await stopAutoSession(`수신자 응답 적용 실패: ${error?.message || error}`);
     }
   }
@@ -166838,6 +167120,8 @@ try {
           file.size,
           session.startedAt
         );
+        recordAutoShareFailureV1151({role:'send',requestId:session.autoRequestId,stage:'영상 전송',reason:'send_failed',
+          detail:String(error?.message||error),session,bytes:session.sentBytes,total:file.size});
         reportP2PFailureV1117(session.autoRequestId, 'send_failed');
       }
     } finally {
@@ -166863,6 +167147,7 @@ try {
   };
 
   window.toggleVideoAutoSharePublishedV946 = async rawCode => {
+    if(!window.viewerShareGateV1152?.()) return false;
     const code = normalizeRequestCode(rawCode);
     if (!code) return false;
 
@@ -166890,6 +167175,7 @@ try {
   // v942: 미보유/메타검색 포스터의 "공유요청" 버튼에서 호출.
   // 자동공유창을 열지 않고 해당 품번을 바로 자동공유 요청에 추가한다.
   window.requestVideoAutoShareV942 = rawCode => {
+    if(!window.viewerShareGateV1152?.()) return;
     const code = normalizeRequestCode(rawCode);
     if (!code) return;
 
@@ -166940,8 +167226,34 @@ try {
     // v935: 저장 URL이 없어도 내장된 기본 Worker 주소로 실행 즉시 자동연결한다.
     // 저장된 사용자 지정 URL이 있으면 그 주소가 우선한다.
     // 주기적 HTTP polling은 하지 않고 WebSocket push만 유지한다.
-    if (state.endpoint) connect(false);
+    if (state.endpoint && window.viewerShareAllowedV1152?.()) connect(false);
   }, 0);
+
+  // 개발자 권한 전환 즉시 연결·진행 중 세션을 정리하고 재연결을 중지한다.
+  function enforceShareAccessV1152() {
+    if(!window.viewerShareAllowedV1152?.()) {
+      state.pendingRequestCode='';
+      state.pendingPublicationCodesV946.clear();
+      stateBulkV1125.queue=[];stateBulkV1125.busy=false;stateBulkV1125.waiting=false;
+      clearTimeout(stateBulkV1125.timeout);
+      clearTimeout(state.autoSendScanTimerV1115);
+      clearTimeout(state.autoReceiveScanTimerV1120);
+      clearAutoReceivePrepareV1122();
+      closeSocket();
+      if(state.autoSession) void stopAutoSession('자동공유 임시 사용중단 · 진행 중인 연결 종료');
+      document.getElementById('videoAutoShareLayerV934')?.classList.remove('is-visible');
+      hideReadyNoticeV1118(true);
+      setConnectionStatus('자동공유 사용 중단 · 외부 연결 문제 조사 중',false);
+    } else if(state.endpoint){
+      connect(false);
+    }
+    syncTopButton();
+  }
+  window.addEventListener('viewer-share-access-changed-v1152',enforceShareAccessV1152);
+  window.addEventListener('storage',event=>{
+    if(event.key==='video_developer_access_v910') enforceShareAccessV1152();
+  });
+  window.addEventListener('pageshow',()=>{if(!window.viewerShareAllowedV1152?.())enforceShareAccessV1152();});
 
   let __videoAutoShareLocalRematchTimerV938 = 0;
 
@@ -168288,6 +168600,215 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
  window.ComicReadProgressV1090={mount,update(value,page){cached.set(String(value),Math.max(1,Number(page)||1));}};
 })();
 </script>
+<!-- v1148: comic page heart / shared guide positioning · existing absolute fav_v2 and local IDB -->
+<style id="comicHeartStyleV1148">
+/* v1149: 좌표는 이미지의 화면상 실제 표시 영역을 계산해 JS가 지정한다. */
+.comicPageHeartV1148{display:flex;align-items:center;justify-content:center;position:absolute;left:0;top:0;right:auto;bottom:auto;box-sizing:border-box;width:20px;height:20px;padding:0;border:1px solid rgba(240,245,255,.65);border-radius:50%;background:rgba(13,17,27,.68);color:#fff;z-index:20025;box-shadow:0 1px 4px #000a;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;}
+.comicPageHeartV1148 svg{width:12px;height:12px;display:block;stroke:#fff;stroke-width:2.2;fill:transparent;transition:fill .12s,stroke .12s;pointer-events:none;}
+.comicPageHeartV1148[aria-pressed="true"] svg{fill:#f05273;stroke:#f05273;}
+.comicPageHeartV1148:hover{background:rgba(34,49,73,.95);}
+.comicPageHeartV1148:focus-visible{outline:2px solid #80b9ff;outline-offset:2px;}
+.comicPageHeartV1148:disabled{opacity:.55;cursor:wait;}
+.comicPageHeartV1148[hidden]{display:none!important;}
+#imgLightboxOverlay>.comicPageHeartV1148{position:absolute;z-index:20025;}
+#comicZipLightboxV984>.comicPageHeartV1148{position:absolute;z-index:10;}
+#comicZipLightboxV984 .zipVerticalPageV986>.comicPageHeartV1148{position:absolute;z-index:3;}
+</style>
+<!-- v1150: absolute-path 즐겨찾기 패널 레이아웃을 로컬 이미지폴더/ZIP에도 재사용 -->
+<style id="comicLocalFavPanelStyleV1150">
+#comicZipLightboxV984 .zipFavPanelV1150{
+  position:fixed;right:8px;top:36px;z-index:12;box-sizing:border-box;
+  width:254px;max-width:calc(100vw - 14px);max-height:min(700px,calc(100vh - 45px));
+  display:flex;flex-direction:column;gap:4px;padding:4px 2px;
+  color:#eee;font:11px/1.3 system-ui,sans-serif;pointer-events:auto;
+}
+#comicZipLightboxV984 .zipFavPanelV1150[hidden]{display:none!important;}
+#comicZipLightboxV984 .zipFavHeaderV1150{position:relative;height:20px;display:flex;align-items:center;justify-content:space-between;padding:0 5px;color:#eee;background:#0b0e16ad;}
+#comicZipLightboxV984 .zipFavCloseV1150{background:transparent;color:white;font:11px system-ui,sans-serif;border:0;padding:1px 3px;cursor:pointer;}
+#comicZipLightboxV984 .zipFavCloseV1150:hover{background:#ffffff26;}
+#comicZipLightboxV984 .zipFavGridV1150{display:grid;grid-template-columns:repeat(2,120px);gap:4px;max-height:calc(100vh - 86px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;align-content:start;}
+#comicZipLightboxV984 .zipFavGridV1150::-webkit-scrollbar{display:none;}
+#comicZipLightboxV984 .zipFavItemV1150{position:relative;display:block;width:120px;height:170px;background:#181820;overflow:hidden;border:0;padding:0;cursor:pointer;color:#fff;}
+#comicZipLightboxV984 .zipFavItemV1150:hover{outline:2px solid #ffffff77;outline-offset:-2px;}
+#comicZipLightboxV984 .zipFavImgV1150{display:block;width:100%;height:100%;object-fit:cover;background:#14171b;}
+#comicZipLightboxV984 .zipFavLabelV1150{position:absolute;bottom:0;left:0;right:0;background:#000a;padding:1px 3px;font:11px/1.3 system-ui,sans-serif;text-align:center;color:#fff;pointer-events:none;}
+#comicZipLightboxV984 .zipFavDelV1150{position:absolute;top:1px;right:1px;z-index:1;width:18px;height:18px;background:#111b;color:white;border:0;border-radius:3px;cursor:pointer;line-height:17px;font-size:16px;}
+#comicZipLightboxV984 .zipFavDelV1150:hover{background:#a52a40;}
+/* 페이지 번호는 오른쪽 패널보다 위에 배치해 서로 겹치지 않게 한다. */
+#comicZipLightboxV984.zipHasFavoritesV1150 .zipLightboxBadgeV984{top:2px;right:10px;max-width:min(85vw,720px);z-index:13;}
+@media(max-width:700px){
+ #comicZipLightboxV984 .zipFavPanelV1150{width:117px;right:4px;top:34px;max-height:calc(100vh - 40px);}
+ #comicZipLightboxV984 .zipFavGridV1150{grid-template-columns:108px;max-height:calc(100vh - 75px);}
+ #comicZipLightboxV984 .zipFavItemV1150{width:108px;height:153px;}
+}
+</style>
+<script id="comicHeartScriptV1148">
+(() => {
+'use strict';
+function makeHeart(page){
+  const b=document.createElement('button');b.type='button';b.className='comicPageHeartV1148';
+  b.dataset.page=String(page);b.setAttribute('aria-pressed','false');b.title=`${page}페이지 즐겨찾기`;b.setAttribute('aria-label',`${page}페이지 즐겨찾기 추가`);
+  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.7a5.5 5.5 0 0 0-7.8 0L12 5.8l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.5a5.5 5.5 0 0 0 0-7.8z"/></svg>';
+  return b;
+}
+function paint(b,saved,page){
+  if(!b)return;
+  b.dataset.page=String(page);b.setAttribute('aria-pressed',String(!!saved));
+  b.title=`${page}페이지 즐겨찾기 ${saved?'해제':'추가'}`;
+  b.setAttribute('aria-label',b.title);
+}
+// v1149: 만화 이미지 자체가 차지하는 사각형을 기준으로 하트를 우측 모서리에 붙인다.
+// object-fit:contain인 로컬 가로보기는 검은 여백을 제외한 실제 그림 영역을 계산한다.
+function comicHeartImageRectV1149(img){
+  if(!img||img.hidden||!img.naturalWidth||!img.naturalHeight)return null;
+  const r=img.getBoundingClientRect();
+  if(r.width<4||r.height<4||getComputedStyle(img).display==='none')return null;
+  const fit=getComputedStyle(img).objectFit;
+  if(fit==='contain'||fit==='scale-down'){
+    const scale=Math.min(r.width/img.naturalWidth,r.height/img.naturalHeight,fit==='scale-down'?1:Infinity);
+    const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+    // 이 뷰어의 contain 이미지는 기본 object-position:center center.
+    return {left:r.left+(r.width-w)/2,right:r.left+(r.width+w)/2,top:r.top+(r.height-h)/2,bottom:r.top+(r.height+h)/2};
+  }
+  return r;
+}
+function comicHeartPlaceV1149(button,img,parent){
+  const r=comicHeartImageRectV1149(img);
+  if(!r||!parent){button.hidden=true;return false;}
+  const p=parent.getBoundingClientRect(),size=20,gap=5;
+  const mode=typeof getLightboxTopBarPos==='function'?getLightboxTopBarPos():'top-auto';
+  // 가이드 하단/하단 자동숨김이면 하트는 이미지 상단, 그 외에는 이미지 하단.
+  const atTop=mode==='bottom'||mode==='bottom-auto';
+  button.style.left=Math.max(0,Math.round(r.right-p.left-size-gap))+'px';
+  button.style.top=Math.max(0,Math.round((atTop?r.top+gap:r.bottom-size-gap)-p.top))+'px';
+  button.style.right='auto';button.style.bottom='auto';
+  button.hidden=false;
+  return true;
+}
+// 기존 절대경로는 원래 fav_v2 저장형식을 그대로 사용한다.
+function initAbsolute(){
+  const overlay=document.getElementById('imgLightboxOverlay');if(!overlay||overlay.querySelector('.comicPageHeartV1148'))return;
+  const b=makeHeart(1);overlay.append(b);
+  const current=()=>{
+    const v=(typeof lbCurrentValue==='string'?lbCurrentValue:'').trim();
+    const page=Number(lbCurrentPage)||1;
+    const root=(typeof getLbRootKeyForFavorite==='function'?getLbRootKeyForFavorite():null);
+    return {v,page,root};
+  };
+  function matches(rec,c){return !!rec&&String(rec.rootKey||'')===String(c.root||'')&&Number(rec.page)===c.page;}
+  let lastSig='';
+  function update(){
+    if(!overlay.isConnected||overlay.style.display==='none'||getComputedStyle(overlay).display==='none'){b.hidden=true;lastSig='';return;}
+    const c=current();b.hidden=!c.v||!c.root;if(b.hidden)return;
+    const list=typeof getFavListCached==='function'?getFavListCached(c.v):null;
+    paint(b,Array.isArray(list)&&list.some(x=>matches(x,c)),c.page);
+    const scroll=document.getElementById('imgLightboxScroll');
+    let img=document.getElementById('imgLightboxImg');
+    if(scroll&&getComputedStyle(scroll).display!=='none'){
+      // 세로 모드에서는 현재 페이지의 실제 이미지를 우선 찾는다.
+      img=scroll.querySelector('.lbScrollImg[data-page="'+c.page+'"]')||null;
+      if(img&&img.getBoundingClientRect().bottom<0)img=null;
+    }
+    comicHeartPlaceV1149(b,img,overlay);
+    lastSig=c.v+'|'+c.root+'|'+c.page;
+  }
+  b.addEventListener('pointerdown',e=>{e.stopPropagation();},{capture:true});
+  b.addEventListener('pointerup',e=>{e.stopPropagation();},{capture:true});
+  b.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    const c=current();if(!c.v||!c.root)return;
+    let list=getFavListCached(c.v);
+    if(!Array.isArray(list)){list=[];setFavListCached(c.v,list);}
+    const hits=list.filter(x=>matches(x,c));
+    if(hits.length){
+      // 이름 붙은 과거 Alt+클릭 즐겨찾기는 확인 없이 삭제하지 않는다.
+      if(hits.some(x=>String(x.name||'').trim())&&!confirm(`${c.page}페이지에 이름 있는 즐겨찾기가 있습니다. 이 페이지의 즐겨찾기 ${hits.length}개를 해제할까요?`))return;
+      for(let i=list.length-1;i>=0;i--)if(matches(list[i],c))list.splice(i,1);
+    }else{
+      const rec={name:'',page:c.page,pos:.98,rootKey:c.root};
+      if(typeof lbPad!=='undefined'&&Number.isFinite(lbPad))rec.pad=lbPad;
+      if(typeof lbFirst!=='undefined'&&Number.isFinite(lbFirst))rec.first=lbFirst;
+      if(typeof lbExt==='string')rec.ext=lbExt;
+      if(typeof lbTotalPages!=='undefined'&&Number.isFinite(lbTotalPages))rec.total=lbTotalPages;
+      list.push(rec);
+    }
+    markFavDirty(c.v);try{updateLightboxFavThumbs?.();}catch(_){}
+    update();
+  },true);
+  const interval=setInterval(update,380);
+  overlay.addEventListener('scroll',update,true);overlay.addEventListener('click',()=>setTimeout(update,0));
+  update();
+}
+// 압축파일 및 비압축 이미지폴더는 작품의 기존 value 전체를 IDB 키로 사용한다.
+function attachLocal({cover,verticalView,value,image,onFavoritesChange}){
+  const key='comic_page_heart_v1148:'+String(value);
+  let closed=false,ready=false,marked=new Set(),writeChain=Promise.resolve(),currentPage=1,verticalMode=false;
+  const floating=makeHeart(1);floating.hidden=true;cover.appendChild(floating);
+  function placeVertical(wrapper){
+    if(closed||!wrapper)return;
+    const b=wrapper.querySelector(':scope > .comicPageHeartV1148');
+    if(b)comicHeartPlaceV1149(b,wrapper.querySelector(':scope > img'),wrapper);
+  }
+  function relayout(){
+    if(closed)return;
+    if(!verticalMode)comicHeartPlaceV1149(floating,image,cover);
+    for(const wrapper of verticalView.querySelectorAll('.zipVerticalPageV986.is-loaded'))placeVertical(wrapper);
+  }
+  const onImageLoad=()=>{if(!verticalMode&&!closed)comicHeartPlaceV1149(floating,image,cover);};
+  image.addEventListener('load',onImageLoad);
+  window.addEventListener('resize',relayout);
+  window.addEventListener('comic-guide-mode-v1148',relayout);
+  window.addEventListener('storage',relayout);
+  function render(){
+    if(closed)return;
+    floating.disabled=!ready;paint(floating,marked.has(currentPage),currentPage);
+    const list=verticalView.querySelectorAll('.zipVerticalPageV986>.comicPageHeartV1148');
+    for(const b of list){b.disabled=!ready;paint(b,marked.has(Number(b.dataset.page)),Number(b.dataset.page));}
+    relayout();
+  }
+  function toggle(page){
+    if(closed||!ready||!Number.isInteger(page)||page<1)return;
+    if(marked.has(page))marked.delete(page);else marked.add(page);
+    render();
+    const snapshot=[...marked].sort((a,b)=>a-b);
+    try{onFavoritesChange?.(snapshot,'toggle');}catch(e){console.warn('[comic favorites panel v1150]',e);}
+    writeChain=writeChain.catch(()=>{}).then(()=>idbPutComic(key,snapshot));
+    writeChain.catch(e=>{console.warn('[comic heart v1148] 저장 실패',e);});
+  }
+  cover.addEventListener('click',function clickHeart(e){
+    const b=e.target.closest?.('.comicPageHeartV1148');
+    if(!b||!cover.contains(b))return;
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    toggle(Number(b.dataset.page));
+  },true);
+  // 휠/터치/페이지 클릭은 기존 만화 기능을 그대로 쓴다.
+  floating.addEventListener('pointerdown',e=>e.stopPropagation(),true);
+  floating.addEventListener('pointerup',e=>e.stopPropagation(),true);
+  function addVertical(wrapper,page){
+    const b=makeHeart(page);b.hidden=true;b.disabled=!ready;paint(b,marked.has(page),page);
+    b.addEventListener('pointerdown',e=>e.stopPropagation(),true);
+    b.addEventListener('pointerup',e=>e.stopPropagation(),true);
+    wrapper.appendChild(b);
+  }
+  const loaded=Promise.resolve().then(()=>idbGetComic(key)).then(rows=>{
+    if(closed)return;
+    marked=new Set(Array.isArray(rows)?rows.filter(n=>Number.isInteger(n)&&n>0):[]);
+    ready=true;render();
+    try{onFavoritesChange?.([...marked].sort((a,b)=>a-b),'load');}catch(e){console.warn('[comic favorites panel v1150]',e);}
+  }).catch(e=>{console.warn('[comic heart v1148] 복원 실패',e);if(!closed){floating.title='즐겨찾기 저장소 연결 실패';floating.disabled=true;}});
+  return {
+    syncPage(page){currentPage=page;paint(floating,marked.has(page),page);floating.disabled=!ready;},
+    setVertical(on){verticalMode=!!on;floating.hidden=verticalMode;if(!verticalMode)comicHeartPlaceV1149(floating,image,cover);},
+    addVertical,placeVertical,relayout,togglePage:toggle,
+    destroy(){closed=true;image.removeEventListener('load',onImageLoad);window.removeEventListener('resize',relayout);window.removeEventListener('comic-guide-mode-v1148',relayout);window.removeEventListener('storage',relayout);},
+    loaded
+  };
+}
+window.ComicHeartV1148={attachLocal,initAbsolute};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAbsolute,{once:true});else initAbsolute();
+})();
+</script>
+
 <script id="comicZipArchiveV979">
 /* v982 - cover manager and page count; based on v981 */
 (()=>{
@@ -168950,9 +169471,9 @@ async function openLightbox(value, fileJumpV1005=null){
   const topZone=document.createElement('div');topZone.className='zipLightboxTopZoneV984';
   topZone.title='페이지 메뉴 표시';
   const head=document.createElement('div');head.className='zipLightboxHeaderV984';
-  const PIN_KEY_V1086='comic_local_lightbox_header_pinned_v1086';
+  // v1148: 절대경로와 ZIP·CBZ·이미지폴더는 같은 옵션 위치값을 사용한다.
   let headerPinnedV1086=false;
-  try{headerPinnedV1086=localStorage.getItem(PIN_KEY_V1086)==='1';}catch(_){}
+  try{headerPinnedV1086=['top','bottom'].includes(getLightboxTopBarPos());}catch(_){}
   const pinLabelV1086=document.createElement('label');pinLabelV1086.className='zipHeaderPinV1086';
   pinLabelV1086.title='체크하면 만화 상단바를 계속 표시, 해제하면 자동숨김';
   const pinInputV1086=document.createElement('input');pinInputV1086.type='checkbox';
@@ -169126,15 +169647,116 @@ async function openLightbox(value, fileJumpV1005=null){
   void updateZipLastThumbV988(savedLastPageV988-1);
 
   let idx=0,u=null,seq=0,controlsTimer=null,badgeTimer=null,destroyed=false;
+  // v1150: 우측 즐겨찾기 패널은 v1148의 같은 작품별 IDB 페이지 Set을 사용한다.
+  // 썸네일은 패널에 보이는 페이지부터 2개씩 읽으며, 원본 ZIP 전체를 압축 해제하지 않는다.
+  let onLocalFavoritesV1150=()=>{};
+  const heartManagerV1148=window.ComicHeartV1148?.attachLocal?.({
+    cover,verticalView:verticalViewV986,value,image,
+    onFavoritesChange:(items,reason)=>onLocalFavoritesV1150(items,reason)
+  });
+  const favPanelV1150=document.createElement('aside');favPanelV1150.className='zipFavPanelV1150';
+  favPanelV1150.hidden=true;favPanelV1150.setAttribute('aria-label','이 만화의 페이지 즐겨찾기');
+  const favHeaderV1150=document.createElement('div');favHeaderV1150.className='zipFavHeaderV1150';
+  const favHeadingV1150=document.createElement('span');favHeadingV1150.textContent='즐겨찾기';
+  const favCloseV1150=document.createElement('button');favCloseV1150.className='zipFavCloseV1150';
+  favCloseV1150.type='button';favCloseV1150.textContent='닫기';favCloseV1150.title='즐겨찾기 패널 닫기';
+  favHeaderV1150.append(favHeadingV1150,favCloseV1150);
+  const favGridV1150=document.createElement('div');favGridV1150.className='zipFavGridV1150';
+  favPanelV1150.append(favHeaderV1150,favGridV1150);cover.append(favPanelV1150);
+  let favManuallyClosedV1150=false,favRenderEpochV1150=0,favReadActiveV1150=0;
+  let favReadQueueV1150=[],favIOV1150=null;
+  const favOwnedUrlsV1150=new Set();
+  function resetFavThumbsV1150(){
+    ++favRenderEpochV1150;favIOV1150?.disconnect();favIOV1150=null;favReadQueueV1150=[];
+    for(const url of favOwnedUrlsV1150)URL.revokeObjectURL(url);favOwnedUrlsV1150.clear();
+    favGridV1150.replaceChildren();
+  }
+  // 실제 썸네일 데이터만 지연 압축해제. 여러 장을 동시에 읽지 않도록 제한한다.
+  function pumpFavThumbsV1150(){
+    while(favReadActiveV1150<2&&favReadQueueV1150.length){
+      const job=favReadQueueV1150.shift();favReadActiveV1150++;
+      void (async()=>{
+        try{
+          const blob=await readImageV992(pages[job.page-1]);
+          if(job.epoch!==favRenderEpochV1150||!cover.isConnected)return;
+          const url=URL.createObjectURL(blob);favOwnedUrlsV1150.add(url);
+          job.img.src=url;job.img.alt='즐겨찾기 '+job.page+'페이지';
+        }catch(e){if(job.epoch===favRenderEpochV1150)job.img.alt='썸네일 읽기 실패';}
+        finally{favReadActiveV1150--;pumpFavThumbsV1150();}
+      })();
+    }
+  }
+  function localFavoritesChangedV1150(list,reason){
+    const nums=[...new Set((Array.isArray(list)?list:[]).filter(p=>Number.isInteger(p)&&p>=1&&p<=pages.length))].sort((a,b)=>a-b);
+    if(reason==='toggle')favManuallyClosedV1150=false;
+    const visible=!!nums.length&&!favManuallyClosedV1150;
+    cover.classList.toggle('zipHasFavoritesV1150',visible);
+    favPanelV1150.hidden=!visible;
+    resetFavThumbsV1150();
+    if(!visible)return;
+    const epoch=favRenderEpochV1150;
+    if('IntersectionObserver' in window){
+      favIOV1150=new IntersectionObserver(entries=>{
+        for(const entry of entries){
+          if(!entry.isIntersecting)continue;
+          const item=entry.target;favIOV1150?.unobserve(item);
+          const page=Number(item.dataset.page),img=item.querySelector('img');
+          if(img&&Number.isInteger(page))favReadQueueV1150.push({epoch,page,img});
+        }
+        pumpFavThumbsV1150();
+      },{root:favGridV1150,rootMargin:'100px 0px'});
+    }
+    for(const page of nums){
+      const item=document.createElement('div');item.className='zipFavItemV1150';item.dataset.page=String(page);
+      item.setAttribute('role','button');item.setAttribute('tabindex','0');item.title=page+'페이지로 이동';
+      const img=document.createElement('img');img.className='zipFavImgV1150';img.alt='페이지 '+page;img.loading='lazy';
+      const label=document.createElement('span');label.className='zipFavLabelV1150';label.textContent='P'+page;
+      const del=document.createElement('button');del.className='zipFavDelV1150';del.textContent='×';
+      del.type='button';del.title=page+'페이지 즐겨찾기 삭제';del.setAttribute('aria-label',del.title);
+      del.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();heartManagerV1148?.togglePage(page);
+      });
+      const jump=event=>{event.preventDefault();event.stopPropagation();void go(page-1);};
+      item.addEventListener('click',jump);
+      item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){jump(e);}});
+      item.append(img,label,del);favGridV1150.append(item);
+      if(favIOV1150)favIOV1150.observe(item);
+      else favReadQueueV1150.push({epoch,page,img});
+    }
+    if(!favIOV1150)pumpFavThumbsV1150();
+  }
+  onLocalFavoritesV1150=localFavoritesChangedV1150;
+  favCloseV1150.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();favManuallyClosedV1150=true;
+    favPanelV1150.hidden=true;cover.classList.remove('zipHasFavoritesV1150');resetFavThumbsV1150();
+  });
+  // 기존 이미지 클릭 페이지 넘김 및 휠 조작을 패널 조작이 방해하지 않게 격리한다.
+  favPanelV1150.addEventListener('click',e=>e.stopPropagation());
+  favPanelV1150.addEventListener('pointerdown',e=>e.stopPropagation());
+  favPanelV1150.addEventListener('wheel',e=>e.stopPropagation(),{passive:true});
   let fileMovingV1005=false;
   // v1020: 새 DB의 페이지 번호만 사용. 구형 이어보기 맵은 새 기록에 섞지 않는다.
   if(!fileJumpV1005?.startAtFirst && savedLastPageV988>1)idx=savedLastPageV988-1;
 
-  function showControls(){if(destroyed)return;
+  const guideModeV1148=()=>typeof getLightboxTopBarPos==='function'?getLightboxTopBarPos():'top-auto';
+  function syncGuideV1148(){
+    const pos=guideModeV1148(),bottom=pos==='bottom'||pos==='bottom-auto';
+    head.style.top=bottom?'auto':'8px';head.style.bottom=bottom?'8px':'auto';
+    topZone.style.top=bottom?'auto':'0';topZone.style.bottom=bottom?'0':'auto';
+    topZone.style.display=pos==='hidden'?'none':'';
+    headerPinnedV1086=pos==='top'||pos==='bottom';pinInputV1086.checked=headerPinnedV1086;
+    if(pos==='hidden')head.classList.remove('is-visible');
+    else if(headerPinnedV1086)head.classList.add('is-visible');
+    else head.classList.remove('is-visible');
+    clearTimeout(controlsTimer);
+  }
+  function showControls(){
+    if(destroyed||guideModeV1148()==='hidden')return;
     clearTimeout(controlsTimer);head.classList.add('is-visible');
   }
-  function hideControlsLater(ms=1900){
+  function hideControlsLater(ms=5000){
     clearTimeout(controlsTimer);
+    if(guideModeV1148()==='hidden'){head.classList.remove('is-visible');return;}
     if(headerPinnedV1086){head.classList.add('is-visible');return;}
     controlsTimer=setTimeout(()=>{
       if(!headerPinnedV1086&&!head.matches(':hover')&&!modeSelect.matches(':focus'))
@@ -169142,12 +169764,16 @@ async function openLightbox(value, fileJumpV1005=null){
     },ms);
   }
   pinInputV1086.addEventListener('change',()=>{
-    headerPinnedV1086=pinInputV1086.checked;
-    try{localStorage.setItem(PIN_KEY_V1086,headerPinnedV1086?'1':'0');}catch(_){}
-    if(headerPinnedV1086)showControls();
-    else {showControls();hideControlsLater(1800);}
+    const pos=guideModeV1148(),bottom=pos==='bottom'||pos==='bottom-auto';
+    applyLightboxTopBarPos(bottom?(pinInputV1086.checked?'bottom':'bottom-auto')
+      :(pinInputV1086.checked?'top':'top-auto'));
+    syncGuideV1148();
+    if(!pinInputV1086.checked){showControls();hideControlsLater();}
   });
-  if(headerPinnedV1086)showControls();
+  const onGuideChangeV1148=()=>{if(!destroyed)syncGuideV1148();};
+  window.addEventListener('comic-guide-mode-v1148',onGuideChangeV1148);
+  window.addEventListener('storage',onGuideChangeV1148);
+  syncGuideV1148();
   function refreshBadge(){
     clearTimeout(badgeTimer);
     badge.classList.remove('is-visible');
@@ -169165,14 +169791,15 @@ async function openLightbox(value, fileJumpV1005=null){
     try{localStorage.setItem(MODE_KEY,mode);}catch(_){}
     refreshBadge();showControls();hideControlsLater(2600);
   });
-  const revealTop=()=>{showControls();hideControlsLater(2600);};
+  const revealTop=()=>{showControls();hideControlsLater(5000);};
   topZone.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')revealTop();});
   topZone.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();revealTop();});
   head.addEventListener('pointerenter',showControls);
-  head.addEventListener('pointerleave',()=>hideControlsLater(1000));
+  head.addEventListener('pointerleave',()=>hideControlsLater(5000));
   cover.addEventListener('pointermove',e=>{
-    if(e.pointerType==='mouse'&&e.clientY<=80)revealTop();
-    else if(e.pointerType==='mouse'&&!head.matches(':hover'))hideControlsLater(900);
+    if(e.pointerType!=='mouse')return;
+    const bottom=['bottom','bottom-auto'].includes(guideModeV1148());
+    if(bottom?e.clientY>=window.innerHeight-80:e.clientY<=80)revealTop();
   });
 
   // v986: 한 장씩 보는 가로/아래로 이어보는 세로. 수천 페이지라도 ZIP 전체를 한 번에 풀지 않는다.
@@ -169197,6 +169824,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(!folderSelectV987.hidden)folderSelectV987.value=folderPagesV985[idx]?.folder || '';
     if(flash)flashBadge();
     rememberZipPageV988(idx+1);
+    heartManagerV1148?.syncPage(idx+1);
     if(readDirectionV986==='vertical'){
       const src=verticalItemsV986[idx]?.querySelector('img')?.src;
       // 마지막 저장 페이지의 미리보기는 현재 탐색 위치로 바꾸지 않는다.
@@ -169252,6 +169880,7 @@ async function openLightbox(value, fileJumpV1005=null){
             const h=Math.max(1,Math.round(img.getBoundingClientRect().height));
             wrapper.style.minHeight=h+'px';
             wrapper.dataset.zipMeasuredV1076='1';
+            heartManagerV1148?.placeVertical(wrapper);
           };
         }catch(e){if(epoch===verticalEpochV986){
           const wrapper=verticalItemsV986[i];if(wrapper){wrapper.classList.add('is-loaded');wrapper.textContent='페이지 읽기 실패 · '+errText(e);}
@@ -169327,7 +169956,7 @@ async function openLightbox(value, fileJumpV1005=null){
         verticalViewV986.scrollTop+=rect.top+rect.height*anchor.ratio-anchor.anchorY;
       }
       requestAnimationFrame(()=>{
-        if(!destroyed){verticalViewV986.style.overflowAnchor='';verticalProgressV986();}
+        if(!destroyed){verticalViewV986.style.overflowAnchor='';verticalProgressV986();heartManagerV1148?.relayout();}
       });
     }
     showControls();hideControlsLater(2600);
@@ -169346,6 +169975,7 @@ async function openLightbox(value, fileJumpV1005=null){
     for(let i=0;i<pages.length;i++){
       const wrapper=document.createElement('div');wrapper.className='zipVerticalPageV986';wrapper.dataset.zipIndex=String(i);
       const img=document.createElement('img');img.alt=pages[i].name;img.hidden=true;img.loading='lazy';wrapper.appendChild(img);
+      heartManagerV1148?.addVertical(wrapper,i+1);
       verticalItemsV986.push(wrapper);frag.appendChild(wrapper);
     }
     verticalViewV986.appendChild(frag);
@@ -169369,6 +169999,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(destroyed||!['horizontal','vertical'].includes(direction))return;
     if(direction===readDirectionV986)return;
     readDirectionV986=direction;syncDirectionButtonsV986();
+    heartManagerV1148?.setVertical(direction==='vertical');
     if(direction==='vertical'){++seq;startVerticalV986();}
     else{cleanVerticalV986();verticalViewV986.hidden=true;image.hidden=false;await go(idx);}
     showControls();hideControlsLater(2000);
@@ -169410,7 +170041,7 @@ async function openLightbox(value, fileJumpV1005=null){
   cover.addEventListener('wheel',event=>{
     if(destroyed||readDirectionV986!=='horizontal')return;
     // 같은 작가 패널·마지막 본 페이지·상단 설정은 자체 조작/스크롤을 보존.
-    if(event.target.closest?.('#zipAuthorPanelV988,#zipLastPageV988,.zipLightboxHeaderV984,.zipLightboxTopZoneV984'))return;
+    if(event.target.closest?.('#zipAuthorPanelV988,#zipLastPageV988,.zipFavPanelV1150,.zipLightboxHeaderV984,.zipLightboxTopZoneV984'))return;
     if(event.ctrlKey)return; // 브라우저 확대/축소 제스처 유지
     const deltaX=event.deltaX||0,deltaY=event.deltaY||0;
     let delta=Math.abs(deltaX)>Math.abs(deltaY)?deltaX:deltaY;
@@ -169496,6 +170127,11 @@ async function openLightbox(value, fileJumpV1005=null){
     document.removeEventListener('visibilitychange',onPageHiddenV1020);
     window.removeEventListener('pagehide',onPageUnloadV1020);
     destroyed=true;seq++;
+    window.removeEventListener('comic-guide-mode-v1148',onGuideChangeV1148);
+    window.removeEventListener('storage',onGuideChangeV1148);
+    heartManagerV1148?.destroy();
+    onLocalFavoritesV1150=()=>{};
+    resetFavThumbsV1150();
     clearTimeout(controlsTimer);clearTimeout(badgeTimer);
     cleanVerticalV986();cover.remove();if(u)URL.revokeObjectURL(u);
     const own=lastImageV988.dataset.ownedUrl;if(own)URL.revokeObjectURL(own);
@@ -172340,6 +172976,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <li>자동공유 기능을 사용하려면 PC의 해당 영상 파일과 폴더 접근 권한이 유지되어야 해요.</li>
   </ul></div>
 </template>
+<!-- v1152: 임시 서비스 중단 공지. 신규 빌드 배포 시 1회 자동 표시, 기록은 유지. -->
+<template id="wv1152LatestTemplate">
+  <div class="wv1098Section"><h3>⚠ 자동공유 기능 임시 사용 중단 안내</h3><ul>
+    <li><strong>자동공유에서 정상적으로 파일을 보내거나 받지 못하는 연결 문제가 확인되었습니다.</strong></li>
+    <li>문제를 수정하고 검증할 때까지 <strong>자동공유·수동공유·공유요청·공유등록·자동송신·자동수신을 일반 사용자에게 제공하지 않습니다.</strong></li>
+    <li>개발자 권한에서만 문제 확인을 위한 시험이 가능하며, <strong>외부 네트워크에서는 전송이 실패할 수 있습니다.</strong></li>
+    <li>기존 개인 영상 파일·작품 DB·완료 및 실패 기록은 삭제하지 않습니다. 기존 서버 공유등록은 별도로 해제되지 않으며 만료 정책이 적용됩니다.</li>
+    <li><strong>복구 후 다음 업데이트에서 다시 안내드리겠습니다.</strong> 만화·음악·영상 재생과 로컬 변환 기능은 계속 사용할 수 있습니다.</li>
+  </ul></div>
+</template>
 <template id="wv1107LegacyIntroTemplate">
   <div class="wv1107ArchiveIntro">
     <div class="comicNoticeTitleV1047">만화 기능 업데이트 안내</div>
@@ -172404,6 +173050,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'✨ 웹뷰어 1145 업데이트',
       subtitle:'TS·MKV 변환 · 만화 폴더 선택 · 자동공유·자동수신 개선',
       html:document.getElementById('wv1145LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1152',build:'빌드 1152',
+      title:'⚠ 자동공유 임시 중단 안내',
+      subtitle:'연결 오류 확인 · 해결 전까지 일반 사용자 공유 기능 중단',
+      html:document.getElementById('wv1152LatestTemplate')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -173230,3 +173882,5 @@ html body #videoAutoSharePanelV934{overflow-y:auto !important;overscroll-behavio
 <!-- v1086: 절대경로 상단바/로컬 ZIP·이미지폴더 상단바에 고정 체크 추가; 기존 옵션 상태 연동 및 로컬 자동숨김 별도 저장 -->
 <!-- v1096: 만화 캡션 폭을 썸네일 실제 가로폭과 동일하게 보정(v1051의 -8px 제한 및 카드 inline 최대폭 제거), 2줄 42px 유지, 화면·최신버전 빌드표기 1096 동기화. 건의 기능 변경 없음. -->
 <!-- v1145: 업데이트 안내 최신 페이지 추가 · TS/MKV 재인코딩 없이 빠른 변환과 재인코딩 소요시간, 만화 1차 폴더 선택, 자동송신·폴더 자동수신·보유목록 최대 1,000건 일괄등록 안내. 기존 기능/DB 변경 없음. -->
+
+<!-- v1151: 자동공유 송신 실패/수신 실패 200건 로컬 기록. 실패 내역에 품번·파일명·단계·이유·전송량·요청ID 표시, 연결오류 및 저장 오류 추적. -->
