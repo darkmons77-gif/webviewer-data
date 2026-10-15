@@ -1,3 +1,16 @@
+<!-- v1145: 신규 업데이트 기록 페이지 추가, 최신 1회 자동 안내. 변환·공유·만화 실제 로직 유지. -->
+<!-- v1144: 영상 배우·태그·메뉴(M/S) 레일 어디서나 기능 버튼 표시, 기존 S 패널과 팝업 사용 호환. 기존 TS/MKV·IndexedDB 유지. -->
+<!-- v1143: 공통 검색창 24px→18px 축소, 영상/만화/음악 탭 변경 때 일반검색 초기화와 지연타이머·목록캐시 정리. v1142 및 변환기 보존. -->
+<!-- v1142: 영상·만화 목록 접기 제거, 영상 상단 접기 제거, 일반 검색창 위치 및 줄바꿈 수정. 1141 미디어 변환 보존. -->
+<!-- v1141: TS/MKV MP4 무손실 우선, 필요한 영상/음성만 인코딩 전 사용자 확인. AVI 정식 미지원 명확히 안내. -->
+<!-- v1139: 1138 빈 화면을 일으킨 CSS/JS 문자열 충돌 수정 · TS 변환 방식 선택 보존. -->
+<!-- v1138: TS → MP4 FFmpeg native CMD 대용량 변환 + 브라우저 FFmpeg.wasm 소형 변환 + 기존 mux.js 모드 선택, 빌드 표시 1138. -->
+<!-- v1140: TS → 일반 MP4 엔진을 Mediabunny 순차처리로 교체, MP4 버튼 단일 동작, 영상/음성 출력 검증. 이전 1137-1139 코드 보존. -->
+<!-- v1137: TS의 실제 H.264 IDR 키프레임을 TS 패킷 기반으로 찾아 그 시작 직전에만 flush. 임의 2MiB 분할과 600MB 단일 flush 제거 · 일반 MP4 단일 결과 유지. -->
+<!-- v1136: TS→MP4 고메모리 단일 flush · 16MiB 단위 TS 입력(중간 flush 없음) · 실제 영상 트랙 및 최소 출력 데이터 검증 · 불완전 변환 완료 오판 방지. -->
+<!-- v1135: TS → 일반 MP4(비분할형) 무손실 변환. 브라우저 저메모리 순차 읽기와 moov 탐색 색인 생성, mdat 64비트 저장; 기존 MP4 변환 버튼 유지. -->
+<!-- v1134: TS → 별도 fMP4 무손실 변환, 수동공유 왼쪽 MP4 버튼, 원본 보존, 저장위치 선택/진행·취소, 2MiB 분할 처리; Worker 변경 불필요 -->
+<!-- v1133: 로컬 .ts/.m2ts 파일 mpegts.js 시험재생. 필요할 때 라이브러리 로드·File.slice 로더·닫기 시 메모리 해제. 기존 영상 경로 보존 -->
 <!-- v1132: 만화 레일에 1차 하위폴더 탭 추가 · ZIP/CBZ 저장 상대경로로만 분류/필터 · 가상 스크롤 재사용 · 원본/개인기록 불변 -->
 <!-- v1131: 공유등록 웹뷰어 최대 1,000건 · 공유요청 20건 유지 · 자동공유 공유가능/내 공유등록 목록 DOM 20건 제한 · 개발자권한 안내 문구 제거 -->
 <!-- v1130: 작가(배우) 레일 선택 보유작의 리본을 미보유 검색의 빨간 보유중 삼각형과 동일하게 통일하고 해당 목록 포스터 상단 출연자·배우명 배지 제거 -->
@@ -102,6 +115,22 @@
 <!-- v1007: ZIP 안내창 수동 닫기 버튼, 닫기 시에만 최대 3회 집계. v1006 안내 횟수는 별도 키로 초기화. -->
 <html lang="ko" class="wv1110-light-starting wv1111-light-only">
 <head>
+
+<style id="ts-mp4-choices-css-v1138">
+#videoTsMp4ChoiceV1138{position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.82);padding:14px;box-sizing:border-box}
+.videoTsMp4ChoicePanelV1138{width:min(610px,96vw);max-height:90vh;overflow-y:auto;background:#1b2029;border:1px solid #c49e4d;border-radius:12px;padding:19px;color:#eee;font:13px/1.6 system-ui,sans-serif;box-shadow:0 12px 55px #000a}
+.videoTsMp4ChoiceTitleV1138{display:block;font-size:18px;margin-bottom:8px}
+.videoTsMp4ChoicePanelV1138 p{color:#c3cbd4;margin:4px 0 16px}
+.videoTsMp4ChoicePanelV1138>button[data-kind]{display:block;width:100%;padding:12px;text-align:left;background:#2c3543;border:1px solid #607188;border-radius:9px;color:#fff;margin:9px 0;cursor:pointer}
+.videoTsMp4ChoicePanelV1138>button[data-kind]:hover:not(:disabled){border-color:#f6c76c;background:#35435a}
+.videoTsMp4ChoicePanelV1138>button[data-kind]:disabled{opacity:.38;cursor:not-allowed}
+.videoTsMp4ChoicePanelV1138>button[data-kind] b{display:block;font-size:14px;margin-bottom:3px}
+.videoTsMp4ChoicePanelV1138>button[data-kind] small{display:block;font-size:12px;font-weight:400;color:#cbd5e1}
+.videoTsMp4ChoiceFootV1138{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px}
+.videoTsMp4ChoiceFootV1138 a{color:#9bcaff;overflow-wrap:anywhere}
+.videoTsMp4ChoiceFootV1138 button{padding:8px 17px;color:#fff;background:#484c58;border:1px solid #8c94a1;border-radius:7px;cursor:pointer}
+</style>
+
 <!-- v1110: 첫 페인트 이전 기존 메인 화면 숨김; layout과 DOM은 유지. W로 이동한 wtBox에는 적용되지 않음. -->
 <style id="wv1110LightFirstViewCss">
 html.wv1110-light-starting #pageJumpBox,
@@ -3345,18 +3374,6 @@ body.lightbox-open {
 }
 
 
-/* 영상 상단 버튼 접기: 접기버튼 + 폴더/파일/BL초기화 + X/▼만 유지 */
-.wt-actions.video-toolbar-collapsed > :not(#videoToolbarFoldBtn):not(#fsComicLink):not(#wtVideoBlacklistResetBtn):not(#videoRandomStyleBtn):not(#videoChromeTranslatorPrepareBtn):not(#wtToggleBtn) {
-  display: none !important;
-}
-
-#videoToolbarFoldBtn {
-  min-width: 24px;
-  padding-left: 6px;
-  padding-right: 6px;
-  font-weight: 900;
-}
-
 #wtGroupBar{
   display: flex;
   gap: 4px;
@@ -4388,8 +4405,10 @@ body.lightbox-open {
 #videoRandomStylePanel.videoRailStyleEmbeddedV959 .videoRandomStyleTertiaryColumn {display:none !important;}
 #videoRandomStylePanel.videoRailStyleEmbeddedV959 .videoCoverflowMaxWidthRow { grid-template-columns: 31px minmax(0,1fr) 33px; gap:2px; }
 #videoRandomStylePanel.videoRailStyleEmbeddedV959 .videoRandomStylePanelHead span {font-size:10px;}
-/* v959: 영상의 이전 '기능' 버튼만 숨기며 만화 모드용 버튼은 보존한다. */
+/* v1144: 배우/태그/메뉴(M·S) 모든 영상 레일에서 원래 '기능' 버튼을 표시한다.
+   v959의 만화 모드에 관한 표시 규칙은 그대로 두고 영상에서만 우선순위를 되돌린다. */
 body:has(#wtTagRailActressSec) #videoRandomStyleBtn {display:none !important;}
+body:has(#wtTagRail.videoUnifiedRailV1052) #videoRandomStyleBtn {display:inline-flex !important;}
 
 /* v515 배우 레일 정렬: ◀ [현재 정렬명] [↑/↓] ▶
    정렬명 클릭 시 스타일창 형식의 버튼 패널을 연다. */
@@ -11658,6 +11677,49 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 .videoAutoShareHistoryRowV1124 strong{font-size:13px;line-height:1.4}
 .videoAutoShareHistoryRowV1124 small{font-size:11px;line-height:1.5;color:#b9c8dc}
 </style>
+<style id="wv1142CompactSearchStyle">
+/* 1143: 검색칸의 높이를 옆 작은 버튼에 맞추면서 X 표시 때 줄바꿈은 계속 방지. */
+#wtBox .wt-actions #wv1142SearchWrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  flex: 0 0 66px;
+  width: 66px;
+  min-width: 0;
+  height: 18px;
+  box-sizing: border-box;
+}
+#wtBox .wt-actions #wv1142SearchWrap #wtFilter {
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  height: 18px;
+  box-sizing: border-box;
+  padding: 0 17px 0 5px;
+  line-height: 18px;
+  font-size: var(--ui-fs, 12px);
+  margin: 0;
+  white-space: nowrap;
+}
+#wtBox .wt-actions #wv1142SearchWrap #wtFilterClear {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex: none;
+  width: 14px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-sizing: border-box;
+  cursor: pointer;
+  z-index: 1;
+}
+</style>
 </head>
 <body>
 
@@ -12280,7 +12342,6 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
       <span id="videoRandomPreviewTitle" class="video-random-preview-title" aria-live="polite"></span>
 
       <div class="wt-actions">
-      <button class="zoomBtn" id="wtToggleBtn" title="목록 접기/펼치기">▼</button>
       <button class="zoomBtn" id="wtViewPixiV1080" type="button" title="작가별 보기: 작가 라벨 + 가로 작품열, 펼치기">작가별</button>
       <button class="zoomBtn" id="wtEditBtn"  title="목록 수정">수정</button>
 	  <!-- ✅ 정렬 (수정 다음) -->
@@ -12296,14 +12357,6 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
 </select>
 <!-- 영상 전용 정렬 -->
-<button
-  class="zoomBtn"
-  id="videoToolbarFoldBtn"
-  type="button"
-  title="영상 상단 버튼 접기"
-  aria-pressed="false"
-  style="display:none;"
->◀</button>
 <select
   class="zoomBtn"
   id="videoSortSel"
@@ -12522,13 +12575,13 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 >중지</button>
 
 
-	        <!-- ★ 검색 입력 추가 -->
-      <input type="text"
-             id="wtFilter"
-             class="zoomBtn wt-filter"
-             placeholder="검색"
-             title="제목·파일명·배우 전체별칭·품번 검색" >
-			 <button type="button" id="wtFilterClear" class="zoomBtn wt-filter-clear" title="검색 지우기">✕</button>
+        <!-- v1142: 입력창 + 지우기 버튼을 같은 flex 항목으로 묶어 한 줄 유지 -->
+      <span id="wv1142ComicSearchAnchor" hidden aria-hidden="true"></span>
+      <span id="wv1142SearchWrap">
+        <input type="text" id="wtFilter" class="zoomBtn wt-filter"
+               placeholder="검색" title="제목·파일명·배우 전체별칭·품번 검색">
+        <button type="button" id="wtFilterClear" class="zoomBtn wt-filter-clear" title="검색 지우기">✕</button>
+      </span>
 	  <select class="zoomBtn" id="wtColsThumb" title="썸네일 가로 갯수 선택">
   <option value="1">1</option>
   <option value="2">2</option>
@@ -29966,27 +30019,6 @@ function loadWebtoonListEntries(){
     const saveBtn   = document.getElementById('wtSaveBtn');
     const cancelBtn = document.getElementById('wtCancelBtn');
     const delimInp  = document.getElementById('wtDelimiter');
-	const toggleBtn = document.getElementById('wtToggleBtn');
-const listBox   = document.getElementById('wtList');
-const hintBox   = document.getElementById('wtHint'); // ← 힌트도 같이 제어
-
-if (toggleBtn && listBox) {
-  toggleBtn.addEventListener('click', () => {
-    const isHidden = listBox.style.display === 'none';
-    listBox.style.display = isHidden ? 'flex' : 'none';
-
-    // v430: 영상탭에서는 하단 주소/클릭 설명문을 항상 숨김
-    const isVideoMode =
-      typeof contentMode !== 'undefined' &&
-      contentMode === 'video';
-
-    if (hintBox) {
-      hintBox.style.display = (!isVideoMode && isHidden) ? 'inline' : 'none';
-    }
-
-    toggleBtn.textContent = isHidden ? '▼' : '▲';
-  });
-}
 
     if (!editBtn || !panel || !ta || !saveBtn || !cancelBtn) return;
 
@@ -48636,6 +48668,17 @@ button.videoPosterBadgeLine:hover {
   filter:none;
 }
 
+/* v1133: TS 변환 엔진 상태 안내. 다른 파일 재생 화면에는 보이지 않는다. */
+#videoTsNoticeV1133 { position:absolute; left:50%; top:16%; transform:translateX(-50%); z-index:40;
+  max-width:min(85%,730px); padding:9px 14px; border-radius:7px;
+  background:rgba(17,30,32,.92); border:1px solid #2d9772; color:#e8fff4;
+  box-shadow:0 3px 12px #0009; text-align:center; font-size:13px; line-height:1.5;
+  pointer-events:none; white-space:pre-wrap; }
+#videoTsNoticeV1133[hidden] { display:none !important; }
+#videoTsNoticeV1133.error { border-color:#ce765c; background:rgba(54,25,25,.95); color:#ffe5db; }
+/* mpegts.js는 저장된 TS의 중간 탐색을 공식 지원하지 않아, 시험판에서는 탐색 UI만 잠근다. */
+#videoPlayerBody.videoTsPlayingV1133 #videoYoutubeProgressWrap { pointer-events:none; opacity:.58; cursor:not-allowed; }
+#videoPlayerBody.videoTsPlayingV1133 #videoPlayerSeekBar { pointer-events:none; opacity:.58; cursor:not-allowed; }
 /* 동영상 플레이어 */
 #videoPlayerLayer {
   position:fixed;
@@ -50203,6 +50246,8 @@ button.videoPosterBadgeLine:hover {
 
 
 <div id="videoPlayerBody">
+  <!-- v1133: TS 시험재생 상태/코덱 오류를 플레이어 안에 표시 -->
+  <div id="videoTsNoticeV1133" role="status" aria-live="polite" hidden></div>
 
   <video
     id="videoPlayer"
@@ -52534,20 +52579,6 @@ let videoDmmWorkActressCountValue = 1;
 
 const VIDEO_DMM_WORK_SEARCH_LIMIT = 10000;
 
-
-// 영상 상단 버튼 접기 상태
-// v2 키부터 기본값은 접힘. 사용자가 펼치거나 다시 접으면 그 상태를 저장한다.
-const VIDEO_TOOLBAR_FOLDED_KEY = 'video_toolbar_folded_v2';
-let videoToolbarFolded = (() => {
-  try {
-    const saved = VTLS.getRaw(VIDEO_TOOLBAR_FOLDED_KEY);
-    if (saved === '0') return false;
-    if (saved === '1') return true;
-    return true;
-  } catch (_) {
-    return true;
-  }
-})();
 
 // 연속되지 않은 품번들을 직접 입력해서 보는 임의뷰
 // 범위뷰 입력값/배우 체크와 무관한 세션성 UI 상태.
@@ -88645,11 +88676,12 @@ function syncVideoPlayerTime() {
     if (seekBar.dataset.seeking !== '1') {
       seekBar.value = String(Math.min(safeCurrent, safeDuration || safeCurrent || 0));
     }
-    seekBar.disabled = !(safeDuration > 0);
+    seekBar.disabled = !(safeDuration > 0) || !!videoMpegtsPlayerV1133;
   }
 }
 
 function seekVideoPlayerFromBar() {
+  if (videoMpegtsPlayerV1133) return;
   const player = document.getElementById('videoPlayer');
   const seekBar = document.getElementById('videoPlayerSeekBar');
   if (!player || !seekBar) return;
@@ -97055,12 +97087,161 @@ async function saveVideoGifToPosters(
       };
     };
 
+  // ============================================================
+  // v1133: PC 로컬 TS 시험 재생. 폴더 권한은 기존 resolveVideoHandle()로 사용한다.
+  // mpegts.js 1.8.2는 TS가 최초 재생될 때만 로드한다. 오프라인에서는
+  // HTML과 같은 폴더에 mpegts.min.js를 두면 CDN에 연결할 필요가 없다.
+  // 파일 내용을 네트워크로 업로드하지 않고 File.slice로 일정 크기씩 읽는다.
+  // ============================================================
+  let videoMpegtsPlayerV1133 = null;
+  let videoTsLoadPromiseV1133 = null;
+  let videoPlayGenerationV1133 = 0;
+
+  function isVideoLocalTsV1133(entry, file) {
+    const name = String(file?.name || entry?.fileName || entry?.baseName || '').toLowerCase();
+    return /\.(?:ts|m2ts|mts)$/.test(name);
+  }
+
+  function setVideoTsNoticeV1133(message = '', error = false) {
+    const notice = document.getElementById('videoTsNoticeV1133');
+    if (!notice) return;
+    notice.textContent = message;
+    notice.hidden = !message;
+    notice.classList.toggle('error', !!error);
+  }
+
+  async function ensureVideoMpegtsV1133() {
+    if (window.mpegts?.createPlayer) return window.mpegts;
+    if (videoTsLoadPromiseV1133) return videoTsLoadPromiseV1133;
+    // 로컬 복사본을 최우선으로 하며, 없으면 버전을 고정한 CDN으로 진행한다.
+    const urls = [
+      './mpegts.min.js',
+      'https://cdn.jsdelivr.net/npm/mpegts.js@1.8.2/dist/mpegts.min.js',
+      'https://unpkg.com/mpegts.js@1.8.2/dist/mpegts.min.js'
+    ];
+    videoTsLoadPromiseV1133 = (async () => {
+      for (const url of urls) {
+        if (window.mpegts?.createPlayer) return window.mpegts;
+        try {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            const timer = setTimeout(() => { script.remove(); reject(new Error('시간 초과')); }, 9000);
+            script.async = true;
+            script.src = url;
+            script.onload = () => { clearTimeout(timer); resolve(); };
+            script.onerror = () => { clearTimeout(timer); script.remove(); reject(new Error('라이브러리 연결 실패')); };
+            document.head.appendChild(script);
+          });
+          if (window.mpegts?.createPlayer) return window.mpegts;
+        } catch (e) { console.warn('[TS] mpegts.js 경로 실패:',url,e?.message||e); }
+      }
+      throw new Error('mpegts.js를 불러오지 못했습니다. 인터넷 연결 또는 HTML 옆 mpegts.min.js 파일을 확인해 주세요.');
+    })();
+    try { return await videoTsLoadPromiseV1133; }
+    finally { videoTsLoadPromiseV1133 = null; }
+  }
+
+  function createVideoTsFileLoaderV1133(file) {
+    // mpegts.js의 Config.customLoader 인터페이스 구현.
+    // ArrayBuffer를 청크 단위로 전달하므로 수 GB TS도 전체 버퍼링하지 않는다.
+    return class VideoTsFileLoaderV1133 {
+      constructor() {
+        this._type = 'webviewer-file-slice';
+        this._status = 0;
+        this._needStash = true;
+        this._generation = 0;
+        this.onContentLengthKnown = null;
+        this.onURLRedirect = null;
+        this.onDataArrival = null;
+        this.onError = null;
+        this.onComplete = null;
+      }
+      get type() { return this._type; }
+      get status() { return this._status; }
+      get needStashBuffer() { return this._needStash; }
+      isWorking() { return this._status === 1 || this._status === 2; }
+      abort() { this._generation++; this._status = 0; }
+      destroy() {
+        this.abort();
+        this.onDataArrival = null;
+        this.onComplete = null;
+        this.onError = null;
+        this.onContentLengthKnown = null;
+      }
+      open(dataSource, range) {
+        const id = ++this._generation;
+        this._status = 1;
+        const from = Math.max(0, Number(range?.from) || 0);
+        const to = Number(range?.to);
+        const end = Number.isFinite(to) && to >= from ? Math.min(file.size, to + 1) : file.size;
+        const isActive = () => id === this._generation;
+        (async () => {
+          try {
+            this.onContentLengthKnown?.(file.size);
+            let offset = from;
+            while (offset < end && isActive()) {
+              // TS 패킷(188B, M2TS 192B) 경계를 청크마다 유지한다.
+              const packetBytes = /\.m2ts$/i.test(file.name) ? 192 : 188;
+              const alignedChunkSize = Math.floor(512 * 1024 / packetBytes) * packetBytes;
+              // MSE 버퍼 30초를 넘으면 읽기를 잠시 늦춰 대용량 파일의 RAM 과사용 방지.
+              const media = document.getElementById('videoPlayer');
+              if (media && offset > from + alignedChunkSize) {
+                while (isActive() && media.buffered?.length) {
+                  let ahead = 0;
+                  try { ahead = media.buffered.end(media.buffered.length - 1) - media.currentTime; } catch (_) {}
+                  if (!(Number.isFinite(ahead) && ahead > 30)) break;
+                  await new Promise(resolve => setTimeout(resolve, 180));
+                }
+              }
+              if (!isActive()) return;
+              const next = Math.min(end, offset + alignedChunkSize);
+              const chunk = await file.slice(offset, next).arrayBuffer();
+              if (!isActive()) return;
+              if (!chunk.byteLength) break;
+              this._status = 2;
+              this.onDataArrival?.(chunk, offset, offset - from + chunk.byteLength);
+              offset += chunk.byteLength;
+              // 파서/MSE가 업데이트되도록 이벤트 루프에 주기적으로 양보한다.
+              if ((offset - from) % (alignedChunkSize * 8) < alignedChunkSize)
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
+            if (!isActive()) return;
+            this._status = 4;
+            this.onComplete?.(from, Math.max(from, offset - 1));
+          } catch (e) {
+            if (!isActive()) return;
+            this._status = 3;
+            this.onError?.('Exception', { code: -1, msg: String(e?.message || e) });
+          }
+        })();
+      }
+    };
+  }
+
+  function releaseVideoMpegtsV1133() {
+    const tsPlayer = videoMpegtsPlayerV1133;
+    videoMpegtsPlayerV1133 = null;
+    if (!tsPlayer) return;
+    try { tsPlayer.pause(); } catch (_) {}
+    try { tsPlayer.unload(); } catch (_) {}
+    try { tsPlayer.detachMediaElement(); } catch (_) {}
+    try { tsPlayer.destroy(); } catch (_) {}
+  }
+
   async function playVideoEntry(entry, startTime = null) {
+    const generationV1133 = ++videoPlayGenerationV1133;
     try {
-	  currentVideoEntry = entry;
       const handle = await resolveVideoHandle(entry);
       if (!handle) throw new Error('동영상 파일 권한 또는 파일 핸들을 찾지 못했습니다.');
       const file = await handle.getFile();
+      if (generationV1133 !== videoPlayGenerationV1133) return;
+      currentVideoEntry = entry;
+      releaseVideoMpegtsV1133();
+      setVideoTsNoticeV1133();
+      const isTsV1133 = isVideoLocalTsV1133(entry, file);
+      document.getElementById('videoPlayerBody')?.classList.toggle('videoTsPlayingV1133', isTsV1133);
+      const seekV1133 = document.getElementById('videoPlayerSeekBar');
+      if (seekV1133) seekV1133.title = isTsV1133 ? 'TS 시험재생: 중간 탐색은 지원하지 않습니다' : '';
 
       if (currentVideoObjectUrl) URL.revokeObjectURL(currentVideoObjectUrl);
       currentVideoObjectUrl = URL.createObjectURL(file);
@@ -97093,7 +97274,55 @@ player.onloadedmetadata = () => {
     player
   );
 };
-player.src = currentVideoObjectUrl;
+if (isTsV1133) {
+  // 화면을 열고 TS 엔진 로딩 상태를 보여준다. 기존 브라우저 영상 재생은 건드리지 않는다.
+  layer.style.display = 'flex';
+  layer.setAttribute('aria-hidden', 'false');
+  setVideoTsNoticeV1133('TS 변환 엔진 준비 중… (첫 재생은 인터넷 연결이 필요할 수 있습니다)');
+  let library;
+  try {
+    library = await ensureVideoMpegtsV1133();
+    if (generationV1133 !== videoPlayGenerationV1133) return;
+    if (!library.isSupported()) throw new Error('이 브라우저에서는 Media Source Extensions를 사용할 수 없습니다.');
+    try { player.pause(); player.removeAttribute('src'); player.load(); } catch (_) {}
+    setVideoTsNoticeV1133('로컬 TS 파일을 읽고 있습니다…');
+    const mpegtsPlayer = library.createPlayer({
+      type: /\.m2ts$/i.test(file.name) ? 'm2ts' : 'mpegts',
+      isLive: false,
+      filesize: file.size,
+      url: currentVideoObjectUrl // 로컬 blob URL만 전달. 외부로 TS 파일을 전송하지 않음
+    }, {
+      customLoader: createVideoTsFileLoaderV1133(file),
+      enableWorker: false,
+      enableWorkerForMSE: false,
+      lazyLoad: true,
+      autoCleanupSourceBuffer: true,
+      autoCleanupMaxBackwardDuration: 90,
+      autoCleanupMinBackwardDuration: 45
+    });
+    videoMpegtsPlayerV1133 = mpegtsPlayer;
+    mpegtsPlayer.on(library.Events.ERROR, (type, detail, info) => {
+      if (generationV1133 !== videoPlayGenerationV1133) return;
+      console.warn('[TS mpegts.js]',type,detail,info);
+      setVideoTsNoticeV1133('TS 재생 실패: 지원되지 않는 영상/음성 코덱이거나 파일을 읽을 수 없습니다.\n' + (info?.msg || detail || type || ''), true);
+    });
+    mpegtsPlayer.attachMediaElement(player);
+    mpegtsPlayer.load();
+    // 재생이 시작되면 안내창을 자동 숨긴다.
+    player.addEventListener('playing', () => {
+      if (generationV1133 === videoPlayGenerationV1133 && !document.getElementById('videoTsNoticeV1133')?.classList.contains('error')) setVideoTsNoticeV1133();
+    }, { once: true });
+  } catch (tsErr) {
+    if (generationV1133 !== videoPlayGenerationV1133) return;
+    console.warn('[TS] 라이브러리 준비 실패:',tsErr);
+    releaseVideoMpegtsV1133();
+    setVideoTsNoticeV1133(String(tsErr?.message || tsErr), true);
+    return;
+  }
+} else {
+  try { player.pause(); player.removeAttribute('src'); player.load(); } catch (_) {}
+  player.src = currentVideoObjectUrl;
+}
 
 /*
   장면 로딩은 영상 재생 시작을 막지 않는다.
@@ -97141,7 +97370,8 @@ loadSubtitleForEntry(entry);
       layer.setAttribute('aria-hidden', 'false');
 
       const requestedStartTime = Number(startTime);
-      if (Number.isFinite(requestedStartTime) && requestedStartTime >= 0) {
+      // mpegts.js는 저장된 TS의 임의 탐색을 공식 지원하지 않아 시작지점 복원을 생략한다.
+      if (!isTsV1133 && Number.isFinite(requestedStartTime) && requestedStartTime >= 0) {
         try {
           if (player.readyState < 1) {
             await new Promise(resolve => {
@@ -97183,6 +97413,7 @@ loadSubtitleForEntry(entry);
         } catch (_) {}
       }
 
+      if (generationV1133 !== videoPlayGenerationV1133) return;
       let actualPlaybackStarted = false;
       try {
         await player.play();
@@ -97199,6 +97430,10 @@ loadSubtitleForEntry(entry);
   }
 
   function closeVideoPlayer() {
+    ++videoPlayGenerationV1133;
+    releaseVideoMpegtsV1133();
+    setVideoTsNoticeV1133();
+    document.getElementById('videoPlayerBody')?.classList.remove('videoTsPlayingV1133');
     currentVideoEntry = null;
     const layer = document.getElementById('videoPlayerLayer');
     const player = document.getElementById('videoPlayer');
@@ -115767,6 +116002,878 @@ function createVideoP2PShareBadgeV933(entry) {
 
 
 // ============================================================
+// v1135: 로컬 MPEG2-TS(.ts) → 일반 MP4(비분할형) 무손실 리먹싱.
+// - mux.js로 TS 샘플 추출 후, 각 moof/trun을 분석해 표준 moov 탐색 색인을 작성.
+// - 최종 MP4: ftyp + 64-bit mdat + moov (moof가 없는 일반 MP4).
+// - v1137: 600MB 단일 flush에서 영상 트랙이 사라지는 문제 수정.
+//   TS 내 H.264 IDR 영상 PES 시작점만 변환 경계로 사용해 영상 손상 없이 합친다.
+//   결과는 단일 표준 MP4(mdat+moov)이며 원본 파일은 보존한다.
+// - H.264/AAC 중심. 재인코딩 없이 스트림 복사, 사용자 취소 시 새 파일 저장 중지.
+// ============================================================
+/* v1135 standard (non-fragmented) MP4 finalizer for mux.js fMP4 chunks.
+ * Pure JS metadata accumulator; file payloads are streamed to a FileSystemWritableFileStream.
+ * ftyp + 64-bit mdat + moov(index) -> regular MP4, no re-encoding, no full-file RAM.
+ */
+const VideoFlatMp4V1135 = (() => {
+  const te = new TextEncoder();
+  const u8 = v => v instanceof Uint8Array ? v : new Uint8Array(v);
+  const dview = a => new DataView(a.buffer, a.byteOffset, a.byteLength);
+  const u32 = (a,p) => dview(a).getUint32(p);
+  const i32 = (a,p) => dview(a).getInt32(p);
+  const u64 = (a,p) => Number(dview(a).getBigUint64(p));
+  const p32 = (a,p,v) => dview(a).setUint32(p,v>>>0);
+  const p64 = (a,p,v) => dview(a).setBigUint64(p,BigInt(v));
+  const str = (a,p,n=4) => String.fromCharCode(...a.subarray(p,p+n));
+  function bytes32(n){const a=new Uint8Array(4);p32(a,0,n);return a;}
+  function bytes64(n){const a=new Uint8Array(8);p64(a,0,n);return a;}
+  function box(name,...parts){
+    const len=8+parts.reduce((n,a)=>n+a.byteLength,0);
+    if(len>0xffffffff)throw new Error('MP4 메타데이터가 너무 큽니다.');
+    const out=new Uint8Array(len);p32(out,0,len);out.set(te.encode(name),4);
+    let cur=8;for(const a of parts){out.set(a,cur);cur+=a.byteLength;}return out;
+  }
+  function fullbox(name, version, flags, payload){
+    const h=new Uint8Array(4);h[0]=version;h[1]=(flags>>>16)&255;h[2]=(flags>>>8)&255;h[3]=flags&255;
+    return box(name,h,payload);
+  }
+  function boxes(a,start=0,end=a.byteLength){
+    const result=[];let p=start;
+    while(p+8<=end){
+      const size32=u32(a,p);const name=str(a,p+4);let size=size32,header=8;
+      if(size32===1){if(p+16>end)throw new Error('MP4 확장 헤더 손상');size=u64(a,p+8);header=16;}
+      if(size32===0)size=end-p;
+      if(!Number.isSafeInteger(size)||size<header||p+size>end)throw new Error('MP4 박스 크기 오류: '+name);
+      result.push({name,start:p,end:p+size,payload:p+header,size});p+=size;
+    }
+    if(p!==end)throw new Error('MP4 박스 경계 오류');
+    return result;
+  }
+  const children=(a,b)=>boxes(a,b.payload,b.end);
+  const named=(list,name)=>list.find(x=>x.name===name);
+  const raw=(a,b)=>a.slice(b.start,b.end);
+  function writeEntries(type,records,width){
+    const data=new Uint8Array(4+records.length*width);
+    p32(data,0,records.length);
+    for(let i=0;i<records.length;i++)records[i](data,4+i*width);
+    return fullbox(type,0,0,data);
+  }
+  function runLength(list){
+    const runs=[];for(const v of list){
+      const prev=runs[runs.length-1];if(prev&&prev.value===v)prev.count++;else runs.push({count:1,value:v});
+    }return runs;
+  }
+  function uint32Checked(n,label){
+    if(!Number.isFinite(n)||n<0||n>0xffffffff)throw new Error('MP4 '+label+' 범위 초과');return Math.round(n);
+  }
+  function setDuration(boxBytes, name, duration){
+    const v=boxBytes[8];let offset;
+    if(name==='tkhd') offset=v===1?36:28;
+    else if(name==='mvhd'||name==='mdhd') offset=v===1?32:24;
+    else return boxBytes;
+    if(v===1) p64(boxBytes,offset,BigInt(Math.round(duration)));
+    else p32(boxBytes,offset,uint32Checked(duration,name+' 재생시간'));
+    return boxBytes;
+  }
+  function readTimescale(boxBytes){return u32(boxBytes,boxBytes[8]===1?28:20);}
+  function buildIndex(track){
+    const stsd=track.stsd;
+    const stts=writeEntries('stts',runLength(track.durations).map(({count,value})=>(a,p)=>{p32(a,p,count);p32(a,p+4,value);}),8);
+    const stscRows=[];
+    track.chunks.forEach((c,i)=>{
+      if(!stscRows.length||stscRows[stscRows.length-1].count!==c.samples)stscRows.push({first:i+1,count:c.samples});
+    });
+    const stsc=writeEntries('stsc',stscRows.map(x=>(a,p)=>{p32(a,p,x.first);p32(a,p+4,x.count);p32(a,p+8,1);}),12);
+    const stsz=writeEntries('stsz',[],0);
+    // writeEntries() uses count field; stsz has special layout: sample_size(4), sample_count(4), entries.
+    const sz=new Uint8Array(8+4*track.sizes.length);p32(sz,0,0);p32(sz,4,track.sizes.length);
+    for(let i=0;i<track.sizes.length;i++)p32(sz,8+4*i,track.sizes[i]);
+    const offsets=new Uint8Array(4+8*track.chunks.length);p32(offsets,0,track.chunks.length);
+    track.chunks.forEach((c,i)=>p64(offsets,4+8*i,c.offset));
+    const parts=[stsd,stts,stsc,fullbox('stsz',0,0,sz),fullbox('co64',0,0,offsets)];
+    if(track.ctos.some(x=>x!==0)){
+      const signed=track.ctos.some(x=>x<0);
+      const ctts=writeEntries('ctts',runLength(track.ctos).map(({count,value})=>(a,p)=>{
+        p32(a,p,count);if(signed)dview(a).setInt32(p+4,value);else p32(a,p+4,value);
+      }),8);
+      if(signed)ctts[8]=1;
+      parts.push(ctts);
+    }
+    if(track.type==='vide'){
+      if(!track.sync.length)throw new Error('영상의 키프레임 정보를 확인할 수 없습니다.');
+      parts.push(writeEntries('stss',track.sync.map(n=>(a,p)=>p32(a,p,n)),4));
+    }
+    return box('stbl',...parts);
+  }
+  class StandardMp4 {
+    constructor(){this.init=null;this.ftyp=null;this.moov=null;this.movieTimescale=1000;this.tracks=new Map();this.totalMedia=0;this.fragmentCount=0;}
+    initialize(initSegment){
+      const data=u8(initSegment);
+      const root=boxes(data);
+      const ftyp=named(root,'ftyp'), moov=named(root,'moov');
+      if(!ftyp||!moov)throw new Error('MP4 초기화 정보(ftyp/moov)가 없습니다.');
+      const inner=children(data,moov);
+      const mvhd=named(inner,'mvhd');if(!mvhd)throw new Error('MP4 mvhd 정보 누락');
+      this.movieTimescale=readTimescale(raw(data,mvhd));
+      const trex=new Map(), mvex=named(inner,'mvex');
+      if(mvex){for(const item of children(data,mvex)){
+        if(item.name!=='trex')continue;
+        const p=item.payload;trex.set(u32(data,p+4),{duration:u32(data,p+12),size:u32(data,p+16),flags:u32(data,p+20)});
+      }}
+      this.tracks=new Map();
+      for(const t of inner.filter(b=>b.name==='trak')){
+        const tc=children(data,t);const tkhd=named(tc,'tkhd'),mdia=named(tc,'mdia');
+        if(!tkhd||!mdia)continue;
+        const tk=raw(data,tkhd);const id=u32(tk,tk[8]===1?28:20);
+        const mc=children(data,mdia),mdhd=named(mc,'mdhd'),hdlr=named(mc,'hdlr'),minf=named(mc,'minf');
+        if(!mdhd||!hdlr||!minf)throw new Error('MP4 track header 손상');
+        const stbl=named(children(data,minf),'stbl'),stsd=stbl&&named(children(data,stbl),'stsd');
+        if(!stsd)throw new Error('MP4 코덱 정보(stsd) 누락');
+        const type=str(data,hdlr.payload+8);
+        this.tracks.set(id,{id,type, timescale:readTimescale(raw(data,mdhd)), stsd:raw(data,stsd),
+          sizes:[],durations:[],ctos:[],sync:[],chunks:[],trex:trex.get(id)||{},startDts:null});
+      }
+      if(!this.tracks.size)throw new Error('지원 가능한 MP4 트랙이 없습니다.');
+      this.init=data.slice();this.ftyp=raw(data,ftyp);this.moov=moov;
+      return this.ftyp;
+    }
+    // record segment sample metadata, copy only raw mdat payload to output
+    process(fragment,outputDataStart){
+      if(!this.init)throw new Error('MP4 초기화 전 데이터');
+      const a=u8(fragment), root=boxes(a), moof=named(root,'moof'), mdat=named(root,'mdat');
+      if(!moof||!mdat)throw new Error('MP4 moof/mdat 조각 누락');
+      const end=mdat.end,start=mdat.payload;
+      for(const traf of children(a,moof).filter(x=>x.name==='traf')){
+        const parts=children(a,traf),tfhd=named(parts,'tfhd'),tfdt=named(parts,'tfdt');
+        if(!tfhd)throw new Error('MP4 tfhd 누락');
+        let p=tfhd.payload,flags=u32(a,p)&0xffffff;p+=4;
+        const id=u32(a,p);p+=4;
+        const track=this.tracks.get(id);
+        if(!track)throw new Error('동영상 변환 중 트랙 구조가 달라졌습니다.');
+        if(flags&0x000001)p+=8;
+        if(flags&0x000002)p+=4;
+        const defaultDur=(flags&0x000008)?u32(a,p):(track.trex.duration||0);if(flags&0x000008)p+=4;
+        const defaultSize=(flags&0x000010)?u32(a,p):(track.trex.size||0);if(flags&0x000010)p+=4;
+        const defaultFlags=(flags&0x000020)?u32(a,p):(track.trex.flags||0);
+        const firstDts=tfdt ? (a[tfdt.payload]===1?u64(a,tfdt.payload+4):u32(a,tfdt.payload+4)) : 0;
+        if(track.startDts===null)track.startDts=firstDts;
+        let nextData=null;
+        for(const trun of parts.filter(x=>x.name==='trun')){
+          let r=trun.payload,vers=a[r],f=u32(a,r)&0xffffff;r+=4;
+          const count=u32(a,r);r+=4;
+          let dataOffset=null,firstFlags=null;
+          if(f&0x000001){dataOffset=i32(a,r);r+=4;}
+          if(f&0x000004){firstFlags=u32(a,r);r+=4;}
+          // mux.js/modern fMP4 use offsets relative to the moof start.
+          const sampleStart=(dataOffset!==null)?moof.start+dataOffset:(nextData===null?start:nextData);
+          let byteLen=0;
+          const startIndex=track.sizes.length;
+          for(let n=0;n<count;n++){
+            const duration=(f&0x100)?u32(a,r):defaultDur;if(f&0x100)r+=4;
+            const size=(f&0x200)?u32(a,r):defaultSize;if(f&0x200)r+=4;
+            let sampleFlags=(f&0x400)?u32(a,r):defaultFlags;if(f&0x400)r+=4;
+            if(n===0&&firstFlags!==null)sampleFlags=firstFlags;
+            const cto=(f&0x800)?(vers===1?i32(a,r):u32(a,r)):0;if(f&0x800)r+=4;
+            if(!size||!duration)throw new Error('TS 샘플 길이·시간 정보가 부족합니다.');
+            track.sizes.push(size);track.durations.push(duration);track.ctos.push(cto);byteLen+=size;
+            if(track.type==='vide'&&(sampleFlags&0x10000)===0)track.sync.push(startIndex+n+1);
+          }
+          if(sampleStart<start||sampleStart+byteLen>end)throw new Error('MP4 조각 샘플 위치 오류');
+          track.chunks.push({offset:outputDataStart+(sampleStart-start),samples:count});
+          nextData=sampleStart+byteLen;
+        }
+      }
+      this.totalMedia+=end-start;this.fragmentCount++;
+      return a.subarray(start,end);
+    }
+    makeMoov(){
+      if(!this.fragmentCount)throw new Error('MP4 조각이 생성되지 않았습니다.');
+      const a=this.init, moov=this.moov, orig=children(a,moov), parts=[];
+      let movieDuration=0;
+      for(const c of orig){
+        if(c.name==='mvex')continue;
+        if(c.name!=='trak'){parts.push(raw(a,c));continue;}
+        const tc=children(a,c), tkhd=named(tc,'tkhd'), id=tkhd&&u32(a,tkhd.payload+(a[tkhd.payload]===1?20:12));
+        const track=this.tracks.get(id);
+        if(!track||!track.sizes.length)continue;
+        const duration=track.durations.reduce((sum,n)=>sum+n,0);
+        const movDuration=Math.round(duration*this.movieTimescale/track.timescale);
+        movieDuration=Math.max(movieDuration,movDuration);
+        const trakparts=[];
+        for(const t of tc){
+          if(t.name==='tkhd'){trakparts.push(setDuration(raw(a,t),'tkhd',movDuration));continue;}
+          if(t.name!=='mdia'){trakparts.push(raw(a,t));continue;}
+          const mdparts=[];
+          for(const md of children(a,t)){
+            if(md.name==='mdhd'){mdparts.push(setDuration(raw(a,md),'mdhd',duration));continue;}
+            if(md.name!=='minf'){mdparts.push(raw(a,md));continue;}
+            const minfParts=[];
+            for(const item of children(a,md)){
+              minfParts.push(item.name==='stbl'?buildIndex(track):raw(a,item));
+            }
+            mdparts.push(box('minf',...minfParts));
+          }
+          trakparts.push(box('mdia',...mdparts));
+        }
+        parts.push(box('trak',...trakparts));
+      }
+      const mvi=parts.findIndex(item=>str(item,4)==='mvhd');
+      if(mvi<0)throw new Error('MP4 movie metadata 손상');
+      parts[mvi]=setDuration(parts[mvi],'mvhd',movieDuration);
+      return box('moov',...parts);
+    }
+  }
+  return {StandardMp4,bytes32,bytes64,box,boxes};
+})();
+
+// v1136: 188-byte TS의 PAT/PMT를 읽어 비디오 코덱을 사전 확인한다.
+// 서버나 추가 라이브러리 없이 로컬 1MiB만 읽고, 정보가 없으면 변환을 막지 않는다.
+function probeVideoTsCodecsV1136(input) {
+  const a=input instanceof Uint8Array?input:new Uint8Array(input);
+  const types=new Set();
+  const typeName={2:'MPEG-2 Video',16:'MPEG-4 Visual',27:'H.264/AVC',36:'H.265/HEVC',15:'AAC'};
+  let sync=-1;
+  for(let n=0;n<Math.min(188,a.length);n++){
+    if(a[n]===0x47&&a[n+188]===0x47&&a[n+376]===0x47){sync=n;break;}
+  }
+  if(sync<0)return {videoTypes:[],videoNames:[],found:false};
+  let pmtPid=null,parsedPmt=false;
+  for(let start=sync;start+188<=a.length;start+=188){
+    if(a[start]!==0x47)break;
+    const pid=((a[start+1]&31)<<8)|a[start+2];
+    const hasStart=!!(a[start+1]&0x40);
+    const af=(a[start+3]>>4)&3;
+    if(!hasStart||!(af&1)||a[start+1]&0x80)continue;
+    let pos=start+4;
+    if(af&2){const adaptLength=a[pos];pos+=1+adaptLength;}
+    if(pos>=start+188)continue;
+    if(pid!==0&&pid!==pmtPid)continue;
+    pos+=1+a[pos]; // PSI pointer_field (section can begin after stuffing)
+    if(pos+12>start+188)continue;
+    const tableId=a[pos], sectionLen=((a[pos+1]&15)<<8)|a[pos+2];
+    const sectionEnd=pos+3+sectionLen;
+    // PAT/PMT normally fit within one TS packet. Don't interpret partial sections.
+    if(sectionEnd>start+188||sectionLen<9)continue;
+    if(pid===0&&tableId===0){
+      for(let i=pos+8;i+4<=sectionEnd-4;i+=4){
+        const program=(a[i]<<8)|a[i+1];
+        if(program){pmtPid=((a[i+2]&31)<<8)|a[i+3];break;}
+      }
+    } else if(pid===pmtPid&&tableId===2){
+      const programInfoLen=((a[pos+10]&15)<<8)|a[pos+11];
+      for(let i=pos+12+programInfoLen;i+5<=sectionEnd-4;){
+        const streamType=a[i], infoLen=((a[i+3]&15)<<8)|a[i+4];
+        if([2,16,27,36].includes(streamType))types.add(streamType);
+        i+=5+infoLen;
+      }
+      parsedPmt=true;
+      if(types.size)break;
+    }
+  }
+  return {videoTypes:[...types],videoNames:[...types].map(v=>typeName[v]||'Unknown'),found:parsedPmt};
+}
+
+// v1137: 2MB TS 임의 분할 시 깨지는 프레임을 방지한다.
+// 각 TS 패킷을 별도로 조사해 VIDEO PES의 IDR 시작에서만 mux.js.flush()하도록
+// 파일 전체의 안전한 경계 위치를 먼저 구한다. TS를 재인코딩하거나 파일을 변경하지 않는다.
+const VideoTsKeyframeCutsV1137 = (() => {
+  const TS=188;
+  function syncOffset(a){
+    for(let p=0;p<TS && p+TS*2<a.length;p++) {
+      if(a[p]===0x47 && a[p+TS]===0x47 && a[p+TS*2]===0x47) return p;
+    }
+    return -1;
+  }
+  function packetInfo(a,p){
+    if(a[p]!==0x47 || p+TS>a.length) return null;
+    const afc=(a[p+3]>>4)&3;
+    if(!afc || (a[p+1]&0x80)) return null;
+    let q=p+4,ra=false;
+    if(afc&2){
+      const len=a[q];
+      if(len>0) ra=!!(a[q+1]&0x40);
+      q+=1+len;
+    }
+    return {pid:((a[p+1]&31)<<8)|a[p+2],start:!!(a[p+1]&0x40),ra,
+      payload:(afc&1)&&q<p+TS?q:-1,end:p+TS};
+  }
+  function videoPidFromPsi(first,sync){
+    let pmtPid=-1,videoPid=-1,videoType=-1;
+    for(let i=sync;i+TS<=first.length;i+=TS){
+      const t=packetInfo(first,i);
+      if(!t||!t.start||t.payload<0 || (t.pid!==0&&t.pid!==pmtPid))continue;
+      let q=t.payload;
+      const pointer=first[q];q+=1+pointer;
+      if(q+12>t.end)continue;
+      const table=first[q],len=((first[q+1]&15)<<8)|first[q+2],end=q+3+len;
+      if(end>t.end||len<9)continue;
+      if(t.pid===0&&table===0){
+        for(let j=q+8;j+4<=end-4;j+=4){
+          const program=(first[j]<<8)|first[j+1];
+          if(program){pmtPid=((first[j+2]&31)<<8)|first[j+3];break;}
+        }
+      }else if(t.pid===pmtPid&&table===2){
+        const extra=((first[q+10]&15)<<8)|first[q+11];
+        for(let j=q+12+extra;j+5<=end-4;){
+          const type=first[j],pid=((first[j+1]&31)<<8)|first[j+2],size=((first[j+3]&15)<<8)|first[j+4];
+          if([0x1b,0x24,0x02,0x10].includes(type)) {videoType=type;videoPid=pid;break;}
+          j+=5+size;
+        }
+        if(videoPid>=0)break;
+      }
+    }
+    return {videoPid,videoType};
+  }
+  function containsIdr(a,from,to,state){
+    // Annex B 00 00 [00] 01 + NAL(5=IDR), including codes crossing TS packet edges.
+    // Reuse tiny state instead of allocating an array for every TS packet (millions / file).
+    let zero=state.zero||0, expectNal=!!state.expectNal;
+    for(let k=from;k<to;k++){
+      const b=a[k];
+      if(expectNal){
+        if((b&31)===5){state.zero=0;state.expectNal=false;return true;}
+        expectNal=false;
+      }
+      if(b===0)zero=Math.min(3,zero+1);
+      else {if(b===1 && zero>=2)expectNal=true;zero=0;}
+    }
+    state.zero=zero;state.expectNal=expectNal;
+    return false;
+  }
+  async function scan(file,session,notify){
+    const prefix=new Uint8Array(await file.slice(0,Math.min(file.size,1048576)).arrayBuffer());
+    const sync=syncOffset(prefix);
+    if(sync<0)throw new Error('188바이트 MPEG-TS 패킷 경계를 찾지 못했습니다.');
+    const {videoPid,videoType}=videoPidFromPsi(prefix,sync);
+    if(videoType!==0x1b || videoPid<0){
+      if(videoType===0x24)throw new Error('이 TS의 영상은 H.265/HEVC입니다. mux.js 무손실 H.264 MP4 변환을 지원하지 않습니다.');
+      if(videoType===0x02)throw new Error('이 TS의 영상은 MPEG-2입니다. mux.js H.264 무손실 MP4 변환을 지원하지 않습니다.');
+      throw new Error('TS의 H.264 영상 PID를 확인할 수 없습니다. 오디오만 변환하는 오류를 방지하기 위해 중단합니다.');
+    }
+    const starts=[0], minLength=8*1048576, maxLength=96*1048576;
+    const blockSize=Math.floor((8*1048576)/TS)*TS;
+    let cursor=sync,lastCut=0,candidate=-1,scanned=0,haveIdr=false,idrState={zero:0,expectNal:false},idrCount=0;
+    function decideCut(at){
+      if(at<minLength||at-lastCut<minLength)return;
+      if(at<lastCut)return;
+      if(at>file.size-TS)return;
+      if(at-lastCut>maxLength)throw new Error('키프레임 간격이 너무 멀어 이 구간을 안전하게 변환할 수 없습니다.');
+      starts.push(at);lastCut=at;
+    }
+    while(cursor+TS<=file.size){
+      if(session.cancelled)throw new Error('사용자 취소');
+      const usable=Math.min(blockSize,Math.floor((file.size-cursor)/TS)*TS);
+      if(!usable)break;
+      const chunk=new Uint8Array(await file.slice(cursor,cursor+usable).arrayBuffer());
+      for(let p=0;p+TS<=chunk.length;p+=TS){
+        const t=packetInfo(chunk,p);
+        if(!t || t.pid!==videoPid)continue;
+        const absolute=cursor+p;
+        if(t.start&&t.payload>=0){
+          // The current PES is complete when the next video PES starts.
+          if(candidate>=0 && haveIdr){idrCount++;decideCut(candidate);}
+          candidate=absolute;scanned=0;haveIdr=t.ra;idrState.zero=0;idrState.expectNal=false;
+          if(t.payload+9<=t.end && chunk[t.payload]===0 && chunk[t.payload+1]===0 && chunk[t.payload+2]===1){
+            const skip=9+chunk[t.payload+8];
+            const payload=t.payload+skip;
+            if(payload<t.end){
+              if(!haveIdr)haveIdr=containsIdr(chunk,payload,t.end,idrState);
+              scanned+=t.end-payload;
+            }
+          }
+        }else if(candidate>=0 && !haveIdr && t.payload>=0 && scanned<65536){
+          haveIdr=containsIdr(chunk,t.payload,t.end,idrState);
+          scanned+=t.end-t.payload;
+        }
+        if(haveIdr&&candidate>=0){
+          idrCount++;
+          decideCut(candidate);
+          candidate=-1;haveIdr=false;
+        }
+      }
+      cursor+=chunk.length;
+      notify?.(cursor/file.size,starts.length-1);
+      await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    // Safety: no first visible keyframe means mux.js will not emit decodable video.
+    if(!idrCount)throw new Error('원본 TS에서 H.264 IDR 키프레임을 찾지 못했습니다. 임의 위치로 끊어 변환하면 화면이 깨질 수 있어 중단합니다.');
+    if(file.size-lastCut>maxLength){
+      throw new Error('TS 끝부분에서 안전한 키프레임 경계를 찾지 못했습니다. 불완전 MP4 생성을 막기 위해 중단합니다.');
+    }
+    starts.push(file.size);
+    return {cuts:starts,videoPid,idrCount};
+  }
+  return {scan,videoPidFromPsi,packetInfo,syncOffset,containsIdr};
+})();
+
+// v1138: TS → MP4 conversion choices: browser FFmpeg.wasm, experimental mux.js, native FFmpeg CMD.
+const VideoTsFfmpegV1138=(()=>{
+  const maxInput=180*1024*1024;
+  const library='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js';
+  const core='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
+  const workerScript="// WebViewer v1138: single-thread FFmpeg WASM, no uploads. For SAME-ORIGIN hosting (GitHub Pages).\n// Based on the public ffmpeg.wasm message protocol and ffmpeg-webCLI's approach.\nconst TYPES={LOAD:'LOAD',EXEC:'EXEC',FFPROBE:'FFPROBE',WRITE_FILE:'WRITE_FILE',READ_FILE:'READ_FILE',DELETE_FILE:'DELETE_FILE',RENAME:'RENAME',CREATE_DIR:'CREATE_DIR',LIST_DIR:'LIST_DIR',DELETE_DIR:'DELETE_DIR',MOUNT:'MOUNT',UNMOUNT:'UNMOUNT',ERROR:'ERROR',LOG:'LOG',PROGRESS:'PROGRESS'};\nlet ffmpegCore=null;\nasync function loadCore({coreURL,wasmURL}){\n  const module=await import(coreURL);\n  if(typeof module.default!=='function')throw Error('FFmpeg ESM core was not loaded');\n  const response=await fetch(wasmURL);\n  if(!response.ok)throw Error('FFmpeg WASM download failed: HTTP '+response.status);\n  const binary=await response.arrayBuffer();\n  ffmpegCore=await module.default({wasmBinary:binary,instantiateWasm(imports,receive){\n    WebAssembly.instantiate(binary,imports).then(({instance,module})=>receive(instance,module)).catch(err=>self.postMessage({type:TYPES.LOG,data:{type:'stderr',message:String(err)}}));\n    return {};\n  }});\n  ffmpegCore.setLogger(data=>self.postMessage({type:TYPES.LOG,data}));\n  ffmpegCore.setProgress(data=>self.postMessage({type:TYPES.PROGRESS,data}));\n  return true;\n}\nself.onmessage=async({data:{id,type,data}})=>{\n  let result;\n  const transfer=[];\n  try{\n    if(type!==TYPES.LOAD&&!ffmpegCore)throw Error('FFmpeg WASM not loaded');\n    switch(type){\n      case TYPES.LOAD: result=await loadCore(data);break;\n      case TYPES.EXEC: ffmpegCore.setTimeout(data.timeout??-1);ffmpegCore.exec(...data.args);result=ffmpegCore.ret;ffmpegCore.reset();break;\n      case TYPES.FFPROBE: ffmpegCore.setTimeout(data.timeout??-1);ffmpegCore.ffprobe(...data.args);result=ffmpegCore.ret;ffmpegCore.reset();break;\n      case TYPES.WRITE_FILE: ffmpegCore.FS.writeFile(data.path,data.data);result=true;break;\n      case TYPES.READ_FILE: result=ffmpegCore.FS.readFile(data.path,{encoding:data.encoding});break;\n      case TYPES.DELETE_FILE: ffmpegCore.FS.unlink(data.path);result=true;break;\n      case TYPES.RENAME: ffmpegCore.FS.rename(data.oldPath,data.newPath);result=true;break;\n      case TYPES.CREATE_DIR: ffmpegCore.FS.mkdir(data.path);result=true;break;\n      case TYPES.LIST_DIR: result=ffmpegCore.FS.readdir(data.path).map(name=>({name,isDir:ffmpegCore.FS.isDir(ffmpegCore.FS.stat(data.path+'/'+name).mode)}));break;\n      case TYPES.DELETE_DIR: ffmpegCore.FS.rmdir(data.path);result=true;break;\n      case TYPES.MOUNT: result=!!ffmpegCore.FS.filesystems[data.fsType];if(result)ffmpegCore.FS.mount(ffmpegCore.FS.filesystems[data.fsType],data.options,data.mountPoint);break;\n      case TYPES.UNMOUNT: ffmpegCore.FS.unmount(data.mountPoint);result=true;break;\n      default: throw Error('Unsupported message: '+type);\n    }\n    if(result instanceof Uint8Array)transfer.push(result.buffer);\n    self.postMessage({id,type,data:result},transfer);\n  }catch(err){self.postMessage({id,type:TYPES.ERROR,data:String(err?.message||err)});}\n};\n";
+  const nativeScript="@echo off\nsetlocal EnableExtensions DisableDelayedExpansion\nREM WebViewer v1138 - local MPEG-TS to MP4 using native FFmpeg.\nREM Drag one or more .ts files onto this script. Original files remain untouched.\nset \"FFMPEG=ffmpeg\"\nif exist \"%~dp0ffmpeg.exe\" set \"FFMPEG=%~dp0ffmpeg.exe\"\nif not exist \"%~dp0ffmpeg.exe\" (\n  where ffmpeg.exe >nul 2>nul\n  if errorlevel 1 (\n    echo [ERROR] ffmpeg.exe not found.\n    echo Place an official FFmpeg build ffmpeg.exe next to this script,\n    echo or add FFmpeg to Windows PATH, then try again.\n    echo https://www.gyan.dev/ffmpeg/builds/\n    pause\n    exit /b 1\n  )\n)\nif \"%~1\"==\"\" (\n  echo Drag and drop your .ts files onto this CMD script.\n  echo The resulting MP4 will appear next to the original TS.\n  pause\n  exit /b 0\n)\n:next_file\nif \"%~1\"==\"\" goto end\nif /i not \"%~x1\"==\".ts\" (\n  echo [SKIP] not a TS file: \"%~nx1\"\n  shift\n  goto next_file\n)\nset \"INPUT=%~f1\"\nset \"OUTPUT=%~dpn1 (FFmpeg).mp4\"\nif exist \"%OUTPUT%\" (\n  echo [SKIP] Output already exists: \"%OUTPUT%\"\n  shift\n  goto next_file\n)\necho.\necho [START] \"%~nx1\"\nREM Prefer a browser-compatible H.264 track. ffprobe is bundled in full FFmpeg builds.\nset \"VIDEO_CODEC=\"\nset \"PROBE=ffprobe.exe\"\nif exist \"%~dp0ffprobe.exe\" set \"PROBE=%~dp0ffprobe.exe\"\nREM Use a temp file so spaces in FFprobe paths are safe.\nset \"PROBE_TEMP=%TEMP%\\wv_ts1138_codec_%RANDOM%_%RANDOM%.txt\"\n\"%PROBE%\" -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 \"%INPUT%\" >\"%PROBE_TEMP%\" 2>nul\nif exist \"%PROBE_TEMP%\" (\n  set /p VIDEO_CODEC=<\"%PROBE_TEMP%\"\n  del /q \"%PROBE_TEMP%\" >nul 2>nul\n)\nif defined VIDEO_CODEC if /i not \"%VIDEO_CODEC%\"==\"h264\" goto transcode\n\necho Pass 1: copy both video and audio tracks without re-encoding.\n\"%FFMPEG%\" -hide_banner -nostdin -n -fflags +genpts -i \"%INPUT%\" -map 0:v:0 -map 0:a? -sn -dn -c copy -movflags +faststart \"%OUTPUT%\"\nif not errorlevel 1 goto success\nREM Remove ONLY the partial output produced by this invocation (never original input).\nif exist \"%OUTPUT%\" del /q \"%OUTPUT%\"\necho Pass 1 failed. Pass 2: copy video, convert audio to AAC.\n\"%FFMPEG%\" -hide_banner -nostdin -n -fflags +genpts -i \"%INPUT%\" -map 0:v:0 -map 0:a? -sn -dn -c:v copy -c:a aac -b:a 192k -movflags +faststart \"%OUTPUT%\"\nif not errorlevel 1 goto success\nif exist \"%OUTPUT%\" del /q \"%OUTPUT%\"\n:transcode\necho Compatibility pass: encode H.264 video and AAC audio.\necho This is slower than stream copy, but works for many HEVC/MPEG2 TS inputs.\n\"%FFMPEG%\" -hide_banner -nostdin -n -fflags +genpts -i \"%INPUT%\" -map 0:v:0 -map 0:a? -sn -dn -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart \"%OUTPUT%\"\nif not errorlevel 1 goto success\nif exist \"%OUTPUT%\" del /q \"%OUTPUT%\"\necho [FAILED] The source may be damaged or an unsupported codec.\nshift\ngoto next_file\n:success\n\"%PROBE%\" -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 \"%OUTPUT%\" 2>nul\nif errorlevel 1 echo [WARNING] Verify the MP4's video track with a player.\necho [DONE] \"%OUTPUT%\"\nshift\ngoto next_file\n:end\necho.\necho Finished. The original TS files were not changed.\npause\n";
+  function convertSize(value){return (value/1048576).toFixed(1)+' MB';}
+  function downloadCmd(){
+    const blob=new Blob([nativeScript],{type:'application/octet-stream'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='WebViewer_TS_to_MP4_v1138.cmd';document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),20000);
+  }
+  async function decide(entry){
+    let size=0;
+    try{const h=await resolveVideoHandle(entry);if(h)size=(await h.getFile()).size;}catch(_){}
+    return await new Promise(resolve=>{
+      const overlay=document.createElement('div');overlay.id='videoTsMp4ChoiceV1138';
+      const big=size>maxInput;
+      overlay.innerHTML=`<div class="videoTsMp4ChoicePanelV1138" role="dialog" aria-modal="true" aria-label="TS 변환 방식 선택">
+        <strong class="videoTsMp4ChoiceTitleV1138">TS → MP4 · 변환 방식 선택 (빌드 1145)</strong>
+        <p>원본은 그대로 유지 · ${size?('원본 '+convertSize(size)):'원본 용량 확인 전'} · 출력은 일반 MP4 1개</p>
+        <button type="button" data-kind="native"><b>① PC FFmpeg 변환 (대용량 추천)</b><small>메모리 제한이 거의 없으며 영상·음성 손실 없이 복사 우선. CMD 다운로드 후 TS 파일을 끌어다 놓습니다. 별도의 FFmpeg.exe가 필요합니다.</small></button>
+        <button type="button" data-kind="wasm" ${big?'disabled':''}><b>② 브라우저 FFmpeg.wasm 변환${big?' (용량 초과)':''}</b><small>180 MB 이하 시험용. 약 31 MB 변환 엔진 인터넷 로딩, 소형 TS 직접 MP4 저장. 메모리·보안 제한으로 일부 PC에서는 실행되지 않을 수 있습니다.</small></button>
+        <button type="button" data-kind="mux"><b>③ 기존 브라우저 무손실 변환 (실험)</b><small>1137 mux.js 키프레임 방식 유지. 크기가 큰 TS도 스트리밍하지만 코덱·TS 구조에 따라 실패하거나 영상이 깨질 수 있습니다.</small></button>
+        <div class="videoTsMp4ChoiceFootV1138"><a target="_blank" rel="noopener noreferrer" href="https://www.gyan.dev/ffmpeg/builds/">Windows FFmpeg 공식 배포처 안내</a><button type="button" data-kind="cancel">닫기</button></div></div>`;
+      const finish=kind=>{overlay.remove();resolve(kind);};
+      overlay.querySelectorAll('[data-kind]').forEach(button=>button.addEventListener('click',()=>finish(button.dataset.kind)));
+      overlay.addEventListener('click',e=>{if(e.target===overlay)finish('cancel');});
+      const onKey=e=>{if(e.key==='Escape'){document.removeEventListener('keydown',onKey,true);finish('cancel');}};
+      document.addEventListener('keydown',onKey,true);
+      overlay.querySelectorAll('[data-kind]').forEach(btn=>btn.addEventListener('click',()=>document.removeEventListener('keydown',onKey,true),{once:true}));
+      document.body.append(overlay);
+    });
+  }
+  function verifyMp4(data){
+    // No size-ratio assumption: TS remuxing may change size. Require MP4 boxes and video handler.
+    if(!(data instanceof Uint8Array)||data.byteLength<4096)throw new Error('MP4 출력 내용이 비어 있습니다.');
+    const view=new DataView(data.buffer,data.byteOffset,data.byteLength);
+    let p=0,ftyp=false,moov=null,mdat=false;
+    while(p+8<=data.length){
+      let size=view.getUint32(p);const name=String.fromCharCode(data[p+4],data[p+5],data[p+6],data[p+7]);let header=8;
+      if(size===1){if(p+16>data.length)break;size=Number(view.getBigUint64(p+8));header=16;}
+      if(size===0)size=data.length-p;
+      if(!Number.isSafeInteger(size)||size<header||p+size>data.length)break;
+      if(name==='ftyp')ftyp=true;
+      if(name==='mdat'&&size>header)mdat=true;
+      if(name==='moov')moov=data.subarray(p,p+size);
+      p+=size;
+    }
+    if(!ftyp||!mdat||!moov)throw new Error('MP4 파일 구조(ftyp/mdat/moov) 검증에 실패했습니다.');
+    const text=new TextDecoder('latin1').decode(moov);
+    if(!text.includes('vide')||!text.includes('stsd'))throw new Error('MP4 파일에서 정상 영상 트랙을 찾지 못했습니다.');
+  }
+  async function loadFfmpeg(session,update){
+    if(location.protocol==='file:')update('로컬 HTML: Worker 실행이 브라우저에서 차단되면 GitHub Pages/localhost에서 실행해 주세요.',0.03);
+    const module=await import(library);
+    const FFmpeg=module.FFmpeg;
+    if(!FFmpeg)throw Error('FFmpeg.wasm 모듈을 불러오지 못했습니다.');
+    const candidates=[];
+    if(location.protocol==='https:'||location.protocol==='http:')candidates.push(new URL('./ts-ffmpeg-worker-v1138.js',location.href).href);
+    const blobURL=URL.createObjectURL(new Blob([workerScript],{type:'text/javascript'}));
+    candidates.push(blobURL);
+    let lastError;
+    try{
+      for(const workerURL of candidates){
+        if(session.cancelled)throw Error('사용자 취소');
+        let ffmpeg=new FFmpeg();session.ffmpeg=ffmpeg;
+        ffmpeg.on('log',({message})=>{if(/(error|invalid|frame=|time=)/i.test(message||''))session.lastLog=String(message).slice(-220);});
+        ffmpeg.on('progress',({progress})=>{if(Number.isFinite(progress))update('FFmpeg 작업 중… '+Math.floor(Math.max(0,Math.min(1,progress))*100)+'% '+(session.lastLog||''),0.25+Math.min(1,progress)*.55);});
+        try{
+          update('FFmpeg.wasm 엔진 로딩… 약 31 MB (첫 실행은 인터넷 필요)',0.05);
+          await Promise.race([ffmpeg.load({classWorkerURL:workerURL,coreURL:core+'/ffmpeg-core.js',wasmURL:core+'/ffmpeg-core.wasm'}),new Promise((_,reject)=>setTimeout(()=>reject(Error('엔진 로딩 제한시간 초과')),45000))]);
+          if(session.cancelled)throw Error('사용자 취소');
+          return {ffmpeg,blobURL};
+        }catch(error){lastError=error;try{ffmpeg.terminate();}catch(_){}session.ffmpeg=null;}
+      }
+    }catch(error){lastError=error;}
+    URL.revokeObjectURL(blobURL);
+    throw Error('FFmpeg.wasm 로딩 실패: '+String(lastError?.message||lastError)+'. 로컬 HTML에서 오류가 발생하면 GitHub Pages에 HTML과 ts-ffmpeg-worker-v1138.js를 함께 올리거나 PC FFmpeg 방식으로 변환하세요.');
+  }
+  async function convert(entry){
+    if(videoTsMp4ActiveV1134&&!videoTsMp4ActiveV1134.finished)return;
+    if(typeof window.showSaveFilePicker!=='function'){alert('브라우저 파일 저장 API가 필요합니다. PC Chrome/Edge 또는 PC FFmpeg 방식으로 실행하세요.');return;}
+    // Show the picker immediately after the mode click to preserve user activation.
+    let outHandle;
+    try{outHandle=await window.showSaveFilePicker({suggestedName:String(entry?.fileName||'video.ts').replace(/\.ts$/i,'')+' (FFmpeg).mp4',types:[{description:'MP4',accept:{'video/mp4':['.mp4']}}],excludeAcceptAllOption:true});}
+    catch(e){if(e?.name!=='AbortError')alert(String(e?.message||e));return;}
+    const h=await resolveVideoHandle(entry);
+    if(!h){alert('TS 파일을 찾지 못했습니다. 영상 폴더 권한을 확인하세요.');return;}
+    const file=await h.getFile();
+    if(file.size>maxInput){alert('브라우저 FFmpeg.wasm은 180MB까지만 시험 지원합니다. 큰 파일은 PC FFmpeg 변환을 선택하세요.');return;}
+    const session={cancelled:false,finished:false,ffmpeg:null,lastLog:''};videoTsMp4ActiveV1134=session;
+    const layer=getVideoTsMp4DialogV1134();layer.classList.add('is-visible');
+    layer.querySelector('[data-tsmp4-filename]').textContent=file.name+' → '+outHandle.name;
+    layer.querySelector('.videoTsMp4InfoV1134').textContent='브라우저 FFmpeg.wasm · 단일 MP4 · 180MB 이하 시험용 · 원본 보존 · 엔진 로딩에 인터넷 필요. H.264/AAC는 무손실 복사를 우선하며 다른 코덱은 재인코딩할 수 있습니다.';
+    layer.querySelector('[data-tsmp4-cancel]').disabled=false;
+    layer.querySelector('[data-tsmp4-done]').disabled=true;
+    layer.querySelector('[data-tsmp4-progress]').style.width='0%';
+    const update=(s,f)=>showVideoTsMp4StatusV1134(s,f);
+    let blobURL=null,writable=null;
+    try{
+      const loaded=await loadFfmpeg(session,update);blobURL=loaded.blobURL;
+      const ffmpeg=loaded.ffmpeg;
+      if(session.cancelled)throw Error('사용자 취소');
+      update('원본 TS를 FFmpeg 메모리 파일시스템에 읽는 중…',0.15);
+      await ffmpeg.writeFile('input.ts',new Uint8Array(await file.arrayBuffer()));
+      if(session.cancelled)throw Error('사용자 취소');
+      const probe=probeVideoTsCodecsV1136(await file.slice(0,Math.min(file.size,1048576)).arrayBuffer());
+      const copyVideo=probe.videoTypes.length===0||probe.videoTypes.includes(27);
+      const attempts=copyVideo ? [
+        ['-hide_banner','-loglevel','warning','-fflags','+genpts','-i','input.ts','-map','0:v:0','-map','0:a?','-sn','-dn','-c','copy','-movflags','+faststart','output.mp4'],
+        ['-hide_banner','-loglevel','warning','-fflags','+genpts','-i','input.ts','-map','0:v:0','-map','0:a?','-sn','-dn','-c:v','copy','-c:a','aac','-b:a','192k','-movflags','+faststart','output.mp4']
+      ] : [
+        ['-hide_banner','-loglevel','warning','-fflags','+genpts','-i','input.ts','-map','0:v:0','-map','0:a?','-sn','-dn','-c:v','libx264','-preset','ultrafast','-crf','22','-c:a','aac','-b:a','192k','-movflags','+faststart','output.mp4']
+      ];
+      let okay=false;
+      for(let k=0;k<attempts.length;k++){
+        if(session.cancelled)throw Error('사용자 취소');
+        update('FFmpeg 변환 실행 '+(k+1)+'/'+attempts.length+' · '+(copyVideo?'무손실 스트림 복사 우선':'브라우저 호환 H.264/AAC 재인코딩'),0.24);
+        try{await ffmpeg.deleteFile('output.mp4');}catch(_){}
+        const code=await ffmpeg.exec(attempts[k]);
+        if(code===0){okay=true;break;}
+      }
+      if(!okay)throw Error('FFmpeg 변환 명령 실패. '+(session.lastLog||'원본 코덱을 지원하지 않거나 메모리가 부족할 수 있습니다.'));
+      if(session.cancelled)throw Error('사용자 취소');
+      update('MP4 영상 트랙/컨테이너 검증 중…',0.85);
+      const output=await ffmpeg.readFile('output.mp4');
+      verifyMp4(output);
+      if(session.cancelled)throw Error('사용자 취소');
+      writable=await outHandle.createWritable();
+      await writable.write(output);
+      if(session.cancelled)throw Error('사용자 취소');
+      await writable.close();writable=null;
+      finishVideoTsMp4DialogV1134('FFmpeg 변환 완료: '+outHandle.name+' · '+convertSize(output.byteLength)+'\n영상 트랙 검증 완료 · 원본 TS 유지',true);
+    }catch(error){
+      if(writable){try{await writable.abort();}catch(_){}}
+      finishVideoTsMp4DialogV1134(session.cancelled?'변환을 중지했습니다. 원본 TS는 유지됩니다.':'브라우저 FFmpeg 변환 실패: '+String(error?.message||error)+'\nPC FFmpeg 방식을 이용할 수 있습니다.',false);
+    }finally{try{session.ffmpeg?.terminate();}catch(_){}if(blobURL)URL.revokeObjectURL(blobURL);session.ffmpeg=null;}
+  }
+  return {maxInput,decide,convert,downloadCmd};
+})();
+
+let videoTsMp4ActiveV1134 = null;
+let videoMuxLibLoadingV1134 = null;
+function ensureVideoMuxJsV1134() {
+  if (window.muxjs?.mp4?.Transmuxer) return Promise.resolve(window.muxjs);
+  if (videoMuxLibLoadingV1134) return videoMuxLibLoadingV1134;
+  videoMuxLibLoadingV1134 = (async () => {
+    const sources = [
+      './mux.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/mux.js/6.3.0/mux.min.js',
+      'https://cdn.jsdelivr.net/npm/mux.js@6.3.0/dist/mux.min.js'
+    ];
+    for (const source of sources) {
+      try {
+        await new Promise((resolve,reject) => {
+          const script=document.createElement('script');
+          script.src=source;script.async=true;
+          const timer=setTimeout(()=>{script.remove();reject(new Error('시간 초과'));},12500);
+          script.onload=()=>{clearTimeout(timer);resolve();};
+          script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error('로드 실패'));};
+          document.head.appendChild(script);
+        });
+        if (window.muxjs?.mp4?.Transmuxer) return window.muxjs;
+      } catch (error) {
+        console.warn('[TS→MP4] 라이브러리 로딩 실패',source,error);
+      }
+    }
+    throw new Error('MP4 변환 엔진(mux.js)을 불러오지 못했습니다. 인터넷 연결 또는 HTML 옆 mux.min.js 파일을 확인하세요.');
+  })();
+  videoMuxLibLoadingV1134.catch(()=>{videoMuxLibLoadingV1134=null;});
+  return videoMuxLibLoadingV1134;
+}
+
+function getVideoTsMp4DialogV1134() {
+  let layer=document.getElementById('videoTsMp4DialogV1134');
+  if(layer) return layer;
+  layer=document.createElement('div');
+  layer.id='videoTsMp4DialogV1134';
+  layer.innerHTML=`
+    <section class="videoTsMp4PanelV1134" role="dialog" aria-modal="true" aria-labelledby="videoTsMp4TitleV1134">
+      <div class="videoTsMp4HeadV1134"><strong id="videoTsMp4TitleV1134">TS / MKV → MP4 변환 (1145)</strong><button type="button" class="zoomBtn" data-tsmp4-close>닫기</button></div>
+      <div class="videoTsMp4FileV1134" data-tsmp4-filename></div>
+      <div class="videoTsMp4InfoV1134">원본 TS/MKV는 보존하고 별도의 <b>일반 MP4</b>를 만듭니다.<br><b>무손실 복사 우선</b> · 필요하면 재인코딩을 먼저 확인합니다.<br>인터넷 연결이 필요하며 AVI 입력은 현재 정식 엔진에서 지원되지 않습니다.</div>
+      <div class="videoTsMp4TrackV1134"><div data-tsmp4-progress></div></div>
+      <div class="videoTsMp4StatsV1134" data-tsmp4-stats>준비 중…</div>
+      <div class="videoTsMp4ButtonsV1134"><button type="button" class="zoomBtn" data-tsmp4-cancel>변환 중지</button><button type="button" class="zoomBtn" data-tsmp4-done disabled>확인</button></div>
+    </section>`;
+  document.body.appendChild(layer);
+  const cancel=()=>{if(videoTsMp4ActiveV1134 && !videoTsMp4ActiveV1134.finished){videoTsMp4ActiveV1134.cancelled=true;try{videoTsMp4ActiveV1134.ffmpeg?.terminate();}catch(_){}try{void videoTsMp4ActiveV1134.conversion?.cancel();}catch(_){}showVideoTsMp4StatusV1134('취소 중…');}};
+  layer.querySelector('[data-tsmp4-cancel]').addEventListener('click',cancel);
+  layer.querySelector('[data-tsmp4-close]').addEventListener('click',()=>{
+    if(videoTsMp4ActiveV1134 && !videoTsMp4ActiveV1134.finished) cancel();
+    else layer.classList.remove('is-visible');
+  });
+  layer.querySelector('[data-tsmp4-done]').addEventListener('click',()=>layer.classList.remove('is-visible'));
+  return layer;
+}
+function showVideoTsMp4StatusV1134(text, fraction) {
+  const layer=document.getElementById('videoTsMp4DialogV1134');
+  if(!layer) return;
+  const stats=layer.querySelector('[data-tsmp4-stats]');
+  if(stats) stats.textContent=text;
+  if(Number.isFinite(fraction)) {
+    const bar=layer.querySelector('[data-tsmp4-progress]');
+    if(bar) bar.style.width=(Math.max(0,Math.min(1,fraction))*100).toFixed(1)+'%';
+  }
+}
+function finishVideoTsMp4DialogV1134(message,okay) {
+  if(videoTsMp4ActiveV1134) videoTsMp4ActiveV1134.finished=true;
+  const layer=getVideoTsMp4DialogV1134();
+  showVideoTsMp4StatusV1134(message,okay?1:undefined);
+  layer.querySelector('[data-tsmp4-done]').disabled=false;
+  layer.querySelector('[data-tsmp4-cancel]').disabled=true;
+}
+// v1141: TS/MKV - MP4. Copy-first, ask before any necessary transcode.
+// AVI input isn't supported by this Mediabunny release; do not pretend conversion succeeded.
+const VideoMediaConverterV1141=(()=>{
+  const mbVersion='1.61.4';
+  const urls=[
+    'https://cdn.jsdelivr.net/npm/mediabunny@'+mbVersion+'/dist/bundles/mediabunny.min.cjs',
+    'https://unpkg.com/mediabunny@'+mbVersion+'/dist/bundles/mediabunny.min.cjs',
+    './mediabunny.min.cjs'
+  ];
+  let enginePromise=null;
+  async function loadEngine(){
+    if(window.Mediabunny?.Conversion&&window.Mediabunny?.MPEG_TS&&window.Mediabunny?.MATROSKA)return window.Mediabunny;
+    if(enginePromise)return enginePromise;
+    enginePromise=(async()=>{
+      let error;
+      for(const url of urls){
+        try{
+          await new Promise((resolve,reject)=>{
+            const tag=document.createElement('script');
+            tag.src=url;tag.async=true;
+            const timer=setTimeout(()=>{tag.remove();reject(Error('엔진 연결 시간 초과'));},18000);
+            tag.onload=()=>{clearTimeout(timer);resolve();};
+            tag.onerror=()=>{clearTimeout(timer);tag.remove();reject(Error('연결 불가: '+url));};
+            document.head.appendChild(tag);
+          });
+          if(window.Mediabunny?.Conversion&&window.Mediabunny?.MATROSKA)return window.Mediabunny;
+        }catch(e){error=e;console.warn('[v1141 media engine]',e);}
+      }
+      throw Error('Mediabunny 엔진을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요. '+String(error?.message||''));
+    })();
+    try{return await enginePromise;}catch(e){enginePromise=null;throw e;}
+  }
+  const getName=e=>String(e?.fileName||e?.baseName||e?.display||'video.ts');
+  const getExt=n=>(/\.([^.\\/]+)$/i.exec(n)?.[1]||'').toLowerCase();
+  const errorText=e=>String(e?.message||e||'알 수 없는 오류');
+  const fmt=n=>(Number(n)/1048576).toFixed(1)+'MB';
+  const display=(text,progress)=>showVideoTsMp4StatusV1134(text,progress);
+  const matches=(a,b)=>a===b || (!!a&&!!b&&a.type===b.type&&a.number===b.number&&a.id===b.id);
+  const included=(conv,t)=>!!conv?.utilizedTracks?.some(x=>matches(x,t));
+  const isTrackType=(t,kind)=>t?.type===kind;
+  const listKinds=arr=>arr.map(t=>t.type==='video'?'영상':t.type==='audio'?'음성':t.type==='subtitle'?'자막':String(t.type)).join(', ');
+  const smallTrackName=async t=>{
+    let codec='알 수 없음';try{codec=(await t.getCodec())||codec;}catch(_){}
+    return (t.type==='video'?'영상':t.type==='audio'?'음성':t.type==='subtitle'?'자막':String(t.type))+' '+codec;
+  };
+  async function getTrackList(input){
+    const tracks=await input.getTracks();
+    return tracks.filter(t=>t&&['video','audio','subtitle'].includes(t.type));
+  }
+  // The HTML dialog already has a cancel button; a native confirmation handles opt-in before encoding.
+  async function confirmSafely(text,session){
+    if(session.cancelled)return false;
+    const okay=window.confirm(text);
+    return okay&&!session.cancelled;
+  }
+  async function convert(entry){
+    if(videoTsMp4ActiveV1134&&!videoTsMp4ActiveV1134.finished){
+      getVideoTsMp4DialogV1134().classList.add('is-visible');return;
+    }
+    const name=getName(entry),ext=getExt(name);
+    if(!['ts','mkv','avi'].includes(ext))return;
+    if(ext==='avi'){
+      alert('AVI → MP4는 현재 웹뷰어 1145의 Mediabunny 엔진에서 지원되지 않습니다.\nAVI 파일은 MP4 버튼만 연결한다고 변환할 수 없으며, AVI 전용 디먹서가 필요합니다.\n원본 AVI는 변경되지 않았습니다. TS와 MKV는 변환할 수 있습니다.');
+      return;
+    }
+    if(typeof window.showSaveFilePicker!=='function'){
+      alert('디스크 직접 저장을 지원하는 PC Chrome 또는 Edge에서 실행해 주세요.');return;
+    }
+    // Must be the FIRST asynchronous operation to preserve a real user gesture.
+    let outHandle;
+    const targetName=name.replace(/\.(ts|mkv)$/i,'')+' (MP4).mp4';
+    try{
+      outHandle=await window.showSaveFilePicker({
+        suggestedName:targetName,
+        types:[{description:'MP4 동영상',accept:{'video/mp4':['.mp4']}}],
+        excludeAcceptAllOption:true
+      });
+    }catch(e){if(e?.name!=='AbortError')alert('저장 파일 선택 오류: '+errorText(e));return;}
+    const session={cancelled:false,finished:false,conversion:null};
+    videoTsMp4ActiveV1134=session;
+    const layer=getVideoTsMp4DialogV1134();
+    layer.classList.add('is-visible');
+    layer.querySelector('[data-tsmp4-filename]').textContent=name+' → '+(outHandle.name||targetName);
+    layer.querySelector('[data-tsmp4-cancel]').disabled=false;
+    layer.querySelector('[data-tsmp4-done]').disabled=true;
+    layer.querySelector('[data-tsmp4-progress]').style.width='0%';
+    const info=layer.querySelector('.videoTsMp4InfoV1134');
+    if(info)info.innerHTML='원본 파일 보존 · <b>무손실 복사 우선</b> · 코덱이 호환되지 않을 때 <b>재인코딩 여부를 먼저 질문</b>합니다.<br>일반 MP4로 디스크에 직접 기록하므로 대용량 파일 전체를 메모리에 올리지 않습니다. MKV 추가 음성/자막은 MP4 호환성을 검사합니다.';
+    let input=null,output=null,conv=null,writable=null,committed=false;
+    try{
+      display('파일 연결 및 변환 엔진 준비 중…',0);
+      const [mb,sourceHandle]=await Promise.all([loadEngine(),resolveVideoHandle(entry)]);
+      if(session.cancelled)throw Error('사용자 취소');
+      if(!sourceHandle)throw Error('원본 파일을 찾지 못했습니다. 영상 폴더 권한을 확인하세요.');
+      const file=await sourceHandle.getFile();
+      if(file.size<188)throw Error('파일이 비어 있거나 너무 작습니다.');
+      input=new mb.Input({source:new mb.BlobSource(file),formats:ext==='ts'?[mb.MPEG_TS]:[mb.MATROSKA]});
+      display('영상·음성·자막 트랙 확인 중…',.025);
+      const allTracks=await getTrackList(input);
+      const videoTracks=allTracks.filter(t=>isTrackType(t,'video'));
+      const audioTracks=allTracks.filter(t=>isTrackType(t,'audio'));
+      if(!videoTracks.length)throw Error('원본에서 영상 트랙을 찾지 못했습니다. 오디오 전용 파일은 만들지 않습니다.');
+      const wanted=ext==='ts'
+        ?[await input.getPrimaryVideoTrack(),await input.getPrimaryAudioTrack()].filter(Boolean)
+        :allTracks.slice();
+      const extra=allTracks.filter(t=>!wanted.some(w=>matches(t,w)));
+      if(extra.length){
+        const names=await Promise.all(extra.map(smallTrackName));
+        const ok=await confirmSafely('TS 파일의 기본 영상·음성 이외의 트랙이 있습니다.\n'+names.join(', ')+'\n1140과의 호환성을 위해 기본 영상·음성만 변환합니다.\n계속하시겠습니까?',session);
+        if(!ok)throw Error('추가 트랙 제외에 동의하지 않아 취소됨');
+      }
+      const codecs=await Promise.all(wanted.map(smallTrackName));
+      display('무손실 변환 가능 여부 검사 중… '+codecs.join(' · '),.055);
+      // Only inspect the plan. NullTarget avoids starting a writable file prior to consent.
+      const planOut=new mb.Output({format:new mb.Mp4OutputFormat({fastStart:false}),target:new mb.NullTarget()});
+      let copyPlan=await mb.Conversion.init({input,output:planOut,tracks:ext==='ts'?'primary':'all',copy:{mode:'forced'}});
+      if(session.cancelled)throw Error('사용자 취소');
+      const unsupported=wanted.filter(t=>!included(copyPlan,t));
+      const droppedUnsupported=unsupported.filter(t=>t.type==='subtitle');
+      const transcode=unsupported.filter(t=>t.type==='video'||t.type==='audio');
+      const droppedNames=await Promise.all(droppedUnsupported.map(smallTrackName));
+      const transcodeNames=await Promise.all(transcode.map(smallTrackName));
+      let autoTranscode=false,dropSubtitles=false;
+      // Before offering an encode choice, verify a preferred-copy/transcode plan can preserve every video/audio track.
+      if(transcode.length || !copyPlan.isValid){
+        const probeOut=new mb.Output({format:new mb.Mp4OutputFormat({fastStart:false}),target:new mb.NullTarget()});
+        const unavailableV=transcode.filter(t=>t.type==='video');
+        const unavailableA=transcode.filter(t=>t.type==='audio');
+        const trial=await mb.Conversion.init({
+          input,output:probeOut,tracks:ext==='ts'?'primary':'all',copy:{mode:'preferred'},
+          video:t=>unavailableV.some(x=>matches(x,t))?{codec:'avc',forceTranscode:true}:{},
+          audio:t=>unavailableA.some(x=>matches(x,t))?{codec:'aac',forceTranscode:true}:{}
+        });
+        const missingAV=wanted.filter(t=>['video','audio'].includes(t.type)&&!included(trial,t));
+        if(!trial.isValid||missingAV.length){
+          const names=await Promise.all(missingAV.map(smallTrackName));
+          throw Error('현재 브라우저에서 필요한 인코딩을 준비할 수 없습니다.'+(names.length?' 지원 불가 트랙: '+names.join(', '):''));
+        }
+      }
+      if(unsupported.length||!copyPlan.isValid){
+        const msg=[
+          `파일: ${name}`,
+          `원본: ${fmt(file.size)}`,
+          `무손실로 옮길 수 없는 항목: ${transcodeNames.concat(droppedNames).join(', ')||'MP4 복사 조건 불일치'}`,
+          transcode.length?'\n영상 또는 음성 일부를 H.264/AAC로 재인코딩할 수 있는지 확인하고 진행합니다. 재인코딩은 느리고 해당 트랙의 품질이 일부 달라질 수 있습니다.':'',
+          droppedUnsupported.length?'\n주의: 위 자막은 현재 MP4로 보존할 수 없어 제외됩니다. 원본 MKV에는 남아 있습니다.':'',
+          '\n변환을 진행하시겠습니까? [취소]를 누르면 원본 그대로 유지합니다.'
+        ].filter(Boolean).join('\n');
+        if(!await confirmSafely(msg,session))throw Error('사용자 확인에서 변환을 취소했습니다');
+        autoTranscode=transcode.length>0||!copyPlan.isValid;
+        dropSubtitles=droppedUnsupported.length>0;
+      }
+      // If all tracks can be copied but unsupported subtitles were found, a separate loss confirmation has occurred.
+      if(session.cancelled)throw Error('사용자 취소');
+      display(autoTranscode?'필요한 트랙만 재인코딩 준비 중…':'무손실 복사 준비 중…',.07);
+      writable=await outHandle.createWritable({keepExistingData:false});
+      const target=new mb.StreamTarget(writable,{chunked:true,chunkSize:4*1024*1024});
+      output=new mb.Output({format:new mb.Mp4OutputFormat({fastStart:false}),target});
+      let maxWritten=0,lastUpdate=0;
+      target.on('write',({end})=>{if(Number.isFinite(end))maxWritten=Math.max(maxWritten,end);});
+      const uncopyableVideo=transcode.filter(t=>t.type==='video');
+      const uncopyableAudio=transcode.filter(t=>t.type==='audio');
+      const opts={input,output,tracks:ext==='ts'?'primary':'all',copy:{mode:autoTranscode?'preferred':'forced'}};
+      if(autoTranscode){
+        opts.video=t=>uncopyableVideo.some(x=>matches(x,t))?{codec:'avc',forceTranscode:true}:{};
+        opts.audio=t=>uncopyableAudio.some(x=>matches(x,t))?{codec:'aac',forceTranscode:true}:{};
+      }
+      // Unsupported subtitle tracks are discarded by the conversion API; the user has explicitly consented.
+      conv=await mb.Conversion.init(opts);
+      session.conversion=conv;
+      if(!conv.isValid)throw Error('이 파일에서 선택한 영상/음성 코덱으로 MP4를 만들 수 없습니다. 브라우저 인코더 지원 여부를 확인해 주세요.');
+      const missing=wanted.filter(t=>!included(conv,t)&&!(dropSubtitles&&t.type==='subtitle'));
+      if(missing.length)throw Error('일부 영상·음성 트랙이 변환 계획에서 누락됩니다: '+(await Promise.all(missing.map(smallTrackName))).join(', '));
+      if(session.cancelled)throw Error('사용자 취소');
+      conv.onProgress=p=>{
+        if(session.cancelled)return;
+        const now=Date.now();if(now-lastUpdate<200&&p<1)return;
+        lastUpdate=now;
+        display((autoTranscode?'선택적 인코딩':'영상·음성 무손실 복사')+' '+Math.round(100*Math.min(1,Math.max(0,p)))+'% · '+fmt(maxWritten)+' 저장',.09+.79*Math.min(1,Math.max(0,p)));
+      };
+      await conv.execute();
+      if(session.cancelled)throw Error('사용자 취소');
+      if(output.state!=='finalized')throw Error('MP4 파일 마무리 작업이 완료되지 않았습니다.');
+      committed=true;writable=null;
+      display('생성된 MP4 영상·음성 검사 중…',.91);
+      const outputFile=await outHandle.getFile();
+      if(outputFile.size<10240)throw Error('MP4 출력 파일이 지나치게 작습니다.');
+      const check=new mb.Input({formats:[mb.MP4],source:new mb.BlobSource(outputFile)});
+      try{
+        const outputTracks=await getTrackList(check);
+        const expectedVideo=wanted.filter(t=>t.type==='video').length;
+        const expectedAudio=wanted.filter(t=>t.type==='audio').length;
+        const videos=outputTracks.filter(t=>t.type==='video');
+        const audios=outputTracks.filter(t=>t.type==='audio');
+        if(videos.length!==expectedVideo||audios.length!==expectedAudio){
+          throw Error(`트랙이 누락되었습니다: 영상 ${expectedVideo}→${videos.length}개, 음성 ${expectedAudio}→${audios.length}개`);
+        }
+        for(const track of videos.concat(audios)){
+          const packet=await new mb.EncodedPacketSink(track).getFirstPacket();
+          if(!packet)throw Error('결과 MP4 트랙에 실제 영상·음성 패킷이 없습니다.');
+        }
+        const first=videos[0];
+        if(!await first.getCodedWidth()||!await first.getCodedHeight())throw Error('MP4 영상의 해상도가 유효하지 않습니다.');
+        const vDur=await first.getDurationFromMetadata();
+        const origVid=wanted.find(t=>t.type==='video');
+        const oDur=origVid?await origVid.getDurationFromMetadata():null;
+        if(oDur!==null&&vDur!==null&&Number.isFinite(oDur)&&oDur>2&&Math.abs(oDur-vDur)>Math.max(5,oDur*.08)){
+          throw Error(`원본 ${oDur.toFixed(1)}초와 결과 ${vDur.toFixed(1)}초가 크게 다릅니다.`);
+        }
+      }finally{try{check.dispose();}catch(_){}}
+      finishVideoTsMp4DialogV1134(`변환 성공 · ${outHandle.name||targetName}\n${fmt(outputFile.size)} · ${autoTranscode?'필요한 영상/음성 선택적 인코딩':'영상/음성 무손실 복사'}\n원본 ${ext.toUpperCase()}는 보존됩니다.${dropSubtitles?'\n주의: MP4가 지원하지 않는 자막은 제외됐습니다.':''}`,true);
+    }catch(e){
+      console.warn('[v1141 media→mp4]',e);
+      try{await conv?.cancel?.();}catch(_){}
+      try{if(output?.state==='started')await output.cancel();}catch(_){}
+      if(writable){try{await writable.abort();}catch(_){}}
+      finishVideoTsMp4DialogV1134((session.cancelled?'변환 취소됨':'변환 실패: '+errorText(e))+'\n원본은 그대로 보존됩니다.'+(committed?'\n이미 생성된 MP4는 검증 실패일 수 있으니 사용 전 확인하세요.':''),false);
+    }finally{
+      try{input?.dispose?.();}catch(_){}
+      session.conversion=null;
+    }
+  }
+  return {convert,loadEngine};
+})();
+
+async function convertVideoTsToMp4V1134(entry){
+  return VideoMediaConverterV1141.convert(entry);
+}
+function createVideoTsMp4ConvertBadgeV1134(entry) {
+  const name=String(entry?.fileName||entry?.baseName||'');
+  if(!/\.(ts|mkv|avi)$/i.test(name)) return null;
+  const badge=document.createElement('span');
+  badge.className='videoTsMp4ConvertBadgeV1134';
+  badge.textContent=/\.avi$/i.test(name)?'AVI 안내':'⇄ MP4';
+  badge.title=/\.avi$/i.test(name)?'AVI → MP4 지원 현황 안내':'TS·MKV → MP4 무손실 우선, 필요 시 인코딩 확인 (원본 보존)';
+  badge.tabIndex=0;
+  badge.setAttribute('role','button');
+  badge.setAttribute('aria-label',`${name}을 MP4 파일로 변환`);
+  const run=event=>{
+    event?.preventDefault?.();event?.stopPropagation?.();
+    try{stopVideoHoverPreview?.();}catch(_){}
+    void convertVideoTsToMp4V1134(entry);
+  };
+  badge.addEventListener('click',run);
+  badge.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ' )run(e);});
+  badge.addEventListener('mouseenter',()=>{try{stopVideoHoverPreview?.();}catch(_){} });
+  badge.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();});
+  badge.addEventListener('mousedown',e=>{e.preventDefault();e.stopPropagation();});
+  return badge;
+}
+
+// ============================================================
 // v946: 자발적 자동공유 등록 버튼
 // - 파일 자체/보유목록을 올리지 않고 이 카드의 품번만 서버에 등록한다.
 // - 실제 서버 동작은 뒤쪽 videoAutoShareV934Script의 공개 bridge를 호출한다.
@@ -116702,6 +117809,11 @@ if (
     workRating
   );
 }
+
+// v1141: TS/MKV 변환 및 AVI 안내 버튼. 수동공유 바로 왼쪽.
+// 수동공유 등 기존 버튼은 건드리지 않는다.
+const tsMp4ConvertBadgeV1134 = createVideoTsMp4ConvertBadgeV1134(entry);
+if (tsMp4ConvertBadgeV1134) metaRow.appendChild(tsMp4ConvertBadgeV1134);
 
 // v943: 포스터 재생영역 바깥의 텍스트 메타행에 수동공유 버튼 배치.
 // 제목/배우/품번 줄은 원래 포스터 클릭 재생과 분리되어 있으므로
@@ -124053,38 +125165,8 @@ function toggleVideoSortReverse() {
   renderVideoList();
 }
 function syncVideoToolbarFoldUI() {
-  const actions = document.querySelector('#wtBox .wt-actions');
-  const btn = document.getElementById('videoToolbarFoldBtn');
-  const isVideo = typeof contentMode !== 'undefined' && contentMode === 'video';
-
-  if (actions) {
-    actions.classList.toggle(
-      'video-toolbar-collapsed',
-      !!(isVideo && videoToolbarFolded)
-    );
-  }
-
-  if (btn) {
-    btn.style.display = isVideo ? '' : 'none';
-    btn.textContent = videoToolbarFolded ? '▶' : '◀';
-    btn.title = videoToolbarFolded
-      ? '영상 상단 버튼 펼치기'
-      : '영상 상단 버튼 접기';
-    btn.setAttribute('aria-pressed', videoToolbarFolded ? 'true' : 'false');
-  }
-}
-
-function toggleVideoToolbarFold() {
-  videoToolbarFolded = !videoToolbarFolded;
-
-  try {
-    VTLS.setRaw(
-      VIDEO_TOOLBAR_FOLDED_KEY,
-      videoToolbarFolded ? '1' : '0'
-    );
-  } catch (_) {}
-
-  syncVideoToolbarFoldUI();
+  // v1142: 접기 버튼을 제거했으므로 이전 버전에서 접힌 상태도 강제로 펼친다.
+  document.querySelector('#wtBox .wt-actions')?.classList.remove('video-toolbar-collapsed');
 }
 
 
@@ -124190,11 +125272,6 @@ const videoFolderFilterSel =
 const videoFpsFilterSel =
   document.getElementById(
     'videoFpsFilterSel'
-  );
-
-const videoToolbarFoldBtn =
-  document.getElementById(
-    'videoToolbarFoldBtn'
   );
 
 const videoPosterAlignToggleBtn =
@@ -124394,11 +125471,6 @@ if (videoFpsFilterSel) {
 // v790: 영상/만화 모두 스타일 버튼을 사용하고, 모드에 맞게 3열 도구를 다시 구성
 syncVideoRandomStyleUI();
 try { window.syncVideoRandomAuxToolsV790?.(); } catch (_) {}
-
-if (videoToolbarFoldBtn) {
-  videoToolbarFoldBtn.style.display =
-    isVideo ? '' : 'none';
-}
 
 if (videoPosterAlignToggleBtn) {
   videoPosterAlignToggleBtn.style.display =
@@ -124792,6 +125864,34 @@ function v997RestoreComicScreen() {
   try { updateWtViewButtonsUI(); } catch (_) {}
   return true;
 }
+// v1143: 만화/영상에서 공유되는 일반 검색 입력을 실제 탭 전환 시 초기화.
+// 입력창만 지우지 말고 1초 지연 검색과 양쪽 목록 DOM 스냅샷도 함께 무효화한다.
+// 다이렉트 검색 및 다른 필터/정렬/DB는 수정하지 않는다.
+function clearCommonSearchForTabChangeV1143() {
+  const input = document.getElementById('wtFilter');
+  const clearBtn = document.getElementById('wtFilterClear');
+  const wasFiltering = Boolean(
+    (input && String(input.value || '').trim()) ||
+    String(wtFilterText || '').trim()
+  );
+  if (wtFilterTimer != null) {
+    clearTimeout(wtFilterTimer);
+    wtFilterTimer = null;
+  }
+  if (input) input.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  wtFilterText = '';
+  try { localStorage.removeItem('WEBTOON_FILTER'); } catch (_) {}
+  if (wasFiltering) {
+    wtListRenderedCount = 0;
+    v997ComicSnapshot = null;
+    v997ComicRenderedSig = '';
+    v1088VideoSnapshot = null;
+  }
+  return wasFiltering;
+}
+window.viewerClearCommonSearchForTabChangeV1143 = clearCommonSearchForTabChangeV1143;
+
 function setContentMode(mode) {
   const nextContentMode = mode === 'video' ? 'video' : 'comic';
   const previousContentMode = contentMode;
@@ -124806,6 +125906,11 @@ function setContentMode(mode) {
     storeComicRailDomV999(); // v999: 영상 탭으로 지우기 전에 원본 레일 보관
   } else if(previousContentMode === 'video' && nextContentMode === 'comic') {
     v1088StoreVideoScreen(); // v1088: 영상 탭도 기존 카드/스크롤 보관
+  }
+
+  // 화면 스냅샷을 저장한 뒤 검색어를 해제해야 이전 조건의 카드가 잘못 복원되지 않는다.
+  if (previousContentMode !== nextContentMode) {
+    clearCommonSearchForTabChangeV1143();
   }
 
   if (nextContentMode !== 'video' && videoRandomPreviewOn) {
@@ -141811,17 +142916,9 @@ addButtonAfter(
   }
 );
 
-    // 폴더/파일/BL초기화 버튼이 동적으로 추가된 뒤 접기 상태를 다시 반영
+    // v1142: 이전 저장값 때문에 툴바가 다시 접히지 않게 유지
     syncVideoToolbarFoldUI();
     }
-
-document
-  .getElementById('videoToolbarFoldBtn')
-  ?.addEventListener('click', event => {
-    event.preventDefault();
-    event.stopPropagation();
-    toggleVideoToolbarFold();
-  });
 
 document
   .getElementById('videoSortSel')
@@ -151961,6 +153058,7 @@ document.addEventListener(
   );
 
   window.addEventListener('beforeunload', () => {
+    releaseVideoMpegtsV1133();
     if (currentVideoObjectUrl) URL.revokeObjectURL(currentVideoObjectUrl);
     if (currentSubtitleObjectUrl) URL.revokeObjectURL(currentSubtitleObjectUrl);
   });
@@ -160312,7 +161410,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1132;
+  const VIEWER_BUILD_V789 = 1145;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -160995,7 +162093,7 @@ try {
     });
   }
 
-  function placeVideoPrimaryControlsV914() {
+  function placeVideoPrimaryControlsV914(isVideo) {
     // v915: 이 함수는 MutationObserver 안에서도 반복 호출된다.
     // 이미 목표 위치에 있는 DOM을 insertAdjacentElement()로 다시 꽂으면
     // childList mutation → observer → 재삽입의 무한 루프가 생기므로 실제 위치가 다를 때만 이동한다.
@@ -161063,6 +162161,16 @@ try {
       if (cols.getAttribute('aria-label') !== '리스트 한 줄 개수') {
         cols.setAttribute('aria-label', '리스트 한 줄 개수');
       }
+    }
+
+    // v1142: 영상 작은 검색창은 정렬/FPS 필터 다음(헤더 중간)으로 이동.
+    // 만화는 원래 검색 위치로 복원한다. DOM 변경 감시의 재배치 루프를 피한다.
+    const searchWrap = document.getElementById('wv1142SearchWrap');
+    if (searchWrap) {
+      const targetAnchor = isVideo
+        ? (document.getElementById('videoFpsFilterSel') || document.getElementById('videoFolderFilterSel'))
+        : document.getElementById('wv1142ComicSearchAnchor');
+      if (targetAnchor) placeImmediatelyAfterV915(targetAnchor, searchWrap);
     }
   }
 
@@ -161133,7 +162241,7 @@ try {
     setPanelLabel('jumpLastWt', 'C 마지막읽은페이지');
 
     // 레일 버튼은 상단에서 '레일'로 고정되며 표시/숨김 상태는 색상·툴팁으로 표시한다.
-    placeVideoPrimaryControlsV914();
+    placeVideoPrimaryControlsV914(isVideo);
     syncModeVisibilityV790(panel, isVideo);
   }
 
@@ -166240,6 +167348,9 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
       if(persist) try{localStorage.setItem(TAB_KEY,last);}catch(_){}
       return true;
     }
+    if (!active) {
+      window.viewerClearCommonSearchForTabChangeV1143?.();
+    }
     active=true;
     // 주의: appendChild는 기존 audio 및 YouTube 플레이어를 복제하거나 재시작하지 않음.
     if(muBox.parentElement!==host) host.appendChild(muBox);
@@ -171204,6 +172315,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <li>웹뷰어는 <strong>PC용 Chrome</strong>에 최적화되어 있으며 Edge는 대체로 호환됩니다. 다른 크로미움 계열 브라우저에서는 일부 동작이 다를 수 있어요.</li>
   </ul></div>
 </template>
+<!-- v1145: 1140~1144 TS/MKV 변환, 만화 1차 폴더 레일, 자동공유/수신 및 일괄공유 최신 안내. -->
+<template id="wv1145LatestTemplate">
+  <div class="wv1098Section"><h3>🎬 TS·MKV → MP4 변환 추가</h3><ul>
+    <li>영상 목록의 <strong>⇄ MP4</strong> 버튼으로 <strong>TS·MKV 파일을 MP4로 변환</strong>할 수 있어요.</li>
+    <li>영상·음성 코덱이 호환되면 <strong>재인코딩 없이 무손실 변환</strong>합니다. 일반적으로 <strong>1분 안팎의 빠른 변환</strong>이 가능하지만, 파일 크기·저장장치·PC 환경에 따라 더 오래 걸릴 수 있어요.</li>
+    <li>재인코딩이 필요한 경우 <strong>먼저 인코딩 여부를 확인</strong>합니다. 인코딩은 파일의 길이와 코덱에 따라 <strong>1시간 이상</strong> 걸릴 수도 있어요.</li>
+    <li>원본 파일은 그대로 보존하며, 변환 지원 여부는 내부 영상·음성 코덱에 따라 달라집니다.</li>
+  </ul></div>
+  <div class="wv1098Section"><h3>📚 만화 — 1차 하위폴더 목록 선택</h3><ul>
+    <li>만화 폴더를 등록하면 해당 폴더의 <strong>1차 하위폴더</strong>를 목록처럼 표시해요.</li>
+    <li>원하는 1차 폴더 이름을 <strong>클릭하면 그 폴더에 속한 만화만</strong> 모아 볼 수 있어요. 다른 1차 폴더로 간편하게 전환할 수 있습니다.</li>
+    <li>폴더별 만화 목록 선택 기능은 기존 작가·그룹·태그 기능과 함께 사용할 수 있어요.</li>
+  </ul></div>
+  <div class="wv1098Section"><h3>🤝 자동공유 — 등록만 하면 자동송신</h3><ul>
+    <li>공유등록한 작품은 <strong>자동송신 ON</strong> 상태에서 다른 사용자의 요청이 들어오면 자동전송을 준비할 수 있어요.</li>
+    <li>받는 쪽에서 <strong>자동수신 ON</strong> 및 <strong>저장할 폴더 지정</strong>을 해두면, 요청한 작품을 내려받을 수 있게 되었을 때 지정한 폴더로 자동 저장할 수 있어요.</li>
+    <li>여러 작품도 <strong>순차적으로 자동수신</strong>할 수 있습니다. 단, <strong>동시 공유요청은 최대 20건</strong>이며 연결 상태와 공유자 온라인 여부에 따라 전송이 달라질 수 있어요.</li>
+    <li>실제 영상 파일은 클라우드에 올리는 방식이 아니라 <strong>WebRTC P2P</strong>로 전송해요.</li>
+  </ul></div>
+  <div class="wv1098Section"><h3>📋 보유목록 전체 공유등록</h3><ul>
+    <li>자동공유창에서 <strong>전체 보유목록 공유등록</strong>을 켜면 보유한 작품을 <strong>최대 1,000건</strong>까지 한꺼번에 공유등록할 수 있어요.</li>
+    <li>실제 서버 등록·해제는 <strong>60건씩 순차 처리</strong>합니다. 체크를 해제하면 진행 중인 등록을 중단하고 일괄등록분의 해제를 요청해요.</li>
+    <li>자동공유 기능을 사용하려면 PC의 해당 영상 파일과 폴더 접근 권한이 유지되어야 해요.</li>
+  </ul></div>
+</template>
 <template id="wv1107LegacyIntroTemplate">
   <div class="wv1107ArchiveIntro">
     <div class="comicNoticeTitleV1047">만화 기능 업데이트 안내</div>
@@ -171262,6 +172398,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'✨ 웹뷰어 업데이트',
       subtitle:'업데이트 기록과 최근 기능 개선 안내',
       html:document.getElementById('wv1107LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1145',build:'빌드 1145',
+      title:'✨ 웹뷰어 1145 업데이트',
+      subtitle:'TS·MKV 변환 · 만화 폴더 선택 · 자동공유·자동수신 개선',
+      html:document.getElementById('wv1145LatestTemplate')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -171348,6 +172490,57 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
 })();
 </script>
 
+<!-- v1144: S 탭의 스타일 패널은 같은 원본 DOM을 사용한다. 기능 클릭 시 잠시 팝업으로 열고 닫으면 S에 복원. -->
+<script id="wv1144RestoreStylePopup">
+(()=>{
+  'use strict';
+  let floating=null;
+  function restoreStylePanel(){
+    const f=floating;
+    if(!f)return;
+    floating=null;
+    try{f.observer.disconnect();}catch(_){}
+    const panel=f.panel;
+    const list=f.styleList;
+    // 메뉴 S가 살아있을 때만 패널을 레일에 되돌린다. 다른 탭이라면 기존 팝업 소유 상태로 유지.
+    if(list.isConnected && document.getElementById('wtTagRail')?.dataset.videoTabV1052==='menu'){
+      panel.classList.add('videoRailStyleEmbeddedV959');
+      list.appendChild(panel);
+      panel.style.removeProperty('left');
+      panel.style.removeProperty('top');
+      panel.style.removeProperty('right');
+      panel.style.removeProperty('bottom');
+      panel.style.display='block';
+    }else{
+      panel.classList.remove('videoRailStyleEmbeddedV959');
+      panel.style.display='none';
+    }
+  }
+  document.addEventListener('click',event=>{
+    const btn=event.target?.closest?.('#videoRandomStyleBtn');
+    if(!btn)return;
+    const panel=document.getElementById('videoRandomStylePanel');
+    if(!panel)return;
+    // 레일이 S이면 한 개뿐인 실제 스타일 패널을 임시 팝업으로 이동한다.
+    // 기존 기능 버튼 클릭 리스너가 이어서 실행되므로 스타일 설정 이벤트는 그대로 유지된다.
+    if(panel.classList.contains('videoRailStyleEmbeddedV959')){
+      const styleList=panel.closest('.videoRailStyleListV959');
+      if(!styleList)return;
+      if(floating)restoreStylePanel();
+      panel.classList.remove('videoRailStyleEmbeddedV959');
+      document.body.appendChild(panel);
+      panel.style.display='none';
+      const observer=new MutationObserver(()=>{
+        if(floating?.panel===panel && panel.style.display==='none')restoreStylePanel();
+      });
+      floating={panel,styleList,observer};
+      observer.observe(panel,{attributes:true,attributeFilter:['style']});
+    }
+  },true);
+  // 메뉴 전환 또는 문서 외부에서 화면을 바꾸더라도 숨겨진 S 패널이 남지 않게 한다.
+  window.addEventListener('pagehide',()=>{if(floating)restoreStylePanel();});
+})();
+</script>
 </body>
 
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
@@ -171615,6 +172808,26 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
 .videoCardMetaRow .videoCardMeta {
   min-width: 0 !important;
 }
+</style>
+
+<style id="v1134-ts-mp4-convert-style">
+.videoCardMetaRow .videoTsMp4ConvertBadgeV1134{position:relative!important;z-index:120!important;display:inline-flex!important;flex:0 0 auto!important;align-items:center;justify-content:center;visibility:visible!important;pointer-events:auto!important;white-space:nowrap;padding:2px 6px;border:1px solid #cfb374;border-radius:4px;background:#68511c;color:#fff0b9;box-shadow:0 1px 4px #0009;font-weight:800;font-size:10px;line-height:14px;cursor:pointer;user-select:none}
+.videoCardMetaRow .videoTsMp4ConvertBadgeV1134:hover{background:#8a6926}
+.videoCardMetaRow .videoTsMp4ConvertBadgeV1134:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.videoCard.videoHoverMetaHidden .videoTsMp4ConvertBadgeV1134{visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:140!important}
+#wtList.videoCaptionOverlap .videoCard.videoHoverMetaHidden:not(.videoMissingCard) .videoCardCaption:has(.videoTsMp4ConvertBadgeV1134){z-index:140!important;pointer-events:none!important}
+#wtList.videoCaptionOverlap .videoCard.videoHoverMetaHidden:not(.videoMissingCard) .videoCardCaption .videoTsMp4ConvertBadgeV1134{pointer-events:auto!important}
+#videoTsMp4DialogV1134{position:fixed;inset:0;z-index:1000001;display:none;align-items:center;justify-content:center;background:#000c;padding:15px}
+#videoTsMp4DialogV1134.is-visible{display:flex}
+.videoTsMp4PanelV1134{width:min(510px,96vw);max-height:90vh;overflow:auto;box-sizing:border-box;padding:16px;border:1px solid #a88b47;border-radius:11px;background:#17191e;color:#f4f1e9;box-shadow:0 10px 38px #000b}
+.videoTsMp4HeadV1134{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.videoTsMp4HeadV1134 strong{font-size:17px}
+.videoTsMp4FileV1134{font-weight:700;font-size:13px;overflow-wrap:anywhere;padding:6px 0}
+.videoTsMp4InfoV1134{font-size:12px;line-height:1.6;color:#c5ccd3;background:#222831;border-radius:6px;padding:10px}
+.videoTsMp4TrackV1134{height:10px;background:#323844;border-radius:999px;overflow:hidden;margin:14px 0 8px}
+.videoTsMp4TrackV1134>div{height:100%;width:0;background:#e1b258;transition:width .12s}
+.videoTsMp4StatsV1134{font-size:12px;line-height:1.6;min-height:34px;white-space:pre-wrap;overflow-wrap:anywhere}
+.videoTsMp4ButtonsV1134{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
 </style>
 
 <!-- v943: 수동공유 텍스트영역 이동 + hover preview 클릭가드 · 화면 빌드943 -->
@@ -172016,4 +173229,4 @@ html body #videoAutoSharePanelV934{overflow-y:auto !important;overscroll-behavio
 <!-- v1085: 로컬 ZIP·CBZ/이미지폴더 작품별 개별 재스캔, 표지/장수 갱신, 개인 기록 보존 · 빌드1085 -->
 <!-- v1086: 절대경로 상단바/로컬 ZIP·이미지폴더 상단바에 고정 체크 추가; 기존 옵션 상태 연동 및 로컬 자동숨김 별도 저장 -->
 <!-- v1096: 만화 캡션 폭을 썸네일 실제 가로폭과 동일하게 보정(v1051의 -8px 제한 및 카드 inline 최대폭 제거), 2줄 42px 유지, 화면·최신버전 빌드표기 1096 동기화. 건의 기능 변경 없음. -->
-
+<!-- v1145: 업데이트 안내 최신 페이지 추가 · TS/MKV 재인코딩 없이 빠른 변환과 재인코딩 소요시간, 만화 1차 폴더 선택, 자동송신·폴더 자동수신·보유목록 최대 1,000건 일괄등록 안내. 기존 기능/DB 변경 없음. -->
