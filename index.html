@@ -1,3 +1,12 @@
+<!-- v1185: 자동/수동 ZIP 묶음 표지 읽음 배지를 정렬순번(2/4화)이 아니라 실제 회차/권 번호+회차 내 마지막 페이지(예: 4권 · 13p)로 표시. 개별/기타 만화, 마지막 읽기 및 이어보기 동작 불변. -->
+<!-- v1184: 묶음 대표작 열기 시 마지막 읽은 회차/페이지로 복귀. 썸네일 회차 이동 시 이전 회차의 기록 덮어쓰기 차단, 실제 읽기 이동 없이 초기 표시만으로 묶음기록 변경하지 않음. -->
+<!-- v1183: ZIP 자동·수동 묶음의 마지막 본 페이지를 회차 ZIP ID + 회차 내 페이지로 기억; 이어보기 썸네일/다른 회차로 이동/목록 읽음 배지 공통 적용. 기존 ZIP 개별 기록 보존. -->
+<!-- v1182: 강제스캔 UI를 스캔으로 변경; 자동·수동 회차묶음 버튼을 묶음 하나로 통합. 자동 90% 후보 선택 종료 후 수동 후보 선택으로 순차 전환; 자동 3번째 선택은 변경없음(현상유지). 원본/저장키/규칙 유지. -->
+<!-- v1181: 만화 폴더탭을 묶음으로 변경. 실제 폴더+수동 회차묶음을 가상 시리즈로 통합하여 선택·검색·초성·즐겨찾기·AND/OR 필터 제공. 원본·저장키 불변. -->
+<!-- v1180: 자동회차묶음(폴더 90% 규칙) 그대로 유지. 수동회차묶음은 혼합 폴더의 시리즈 후보 선택 → 2차 확인으로 선택된 시리즈만 묶기/개별화. -->
+<!-- v1179: 최신 업데이트 안내에 작가별 폴더 분류 개선(핵심) + ZIP 회차묶음 및 폴더탭 회차 전체 표시를 통합하고 새 공지 ID로 1회 표시. 기존 앱 기능 변경 없음. -->
+<!-- v1178: ZIP 묶기 전체목록 유지/폴더 레일에서는 모든 회차 개별 표시, 회차묶음 버튼명, 공통 버튼/선택창 호버 가시성 강화. -->
+<!-- v1177: ZIP 회차 후보 폴더 90% 규칙 판별, 스캔 후 1회 묶기/개별 선택, 목록 대표 1개, 뷰어 회차 선택, 기존 파일/ID 보존. -->
 <!-- v1176: 작가별 폴더 있음 이미지폴더 만화의 폴더 탭을 2차 작품폴더가 아닌 1차 작가폴더 기준으로 통일. ZIP 및 전체 분류 구조 유지. -->
 <!-- v1175: 업데이트 안내 최신 페이지에 작가별 폴더 만화 분류 개선을 우선 강조하고, 기타 변경사항은 간략 정리. 만화/DB 동작은 v1174 유지. -->
 <!-- v1174: 이미지폴더 고유 루트ID+상대경로, 2차 작가별 작품스캔/작가보충, 폴더 레일/복원/Shift 이동. -->
@@ -2738,6 +2747,9 @@ body.hide-dels #wtGroupBar .comicRootRemoveV1172{display:none!important}
 #wtTagRail.comicUnifiedRailV1033 .comicFirstFolderNameV1132{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCountV1132{flex:none;color:#a8bdde;font-size:11px}
 #wtTagRail.comicUnifiedRailV1033 .comicFirstFolderRowV1132.active .comicFirstFolderCountV1132{color:#fff}
+/* v1181: 실제 폴더와 수동으로 묶은 가상 시리즈를 같은 목록에서 구분 */
+#wtTagRail.comicUnifiedRailV1033 .comicManualSeriesRowV1181 .comicFirstFolderNameV1132{color:#94c5ff;font-weight:600}
+#wtTagRail.comicUnifiedRailV1033 .comicManualSeriesRowV1181.active .comicFirstFolderNameV1132{color:#fff}
 #wtTagRail.comicUnifiedRailV1033 .comicCreatorTabsV1033{overflow-x:auto;scrollbar-width:none}
 #wtTagRail.comicUnifiedRailV1033 .comicCreatorTabsV1033::-webkit-scrollbar{display:none}
 #wtTagRail.comicUnifiedRailV1033 .comicCreatorTabV1033{flex:1 0 auto;min-width:29px}
@@ -12754,7 +12766,7 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
 	  <button class="zoomBtn" id="comicZipPosterBtnV979" title="ZIP/CBZ 표지 캐시 설정·전체 생성">ZIP표지</button>
 	  <button class="zoomBtn" id="wtPathBtn" title="fsdir: 상대경로를 절대경로로 변환">경로</button>
       <button class="zoomBtn" id="fsComicLink" title="로컬 만화 폴더 연결(영구권한)">로컬</button>
-      <button class="zoomBtn" id="fsComicForceScanV1010" type="button" title="등록된 만화 폴더 전부 다시 검사 (ZIP·CBZ 및 이미지 만화, 신규 파일 추가)" style="display:none">강제스캔</button>
+      <button class="zoomBtn" id="fsComicForceScanV1010" type="button" title="등록된 만화 폴더 전부 다시 검사 (ZIP·CBZ 및 이미지 만화, 신규 파일 추가)" style="display:none">스캔</button>
       <button class="zoomBtn" id="fsComicUnlink" title="만화 폴더 DB 초기화">해제</button>
 	   <!-- v1111: 라이트뷰는 닫지 않는 기본 화면이므로 복귀 X 제거 -->
       </div>
@@ -29712,7 +29724,13 @@ function renderWebtoonList() {
       .catch(() => {});
   }
 
-  const fullList = loadWebtoonListEntries();
+  // v1178: 전체·작가·그룹·태그에서는 ZIP 묶음 대표만 표시하지만,
+  // 폴더 레일은 파일 구조를 탐색하는 보기이므로 모든 개별 ZIP 회차를 보여 준다.
+  // 캐시(query v1000)는 배열 identity로 재계산되며 묶음 설정/원본 작품 ID는 불변이다.
+  const rawEntriesV1178 = loadWebtoonListEntries();
+  const fullList = comicCreatorRailModeV1022 === 'folder'
+    ? rawEntriesV1178
+    : (window.ComicZipChaptersV1177?.project(rawEntriesV1178) || rawEntriesV1178);
   box.innerHTML = '';
   box.classList.remove('wtPixiModeV1080');
   wtPixiStateV1080 = null;
@@ -30094,7 +30112,7 @@ async function openFsComicByName(name){
       catch (e) { console.warn('[comic FS v1010] 개별 폴더 핸들 복원 실패', name, e); }
     }
     if (!rec?.handle) {
-      safeToast('등록된 이미지폴더를 찾지 못했습니다. 권한을 허용하거나 만화 탭의 강제스캔을 사용해 주세요.');
+      safeToast('등록된 이미지폴더를 찾지 못했습니다. 권한을 허용하거나 만화 탭의 스캔을 사용해 주세요.');
       return;
     }
 
@@ -41480,7 +41498,7 @@ function buildRailCommonWidthRowV1054(modeBtn, isComic) {
 
 // v1132: 등록한 0차 폴더(rootId) 아래 1차 폴더만 분류한다.
 // ZIP/CBZ의 기존 value(폴더 ID/인코딩된 상대경로)만 사용하며 파일을 열거나 재스캔하지 않는다.
-const comicFirstFolderIndexV1132={entries:null,dirty:true,byRoot:new Map(),all:[]};
+const comicFirstFolderIndexV1132={entries:null,dirty:true,byRoot:new Map(),all:[],manualByKey:new Map(),manualKeysByValue:new Map()};
 // v1163: 폴더도 작가/그룹/태그처럼 체크박스 다중 선택. OR 기본값.
 const comicSelectedFirstFoldersV1163=new Set();
 let comicFolderMultiModeV1163='OR';
@@ -41552,7 +41570,32 @@ function getComicFirstFolderIndexV1132(){
     groups.sort(cmp);
     visible.push(...groups);
   }
-  c.entries=entries;c.byRoot=byRoot;c.all=visible.sort(cmp);c.dirty=false;
+  // v1181: 물리 폴더 인덱스와 별개로 이미 '묶기'로 저장된 수동 시리즈만
+  // 가상 묶음으로 추가한다. 원본 ZIP 경로와 IndexedDB 작품 레코드는 수정하지 않는다.
+  const manualByKey=new Map(),manualKeysByValue=new Map(),virtualRows=[];
+  const manualGroups=window.ComicZipChaptersV1177?.manual?.getActiveGroups?.(entries)||[];
+  for(const series of manualGroups){
+    if(!series?.key||!series.members?.length)continue;
+    const key='manual-series:'+series.key;
+    const row={key,rootId:String(series.rootId),first:series.title,name:series.title,
+      count:series.members.length,direct:false,isVirtual:true,
+      sourceFolder:series.folder||'(등록 루트)',rootName:series.rootName||''};
+    manualByKey.set(key,row);virtualRows.push(row);
+    if(!byRoot.has(row.rootId))byRoot.set(row.rootId,[]);
+    byRoot.get(row.rootId).push(row);
+    for(const member of series.members){
+      const value=String(member.value||'');
+      if(!manualKeysByValue.has(value))manualKeysByValue.set(value,new Set());
+      manualKeysByValue.get(value).add(key);
+    }
+  }
+  // 폴더를 먼저, 수동 시리즈를 그 아래에 노출한다. 각 분류는 이름순.
+  virtualRows.sort(cmp);
+  for(const [rootId,rows] of byRoot){
+    rows.sort((a,b)=>Number(!!a.isVirtual)-Number(!!b.isVirtual)||cmp(a,b));
+  }
+  c.entries=entries;c.byRoot=byRoot;c.all=[...visible.sort(cmp),...virtualRows];
+  c.manualByKey=manualByKey;c.manualKeysByValue=manualKeysByValue;c.dirty=false;
   return c;
 }
 window.addEventListener('webtoonlist:changed',()=>{comicFirstFolderIndexV1132.dirty=true;});
@@ -41569,12 +41612,14 @@ function getComicFirstFolderRowsV1132(){
 }
 function comicMatchesFirstFolderV1132(value){
   if(comicCreatorRailModeV1022!=='folder'||!comicSelectedFirstFoldersV1163.size)return true;
-  const key=comicGetFirstFolderInfoV1132(value)?.key;
-  if(!key)return false;
-  // ZIP/CBZ 하나는 1차 폴더 하나에 속한다. 서로 다른 폴더 AND는 진짜 교집합(대개 0건).
+  const physicalKey=comicGetFirstFolderInfoV1132(value)?.key;
+  const idx=getComicFirstFolderIndexV1132();
+  const manualKeys=idx.manualKeysByValue.get(String(value));
+  const match=key=>key===physicalKey||!!manualKeys?.has(key);
+  // 수동 시리즈는 실제 폴더와 동시에 속한다. OR는 합집합, AND는 교집합.
   return comicFolderMultiModeV1163==='OR'
-    ? comicSelectedFirstFoldersV1163.has(key)
-    : comicSelectedFirstFoldersV1163.size===1 && comicSelectedFirstFoldersV1163.has(key);
+    ? [...comicSelectedFirstFoldersV1163].some(match)
+    : [...comicSelectedFirstFoldersV1163].every(match);
 }
 window.getComicFirstFolderStatsV1132=()=>({
   total:getComicFirstFolderIndexV1132().all.length,
@@ -41679,12 +41724,21 @@ function comicRailEntryMatchesV1105(item,filter){
   if(!filter.active)return true;
   if(filter.mode==='folder'){
     const info=comicGetFirstFolderInfoV1132(item?.value);
-    if(!info)return false;
-    const name=info.first||'루트 직속';
-    if(filter.section==='fav')return isFavComicFirstFolderV1163(info.key);
-    if(filter.section==='misc')return info.direct;
-    return matchComicRailSectionV1090(name,filter.section,'folder') &&
-      (filter.initial==='all'||getComicRailInitialV1104(name,filter.section)===filter.initial);
+    const idx=getComicFirstFolderIndexV1132();
+    const manualKeys=idx.manualKeysByValue.get(String(item?.value||''));
+    // 실제 폴더뿐 아니라 가상 시리즈의 이름/즐겨찾기도 동일한 분류에 적용한다.
+    const matches=(key,name,direct=false)=>{
+      if(filter.section==='fav')return isFavComicFirstFolderV1163(key);
+      if(filter.section==='misc')return direct;
+      return matchComicRailSectionV1090(name,filter.section,'folder') &&
+        (filter.initial==='all'||getComicRailInitialV1104(name,filter.section)===filter.initial);
+    };
+    if(info&&matches(info.key,info.first||'루트 직속',info.direct))return true;
+    if(manualKeys)for(const key of manualKeys){
+      const virtual=idx.manualByKey.get(key);
+      if(virtual&&matches(key,virtual.name))return true;
+    }
+    return false;
   }
   let rec=comicRailItemPartsCacheV1105.get(item);
   const display=String(item?.display||'');
@@ -41987,13 +42041,13 @@ const selectOnlyThisFromText = (e) => {
     }
     // v1163: 폴더도 공통 대분류/초성/가상 스크롤 렌더링으로 통합한다.
     modeBtn.textContent=mode==='folder'?comicFolderMultiModeV1163:window.wtTagMultiMode;
-    modeBtn.title='다중 선택 AND/OR 전환'+(mode==='folder'?' · 서로 다른 1차 폴더의 AND는 교집합이 없을 수 있음':'');
+    modeBtn.title='다중 선택 AND/OR 전환'+(mode==='folder'?' · OR: 합집합 / AND: 실제 폴더와 수동 시리즈의 교집합':'');
     modeBtn.setAttribute('aria-disabled','false');
     railSectionsV1090.style.display='';
     const baseItems = mode==='folder'?getComicFirstFolderRowsV1132():mode === 'tag' ? index.tags : mode === 'group' ? index.groups : index.authors;
     const search=(comicRailSearchByModeV1090[mode]||'').trim().toLocaleLowerCase();
     const activeSection=comicRailSectionByModeV1090[mode]||'all';
-    railSearchV1090.placeholder=(mode==='folder'?'1차 폴더':mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
+    railSearchV1090.placeholder=(mode==='folder'?'폴더·시리즈':mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
     if(railSearchV1090.value!==comicRailSearchByModeV1090[mode])railSearchV1090.value=comicRailSearchByModeV1090[mode]||'';
     railSectionsV1090.replaceChildren();
     for(const [cat,label] of [['all','전체'],['fav','★'],['digit','숫자'],['symbol','기호'],['latin','A-Z'],['jp','일본어'],['ko','한글'],['misc','미분류']]){
@@ -42073,18 +42127,21 @@ const selectOnlyThisFromText = (e) => {
         const row=document.createElement('div');
         row.className='wtTagRailRow comicFirstFolderCheckRowV1163';
         row.dataset.folderKey=g.key;
+        row.classList.toggle('comicManualSeriesRowV1181',!!g.isVirtual);
         const checked=comicSelectedFirstFoldersV1163.has(g.key);
         row.classList.toggle('active',checked);
         const roots=window.__comicZipRootNameMapV980;
         const rootRecord=(typeof __comicFsRootRecordsCache!=='undefined'&&Array.isArray(__comicFsRootRecordsCache))
           ? __comicFsRootRecordsCache.find(x=>String(x?.id)===g.rootId):null;
         const rootLabel=roots?.get(g.rootId)||rootRecord?.name||g.rootId;
-        row.title=`${rootLabel} / ${g.name} · ZIP/CBZ ${g.count}개`;
+        row.title=g.isVirtual
+          ? `수동 회차묶음 · ${g.name} · ${g.count}회차\n원래 위치: ${rootLabel} / ${g.sourceFolder}`
+          : `${rootLabel} / ${g.name} · ZIP/CBZ ${g.count}개`;
         const cb=document.createElement('input');
         cb.type='checkbox';cb.className='wtTagRailChk';cb.checked=checked;
-        cb.setAttribute('aria-label',g.name+' 폴더 다중 선택');
+        cb.setAttribute('aria-label',g.name+(g.isVirtual?' 수동 시리즈':' 실제 폴더')+' 다중 선택');
         const txt=document.createElement('span');txt.className='wtTagRailTxt comicFirstFolderNameV1132';
-        txt.textContent=g.name;
+        txt.textContent=g.isVirtual?'◆ '+g.name:g.name;
         const count=document.createElement('span');count.className='comicFirstFolderCountV1132';count.textContent=String(g.count);
         row.classList.toggle('is-fav',isFavComicFirstFolderV1163(g.key));
         row.append(cb,txt,count);
@@ -42144,7 +42201,7 @@ const selectOnlyThisFromText = (e) => {
     restoreComicRailVirtualV1008();
   }
 
-  for (const [type, label] of [['author', '작가'], ['group', '그룹'], ['tag', '태그'], ['folder', '폴더']]) {
+  for (const [type, label] of [['author', '작가'], ['group', '그룹'], ['tag', '태그'], ['folder', '묶음']]) {
     const btn = document.createElement('button');
     btn.type = 'button'; btn.textContent = label;
     btn.className = 'comicCreatorTabV1033';
@@ -86169,6 +86226,7 @@ function mergeRootVideos(rootName, found) {
         if (!hadStreamPreviewV1023) await new Promise(resolve => setTimeout(resolve, 650));
         hideFolderImportProgress();
         comicScanRemoveStatusV1023();
+        if(comics && !comics.scanIncompleteV1092) await window.ComicZipChaptersV1177?.offerForScan(comics);
         showVideoJobDoneNotice({
           title: '만화 등록 완료',
           main: `만화 ${comicCount}개`,
@@ -86255,7 +86313,7 @@ function mergeRootVideos(rootName, found) {
         await preloadWebtoonListFromIndexedDb();
 
       setFolderImportProgress({
-        title: '강제스캔 · 만화 폴더 재검사', main: '등록된 만화 폴더를 확인하는 중…',
+        title: '스캔 · 만화 폴더 재검사', main: '등록된 만화 폴더를 확인하는 중…',
         detail: `${roots.length}개 루트`, counts: 'ZIP·CBZ 및 이미지 만화만 검사합니다.'
       }, true);
       await waitFolderImportProgressPaint();
@@ -86269,7 +86327,7 @@ function mergeRootVideos(rootName, found) {
         readRoots++;
         const rootNum = readRoots + blockedRoots;
         setFolderImportProgress({
-          title: '강제스캔 · 만화 폴더 재검사',
+          title: '스캔 · 만화 폴더 재검사',
           main: `등록 폴더 ${rootNum} / ${roots.length} 검사 중`,
           detail: String(rec.name || ''),
           counts: '수만 개 파일의 목록을 읽는 중입니다. 종료하지 마세요.'
@@ -86288,11 +86346,11 @@ function mergeRootVideos(rootName, found) {
       }
       if (!readRoots) {
         hideFolderImportProgress();
-        alert('읽기 권한이 있는 만화 폴더가 없습니다. 상단 권한 버튼(P)에서 허용한 다음 다시 강제스캔을 눌러 주세요.');
+        alert('읽기 권한이 있는 만화 폴더가 없습니다. 상단 권한 버튼(P)에서 허용한 다음 다시 스캔을 눌러 주세요.');
         return;
       }
       setFolderImportProgress({
-        title: '강제스캔 · 목록 갱신', main: '새 만화를 기존 목록에 안전하게 추가하는 중…',
+        title: '스캔 · 목록 갱신', main: '새 만화를 기존 목록에 안전하게 추가하는 중…',
         detail: `${readRoots}개 폴더 검사`, counts: `찾은 작품 ${formatFolderProgressNumber(encountered)}개`,
       }, true);
       // 등록 목록 외 제목·태그·평점·표지 캐시와 미검사 루트는 손대지 않는다.
@@ -86305,7 +86363,7 @@ function mergeRootVideos(rootName, found) {
       try { document.dispatchEvent(new Event('subs:changed')); } catch (_) {}
       try { if (typeof renderWtTagRail === 'function') renderWtTagRail(); } catch (_) {}
       setFolderImportProgress({
-        title: '강제스캔 완료', main: `${readRoots}개 폴더 검사 완료`,
+        title: '스캔 완료', main: `${readRoots}개 폴더 검사 완료`,
         detail: `발견 ${formatFolderProgressNumber(encountered)}개 작품`,
         counts: blockedRoots || failures
           ? `권한 미허용 ${blockedRoots}개 · 검사 오류 ${failures}개. 이 폴더의 기존 항목은 유지됩니다.`
@@ -86314,18 +86372,19 @@ function mergeRootVideos(rootName, found) {
       }, true);
       await new Promise(r => setTimeout(r, 900));
       hideFolderImportProgress();
+      await window.ComicZipChaptersV1177?.offerForScan(successfulScansV1092.flatMap(x=>x.found));
       try { showVideoJobDoneNotice({
-        title: '강제스캔 완료', main: `${readRoots}개 폴더 검사 · ${encountered}개 작품 확인`,
+        title: '스캔 완료', main: `${readRoots}개 폴더 검사 · ${encountered}개 작품 확인`,
         detail: blockedRoots ? `권한 미허용 ${blockedRoots}개 (P에서 허용 필요)` : '',
         counts: `목록에서 ${removedV1103}개 정리 · 원본 파일 삭제 없음`, ms: 6000
       }); } catch (_) {}
     } catch (e) {
       hideFolderImportProgress();
       console.error('[comic force scan v1010] failed', e);
-      alert('강제스캔 중 오류: ' + String(e?.message || e));
+      alert('스캔 중 오류: ' + String(e?.message || e));
     } finally {
       comicForceScanRunningV1010 = false;
-      if (btn) { btn.disabled = false; btn.textContent = '강제스캔'; }
+      if (btn) { btn.disabled = false; btn.textContent = '스캔'; }
     }
   }
   // v1091: 폴더 버튼 옆 ↻. 등록된 해당 로컬 루트(들)만 재탐색한다.
@@ -86392,6 +86451,7 @@ function mergeRootVideos(rootName, found) {
       try{document.dispatchEvent(new Event('subs:changed'));}catch(_){}
       try{renderWtTagRail();}catch(_){}
       hideFolderImportProgress();
+      await window.ComicZipChaptersV1177?.offerForScan(successfulScansV1092.flatMap(x=>x.found));
       showVideoJobDoneNotice({
         title:'폴더별 재스캔 완료',main:`${checked}개 폴더 · ${foundCount}개 작품 확인`,
         detail:String(groupKey),
@@ -86404,7 +86464,7 @@ function mergeRootVideos(rootName, found) {
       alert('폴더별 재스캔 오류: '+String(error?.message||error));
     }finally{
       comicForceScanRunningV1010=false;
-      if(allButton){allButton.disabled=false;allButton.textContent='강제스캔';}
+      if(allButton){allButton.disabled=false;allButton.textContent='스캔';}
       if(trigger?.isConnected){trigger.disabled=false;trigger.textContent='↻';}
     }
   }
@@ -162178,7 +162238,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1176;
+  const VIEWER_BUILD_V789 = 1185;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -169449,7 +169509,70 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
     };
     setTimeout(step,0);
   }
-  window.ComicLastPageV1020={get,put,purgeLegacy,warn};
+  // v1183: 묶음은 물리 ZIP의 첫번째 페이지가 아니라 마지막으로 본 회차 ZIP + 페이지를 기록한다.
+  // 같은 pages objectStore의 이름공간만 별도로 사용하므로 DB 버전/기존 저장값은 유지된다.
+  const groupPrefixV1183='comic_series_last_v1183:';
+  const groupMemoryV1183=new Map(),groupWriteQueuesV1183=new Map();
+  const groupRecordKeyV1183=key=>groupPrefixV1183+String(key);
+  const isValidGroupRecordV1183=(row,members)=>!!row && typeof row.value==='string'
+    && Number.isSafeInteger(row.page) && row.page>=1
+    && Array.isArray(members) && members.some(member=>member.value===row.value);
+  async function getGroup(groupKey,members){
+    const key=groupRecordKeyV1183(groupKey);
+    const local=groupMemoryV1183.get(key);
+    if(isValidGroupRecordV1183(local,members))return {...local};
+    const pending=groupWriteQueuesV1183.get(key);
+    if(pending)await pending.catch(()=>{});
+    const db=await open();
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly'),store=tx.objectStore(STORE);
+      const gReq=store.get(key);
+      gReq.onerror=()=>reject(gReq.error||new Error('묶음 읽기기록 조회 실패'));
+      gReq.onsuccess=()=>{
+        const existing=gReq.result;
+        if(isValidGroupRecordV1183(existing,members)){
+          groupMemoryV1183.set(key,existing);resolve({...existing});return;
+        }
+        // 새 기능 도입 전 각 회차 ZIP에 저장된 열람 기록 중 최신 시각을 선택한다.
+        // 이미 묶음기록이 있는 경우에는 이 경로로 들어오지 않는다.
+        if(!Array.isArray(members)||!members.length){resolve(null);return;}
+        let left=members.length,best=null;
+        for(const member of members){
+          const req=store.get(String(member.value));
+          req.onsuccess=()=>{
+            const raw=req.result, page=Number(raw?.page),time=Number(raw?.updatedAt)||0;
+            if(Number.isSafeInteger(page)&&page>0&&time>0 && (!best || time>best.updatedAt))
+              best={value:String(member.value),page,updatedAt:time};
+            if(!--left)resolve(best);
+          };
+          req.onerror=()=>{if(!--left)resolve(best);};
+        }
+      };
+    });
+  }
+  function putGroup(groupKey,value,page){
+    const n=Number(page),v=String(value||'');
+    if(!v||!Number.isSafeInteger(n)||n<1)return Promise.resolve();
+    const key=groupRecordKeyV1183(groupKey);
+    const record={value:v,page:n,updatedAt:Date.now()};
+    groupMemoryV1183.set(key,record);
+    // 같은 묶음의 빠른 회차 전환에서도 예전 저장이 나중 기록을 덮어쓰지 않도록 직렬화.
+    const previous=groupWriteQueuesV1183.get(key)||Promise.resolve();
+    const job=previous.catch(()=>{}).then(async()=>{
+      const db=await open();
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(STORE,'readwrite');
+        tx.objectStore(STORE).put(record,key);
+        tx.oncomplete=resolve;
+        tx.onerror=()=>reject(tx.error||new Error('묶음 읽기기록 저장 실패'));
+        tx.onabort=()=>reject(tx.error||new Error('묶음 읽기기록 저장 중단'));
+      });
+    });
+    groupWriteQueuesV1183.set(key,job);
+    job.catch(warn).finally(()=>{if(groupWriteQueuesV1183.get(key)===job)groupWriteQueuesV1183.delete(key);});
+    return job;
+  }
+  window.ComicLastPageV1020={get,put,getGroup,putGroup,purgeLegacy,warn};
   purgeLegacy();
 })();
 </script>
@@ -169499,8 +169622,31 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
  async function mount(value,thumb){
    if(!thumb||!window.ComicLastPageV1020)return;
    const key=String(value||'');let n=cached.get(key);
-   if(n===undefined){
-     try{n=await window.ComicLastPageV1020.get(key)||0;cached.set(key,n);}catch(_){return;}
+   const group=window.ComicZipChaptersV1177?.groupForValue?.(key);
+   let groupLast=null,chapterNo=0,chapterLabelV1185='';
+   if(group?.members?.length>1){
+     try{
+       groupLast=await window.ComicLastPageV1020.getGroup(group.key,group.members);
+       if(groupLast){
+         n=groupLast.page;
+         chapterNo=group.members.findIndex(m=>m.value===groupLast.value)+1;
+         // 그룹 내 정렬순번(예: 2/4화)은 실제 '4권'과 다를 수 있다.
+         // 자동/수동묶음 공통 members.number를 사용하고, 번호가 없을 때만 순번을 쓴다.
+         const member=group.members[chapterNo-1];
+         const chapterNumber=Number(member?.number);
+         const number=Number.isSafeInteger(chapterNumber)&&chapterNumber>0?chapterNumber:chapterNo;
+         const stem=String(member?.label||'').normalize('NFKC');
+         // 파일명에서 권/Vol. 단위를 명시했다면 권, 그 밖의 회차는 화로 표기.
+         const volume=/\bvol(?:ume)?[\s._-]*0*\d{1,4}(?=$|[^0-9A-Za-z])/iu.test(stem)
+           || /(?:제[\s._-]*)?0*\d{1,4}[\s._-]*(?:권|巻)(?=$|[^\p{L}\p{N}])/iu.test(stem);
+         chapterLabelV1185=number+(volume?'권':'화');
+       }
+     }catch(_){/* 그룹 조회 실패시 기존 개별 기록으로 표시 */}
+   }
+   if(!groupLast){
+     if(n===undefined){
+       try{n=await window.ComicLastPageV1020.get(key)||0;cached.set(key,n);}catch(_){return;}
+     }
    }
    await Promise.resolve(); // 카드 DOM이 목록에 붙은 뒤 표시 (캐시 히트 때도 동일)
    if(n<1||!thumb.isConnected)return;
@@ -169511,8 +169657,14 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
      const countEl=thumb.querySelector('.wtThumbBadgeTotal');
      const total=Number(String(countEl?.textContent||'').trim());
      const suffix=Number.isSafeInteger(total)&&total>=n?'/'+total:'';
-     badge.textContent='읽음 '+n+suffix;
-     badge.title='마지막 감상 기록: '+n+'페이지'+(suffix?' / 전체 '+total+'페이지':'');
+     if(groupLast&&chapterNo>0){
+       // 총 페이지 수를 계산하려고 ZIP 수십 개를 열지 않고 마지막 읽은 회차/페이지를 직접 표시한다.
+       badge.textContent=`읽음 ${chapterLabelV1185} · ${n}p`;
+       badge.title=`묶음 마지막 감상: ${chapterLabelV1185} ${n}페이지 (묶음 ${chapterNo}/${group.members.length}번째 ZIP)`;
+     }else{
+       badge.textContent='읽음 '+n+suffix;
+       badge.title='마지막 감상 기록: '+n+'페이지'+(suffix?' / 전체 '+total+'페이지':'');
+     }
    };
    refresh();
    const source=thumb.querySelector('.wtThumbBadgeTotal');
@@ -170423,6 +170575,20 @@ function comicLocalNavNameV1170(v){
   const p=parse(v);return p?p.rel.split('/').pop():'';
 }
 async function openLightbox(value, fileJumpV1005=null){
+  // v1184: 작품 카드에서 새로 열 때 묶음의 대표 ZIP(1권)이 아닌 마지막 읽은 회차부터 시작.
+  // 의도적인 회차 선택/Shift 파일 이동에는 fileJumpV1005가 있으므로 자동복원을 적용하지 않는다.
+  if(!fileJumpV1005 && /^zipcomic:/i.test(String(value||''))){
+    try{
+      const group=window.ComicZipChaptersV1177?.groupForValue?.(value);
+      if(group?.members?.length>1){
+        const resume=await window.ComicLastPageV1020.getGroup(group.key,group.members);
+        if(resume && group.members.some(m=>m.value===resume.value)){
+          value=resume.value;
+          fileJumpV1005={startAtPage:resume.page,groupResumeV1184:true};
+        }
+      }
+    }catch(e){window.ComicLastPageV1020?.warn?.(e);}
+  }
   // 같은 작가 패널의 작품을 직접 연 경우에도 최근 열람 기록에 포함.
   try{window.ComicRecentV1090?.record(value);}catch(_){}
   const balanceV1024=window.__comicBalanceV1024;
@@ -170470,9 +170636,13 @@ async function openLightbox(value, fileJumpV1005=null){
   function pageLabelV985(index) {
     const item = folderPagesV985[index];
     const total = pages.length;
-    if (!item?.folder) return `${index + 1} / ${total}`;
+    // 묶음의 각 회차는 별개 ZIP이므로 해당 회차/총 회차와 ZIP 내부 페이지를 정확히 병기한다.
+    const chapterAtV1183=chapterGroupV1177?.members?.findIndex(m=>m.value===value)??-1;
+    const prefixV1183=chapterAtV1183>=0
+      ? `묶음 ${chapterAtV1183+1}/${chapterGroupV1177.members.length}화 · ` : '';
+    if (!item?.folder) return prefixV1183+`${index + 1} / ${total}`;
     const shownFolder = item.folder.split('/').filter(Boolean).join(' / ');
-    return `${shownFolder} · 폴더 ${item.inFolder}/${folderTotalsV985.get(item.folder)} · 전체 ${index + 1}/${total}`;
+    return prefixV1183+`${shownFolder} · 폴더 ${item.inFolder}/${folderTotalsV985.get(item.folder)} · 회차 내 전체 ${index + 1}/${total}`;
   }
 
   // v987: 하위 폴더 단위 이동은 각 폴더에서 처음 등장한 이미지의 전역 위치를 사용한다.
@@ -170587,7 +170757,24 @@ async function openLightbox(value, fileJumpV1005=null){
   infoRowV987.append(counter);
   toolsRowV987.append(back,next);
   if(fileNavV1005)toolsRowV987.append(fileNavGroupV1005);
-  toolsRowV987.append(pageJumpBoxV987,folderSelectV987,directionGroupV986,sizeGroupV1076,modeSelect,pinLabelV1086,close);
+  // v1177: ZIP 그룹 대표/회차 모두 같은 물리 ZIP 파일로 읽되, 뷰어 안에서는 회차 선택.
+  const chapterGroupV1177 = isFolderV992 ? null : window.ComicZipChaptersV1177?.groupForValue(value);
+  let chapterSelectV1177=null;
+  if(chapterGroupV1177?.members?.length>1){
+    chapterSelectV1177=document.createElement('select');
+    chapterSelectV1177.className='zipLightboxFolderSelectV987';
+    chapterSelectV1177.setAttribute('aria-label','회차 ZIP·CBZ 선택');
+    chapterSelectV1177.title='같은 작품에 속한 압축파일 회차를 선택합니다.';
+    chapterSelectV1177.style.maxWidth='200px';
+    for(const member of chapterGroupV1177.members){
+      const opt=document.createElement('option');opt.value=member.value;
+      opt.textContent=member.label;chapterSelectV1177.appendChild(opt);
+    }
+    chapterSelectV1177.value=value;
+  }
+  toolsRowV987.append(pageJumpBoxV987);
+  if(chapterSelectV1177)toolsRowV987.append(chapterSelectV1177);
+  toolsRowV987.append(folderSelectV987,directionGroupV986,sizeGroupV1076,modeSelect,pinLabelV1086,close);
   head.append(infoRowV987,toolsRowV987);
   head.addEventListener('click',e=>e.stopPropagation());
   const badge=document.createElement('div');badge.className='zipLightboxBadgeV984';
@@ -170622,7 +170809,17 @@ async function openLightbox(value, fileJumpV1005=null){
     lastImageV988.removeAttribute('src');
   });
   firstCardV1090.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();void go(0);});
-  lastCardV1090.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();void go(Math.max(0,resumePageV1090-1));});
+  let groupLastV1183=null;
+  lastCardV1090.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    if(groupLastV1183 && groupLastV1183.value!==value){
+      const targetAt=fileNavV1005?.values?.indexOf(groupLastV1183.value)??-1;
+      if(targetAt>=0){void moveFileV1005(targetAt-fileNavV1005.index,groupLastV1183.page,true);return;}
+      // 단일 물리 폴더에 있는 기존 자동/수동묶음 멤버만 이동 대상이 된다.
+      alert('읽던 회차 파일을 현재 등록 목록에서 찾지 못했습니다. 묶음 목록을 갱신하세요.');return;
+    }
+    void go(Math.max(0,(groupLastV1183?.page||resumePageV1090)-1));
+  });
   cover.append(image,verticalViewV986,topZone,badge,head,lastBoxV988);document.body.appendChild(cover);
   // v1020: 과거 localStorage 기록을 사용하지 않고 IndexedDB에서만 마지막 페이지를 읽는다.
   // 작품의 기존 고유 ID를 그대로 키로 사용하여 동명이인 작품/서로 다른 루트의 충돌을 방지한다.
@@ -170632,17 +170829,32 @@ async function openLightbox(value, fileJumpV1005=null){
     if(recorded) savedLastPageV988=Math.min(pages.length,Math.max(1,recorded));
   }catch(e){window.ComicLastPageV1020.warn(e);}
   const resumePageV1090=savedLastPageV988; // 이전 감상 종료 시 저장된 페이지, 이번 감상 내내 고정
+  if(chapterGroupV1177?.members?.length>1){
+    try{
+      const candidate=await window.ComicLastPageV1020.getGroup(chapterGroupV1177.key,chapterGroupV1177.members);
+      if(candidate && chapterGroupV1177.members.some(m=>m.value===candidate.value))groupLastV1183=candidate;
+    }catch(e){window.ComicLastPageV1020.warn(e);}
+  }
   let firstOwnedUrlV1090='';
   void (async()=>{try{
     const blob=await readImageV992(pages[0]);if(!cover.isConnected)return;
     firstOwnedUrlV1090=URL.createObjectURL(blob);firstImageV1090.src=firstOwnedUrlV1090;
   }catch(e){firstLabelV1090.textContent='처음 1페이지';}})();
   let saveTimerV1020=0,pendingPageV1020=null;
-  function flushLastPageV1020(){
+  // 화면 초기 표시(go(idx))는 실제 독서 이동이 아니다. 초기 렌더만으로 묶음기록을 덮어쓰지 않는다.
+  // 반면 회차 선택으로 이동한 페이지1은 사용자의 명시적 선택이므로 읽기 위치로 인정한다.
+  let pageTouchedV1184=!!fileJumpV1005?.startAtFirst;
+  function flushLastPageV1020(preserveGroupV1184=false){
     if(saveTimerV1020){clearTimeout(saveTimerV1020);saveTimerV1020=0;}
     if(pendingPageV1020===null)return;
     const n=pendingPageV1020;pendingPageV1020=null;
+    const grouped=!!(chapterGroupV1177?.members?.length>1);
+    // 이전 1183에서는 한 번 열었다 닫기만 해도 1권의 위치가 최신 묶음기록을 덮어썼다.
+    if(grouped && groupLastV1183 && !pageTouchedV1184)return;
     void window.ComicLastPageV1020.put(value,n).catch(e=>window.ComicLastPageV1020.warn(e));
+    // 다른 회차의 '이어서' 썸네일로 이동하는 경우 현재 회차의 위치는 저장하되 묶음기록은 유지.
+    if(grouped && !preserveGroupV1184)
+      void window.ComicLastPageV1020.putGroup(chapterGroupV1177.key,value,n);
   }
   // v1090: 창을 다른 탭으로 잠시 숨겨도 이어보기 기록을 갱신하지 않는다.
   const onPageHiddenV1020=()=>{};
@@ -170660,7 +170872,24 @@ async function openLightbox(value, fileJumpV1005=null){
     if(lastBoxV988.hidden)return; // v1089: 닫힌 미리보기 이미지 다시 읽지 않음
     const token=++lastPreviewTokenV988;
     if(availableUrl){lastImageV988.src=availableUrl;return;}
-    try{const blob=await readImageV992(pages[n]);
+    try{
+      let blob;
+      if(groupLastV1183?.value && groupLastV1183.value!==value){
+        const found=await findFile(groupLastV1183.value);
+        const previousZip=await found.handle.getFile();
+        const previousPages=await central(previousZip);
+        if(!previousPages.length)throw new Error('마지막 읽은 회차에 이미지가 없습니다.');
+        const previousIdx=Math.min(previousPages.length-1,Math.max(0,groupLastV1183.page-1));
+        blob=await extract(previousZip,previousPages[previousIdx]);
+        if(token===lastPreviewTokenV988 && cover.isConnected){
+          const chosen=chapterGroupV1177.members.find(m=>m.value===groupLastV1183.value);
+          const chapterIndex=chapterGroupV1177.members.findIndex(m=>m.value===groupLastV1183.value);
+          lastLabelV988.textContent=`이어서 ${chapterIndex+1}/${chapterGroupV1177.members.length}화 · ${previousIdx+1}/${previousPages.length}p`;
+          lastCardV1090.title=`${chosen?.label||chapterIndex+1+'화'} ${previousIdx+1}페이지로 이동`;
+        }
+      }else{
+        blob=await readImageV992(pages[n]);
+      }
       if(token!==lastPreviewTokenV988 || !cover.isConnected)return;
       const url=URL.createObjectURL(blob);
       const prior=lastImageV988.dataset.ownedUrl;
@@ -170668,8 +170897,15 @@ async function openLightbox(value, fileJumpV1005=null){
       if(prior)URL.revokeObjectURL(prior);
     }catch(e){log('마지막 본 페이지 이미지',errText(e));}
   }
-  lastLabelV988.textContent=`이어서 ${resumePageV1090}/${pages.length}`;
-  void updateZipLastThumbV988(savedLastPageV988-1);
+  if(groupLastV1183){
+    const at=chapterGroupV1177.members.findIndex(m=>m.value===groupLastV1183.value);
+    const groupPageTotal=groupLastV1183.value===value?pages.length:0;
+    lastLabelV988.textContent=`이어서 ${at+1}/${chapterGroupV1177.members.length}화 · ${groupLastV1183.page}${groupPageTotal?'/'+groupPageTotal:''}p`;
+    lastCardV1090.title=`묶음 마지막 읽은 회차 (${at+1}/${chapterGroupV1177.members.length}화) ${groupLastV1183.page}페이지로 이동`;
+  }else{
+    lastLabelV988.textContent=`이어서 ${resumePageV1090}/${pages.length}`;
+  }
+  void updateZipLastThumbV988((groupLastV1183?.value===value?groupLastV1183.page:savedLastPageV988)-1);
 
   let idx=0,u=null,seq=0,controlsTimer=null,badgeTimer=null,destroyed=false;
   // v1150: 우측 즐겨찾기 패널은 v1148의 같은 작품별 IDB 페이지 Set을 사용한다.
@@ -170762,6 +170998,8 @@ async function openLightbox(value, fileJumpV1005=null){
   let fileMovingV1005=false;
   // v1020: 새 DB의 페이지 번호만 사용. 구형 이어보기 맵은 새 기록에 섞지 않는다.
   if(!fileJumpV1005?.startAtFirst && savedLastPageV988>1)idx=savedLastPageV988-1;
+  if(Number.isInteger(fileJumpV1005?.startAtPage) && fileJumpV1005.startAtPage>=1)
+    idx=Math.min(pages.length-1,Math.max(0,fileJumpV1005.startAtPage-1));
 
   const guideModeV1148=()=>typeof getLightboxTopBarPos==='function'?getLightboxTopBarPos():'top-auto';
   function syncGuideV1148(){
@@ -170841,7 +171079,9 @@ async function openLightbox(value, fileJumpV1005=null){
     head.classList.toggle('zipSizeActiveV1076',vertical);
   }
   function setPageLabelV986(n,flash=false){
-    idx=Math.min(pages.length-1,Math.max(0,n));
+    const nextIdxV1184=Math.min(pages.length-1,Math.max(0,n));
+    if(nextIdxV1184!==idx)pageTouchedV1184=true;
+    idx=nextIdxV1184;
     const label=pageLabelV985(idx);
     counter.textContent=label;badge.textContent=label;
     counter.title=folderPagesV985[idx]?.imagePath || '';
@@ -171117,7 +171357,7 @@ async function openLightbox(value, fileJumpV1005=null){
   image.addEventListener('touchcancel',()=>{touchStartV995=null;},{passive:true});
 
   // v1170: 이동 대상 ZIP/이미지폴더를 먼저 검증해 실패 시 현재 작품을 보존.
-  async function moveFileV1005(delta){
+  async function moveFileV1005(delta, resumePageV1183=null, preserveGroupV1184=false){
     if(!fileNavV1005 || destroyed || fileMovingV1005)return;
     const nextIndex=fileNavV1005.index+delta;
     if(nextIndex<0 || nextIndex>=fileNavV1005.values.length)return;
@@ -171142,8 +171382,9 @@ async function openLightbox(value, fileJumpV1005=null){
       }
       if(destroyed)return;
       const direction=readDirectionV986;
-      destroy();
-      await openLightbox(target,{...prepared,startAtFirst:true,direction});
+      destroy(preserveGroupV1184);
+      await openLightbox(target,{...prepared,startAtFirst:!Number.isInteger(resumePageV1183),
+        startAtPage:Number.isInteger(resumePageV1183)?resumePageV1183:null,direction});
     }catch(e){
       if(!destroyed)alert((isFolderV992?'다음 이미지폴더':'다음 압축파일')+' 열기 실패: '+errText(e));
     }finally{
@@ -171154,11 +171395,18 @@ async function openLightbox(value, fileJumpV1005=null){
       }
     }
   }
+  if(chapterSelectV1177)chapterSelectV1177.addEventListener('change',()=>{
+    const at=fileNavV1005?.values?.indexOf(chapterSelectV1177.value)??-1;
+    if(at<0 || !fileNavV1005 || at===fileNavV1005.index)return;
+    void moveFileV1005(at-fileNavV1005.index);
+  });
   if(filePrevV1005)filePrevV1005.onclick=()=>void moveFileV1005(-1);
   if(fileNextV1005)fileNextV1005.onclick=()=>void moveFileV1005(1);
-  function destroy(){
+  function destroy(preserveGroupV1184=false){
+    preserveGroupV1184=preserveGroupV1184===true;
     if(destroyed)return;
-    flushLastPageV1020();
+    if(pendingPageV1020===null)pendingPageV1020=idx+1;
+    flushLastPageV1020(preserveGroupV1184);
     document.removeEventListener('visibilitychange',onPageHiddenV1020);
     window.removeEventListener('pagehide',onPageUnloadV1020);
     destroyed=true;seq++;
@@ -171171,7 +171419,6 @@ async function openLightbox(value, fileJumpV1005=null){
     cleanVerticalV986();cover.remove();if(u)URL.revokeObjectURL(u);
     const own=lastImageV988.dataset.ownedUrl;if(own)URL.revokeObjectURL(own);
     if(firstOwnedUrlV1090)URL.revokeObjectURL(firstOwnedUrlV1090);
-    if(pendingPageV1020===null)pendingPageV1020=idx+1;
     window.ComicReadProgressV1090?.update(value,idx+1);
     lastPreviewTokenV988++;
     window.removeEventListener('keydown',keyHandler,true);
@@ -172672,7 +172919,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
       <pre>[그룹(작가)][태그]작품제목
 [작가][태그]작품제목</pre>
       <h3>4. 표지 캐시와 변경 반영</h3>
-      <ul><li>ZIP·CBZ 표지: <code>Posters/Comics</code></li><li>비압축 이미지 폴더 표지: <code>Posters/ComicsFolders</code></li><li>표지 축소 기준: 세로형 가로 360px / 가로형 가로 520px, 높이는 원본 비율 유지. 표지가 화면에 보일 때 우선 생성하고, 원본 이미지는 그대로 사용해.</li><li>압축파일 내용 변경은 해당 작품을 열어 갱신. 파일 추가·제거 후 목록에 반영하려면 <b>강제스캔</b>을 사용해.</li></ul>
+      <ul><li>ZIP·CBZ 표지: <code>Posters/Comics</code></li><li>비압축 이미지 폴더 표지: <code>Posters/ComicsFolders</code></li><li>표지 축소 기준: 세로형 가로 360px / 가로형 가로 520px, 높이는 원본 비율 유지. 표지가 화면에 보일 때 우선 생성하고, 원본 이미지는 그대로 사용해.</li><li>압축파일 내용 변경은 해당 작품을 열어 갱신. 파일 추가·제거 후 목록에 반영하려면 <b>스캔</b>을 사용해.</li></ul>
     `},
     {name:'영상',html:`
       <h3>1. 로컬 영상 추가</h3>
@@ -173943,6 +174190,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #wv1098NoticeOverlay .wv1175Howto{margin-top:12px;padding-top:10px;border-top:1px solid #46617d;color:#bfd3ea;font-size:12px;line-height:1.65;}
 #wv1098NoticeOverlay .wv1175Minor{padding:7px 11px 2px;color:#bbccdf;font-size:12px;line-height:1.7;}
 #wv1098NoticeOverlay .wv1175Minor strong{color:#d3e3f4;}
+/* v1179: 작가별 폴더 개선은 가장 크게, 회차묶음은 두 번째 소식으로 정리. */
+#wv1098NoticeOverlay .wv1179Chapters{padding:11px 14px;border-color:#415d7d;background:#172337;}
+#wv1098NoticeOverlay .wv1179Chapters h3{font-size:16px;color:#c7e3ff;margin-bottom:7px;}
+#wv1098NoticeOverlay .wv1179Chapters p{font-size:13px;line-height:1.7;margin:5px 0;}
+#wv1098NoticeOverlay .wv1179Chapters ul{margin:5px 0 0;padding-left:19px;}
+#wv1098NoticeOverlay .wv1179Chapters li{margin:3px 0;font-size:13px;line-height:1.65;}
 @media(max-width:520px){#wv1098NoticeOverlay .wv1175Highlight{padding:11px;}#wv1098NoticeOverlay .wv1175Highlight h3{font-size:17px;}#wv1098NoticeOverlay .wv1175Highlight p{font-size:13px;}}
 </style>
 <div id="wv1098NoticeOverlay" aria-hidden="true">
@@ -173959,7 +174212,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <li>로컬 ZIP·이미지폴더 만화는 가이드바에서 <strong>세로보기와 이미지 폭 조절</strong>을 이용할 수 있어요.</li>
         <li>옵션에서 작품 제목 앞의 <strong>행사 메타정보 표시 여부</strong>를 선택할 수 있어요.</li>
         <li>자동 안내창을 간편하게 닫고, <strong>알림기록</strong>에서 지난 알림을 확인할 수 있어요.</li>
-      </ul><div class="wv1098Warn"><strong>재스캔 안내:</strong> 폴더별 ↻ 또는 전체 강제스캔을 정상 완료하면 실제 파일이 없는 작품은 <strong>등록 목록에서만 자동 정리</strong>합니다. 원본 파일과 읽음·평점 등의 개인 기록은 삭제하지 않으며, 권한 거절·부분 검사 실패가 있는 폴더는 자동 정리하지 않아요. 작품별 ↻ 검사는 해당 작품의 장수·표지를 갱신합니다. 삭제 아이콘은 단축키 <strong>D</strong> 또는 메뉴의 <strong>삭제</strong>에서 표시할 수 있어요.</div></div>
+      </ul><div class="wv1098Warn"><strong>재스캔 안내:</strong> 폴더별 ↻ 또는 전체 스캔을 정상 완료하면 실제 파일이 없는 작품은 <strong>등록 목록에서만 자동 정리</strong>합니다. 원본 파일과 읽음·평점 등의 개인 기록은 삭제하지 않으며, 권한 거절·부분 검사 실패가 있는 폴더는 자동 정리하지 않아요. 작품별 ↻ 검사는 해당 작품의 장수·표지를 갱신합니다. 삭제 아이콘은 단축키 <strong>D</strong> 또는 메뉴의 <strong>삭제</strong>에서 표시할 수 있어요.</div></div>
       <div class="wv1098Section"><h3>🎬 영상 — 캡처와 재생 형식</h3><ul>
         <li>포스터·배우 사진 캡처는 <strong>영상 레일의 M(메뉴)</strong>에서 각각 <strong>포스터캡처 / 배우캡처</strong>를 사용하세요.</li>
         <li>캡처는 현재 목록을 기준으로 하므로, 전체를 작업하려면 먼저 <strong>영상 폴더를 전체</strong>로 선택하세요.</li>
@@ -174037,20 +174290,28 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <li>자동공유 기능을 사용하려면 PC의 해당 영상 파일과 폴더 접근 권한이 유지되어야 해요.</li>
   </ul></div>
 </template>
-<!-- v1175: 작가별 폴더 지원을 핵심으로 정리한 최신 업데이트. -->
-<template id="wv1175LatestTemplate">
+<!-- v1179: 기존 1175 공지 문구를 회차묶음 개선까지 통합하여 개정. -->
+<template id="wv1179LatestTemplate">
   <div class="wv1098Section wv1175Highlight">
     <h3>📚 작가별 폴더가 있는 만화 분류 개선</h3>
-    <p>이제 만화 폴더 추가 시 <strong>작가별 폴더가 있는 구조</strong>도 정확하게 인식합니다. <strong>ZIP·CBZ 압축만화와 이미지폴더 만화</strong> 모두 지원합니다.</p>
+    <p><strong>ZIP·CBZ 압축만화와 이미지폴더 만화</strong> 모두 작가별 폴더 구조를 인식하도록 개선했습니다.</p>
     <ul>
-      <li>폴더를 추가할 때 <strong>없음 (기본값 기존방식) / 있음 (작가별 폴더를 인식)</strong> 중 선택합니다.</li>
-      <li>작가폴더 아래의 개별 작품과 회차를 구분하고, 파일명에 작가명이 없으면 <strong>작가폴더에서 자동 보충</strong>합니다.</li>
-      <li>작품폴더 기준으로 <strong>폴더·작가 레일과 작품 목록</strong>을 분류합니다.</li>
-      <li>이미지폴더는 <strong>등록 루트 ID + 작품 상대경로</strong>로 구별하여, 서로 다른 작가의 같은 제목 작품도 충돌하지 않습니다.</li>
+      <li>만화 폴더 추가 시 <strong>없음 (기본값 기존방식) / 있음 (작가별 폴더를 인식)</strong> 선택</li>
+      <li>작가폴더에서 <strong>작가명 자동 보충</strong>, 작품폴더·회차를 구분해 <strong>작가·폴더 탭 분류 개선</strong></li>
+      <li>이미지폴더는 <strong>루트 ID + 상대경로</strong>로 작품을 구별해 다른 작가의 <strong>동명이작 충돌 방지</strong></li>
     </ul>
-    <div class="wv1175Howto">기존 폴더에 적용: <strong>만화 → 로컬 → 있음 → 기존 0차 폴더 다시 선택</strong><br>원본 만화 파일과 폴더 이름은 변경하지 않습니다.</div>
+    <div class="wv1175Howto">기존 폴더에 적용: <strong>만화 → 로컬 → 있음 → 기존 등록 폴더 다시 선택</strong><br>원본 파일과 폴더 이름은 변경하지 않습니다.</div>
   </div>
-  <div class="wv1175Minor"><strong>그 밖의 개선</strong> · 이미지폴더도 Shift+←/→ 이전·다음 작품 이동 · D 삭제 모드에서 0차 등록 폴더별 해제 · 구형 fsdir 목록 정리 · 이미지와 회차 서브폴더 혼합 지원</div>
+  <div class="wv1098Section wv1179Chapters">
+    <h3>📖 ZIP·CBZ 회차묶음 기능 추가</h3>
+    <p>같은 작품의 <strong>01·02·03화처럼 이어지는 압축파일</strong>을 발견하면 후보 폴더들을 모아 <strong>한 번만</strong> 묶기 또는 개별 표시를 선택합니다.</p>
+    <ul>
+      <li><strong>전체·작가·그룹·태그 목록:</strong> 묶은 작품은 대표 1개만 표시</li>
+      <li><strong>폴더 탭:</strong> 1화·2화 등 ZIP 회차를 전부 표시</li>
+      <li>뷰어에서 회차 선택 가능 · <strong>회차묶음</strong> 버튼으로 언제든 표시 방식 전환</li>
+    </ul>
+  </div>
+  <div class="wv1175Minor"><strong>기타 개선</strong> · 이미지폴더 Shift+←/→ 작품 이동 · D 삭제 모드에서 0차 폴더별 등록 해제 · 구형 fsdir 기록 정리 · 직접 이미지/회차폴더 혼합 지원 · 공통 버튼 마우스 오버 표시 강화</div>
 </template>
 <!-- v1152: 임시 서비스 중단 공지. 신규 빌드 배포 시 1회 자동 표시, 기록은 유지. -->
 <template id="wv1152LatestTemplate">
@@ -174077,7 +174338,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="comicNoticeFeatureV1047">NEW  건의하기 기능 추가!</div>
     <div class="comicNoticeFeatureDescV1047">불편한 점이나 개선 아이디어를 익명으로 보내주세요.</div>
     <div class="comicNoticeFootV1047">Shift+← / Shift+→ : ZIP·CBZ 및 이미지폴더의 이전·다음 작품 이동
-ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시 강제스캔
+ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시 스캔
 대용량 폴더도 목록·표지를 먼저 표시하고 나머지 작업은 후순위</div>
   </div>
 </template>
@@ -174134,10 +174395,10 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       html:document.getElementById('wv1152LatestTemplate')?.innerHTML||''
     },
     {
-      id:'release-v1175',build:'빌드 1175',
-      title:'📚 웹뷰어 1175 업데이트',
-      subtitle:'작가별 폴더가 있는 만화 분류 개선 · ZIP·CBZ·이미지폴더',
-      html:document.getElementById('wv1175LatestTemplate')?.innerHTML||''
+      id:'release-v1179',build:'빌드 1179',
+      title:'📚 웹뷰어 1179 업데이트',
+      subtitle:'작가별 폴더 분류 개선 · ZIP·CBZ 회차묶음 추가',
+      html:document.getElementById('wv1179LatestTemplate')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -174665,7 +174926,7 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[typ
     '여러 항목을 선택하면 OR는 합집합, AND는 교집합입니다. 기본값은 OR입니다.',
     '만화 레일의 세로 문자 인덱스는 옵션에서 가로형으로 바꿀 수 있습니다.',
     '레일의 작가·그룹·태그·폴더 이름 옆 숫자는 등록 작품 수입니다.',
-    '폴더에 만화를 추가했다면 강제스캔으로 등록 목록을 갱신할 수 있습니다.',
+    '폴더에 만화를 추가했다면 스캔으로 등록 목록을 갱신할 수 있습니다.',
     'ZIP·CBZ 만화는 압축을 풀지 않고 웹뷰어에서 바로 열 수 있습니다.',
     '만화를 읽은 마지막 페이지는 저장되므로 다음에 이어 볼 수 있습니다.',
     'Shift + ← / → 키로 ZIP·CBZ 파일과 로컬 이미지폴더 만화를 이전·다음 작품으로 이동할 수 있습니다.',
@@ -174729,6 +174990,453 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[typ
   draw();
 })();
 </script>
+<script id="comicZipChaptersV1177">
+(()=>{
+'use strict';
+// Decisions only change presentation: stored webtoon list, ZIP path, rating/reading history stay intact.
+const KEY='comic_zip_chapter_group_modes_v1177',DB_KEY='comic_zip_chapter_group_modes_v1177';
+const numeric=new Intl.Collator('ko',{numeric:true,sensitivity:'base'});
+const modes=new Map();let revision=0,projectCache={entries:null,generation:-1,revision:-1,projected:null,byValue:new Map()};
+const parse=value=>{
+  const m=/^zipcomic:@([^/]+)\/(.+)$/i.exec(String(value||''));
+  if(!m)return null;
+  try{
+    const rel=decodeURIComponent(m[2]).replace(/\\/g,'/');
+    const cut=rel.lastIndexOf('/');
+    const file=rel.slice(cut+1);
+    if(!/\.(zip|cbz)$/i.test(file))return null;
+    const dir=rel.slice(0,Math.max(cut,0));
+    return {value:String(value),rootId:m[1],dir,file,stem:file.replace(/\.(zip|cbz)$/i,'')};
+  }catch(_){return null;}
+};
+const folderKey=p=>JSON.stringify([p.rootId,p.dir]);
+const normalize=s=>String(s||'').normalize('NFKC').trim().replace(/[\s_.\-]+$/,'').replace(/[\s_.\-]+/g,' ').toLocaleLowerCase();
+function episode(stem){
+  let s=String(stem||'').trim();
+  // Exact numeric files, chapter/episode/volume markers, and a shared title followed by a number.
+  // Avoid interpreting trailing bracketed publication IDs or standalone catalog names as chapters.
+  s=s.replace(/\s*\((?:完|完結|end)\)\s*$/i,'');
+  const m=/^(.*?)(?:\s*(?:第|제)\s*)?(?:(?:chapter|chap|ch|episode|ep|vol(?:ume)?|part|제?\s*권|제?\s*화)\s*)?0*(\d{1,4})\s*(?:화|권|회|편|話|巻)?$/i.exec(s);
+  if(!m)return null;
+  const n=Number(m[2]);if(!Number.isInteger(n)||n>9999)return null;
+  const base=normalize(m[1]);
+  // Prefix ending in a bracketed ID is more likely a work catalog than chapter notation.
+  if(/[\])]$/.test(base))return null;
+  return {base,n};
+}
+function detect(rows){
+  if(!rows || rows.length<2)return null;
+  const patterns=new Map();
+  for(const p of rows){
+    const ep=episode(p.stem);if(!ep)continue;
+    if(!patterns.has(ep.base))patterns.set(ep.base,[]);
+    patterns.get(ep.base).push({...p,epNum:ep.n});
+  }
+  let best=null;
+  for(const candidate of patterns.values()){
+    if(candidate.length<2 || candidate.length/rows.length<0.9)continue;
+    candidate.sort((a,b)=>a.epNum-b.epNum||numeric.compare(a.file,b.file));
+    const nums=candidate.map(x=>x.epNum);
+    if(new Set(nums).size!==nums.length)continue;
+    let close=0;
+    for(let i=1;i<nums.length;i++)if(nums[i]-nums[i-1]>=1&&nums[i]-nums[i-1]<=2)close++;
+    if(close/Math.max(1,nums.length-1)<0.8)continue;
+    if(!best || candidate.length>best.length)best=candidate;
+  }
+  if(!best)return null;
+  const first=best[0];
+  const fallback=window.__comicZipRootNameMapV980?.get?.(String(first.rootId))||'회차 묶음';
+  const title=first.dir.split('/').filter(Boolean).pop()||fallback;
+  return {key:folderKey(first),rootId:first.rootId,dir:first.dir,title,
+    members:best.map(p=>({value:p.value,label:/^\d+$/.test(p.stem)?p.epNum+'화':p.stem,number:p.epNum})),
+    total:rows.length};
+}
+function identify(entries){
+  const byFolder=new Map();
+  for(const item of entries||[]){
+    const p=parse(item?.value);if(!p)continue;
+    const key=folderKey(p);
+    if(!byFolder.has(key))byFolder.set(key,[]);
+    byFolder.get(key).push(p);
+  }
+  return [...byFolder.values()].map(detect).filter(Boolean);
+}
+function persist(){
+  const obj=Object.fromEntries(modes);
+  try{localStorage.setItem(KEY,JSON.stringify(obj));}catch(e){console.warn('[zip chapter v1177] 저장공간',e);}
+  if(typeof idbPutComic==='function')void idbPutComic(DB_KEY,obj).catch(e=>console.warn('[zip chapter v1177] IDB',e));
+  revision++;projectCache.entries=null;
+  try{invalidateComicListQueryV1000();}catch(_){}
+  if(typeof renderWebtoonList==='function')try{renderWebtoonList();}catch(_){}
+  try{renderWtTagRail?.();}catch(_){}
+}
+try{
+  const raw=JSON.parse(localStorage.getItem(KEY)||'{}');
+  if(raw&&typeof raw==='object')for(const [k,v] of Object.entries(raw)){
+    if(v==='group'||v==='separate')modes.set(k,v);
+  }
+}catch(_){}
+// Root names matter when the registered 0-depth folder itself is an individual work.
+// The ZIP root-name map is normally populated during scanning; refill it after a restart.
+if(typeof getComicRootsV978==='function')void getComicRootsV978().then(roots=>{
+  let updated=false;
+  const names=window.__comicZipRootNameMapV980;
+  for(const root of Array.isArray(roots)?roots:[]){
+    if(!root?.id||!root?.name||!names?.set)continue;
+    if(names.get(String(root.id))!==String(root.name)){names.set(String(root.id),String(root.name));updated=true;}
+  }
+  if(updated){revision++;projectCache.entries=null;try{invalidateComicListQueryV1000();renderWebtoonList();}catch(_){}}
+}).catch(()=>{});
+// IDB is the durable mirror; localStorage snapshot avoids waiting to draw 36k items on launch.
+if(typeof idbGetComic==='function')void idbGetComic(DB_KEY).then(saved=>{
+  if(!saved||typeof saved!=='object')return;
+  let changed=false;
+  for(const [k,v] of Object.entries(saved)){
+    if(!modes.has(k)&&(v==='group'||v==='separate')){modes.set(k,v);changed=true;}
+  }
+  if(changed)persist();
+}).catch(()=>{});
+function ensureProjection(entries){
+  const gen=typeof _webtoonListGeneration==='number'?_webtoonListGeneration:-1;
+  if(projectCache.entries===entries&&projectCache.generation===gen&&projectCache.revision===revision)return;
+  const byValue=new Map();const skip=new Set(),replacements=new Map();
+  if([...modes.values()].some(v=>v==='group')){
+    const entryByValue=new Map(entries.map(e=>[e.value,e]));
+    const groups=identify(entries);
+    for(const g of groups){
+      if(modes.get(g.key)!=='group')continue;
+      for(const member of g.members)byValue.set(member.value,g);
+      for(const member of g.members.slice(1))skip.add(member.value);
+      const first=g.members[0].value;
+      const original=entryByValue.get(first);
+      if(original)replacements.set(first,{...original,display:g.title});
+    }
+  }
+  const projected=skip.size||replacements.size
+    ?entries.filter(e=>!skip.has(e.value)).map(e=>replacements.get(e.value)||e)
+    :entries;
+  projectCache={entries,generation:gen,revision,projected,byValue};
+}
+function project(entries){if(!Array.isArray(entries))return entries;ensureProjection(entries);return projectCache.projected;}
+function groupForValue(value){
+  if(typeof wtGetEntriesCached!=='function')return null;
+  ensureProjection(wtGetEntriesCached(false));
+  return projectCache.byValue.get(value)||null;
+}
+function askOnce(candidates){
+  return new Promise(resolve=>{
+    const shade=document.createElement('div');shade.id='comicZipChapterPromptV1177';
+    shade.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:2147483600;padding:16px;';
+    const panel=document.createElement('div');panel.style.cssText='width:min(490px,100%);max-height:85vh;overflow:auto;background:#232b38;border:1px solid #62718a;border-radius:12px;padding:22px;color:#f3f6ff;font:14px/1.65 system-ui,sans-serif;box-shadow:0 16px 48px #0009;';
+    const title=document.createElement('h3');title.textContent='회차별 압축만화가 발견되었습니다';title.style.cssText='margin:0 0 12px;font-size:18px;';
+    const desc=document.createElement('p');
+    const count=candidates.reduce((s,g)=>s+g.members.length,0);
+    desc.textContent=`총 ${candidates.length}개 작품폴더의 ZIP·CBZ ${count}개가 회차 파일로 추정됩니다. 모든 후보에 한 번에 적용할 방식을 선택하세요.`;
+    const examples=document.createElement('div');examples.style.cssText='background:#1b2230;border-radius:7px;padding:8px 12px;margin:12px 0;font-size:12px;color:#bbcee6;max-height:120px;overflow:auto;';
+    examples.textContent=candidates.slice(0,5).map(g=>`${g.title} (${g.members.length}개 회차)`).join('  ·  ')+(candidates.length>5?' 외 '+(candidates.length-5)+'개':'');
+    const note=document.createElement('p');note.textContent='원본 ZIP과 작품별 읽음 기록은 그대로 유지됩니다. 묶으면 전체 목록에는 작품당 1개, 뷰어에서는 각 회차를 선택할 수 있습니다. 변경없음은 현재 자동묶음 설정을 그대로 보존합니다.';note.style.cssText='color:#bfccde;font-size:12px;';
+    const buttons=document.createElement('div');buttons.style.cssText='display:flex;flex-direction:column;gap:9px;margin-top:15px;';
+    function make(label,mode,color){const b=document.createElement('button');b.type='button';b.textContent=label;
+      b.style.cssText='cursor:pointer;padding:11px 14px;border-radius:7px;color:#fff;border:1px solid #8293ad;background:'+color+';font-size:14px;font-weight:600;';
+      b.onclick=()=>{shade.remove();resolve(mode);};return b;}
+    buttons.append(make('하나의 작품으로 묶어 표시','group','#235891'),make('모든 압축파일을 개별 표시','separate','#3e4754'));
+    const cancel=make('변경없음(현상유지)',null,'#29303a');cancel.style.fontWeight='400';cancel.title='기존 자동 회차묶음·개별 표시 설정을 그대로 유지하고 다음 단계로 진행';buttons.append(cancel);
+    panel.append(title,desc,examples,note,buttons);shade.append(panel);document.body.appendChild(shade);
+  });
+}
+let offerBusy=false;
+async function offerForScan(rows){
+  if(offerBusy)return {candidates:0,skipped:true};
+  const candidates=identify((rows||[]).filter(x=>x?.zipComic));
+  if(!candidates.length)return {candidates:0};
+  offerBusy=true;
+  try{
+    const mode=await askOnce(candidates);
+    if(mode){for(const g of candidates)modes.set(g.key,mode);persist();}
+    return {candidates:candidates.length,mode};
+  }finally{offerBusy=false;}
+}
+async function reconfigure({silentIfNone=false}={}){
+  if(offerBusy || typeof wtGetEntriesCached!=='function')return {status:'busy'};
+  const candidates=identify(wtGetEntriesCached(false));
+  if(!candidates.length){
+    if(!silentIfNone)alert('등록된 작품 중 자동 회차묶음 후보가 없습니다. 폴더를 등록하거나 스캔한 후 다시 시도하세요.');
+    return {status:'no-candidates'};
+  }
+  offerBusy=true;
+  try{
+    const mode=await askOnce(candidates);
+    // null = 변경없음(현상유지): 이미 저장된 group/separate 결정을 덮어쓰지 않는다.
+    if(mode){for(const g of candidates)modes.set(g.key,mode);persist();}
+    return {status:mode?'applied':'unchanged',candidates:candidates.length};
+  }finally{offerBusy=false;}
+}
+let combinedBusyV1182=false;
+async function runCombinedV1182(){
+  if(combinedBusyV1182 || offerBusy)return;
+  combinedBusyV1182=true;
+  const btn=document.getElementById('comicZipChapterConfigV1177');
+  if(btn)btn.disabled=true;
+  try{
+    // 1. 기존 90% 규칙 후보를 먼저 확인. 자동 후보가 없어도 2단계는 실행한다.
+    const result=await reconfigure({silentIfNone:true});
+    if(result.status==='busy')return;
+    // 2. 앞 단계의 적용/변경없음 선택이 완전히 끝난 뒤 수동 후보 창을 연다.
+    const manual=window.ComicZipChaptersV1177?.manual;
+    if(!manual?.open)throw new Error('수동 묶음 기능을 불러오지 못했습니다.');
+    await manual.open();
+  }catch(error){
+    console.error('[comic grouping v1182]',error);
+    alert('묶음 설정 중 오류: '+String(error?.message||error));
+  }finally{
+    combinedBusyV1182=false;
+    if(btn)btn.disabled=false;
+  }
+}
+function installButton(){
+  const ref=document.getElementById('fsComicForceScanV1010');
+  if(!ref||document.getElementById('comicZipChapterConfigV1177'))return;
+  const btn=document.createElement('button');btn.type='button';btn.id='comicZipChapterConfigV1177';
+  btn.className=ref.className;btn.textContent='묶음';
+  btn.title='자동묶음(폴더 내 ZIP·CBZ 90% 규칙) 확인 후 수동묶음(시리즈 선택)을 순서대로 실행';
+  btn.onclick=()=>void runCombinedV1182();ref.insertAdjacentElement('afterend',btn);
+  const sync=()=>{btn.style.display=ref.style.display==='none'?'none':'';};
+  sync();new MutationObserver(sync).observe(ref,{attributes:true,attributeFilter:['style']});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installButton,{once:true});else installButton();
+window.ComicZipChaptersV1177={project,groupForValue,offerForScan,reconfigure,runCombined:runCombinedV1182,detect,identify,parse,
+  inspect:()=>({decisions:modes.size,grouped:[...modes.values()].filter(x=>x==='group').length,revision})};
+})();
+</script>
+
+<!-- v1180: 혼합 작품폴더에서 작품명+회차 패턴을 기준으로 수동 묶음 후보를 만든다. 자동 90% 규칙은 변경하지 않는다. -->
+<style id="comicZipManualStyleV1180">
+#comicZipManualOverlayV1180{position:fixed;inset:0;z-index:2147483610;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px}
+#comicZipManualOverlayV1180 .cm1180-panel{box-sizing:border-box;width:min(710px,100%);max-height:min(88vh,850px);display:flex;flex-direction:column;gap:12px;padding:20px;color:#f0f5ff;background:#242e3d;border:1px solid #7386a1;border-radius:12px;box-shadow:0 20px 60px #0009;font:14px/1.6 system-ui,sans-serif}
+#comicZipManualOverlayV1180 h3{font-size:19px;margin:0}
+#comicZipManualOverlayV1180 p{margin:0;color:#c9d7e8}
+#comicZipManualOverlayV1180 .cm1180-list{overflow:auto;min-height:80px;max-height:50vh;border:1px solid #4e607b;border-radius:8px;background:#1b2330;padding:6px}
+#comicZipManualOverlayV1180 .cm1180-item{display:flex;align-items:flex-start;gap:11px;padding:9px 11px;border-bottom:1px solid #374559;cursor:pointer}
+#comicZipManualOverlayV1180 .cm1180-item:last-child{border-bottom:0}
+#comicZipManualOverlayV1180 .cm1180-item:hover{background:#344b6a}
+#comicZipManualOverlayV1180 .cm1180-item input{margin-top:4px;width:17px;height:17px;accent-color:#60a5fa;flex-shrink:0}
+#comicZipManualOverlayV1180 .cm1180-sub{font-size:12px;color:#aac3db;overflow-wrap:anywhere}
+#comicZipManualOverlayV1180 .cm1180-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+#comicZipManualOverlayV1180 button{cursor:pointer;border:1px solid #748ca9;background:#32465f;color:white;padding:8px 13px;border-radius:7px;font-size:13px}
+#comicZipManualOverlayV1180 button:hover{background:#386caa;border-color:#a3d1ff}
+#comicZipManualOverlayV1180 button:disabled{opacity:.45;cursor:default}
+#comicZipManualOverlayV1180 .cm1180-primary{background:#23619a;font-weight:bold}
+#comicZipManualOverlayV1180 .cm1180-bad{background:#644b52}
+#comicZipManualOverlayV1180 input[type=search]{color:white;background:#182333;border:1px solid #7289a6;border-radius:6px;padding:9px 11px;min-width:120px;flex:1}
+</style>
+<script id="comicZipManualChaptersV1180">
+(()=>{
+'use strict';
+const api=window.ComicZipChaptersV1177;
+if(!api || api.manual) return;
+const KEY='comic_zip_chapter_manual_modes_v1180';
+const order=new Intl.Collator('ko',{numeric:true,sensitivity:'base'});
+const decisions=new Map();let revision=0;
+const cache={entries:null,revision:-1,projected:null,byValue:new Map()};
+function invalidate(){revision++;cache.entries=null;try{comicFirstFolderIndexV1132.dirty=true;}catch(_){}try{invalidateComicListQueryV1000();}catch(_){}try{renderWebtoonList();}catch(_){}try{renderWtTagRail();}catch(_){}}
+function save(){
+  const data=Object.fromEntries(decisions);
+  try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){console.warn('[manual chapters] localStorage',e);}
+  if(typeof idbPutComic==='function')void idbPutComic(KEY,data).catch(e=>console.warn('[manual chapters] IDB',e));
+  invalidate();
+}
+try{const data=JSON.parse(localStorage.getItem(KEY)||'{}');if(data&&typeof data==='object')for(const [k,v] of Object.entries(data))if(v==='group'||v==='separate')decisions.set(k,v);}catch(_){}
+if(typeof idbGetComic==='function')void idbGetComic(KEY).then(data=>{
+  if(!data||typeof data!=='object')return;
+  let changed=false;
+  for(const [k,v] of Object.entries(data))if(!decisions.has(k)&&(v==='group'||v==='separate')){decisions.set(k,v);changed=true;}
+  if(changed)save();
+}).catch(()=>{});
+const tidy=s=>String(s||'').normalize('NFKC').trim().replace(/[\s_.\-]+$/,'').replace(/[\s_.\-]+/g,' ').toLocaleLowerCase();
+function chapterName(stem){
+  let s=String(stem||'').normalize('NFKC').trim();
+  s=s.replace(/\s*\((?:完|完結|end)\)\s*$/i,'').trim();
+  const match=/^(.*?)(?:\s*(?:第|제)\s*)?(?:(?:chapter|chap|ch|episode|ep|vol(?:ume)?|part|제?\s*권|제?\s*화)\s*)?0*(\d{1,4})\s*(?:화|권|회|편|話|巻)?$/i.exec(s);
+  if(!match)return null;
+  const raw=match[1].trim().replace(/[\s_.\-]+$/,'').trim();
+  const base=tidy(raw),number=Number(match[2]);
+  if(!base || [...base].length<2 || !Number.isInteger(number) || number>9999)return null;
+  if(/[\])]$/.test(base))return null;
+  // Catalog IDs are independent works even when their numbers are consecutive.
+  if(/^[a-z]{2,12}\s*-?\s*$/i.test(raw) && /^[A-Za-z]{2,12}\s*-\s*\d{2,5}$/i.test(s))return null;
+  // Do not merge names with an unseparated long catalog-like trailing number.
+  if(/^[a-z\d]{2,10}$/i.test(raw) && !/[\s_.\-]|(?:ch|ep|vol|part)/i.test(s.slice(raw.length)))return null;
+  return {base,title:raw,number};
+}
+function manualKey(rootId,dir,base){return JSON.stringify(['manual',String(rootId),dir,base]);}
+function findCandidates(entries){
+  const buckets=new Map();
+  for(const row of entries||[]){
+    const p=api.parse(row?.value);if(!p)continue;
+    const folderKey=JSON.stringify([p.rootId,p.dir]);
+    let group=buckets.get(folderKey);
+    if(!group){group={rootId:p.rootId,dir:p.dir,items:[]};buckets.set(folderKey,group);}
+    group.items.push(p);
+  }
+  // A whole-folder 90% match is handled exclusively by the unchanged automatic feature.
+  const autoKeys=new Set(api.identify(entries).map(g=>g.key));
+  const candidates=[];
+  for(const [physicalKey,folder] of buckets){
+    if(folder.items.length<3 || autoKeys.has(physicalKey))continue;
+    const prefixes=new Map();
+    for(const p of folder.items){
+      const chapter=chapterName(p.stem);if(!chapter)continue;
+      if(!prefixes.has(chapter.base))prefixes.set(chapter.base,[]);
+      prefixes.get(chapter.base).push({...p,number:chapter.number,title:chapter.title});
+    }
+    for(const [base,items] of prefixes){
+      if(items.length<2)continue;
+      items.sort((a,b)=>a.number-b.number||order.compare(a.file,b.file));
+      if(new Set(items.map(x=>x.number)).size!==items.length)continue;
+      let close=0;
+      for(let i=1;i<items.length;i++)if(items[i].number-items[i-1].number>=1 && items[i].number-items[i-1].number<=2)close++;
+      if(close/Math.max(1,items.length-1)<0.8)continue;
+      const key=manualKey(folder.rootId,folder.dir,base);
+      const rootName=window.__comicZipRootNameMapV980?.get?.(String(folder.rootId)) || String(folder.rootId);
+      candidates.push({key,title:items[0].title,rootName,folder:folder.dir||'(등록 루트)',rootId:folder.rootId,
+        members:items.map(p=>({value:p.value,label:p.stem,number:p.number})),total:folder.items.length});
+    }
+  }
+  candidates.sort((a,b)=>order.compare(a.folder,b.folder)||order.compare(a.title,b.title));
+  return candidates;
+}
+function manualProject(entries){
+  if(!Array.isArray(entries))return entries;
+  if(cache.entries===entries&&cache.revision===revision)return cache.projected;
+  const byValue=new Map(),skip=new Set(),replace=new Map(),groups=[];
+  if([...decisions.values()].some(m=>m==='group')){
+    const byName=new Map(entries.map(e=>[e.value,e]));
+    for(const candidate of findCandidates(entries)){
+      if(decisions.get(candidate.key)!=='group')continue;
+      const members=candidate.members.filter(m=>byName.has(m.value));
+      if(members.length<2)continue;
+      const g={...candidate,members};
+      groups.push(g);
+      for(const member of members)byValue.set(member.value,g);
+      for(const member of members.slice(1))skip.add(member.value);
+      const first=byName.get(members[0].value);
+      replace.set(members[0].value,{...first,display:candidate.title});
+    }
+  }
+  const projected=skip.size||replace.size?entries.filter(e=>!skip.has(e.value)).map(e=>replace.get(e.value)||e):entries;
+  Object.assign(cache,{entries,revision,projected,byValue,groups});
+  return projected;
+}
+const oldProject=api.project.bind(api),oldGroupForValue=api.groupForValue.bind(api);
+api.project=function(entries){return manualProject(oldProject(entries));};
+api.groupForValue=function(value){
+  const raw=typeof wtGetEntriesCached==='function'?wtGetEntriesCached(false):[];
+  api.project(raw);
+  return cache.byValue.get(value)||oldGroupForValue(value);
+};
+const mk=(tag,txt,cls)=>{const el=document.createElement(tag);if(txt!==undefined)el.textContent=txt;if(cls)el.className=cls;return el;};
+let busy=false;
+function modal(title,desc){
+  const shade=mk('div');shade.id='comicZipManualOverlayV1180';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');shade.setAttribute('aria-label',title);
+  const panel=mk('section',undefined,'cm1180-panel');panel.append(mk('h3',title),mk('p',desc));shade.append(panel);document.body.append(shade);
+  return {shade,panel,close:()=>shade.remove()};
+}
+async function chooseGroups(candidates,previouslySelected=[]){
+  const dialog=modal('수동회차묶음 · 후보 선택',`같은 실제 폴더에 여러 작품이 섞여 있어도 작품명과 회차번호가 비슷한 ZIP·CBZ끼리 찾았습니다. ${candidates.length}개 시리즈 후보 중 원하는 것만 선택하세요.`);
+  return new Promise(resolve=>{
+    const {panel,close}=dialog;
+    const search=mk('input');search.type='search';search.placeholder='작품명 또는 폴더 경로 검색';search.setAttribute('aria-label','수동회차묶음 후보 검색');
+    const status=mk('p','0개 선택');
+    const bar=mk('div',undefined,'cm1180-row');
+    const all=mk('button','보이는 후보 전체 선택'),none=mk('button','선택 해제');all.type=none.type='button';bar.append(all,none);
+    const list=mk('div',undefined,'cm1180-list');
+    const checked=new Set(previouslySelected);let filtered=candidates,limit=160;
+    const footer=mk('div',undefined,'cm1180-row'),next=mk('button','선택한 시리즈 계속','cm1180-primary'),cancel=mk('button','취소');
+    next.type=cancel.type='button';
+    function refresh(){status.textContent=`${checked.size}개 시리즈 선택 / 후보 ${candidates.length}개 (검색 ${filtered.length}개)`;next.disabled=!checked.size;}
+    function render(){
+      const fragment=document.createDocumentFragment();
+      for(const g of filtered.slice(0,limit)){
+        const label=mk('label',undefined,'cm1180-item');
+        const chk=mk('input');chk.type='checkbox';chk.value=g.key;chk.checked=checked.has(g.key);
+        const description=mk('div');const top=mk('div',`${g.title}  (${g.members.length}개 회차)`);
+        const sub=mk('div',`${g.rootName} / ${g.folder}  ·  ${g.members.slice(0,4).map(x=>x.label).join(', ')}${g.members.length>4?' …':''}${decisions.get(g.key)==='group'?'  ·  현재 묶음':''}`,'cm1180-sub');
+        description.append(top,sub);label.append(chk,description);fragment.append(label);
+        chk.onchange=()=>{if(chk.checked)checked.add(g.key);else checked.delete(g.key);refresh();};
+      }
+      if(filtered.length>limit){
+        const more=mk('button',`후보 ${Math.min(160,filtered.length-limit)}개 더 보기 (${limit}/${filtered.length})`);
+        more.type='button';more.onclick=()=>{limit+=160;render();};fragment.append(more);
+      }
+      list.replaceChildren(fragment);refresh();
+    }
+    search.oninput=()=>{
+      const q=tidy(search.value);
+      filtered=q?candidates.filter(g=>tidy(g.title+' '+g.rootName+' '+g.folder).includes(q)):candidates;
+      limit=160;render();
+    };
+    all.onclick=()=>{for(const g of filtered.slice(0,limit))checked.add(g.key);render();};
+    none.onclick=()=>{checked.clear();render();};
+    next.onclick=()=>{const selected=candidates.filter(c=>checked.has(c.key));close();resolve(selected);};
+    cancel.onclick=()=>{close();resolve(null);};
+    footer.append(next,cancel);panel.append(search,bar,status,list,footer);render();
+  });
+}
+async function confirmGroups(groups){
+  const count=groups.reduce((n,g)=>n+g.members.length,0);
+  const dialog=modal('수동회차묶음 · 최종 선택',`${groups.length}개 시리즈 · ZIP·CBZ ${count}개를 선택했습니다. 선택한 시리즈에만 아래 표시 방식을 적용합니다.`);
+  return new Promise(resolve=>{
+    const {panel,close}=dialog;
+    const list=mk('div',undefined,'cm1180-list');
+    for(const g of groups.slice(0,100)){const item=mk('div',`${g.title} · ${g.members.length}회차 · ${g.rootName} / ${g.folder}`,'cm1180-item');list.append(item);}
+    if(groups.length>100)list.append(mk('div',`외 ${groups.length-100}개 후보`,'cm1180-item'));
+    const note=mk('p','ZIP 원본·개별 등록정보·열람 기록은 유지됩니다. 묶으면 전체 목록에 대표 작품 1개로 표시되고, 묶음 탭에는 수동 시리즈(◆)가 생성되어 모든 회차를 볼 수 있습니다.');
+    const bar=mk('div',undefined,'cm1180-row');
+    const group=mk('button','선택한 시리즈만 묶기','cm1180-primary'),separate=mk('button','선택한 시리즈 개별 표시','cm1180-bad'),back=mk('button','이전'),cancel=mk('button','취소');
+    for(const b of [group,separate,back,cancel])b.type='button';
+    group.onclick=()=>{close();resolve('group');};separate.onclick=()=>{close();resolve('separate');};
+    back.onclick=()=>{close();resolve('back');};cancel.onclick=()=>{close();resolve(null);};
+    bar.append(group,separate,back,cancel);panel.append(list,note,bar);
+  });
+}
+async function open(){
+  if(busy)return;
+  busy=true;
+  try{
+    const entries=typeof wtGetEntriesCached==='function'?wtGetEntriesCached(false):[];
+    const candidates=findCandidates(entries);
+    if(!candidates.length){alert('수동회차묶음 후보가 없습니다. 같은 폴더의 ZIP·CBZ 중 서로 다른 작품명과 회차번호로 구분되는 파일이 있어야 합니다.');return;}
+    let previousSelection=[];
+    while(true){
+      const selected=await chooseGroups(candidates,previousSelection);
+      if(!selected || !selected.length)return;
+      const action=await confirmGroups(selected);
+      if(action==='back'){previousSelection=selected.map(x=>x.key);continue;}
+      if(!action)return;
+      for(const g of selected)decisions.set(g.key,action);
+      save();return;
+    }
+  }finally{busy=false;}
+}
+// 수동묶음 버튼은 별도로 추가하지 않고, 통합 '묶음' 버튼에서 2단계로 호출한다.
+api.manual={findCandidates,open,project:manualProject,
+  getActiveGroups:(entries)=>{manualProject(entries);return cache.groups||[];},
+  inspect:()=>({count:decisions.size,grouped:[...decisions.values()].filter(v=>v==='group').length})};
+// 최초 초기화된 폴더 인덱스가 있더라도 가상 묶음이 반영되도록 다시 계산한다.
+try{comicFirstFolderIndexV1132.dirty=true;}catch(_){}
+})();
+</script>
+
+<!-- v1178: 공통 팔레트 버튼에 실제 배경/윤곽 hover. 투명 팔레트에서도 색 대비를 만든다. -->
+<style id="viewerCommonButtonHoverV1178">
+html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.selected):not(.on):not(.is-active):not([aria-pressed="true"]):not([aria-selected="true"]):not(.bgBtn):not(.viewerCommonBtnExceptionV1159):not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *):not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *):not(.vg1057-game-list *):not(#videoRandomStylePanel *):not(#videoPileFrameColorBox *):not(:disabled):hover,
+html :is(#wtBox .wt-actions,#muBox .mu-head) :is(select.zoomBtn,input.zoomBtn:is([type="text"],[type="search"])):not([style*="background"]):not(.active):not(.selected):not(:disabled):hover {
+  background-color:color-mix(in srgb,var(--viewer-common-button-bg-v1159,#444444) 72%,#7da9e2 28%) !important;
+  border-color:#8bbdf5 !important;
+  box-shadow:inset 0 0 0 1px rgba(195,225,255,.36),0 0 0 1px rgba(91,165,246,.45) !important;
+  filter:none !important;
+}
+</style>
 </body>
 
 <!-- v801: DMM 품번군 선택 커스텀 모달의 대표 포스터를 가로 400:269 비율로 변경 · 품번/설명 왼쪽 + 포스터 오른쪽 배치 · hover 확대 2배 · 화면 버전 4.1(801) -->
@@ -175381,7 +176089,7 @@ html body #videoAutoSharePanelV934{overflow-y:auto !important;overscroll-behavio
    if(running.has(value))return;
    if(window.__comicStreamV1023?.active){feedback('폴더 등록이 끝난 다음 재스캔해 주세요.');return;}
    const zip=/^zipcomic:/i.test(value),dir=/^fsdir:/i.test(value);
-   if(!zip&&!dir){feedback('개별 강제스캔은 로컬 ZIP·CBZ 또는 이미지폴더 작품에서 사용합니다.');return;}
+   if(!zip&&!dir){feedback('개별 스캔은 로컬 ZIP·CBZ 또는 이미지폴더 작품에서 사용합니다.');return;}
    running.add(value);
    const icons=Array.from(document.querySelectorAll('.wtSingleRescanV1085')).filter(el=>el.dataset.value===value);
    for(const el of icons){el.disabled=true;el.textContent='…';}
