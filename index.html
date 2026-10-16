@@ -1,3 +1,4 @@
+<!-- v1176: 작가별 폴더 있음 이미지폴더 만화의 폴더 탭을 2차 작품폴더가 아닌 1차 작가폴더 기준으로 통일. ZIP 및 전체 분류 구조 유지. -->
 <!-- v1175: 업데이트 안내 최신 페이지에 작가별 폴더 만화 분류 개선을 우선 강조하고, 기타 변경사항은 간략 정리. 만화/DB 동작은 v1174 유지. -->
 <!-- v1174: 이미지폴더 고유 루트ID+상대경로, 2차 작가별 작품스캔/작가보충, 폴더 레일/복원/Shift 이동. -->
 <!-- v1173: 0차 등록 해제 시 소속 불명 구형 fsdir 목록도 강제 정리, 재등록 안내, 원본 보존. -->
@@ -41501,10 +41502,13 @@ window.getComicFolderMultiFilterV1163=()=>({mode:comicFolderMultiModeV1163,selec
 function comicGetFirstFolderInfoV1132(value){
   const fs=parseComicFsdirValueV1174(value);
   if(fs){
+    // v1176: 이미지폴더에서 '작가별 폴더 있음'을 선택했더라도
+    // 폴더 탭은 1차 작가폴더로 묶는다. 2차 작품폴더는 개별 작품 ID/열람용으로만 유지.
+    // ZIP·CBZ의 기존 폴더 분류 규칙은 아래 분기에서 변경하지 않는다.
     const parts=fs.parts,rootId=fs.rootId;
-    const first=fs.authorMode?(parts.length>=2?parts[1]:(parts[0]||'')):(parts[0]||'');
-    const key=fs.authorMode&&parts.length>=2?JSON.stringify([rootId,parts[0],parts[1]]):JSON.stringify([rootId,first]);
-    return {rootId,first,key,direct:!first,authorFolder:fs.authorMode?(parts[0]||''):''};
+    const first=parts[0]||'';
+    const key=JSON.stringify([rootId,first]);
+    return {rootId,first,key,direct:!first,authorFolder:fs.authorMode?first:''};
   }
   const m=/^zipcomic:@([^/]+)\/(.+)$/i.exec(String(value||''));
   if(!m)return null;
@@ -162174,7 +162178,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1175;
+  const VIEWER_BUILD_V789 = 1176;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
