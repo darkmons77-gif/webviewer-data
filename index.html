@@ -1,3 +1,18 @@
+<!-- v1169: 상단 버전/빌드/모드 안내 문구를 버튼 공통 글꼴·크기·굵기·글자색 설정과 연동. -->
+<!-- v1168: 만화 안내 팁 20초 간격, 전체 12개 순환 후 경로 범례로 60초 휴식, hover/탭 비활성 일시정지. -->
+<!-- v1167: 만화 레일 세로 초성 인덱스 미사용 시 빈 20px 영역 제거, 필요한 분류에서만 다시 표시. -->
+<!-- v1166: 만화 작품목록 경로 범례/숨은 기능 팁 3초 순환, 클릭 다음 팁·호버 일시정지, 오래된 메인뷰 안내 삭제. -->
+<!-- v1163: 만화 폴더 레일 공통 초성/문자 인덱스, 체크박스 다중선택 AND/OR(OR 기본), 즐겨찾기, 폴더 필터. -->
+<!-- v1162: 일반 버튼 및 업데이트/건의하기/최신버전/앱설치 버튼 글꼴 종류·크기·굵기·글자색 공통 제어. 레일 및 별도 배경색 유지. -->
+<!-- v1161: 투명 팔레트에서도 상단 선택상자 펼친 목록은 어둡게, 이미지폴더-레일 간격 3px 보정 -->
+<!-- v1160: 일반 버튼 공통 배경색을 만화·영상 정렬/폴더/FPS/개수/비율 선택상자와 음악·영상·만화 툴바 검색창까지 확장. -->
+<!-- v1159: 공통 버튼 배경 팔레트(기본/배경/파스텔7/선명7), 레일 및 개별색 예외 유지, 수정내역·알림기록 공통화. -->
+<!-- v1158: 만화 포스터 캡션 배경을 레일/목록 바깥 배경과 일치(투명) · 영상 레일 배우/태그/M/S 4탭 단일 클릭 전환, M/S 하위탭 제거. -->
+<!-- v1157: 세로 인덱스 20px 유지, 배경을 레일과 동일하게 투명 처리하고 우측 경계선 제거. 가로/숫자/필터 동작 보존. -->
+<!-- v1156: 세로 인덱스 폭 20px로 확대 · 숫자(0~9) 인덱스를 가로/세로에 추가 -->
+<!-- v1155: 만화 레일 A-Z/한글/일본어 초성 인덱스를 체크박스 왼쪽 9px 세로바로 배치; 옵션에서 세로(기본)/가로 선택 · 기존 필터 재사용 -->
+<!-- v1154: opt-in Trickle ICE with Worker; old clients remain complete SDP, dev-only sharing. -->
+<!-- v1153: File.pizza 외부 P2P 직접 연결 사례 참고. 자동공유 ICE 후보 수집 12→30초, 사전 후보풀, 연결 경로 유형/ICE 오류 진단 저장. 개발자 전용 차단 유지, Worker 프로토콜 변경 없음. -->
 <!-- v1152: 자동공유 외부연결 문제로 임시 사용중단 안내. 개발자 권한 이외 서버 연결/송수신/공유등록/수동P2P 차단. 기존 기록 보존. -->
 <!-- v1151: 자동공유 송신·수신 실패 영구 이력(원인/단계/품번/전송량), 기존 완료 이력창 재사용, 취소 및 정상대기 제외. -->
 <!-- v1150: 로컬 ZIP·CBZ·이미지폴더 오른쪽 페이지 즐겨찾기 썸네일 패널 · 닫기/썸네일 이동/삭제 · 레이지 로딩 및 페이지 배지 겹침 방지. -->
@@ -2125,6 +2140,15 @@ color:#ddd;
 #wtList .wtThumbCap .wtComicMetaV1094 { color: inherit; }
 #wtList .wtThumbCap .wtComicTitleV1094 { color: inherit; }
 #wtList .wtThumbCap .wtComicMetaV1094 a { display: inline; }
+
+/* v1158: 만화 포스터 텍스트 영역은 독립 회색 면을 그리지 않는다.
+   .wtThumbBtn의 기존 #222 배경이 아래 캡션까지 칠하고 있었으므로
+   버튼과 캡션을 모두 투명하게 해 목록/레일의 실제 배경이 그대로 비치게 한다.
+   이미지 플레이스홀더/버튼 텍스트색/즐겨찾기 외곽선은 변경하지 않는다. */
+#wtList.wtListThumb .wtThumbItem > .wtThumbBtn,
+#wtList.wtListThumb .wtThumbItem > .wtThumbBtn > .wtThumbCap {
+  background: transparent;
+}
 
 /* v1091: 폴더별 재스캔 버튼은 폴더 선택과 독립된 클릭 영역 */
 #wtGroupBar .wtFolderPairV1091{display:inline-flex;align-items:stretch;gap:1px;vertical-align:middle;max-width:100%;}
@@ -11744,6 +11768,58 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   z-index: 1;
 }
 </style>
+
+<style id="comicFolderMultiRailV1163">
+/* v1163: 폴더 = 작가/그룹/태그와 같은 레일 행 + 20px 세로 인덱스. */
+#wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCheckRowV1163{
+ display:flex;align-items:center;box-sizing:border-box;width:100%;min-width:0;
+ gap:1px;padding:1px 2px;min-height:20px;cursor:default;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCheckRowV1163 .wtTagRailChk{
+ flex:0 0 12px;width:12px;height:12px;margin:0;cursor:pointer;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCheckRowV1163 .wtTagRailTxt{
+ flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:clip;white-space:nowrap;
+ font-size:12px;line-height:17px;cursor:pointer;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCheckRowV1163 .comicFirstFolderCountV1132{
+ flex:0 0 auto;margin-left:2px;font-size:10px;color:#a8bdde;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCheckRowV1163.active{background:rgba(34,99,174,.18)}
+#wtTagRail.comicUnifiedRailV1033 .comicFirstFolderCheckRowV1163:hover{background:rgba(92,150,220,.16)}
+/* v1164: 작가·그룹·태그 작품수는 폴더 숫자와 같은 레일 우측에 배치. */
+#wtTagRail.comicUnifiedRailV1033 #wtTagRailAuthSec .wtTagRailRow:has(.comicCreatorCountV1164){
+ box-sizing:border-box;min-width:0;gap:1px;
+}
+#wtTagRail.comicUnifiedRailV1033 #wtTagRailAuthSec .wtTagRailRow .wtTagRailTxt{
+ min-width:0;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicCreatorCountV1164{
+ flex:0 0 auto;margin-left:auto;padding-left:2px;font-size:10px;
+ line-height:16px;white-space:nowrap;color:#a8bdde;font-variant-numeric:tabular-nums;
+}
+</style>
+<!-- v1165: 만화 작가↔그룹 분류 변경 버튼은 기본적으로 감춤; 옵션을 켠 경우만 표시. -->
+<style id="comicCreatorSwapVisibilityStyleV1165">
+#wtTagRail.comicUnifiedRailV1033 .comicCreatorSwapBtnV1165 { display:none !important; }
+html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreatorSwapBtnV1165 { display:inline-block !important; }
+</style>
+<script id="comicCreatorSwapVisibilityV1165">
+(function(){
+  'use strict';
+  const KEY='comic_creator_swap_visible_v1165';
+  const get=()=>{ try{return localStorage.getItem(KEY)==='1';}catch(_){return false;} };
+  const set=(visible)=>{
+    const next=!!visible;
+    try{localStorage.setItem(KEY,next?'1':'0');}catch(_){}
+    document.documentElement.classList.toggle('comicCreatorSwapVisibleV1165',next);
+    return next;
+  };
+  document.documentElement.classList.toggle('comicCreatorSwapVisibleV1165',get());
+  window.getComicCreatorSwapVisibleV1165=get;
+  window.setComicCreatorSwapVisibleV1165=set;
+})();
+</script>
 </head>
 <body>
 
@@ -12726,7 +12802,7 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
 
   <!-- 목록 -->
   <div id="wtList" class="wt-list"></div>
-  <div id="wtHint" class="favHint">※ <font color="#80dfff">온라인(http~)</font> <font color="#ffb347">로컬(fsdir:·zipcomic:)</font> <font color="#a0ffa0">절대주소(D:\~)</font> 상대주소(폴더명만) <font color="#ff99ff">메인뷰(더블Click) 서브뷰(Click)</font></div>
+  <div id="wtHint" class="favHint">※ <font color="#80dfff">온라인(http~)</font> <font color="#ffb347">로컬(fsdir:·zipcomic:)</font> <font color="#a0ffa0">절대주소(D:\~)</font> 상대주소(폴더명만) <font color="#ff99ff">서브뷰(Click)</font></div>
 </div>
 
 </div>
@@ -13935,6 +14011,74 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
     addCard(grids.basic, directNode('authorColsBox'), '작가패널 열 수');
     addCard(grids.basic, directNode('tagRatioBox'), '태그 영역 비율');
     addCard(grids.basic, directNode('tagRailWidthBox'), '태그 레일 폭');
+    // v1155: 만화 작가/그룹/태그 초성 인덱스를 세로(기본) 또는 기존 가로 배치로 전환.
+    const comicIndexCardV1155=document.createElement('div');
+    comicIndexCardV1155.className='optCard';
+    const comicIndexTitleV1155=document.createElement('div');
+    comicIndexTitleV1155.className='optCardTitle';
+    comicIndexTitleV1155.textContent='만화 인덱스 방향';
+    const comicIndexBodyV1155=document.createElement('div');
+    comicIndexBodyV1155.className='optCardBody';
+    const comicIndexBtnsV1155=document.createElement('div');
+    comicIndexBtnsV1155.id='comicRailIndexDirectionBoxV1155';
+    for(const [value,label] of [['vertical','세로'],['horizontal','가로']]){
+      const b=document.createElement('button');
+      b.type='button';b.className='zoomBtn comicRailIndexDirectionBtnV1155';
+      b.dataset.direction=value;b.textContent=label;
+      b.title=value==='vertical'?'체크박스 왼쪽에 20px 세로 문자·숫자 인덱스 표시 (기본)':'기존처럼 검색창 아래에 가로 문자 인덱스 표시';
+      b.addEventListener('click',()=>{
+        window.setComicRailIndexDirectionV1155?.(value);
+        refreshComicIndexDirectionV1155();
+      });
+      comicIndexBtnsV1155.appendChild(b);
+    }
+    function refreshComicIndexDirectionV1155(){
+      const current=window.getComicRailIndexDirectionV1155?.()||'vertical';
+      for(const b of comicIndexBtnsV1155.querySelectorAll('button')){
+        const selected=b.dataset.direction===current;
+        b.classList.toggle('active',selected);
+        b.setAttribute('aria-pressed',String(selected));
+      }
+    }
+    refreshComicIndexDirectionV1155();
+    comicIndexBodyV1155.appendChild(comicIndexBtnsV1155);
+    comicIndexCardV1155.append(comicIndexTitleV1155,comicIndexBodyV1155);
+    grids.basic.appendChild(comicIndexCardV1155);
+    // v1165: 레일의 작가↔그룹 분류 변경 화살표(↔) 표시 여부. 기본 감춤.
+    const swapCardV1165=document.createElement('div');
+    swapCardV1165.className='optCard';
+    const swapTitleV1165=document.createElement('div');
+    swapTitleV1165.className='optCardTitle';
+    swapTitleV1165.textContent='만화 작가↔그룹 변경 버튼';
+    const swapBodyV1165=document.createElement('div');
+    swapBodyV1165.className='optCardBody';
+    const swapButtonsV1165=document.createElement('div');
+    swapButtonsV1165.id='comicCreatorSwapOptionBoxV1165';
+    swapButtonsV1165.style.cssText='display:flex;flex-wrap:wrap;gap:4px;';
+    for(const [value,label] of [['hide','감추기'],['show','보이기']]){
+      const button=document.createElement('button');
+      button.type='button';button.className='zoomBtn comicCreatorSwapOptionBtnV1165';
+      button.dataset.visibility=value;
+      button.textContent=label;
+      button.title=value==='hide'?'작가·그룹 이름 옆 분류 변경(↔) 버튼 감추기 (기본값)':'작가·그룹 이름 옆 분류 변경(↔) 버튼 보이기';
+      button.addEventListener('click',()=>{
+        window.setComicCreatorSwapVisibleV1165?.(value==='show');
+        refreshSwapButtonsV1165();
+      });
+      swapButtonsV1165.appendChild(button);
+    }
+    function refreshSwapButtonsV1165(){
+      const current=window.getComicCreatorSwapVisibleV1165?.()===true?'show':'hide';
+      for(const button of swapButtonsV1165.querySelectorAll('button')){
+        const chosen=button.dataset.visibility===current;
+        button.classList.toggle('active',chosen);
+        button.setAttribute('aria-pressed',String(chosen));
+      }
+    }
+    refreshSwapButtonsV1165();
+    swapBodyV1165.appendChild(swapButtonsV1165);
+    swapCardV1165.append(swapTitleV1165,swapBodyV1165);
+    grids.basic.appendChild(swapCardV1165);
     // v1093: 작가/그룹 추출은 항상 행사 접두어 제외. 이 옵션은 화면 제목 표시만 제어.
     const metaWrapV1090=document.createElement('label');
     metaWrapV1090.style.cssText='display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;';
@@ -14125,10 +14269,10 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
         class="zoomBtn"
         type="button"
         title="최근 웹뷰어 수정내역 보기"
-        style="background:#4b5563;color:#fff;font-weight:700;">수정내역</button>
+        style="color:#fff;font-weight:700;">수정내역</button>
 <button id="viewerNoticeHistoryBtnV1078" class="zoomBtn" type="button"
         title="최근 50개 알림 다시보기 (최신순)"
-        style="background:#4b5563;color:#fff;font-weight:700;">알림기록</button>
+        style="color:#fff;font-weight:700;">알림기록</button>
 <button id="viewerUpdateHistoryBtnV1107" class="zoomBtn" type="button"
         title="최신 업데이트와 과거 안내 보기 (← / → 이동)"
         style="background:#365b85;color:#fff;font-weight:700;">업데이트</button>
@@ -15913,7 +16057,7 @@ const LB_PAGE_BADGE_POS_KEY = 'lb_page_badge_pos_v1';
 let __wtDisplayEditState = null;
 // ✅ 선택된 태그들 저장
 window.wtTagMultiSel  = window.wtTagMultiSel  || new Set();
-window.wtTagMultiMode = window.wtTagMultiMode || 'AND'; // 'AND' | 'OR'
+window.wtTagMultiMode = window.wtTagMultiMode || 'OR'; // 'AND' | 'OR' (v1163 default OR)
 window.wtMultiTokens  = window.wtMultiTokens  || [];    // ✅ 실제 필터 토큰들("[태그]" 형태)
 const WT_TAG_RATIO_KEY = 'wtTagRailTagsRatio';
 const WT_TAG_RAIL_WIDTH_KEY = 'wtTagRailWidth_px';
@@ -29571,7 +29715,7 @@ function renderWebtoonList() {
   // v1000: 같은 목록/검색어/정렬 조건이면 이전 결과 배열을 즉시 사용.
   let list = getComicListQueryV1000(fullList, term);
   // v1132: 폴더 선택 시 이미 저장된 ZIP/CBZ 작품만 추린다 (원본·저장 키 유지).
-  if(comicCreatorRailModeV1022==='folder'&&comicSelectedFirstFolderV1132)
+  if(comicCreatorRailModeV1022==='folder'&&comicSelectedFirstFoldersV1163.size)
     list=list.filter(item=>comicMatchesFirstFolderV1132(item.value));
   if(wtMissingOnlyV1092){
     list=list.filter(item=>window.ComicMissingV1092?.contains(item.value));
@@ -40761,15 +40905,34 @@ function getComicRailIndexV999() {
   const cmp = (a, b) => String(a).localeCompare(String(b), 'ko', {
     numeric: true, sensitivity: 'base'
   });
+  // v1164: 기존 한 번의 작가·그룹·태그 인덱싱 중 작품수도 함께 누적한다.
+  // 현재 폴더/최근/미보유 등 각 레일 버킷별 별도 카운트. ZIP 재스캔 없음.
   const makeBucket = () => ({
     tagSet: new Set(), authorSet: new Set(), groupSet: new Set(), ambiguous: new Set(),
+    countsV1164: {tags: new Map(), authors: new Map(), groups: new Map()},
+    uncategorizedV1164: 0,
     sortedV1077: null
   });
   const addToBucket = (bucket, parsed) => {
+    const counts = bucket.countsV1164;
+    const addOne = (map, key) => { map.set(key, (map.get(key) || 0) + 1); };
     if (parsed.ambiguous) bucket.ambiguous.add(comicCreatorNormV1022(parsed.ambiguous));
-    if (parsed.author) bucket.authorSet.add(comicCreatorNormV1022(parsed.author));
-    if (parsed.group) bucket.groupSet.add(comicCreatorNormV1022(parsed.group));
-    for (const tag of parsed.tags) if (tag) bucket.tagSet.add(tag);
+    if (parsed.author) {
+      const name = comicCreatorNormV1022(parsed.author);
+      bucket.authorSet.add(name);
+      addOne(counts.authors, name);
+    }
+    if (parsed.group) {
+      const name = comicCreatorNormV1022(parsed.group);
+      bucket.groupSet.add(name);
+      addOne(counts.groups, name);
+    }
+    if (!parsed.author && !parsed.group) bucket.uncategorizedV1164++;
+    // 작품에 같은 태그가 반복되어 있더라도 해당 작품은 그 태그에 1회만 계산한다.
+    for (const tag of new Set(parsed.tags || [])) if (tag) {
+      bucket.tagSet.add(tag);
+      addOne(counts.tags, tag);
+    }
   };
   const sorted = bucket => {
     if (bucket.sortedV1077) return bucket.sortedV1077;
@@ -40780,7 +40943,9 @@ function getComicRailIndexV999() {
       tags: order(bucket.tagSet, isFavTag),
       authors: order(bucket.authorSet, isFavAuthor),
       groups: order(bucket.groupSet, isFavComicGroupV1022),
-      ambiguous: bucket.ambiguous
+      ambiguous: bucket.ambiguous,
+      countsV1164: bucket.countsV1164,
+      uncategorizedV1164: bucket.uncategorizedV1164
     };
     return bucket.sortedV1077;
   };
@@ -40842,6 +41007,8 @@ function getComicRailIndexV999() {
     cache.authors = data.authors;
     cache.groups = data.groups;
     cache.ambiguous = data.ambiguous;
+    cache.countsV1164 = data.countsV1164;
+    cache.uncategorizedV1164 = data.uncategorizedV1164;
     cache.activeFolderV1077 = folderKey;
     cache.activeRecentKeysV1090=recentKeysV1090;
     cache.activeMissingVersionV1092=cache.missingVersionV1092;
@@ -40865,6 +41032,7 @@ function clearComicFolderRailSelectionsV1077() {
   if (window.wtTagMultiSel instanceof Set) window.wtTagMultiSel.clear();
   else window.wtTagMultiSel = new Set();
   window.wtMultiTokens = [];
+  comicSelectedFirstFoldersV1163.clear();
   for (const mode of ['author','group','tag','folder']) comicCreatorScrollByModeV1033[mode] = 0;
   comicRailCacheV999.saved = null;
 }
@@ -40963,7 +41131,24 @@ function buildRailCommonWidthRowV1054(modeBtn, isComic) {
 // v1132: 등록한 0차 폴더(rootId) 아래 1차 폴더만 분류한다.
 // ZIP/CBZ의 기존 value(폴더 ID/인코딩된 상대경로)만 사용하며 파일을 열거나 재스캔하지 않는다.
 const comicFirstFolderIndexV1132={entries:null,dirty:true,byRoot:new Map(),all:[]};
-let comicSelectedFirstFolderV1132='';
+// v1163: 폴더도 작가/그룹/태그처럼 체크박스 다중 선택. OR 기본값.
+const comicSelectedFirstFoldersV1163=new Set();
+let comicFolderMultiModeV1163='OR';
+const COMIC_FOLDER_FAV_KEY_V1163='comic_folder_favorites_v1163';
+let comicFolderFavKeysV1163=new Set();
+try{
+  const keys=JSON.parse(localStorage.getItem(COMIC_FOLDER_FAV_KEY_V1163)||'[]');
+  if(Array.isArray(keys))comicFolderFavKeysV1163=new Set(keys.filter(x=>typeof x==='string'));
+}catch(_){}
+function isFavComicFirstFolderV1163(key){return comicFolderFavKeysV1163.has(key);}
+function toggleFavComicFirstFolderV1163(key){
+  if(comicFolderFavKeysV1163.has(key))comicFolderFavKeysV1163.delete(key);
+  else comicFolderFavKeysV1163.add(key);
+  try{localStorage.setItem(COMIC_FOLDER_FAV_KEY_V1163,JSON.stringify([...comicFolderFavKeysV1163]));}catch(_){}
+  return comicFolderFavKeysV1163.has(key);
+}
+window.getComicFolderMultiFilterV1163=()=>({mode:comicFolderMultiModeV1163,selected:[...comicSelectedFirstFoldersV1163]});
+
 function comicGetFirstFolderInfoV1132(value){
   const m=/^zipcomic:@([^/]+)\/(.+)$/i.exec(String(value||''));
   if(!m)return null;
@@ -41013,18 +41198,26 @@ function getComicFirstFolderRowsV1132(){
   const m=/^zipcomic:@([^/]+)$/i.exec(String(wtGroupFilter||''));
   const rows=m?(idx.byRoot.get(m[1])||[]):
     (wtGroupFilter?[]:idx.all);
-  if(comicSelectedFirstFolderV1132 && !rows.some(x=>x.key===comicSelectedFirstFolderV1132))
-    comicSelectedFirstFolderV1132='';
+  if(comicSelectedFirstFoldersV1163.size){
+    const available=new Set(rows.map(x=>x.key));
+    for(const key of comicSelectedFirstFoldersV1163)if(!available.has(key))comicSelectedFirstFoldersV1163.delete(key);
+  }
   return rows;
 }
 function comicMatchesFirstFolderV1132(value){
-  if(comicCreatorRailModeV1022!=='folder'||!comicSelectedFirstFolderV1132)return true;
-  return comicGetFirstFolderInfoV1132(value)?.key===comicSelectedFirstFolderV1132;
+  if(comicCreatorRailModeV1022!=='folder'||!comicSelectedFirstFoldersV1163.size)return true;
+  const key=comicGetFirstFolderInfoV1132(value)?.key;
+  if(!key)return false;
+  // ZIP/CBZ 하나는 1차 폴더 하나에 속한다. 서로 다른 폴더 AND는 진짜 교집합(대개 0건).
+  return comicFolderMultiModeV1163==='OR'
+    ? comicSelectedFirstFoldersV1163.has(key)
+    : comicSelectedFirstFoldersV1163.size===1 && comicSelectedFirstFoldersV1163.has(key);
 }
 window.getComicFirstFolderStatsV1132=()=>({
   total:getComicFirstFolderIndexV1132().all.length,
   visible:getComicFirstFolderRowsV1132().length,
-  selected:comicSelectedFirstFolderV1132
+  selected:[...comicSelectedFirstFoldersV1163],
+  mode:comicFolderMultiModeV1163
 });
 
 const comicRailSearchByModeV1090={author:'',group:'',tag:'',folder:''};
@@ -41032,9 +41225,30 @@ const comicRailSectionByModeV1090={author:'all',group:'all',tag:'all',folder:'al
 // v1104: 작가·그룹·태그별로 대분류와 초성 선택을 독립 유지.
 // 기존 레일 인덱스/즐겨찾기/선택 상태는 변경하지 않고 보이는 배열만 필터링한다.
 const comicRailInitialByModeV1104={author:'all',group:'all',tag:'all',folder:'all'};
+// v1155: 기존 필터는 그대로 두고 문자 인덱스의 방향/배치만 선택한다.
+const COMIC_RAIL_INDEX_DIRECTION_KEY_V1155='comic_rail_index_direction_v1155';
+let comicRailIndexDirectionV1155='vertical';
+try { if(localStorage.getItem(COMIC_RAIL_INDEX_DIRECTION_KEY_V1155)==='horizontal') comicRailIndexDirectionV1155='horizontal'; } catch (_) {}
+window.getComicRailIndexDirectionV1155=()=>comicRailIndexDirectionV1155;
+window.setComicRailIndexDirectionV1155=(direction)=>{
+  const next=direction==='horizontal'?'horizontal':'vertical';
+  if(comicRailIndexDirectionV1155===next)return;
+  comicRailIndexDirectionV1155=next;
+  try{localStorage.setItem(COMIC_RAIL_INDEX_DIRECTION_KEY_V1155,next);}catch(_){}
+  // 영상 탭에 임시 보관한 이전 레일 DOM을 재사용하지 않게 한다. 대형 인덱스는 보존.
+  if(comicRailCacheV999.saved){disposeComicRailVirtualV1008();comicRailCacheV999.saved=null;}
+  // v999/v1052는 레일 DOM을 재사용하므로 방향 변경 시만 이 재사용을 한 번 우회한다.
+  const currentRailV1155=document.getElementById('wtTagRail');
+  if(currentRailV1155)delete currentRailV1155.dataset.comicRailRevisionV999;
+  if(typeof contentMode==='undefined'||contentMode==='comic'){
+    try{renderWtTagRail();}catch(err){console.warn('[v1155 rail orientation]',err);}
+  }
+};
 const COMIC_KO_INITIALS_V1104=['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const COMIC_HANGUL_CHOSEONG_V1104=['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const COMIC_LATIN_INITIALS_V1104=Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+// v1156: 숫자 대분류도 가로·세로에서 동일한 2차 인덱스를 사용한다.
+const COMIC_DIGIT_INITIALS_V1156=Array.from('0123456789');
 const COMIC_JP_INITIALS_V1104=['あ','か','さ','た','な','は','ま','や','ら','わ','漢字'];
 const COMIC_JP_KANA_ROWS_V1104={
   'あ':'ぁあぃいうぇえぉおゔ',
@@ -41066,6 +41280,10 @@ function getComicRailInitialV1104(name,category){
       'ᄎ':'ㅊ','ᄏ':'ㅋ','ᄐ':'ㅌ','ᄑ':'ㅍ','ᄒ':'ㅎ' };
     return jamo[normalized]|| (COMIC_KO_INITIALS_V1104.includes(normalized)?normalized:'');
   }
+  if(category==='digit'){
+    // 전각 숫자(０〜９)도 정규화하여 같은 번호로 검색한다.
+    return /^[0-9]$/u.test(normalized)?normalized:'';
+  }
   if(category==='latin'){
     const c=normalized.toUpperCase();return /^[A-Z]$/u.test(c)?c:'';
   }
@@ -41086,16 +41304,25 @@ let comicRailItemPartsCacheV1105=new WeakMap();
 window.addEventListener('webtoonlist:changed',()=>{comicRailItemPartsCacheV1105=new WeakMap();});
 function getComicRailLinkedFilterV1105(){
   const mode=comicCreatorRailModeV1022;
-  const section=mode==='folder'?'all':(comicRailSectionByModeV1090[mode]||'all');
-  const initial=['ko','latin','jp'].includes(section)?(comicRailInitialByModeV1104[mode]||'all'):'all';
+  const section=comicRailSectionByModeV1090[mode]||'all';
+  const initial=['ko','latin','jp','digit'].includes(section)?(comicRailInitialByModeV1104[mode]||'all'):'all';
   return {mode,section,initial,active:section!=='all'};
 }
 function getComicRailLinkedFilterKeyV1105(){
   const f=getComicRailLinkedFilterV1105();
-  return f.mode+'|'+f.section+'|'+f.initial+(f.mode==='folder'?'|'+comicSelectedFirstFolderV1132:'');
+  return f.mode+'|'+f.section+'|'+f.initial+(f.mode==='folder'?'|'+comicFolderMultiModeV1163+'|'+[...comicSelectedFirstFoldersV1163].sort().join(';'):'');
 }
 function comicRailEntryMatchesV1105(item,filter){
   if(!filter.active)return true;
+  if(filter.mode==='folder'){
+    const info=comicGetFirstFolderInfoV1132(item?.value);
+    if(!info)return false;
+    const name=info.first||'루트 직속';
+    if(filter.section==='fav')return isFavComicFirstFolderV1163(info.key);
+    if(filter.section==='misc')return info.direct;
+    return matchComicRailSectionV1090(name,filter.section,'folder') &&
+      (filter.initial==='all'||getComicRailInitialV1104(name,filter.section)===filter.initial);
+  }
   let rec=comicRailItemPartsCacheV1105.get(item);
   const display=String(item?.display||'');
   if(!rec||rec.display!==display){
@@ -41146,7 +41373,7 @@ function renderWtTagRail() {
   // 캐시 인덱스는 한 번만 구성하고, 탭은 결과 배열만 전환한다.
   const index = getComicRailIndexV999();
   window.wtTagMultiSel = window.wtTagMultiSel || new Set();
-  window.wtTagMultiMode = window.wtTagMultiMode || 'AND';
+  window.wtTagMultiMode = window.wtTagMultiMode || 'OR';
 
   disposeComicRailVirtualV1008();
   rail.replaceChildren();
@@ -41164,23 +41391,26 @@ function renderWtTagRail() {
 
   const modeBtn = document.createElement('button');
   modeBtn.type = 'button';
-  modeBtn.textContent = (window.wtTagMultiMode === 'OR') ? 'OR' : 'AND';
+  modeBtn.textContent = comicCreatorRailModeV1022==='folder'?comicFolderMultiModeV1163:window.wtTagMultiMode;
   modeBtn.title = '다중 필터 모드 전환 (AND/OR)';
   modeBtn.style.cssText = 'width:100%;border:0;background:transparent;color:#ddd;cursor:pointer;font-size:11px;line-height:14px;padding:4px 4px 4px;margin-top:6px;text-align:center;';
   modeBtn.addEventListener('click', e => {
     e.preventDefault(); e.stopPropagation();
-    // v1147: 폴더는 단일 폴더 선택 방식이므로 AND/OR 효과가 없다.
-    // 같은 UI는 표시하지만 다른 탭의 AND/OR 선택을 뜻하지 않게 유지한다.
-    if(comicCreatorRailModeV1022==='folder')return;
-    window.wtTagMultiMode = (window.wtTagMultiMode === 'OR') ? 'AND' : 'OR';
-    modeBtn.textContent = window.wtTagMultiMode;
-    applyWtMultiTagFilterNow();
+    if(comicCreatorRailModeV1022==='folder'){
+      comicFolderMultiModeV1163=comicFolderMultiModeV1163==='OR'?'AND':'OR';
+      modeBtn.textContent=comicFolderMultiModeV1163;
+      applyComicRailLinkedFilterV1105();
+    }else{
+      window.wtTagMultiMode=window.wtTagMultiMode==='OR'?'AND':'OR';
+      modeBtn.textContent=window.wtTagMultiMode;
+      applyWtMultiTagFilterNow();
+    }
   });
   // v1147: 폴더 탭에서도 다른 탭과 동일한 AND/OR + ◀▶ 공통 헤더를 재사용한다.
   const commonWidthRowV1132=buildRailCommonWidthRowV1054(modeBtn,true);
   rail.appendChild(commonWidthRowV1132);
 
-const makeRow = (key, label, title) => {
+const makeRow = (key, label, title, workCountV1164 = null) => {
   // ✅ label이 아니라 div로 만든다
   // label이면 checkbox 클릭과 label 클릭이 겹쳐서 두 번 토글될 수 있음
   const row = document.createElement('div');
@@ -41222,6 +41452,14 @@ const makeRow = (key, label, title) => {
 
   row.appendChild(cb);
   row.appendChild(txt);
+  if (Number.isSafeInteger(workCountV1164)) {
+    const badge = document.createElement('span');
+    badge.className = 'comicCreatorCountV1164';
+    badge.textContent = String(workCountV1164);
+    badge.title = `${label} · 등록 작품 ${workCountV1164}개`;
+    row.title = badge.title;
+    row.appendChild(badge);
+  }
 
   // ✅ 체크 상태를 한 곳에서만 반영
   const setMultiSelChecked = (on) => {
@@ -41321,6 +41559,11 @@ const selectOnlyThisFromText = (e) => {
   authHeader.style.cssText += ';display:flex;align-items:center;justify-content:stretch;gap:1px;padding-left:1px;padding-right:1px;min-width:0;';
   const authList = document.createElement('div');
   authList.className = 'wtRailList';
+  // v1155: 작가 목록 바로 왼쪽에 좁은 문자 인덱스를 놓는다.
+  // 목록 DOM/체크박스/가상 스크롤러는 기존 객체를 재사용한다.
+  const comicRailListFrameV1155=document.createElement('div');
+  comicRailListFrameV1155.className='comicRailListFrameV1155';
+  comicRailListFrameV1155.appendChild(authList);
   const railFilterWrapV1090=document.createElement('div');
   railFilterWrapV1090.className='comicRailFilterV1090';
   const railSearchV1090=document.createElement('input');
@@ -41330,7 +41573,7 @@ const selectOnlyThisFromText = (e) => {
   railSearchV1090.value=comicRailSearchByModeV1090[comicCreatorRailModeV1022]||'';
   const railSectionsV1090=document.createElement('div');railSectionsV1090.className='comicRailSectionsV1090';
   const railInitialsV1104=document.createElement('div');railInitialsV1104.className='comicRailInitialsV1104';
-  railInitialsV1104.setAttribute('aria-label','작가·그룹·태그 첫 글자 필터');
+  railInitialsV1104.setAttribute('aria-label','작가·그룹·태그·폴더 첫 글자 필터');
   // 좁은 레일에서는 초성 바 위의 마우스 휠로 오른쪽 문자까지 이동할 수 있게 한다.
   railInitialsV1104.addEventListener('wheel',e=>{
     if(e.ctrlKey||!e.deltaY||railInitialsV1104.scrollWidth<=railInitialsV1104.clientWidth)return;
@@ -41340,6 +41583,22 @@ const selectOnlyThisFromText = (e) => {
     if(next!==before){e.preventDefault();e.stopPropagation();railInitialsV1104.scrollLeft=next;}
   },{passive:false});
   railFilterWrapV1090.append(railSearchV1090,railSectionsV1090,railInitialsV1104);
+  function syncComicRailInitialLayoutV1155(mode){
+    const vertical=comicRailIndexDirectionV1155==='vertical';
+    comicRailListFrameV1155.dataset.indexLayoutV1155=vertical?'vertical':'horizontal';
+    railInitialsV1104.dataset.indexLayoutV1155=vertical?'vertical':'horizontal';
+    rail.dataset.comicInitialDirectionV1155=vertical?'vertical':'horizontal';
+    // DOM 하나를 부모만 이동: 클릭 처리와 현재 분류 상태를 그대로 사용한다.
+    if(vertical){
+      if(railInitialsV1104.parentElement!==comicRailListFrameV1155)
+        comicRailListFrameV1155.insertBefore(railInitialsV1104,authList);
+      railInitialsV1104.scrollLeft=0;
+    }else{
+      if(railInitialsV1104.parentElement!==railFilterWrapV1090)
+        railFilterWrapV1090.appendChild(railInitialsV1104);
+      railInitialsV1104.scrollTop=0;
+    }
+  }
   let railSearchTimerV1090=0;
   railSearchV1090.addEventListener('input',()=>{
     clearTimeout(railSearchTimerV1090);
@@ -41356,69 +41615,22 @@ const selectOnlyThisFromText = (e) => {
   const buttons = new Map();
   function renderCreatorListV1033(resetScrollV1090=false) {
     const mode = comicCreatorRailModeV1022;
+    syncComicRailInitialLayoutV1155(mode);
     for (const [type, btn] of buttons) {
       const active = mode === type;
       btn.style.background = active ? '#2263ae' : '#333';
       btn.style.color = active ? '#fff' : '#bfc5cf';
       btn.setAttribute('aria-pressed', String(active));
     }
-    // v1132: 폴더 모드에서는 실제 1차 폴더 이름만 나열한다.
-    // 체크박스/작가 초성 대신 클릭 가능한 폴더 목록, 160행 가상 스크롤을 재사용한다.
-    // 폴더에서도 공통 헤더 높이·배치를 보존한다. 폭 버튼은 모든 탭에서 동작한다.
-    // AND/OR는 폴더에 의미가 없으므로 표시만 하고 작가·태그의 필터 모드는 보존한다.
-    modeBtn.title=mode==='folder'?'폴더는 하나씩 선택합니다. AND/OR는 폴더에 적용되지 않습니다.':'다중 필터 모드 전환 (AND/OR)';
-    modeBtn.setAttribute('aria-disabled',String(mode==='folder'));
-    if(mode==='folder'){
-      railSectionsV1090.replaceChildren();
-      railInitialsV1104.replaceChildren();
-      railSectionsV1090.style.display='none';
-      railInitialsV1104.style.display='none';
-      railSearchV1090.placeholder='1차 폴더 검색';
-      if(railSearchV1090.value!==comicRailSearchByModeV1090.folder)
-        railSearchV1090.value=comicRailSearchByModeV1090.folder;
-      const allRows=getComicFirstFolderRowsV1132();
-      const search=(comicRailSearchByModeV1090.folder||'').trim().toLocaleLowerCase();
-      const groups=search?allRows.filter(g=>g.name.toLocaleLowerCase().includes(search)):allRows;
-      const countByName=new Map();
-      if(!wtGroupFilter)for(const g of allRows)countByName.set(g.name,(countByName.get(g.name)||0)+1);
-      if(resetScrollV1090)comicCreatorScrollByModeV1033.folder=0;
-      authList.replaceChildren();
-      initComicRailVirtualV1008('authors',authList,groups,g=>{
-        const row=document.createElement('button');
-        row.type='button';row.className='comicFirstFolderRowV1132';
-        const selected=comicSelectedFirstFolderV1132===g.key;
-        row.classList.toggle('active',selected);
-        row.setAttribute('aria-pressed',String(selected));
-        const roots=window.__comicZipRootNameMapV980;
-        const rootRecord=(typeof __comicFsRootRecordsCache!=='undefined'&&Array.isArray(__comicFsRootRecordsCache))
-          ? __comicFsRootRecordsCache.find(x=>String(x?.id)===g.rootId):null;
-        const rootLabel=roots?.get(g.rootId)||rootRecord?.name||g.rootId;
-        const disambiguate=!wtGroupFilter && (countByName.get(g.name)||0)>1;
-        const label=disambiguate?`${g.name} · ${rootLabel}`:g.name;
-        row.title=`${rootLabel} / ${g.name} · ZIP/CBZ ${g.count}개`;
-        const name=document.createElement('span');name.className='comicFirstFolderNameV1132';
-        name.textContent=label;
-        const count=document.createElement('span');count.className='comicFirstFolderCountV1132';
-        count.textContent=String(g.count);
-        row.append(name,count);
-        row.addEventListener('click',()=>{
-          comicCreatorScrollByModeV1033.folder=authList.scrollTop;
-          comicSelectedFirstFolderV1132=selected?'':g.key;
-          renderCreatorListV1033();
-          applyComicRailLinkedFilterV1105();
-        });
-        return row;
-      });
-      authList.scrollTop=comicCreatorScrollByModeV1033.folder||0;
-      rail.dataset.comicCreatorModeV1033=mode;
-      restoreComicRailVirtualV1008();
-      return;
-    }
+    // v1163: 폴더도 공통 대분류/초성/가상 스크롤 렌더링으로 통합한다.
+    modeBtn.textContent=mode==='folder'?comicFolderMultiModeV1163:window.wtTagMultiMode;
+    modeBtn.title='다중 선택 AND/OR 전환'+(mode==='folder'?' · 서로 다른 1차 폴더의 AND는 교집합이 없을 수 있음':'');
+    modeBtn.setAttribute('aria-disabled','false');
     railSectionsV1090.style.display='';
-    const baseItems = mode === 'tag' ? index.tags : mode === 'group' ? index.groups : index.authors;
+    const baseItems = mode==='folder'?getComicFirstFolderRowsV1132():mode === 'tag' ? index.tags : mode === 'group' ? index.groups : index.authors;
     const search=(comicRailSearchByModeV1090[mode]||'').trim().toLocaleLowerCase();
     const activeSection=comicRailSectionByModeV1090[mode]||'all';
-    railSearchV1090.placeholder=(mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
+    railSearchV1090.placeholder=(mode==='folder'?'1차 폴더':mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
     if(railSearchV1090.value!==comicRailSearchByModeV1090[mode])railSearchV1090.value=comicRailSearchByModeV1090[mode]||'';
     railSectionsV1090.replaceChildren();
     for(const [cat,label] of [['all','전체'],['fav','★'],['digit','숫자'],['symbol','기호'],['latin','A-Z'],['jp','일본어'],['ko','한글'],['misc','미분류']]){
@@ -41436,17 +41648,24 @@ const selectOnlyThisFromText = (e) => {
     }
     // v1104: 한글/영어/일본어 탭을 선택했을 때만 2차 분류를 노출.
     railInitialsV1104.replaceChildren();
-    const initialsV1104=activeSection==='ko'?COMIC_KO_INITIALS_V1104:
+    const initialsV1104=activeSection==='digit'?COMIC_DIGIT_INITIALS_V1156:
+      activeSection==='ko'?COMIC_KO_INITIALS_V1104:
       activeSection==='latin'?COMIC_LATIN_INITIALS_V1104:
       activeSection==='jp'?COMIC_JP_INITIALS_V1104:null;
+    // v1167: 초성 인덱스가 없는 분류(전체/즐겨찾기/기호/미분류)는
+    // 비어 있는 20px 영역을 숨겨 작가/그룹/태그/폴더 목록이 전폭을 사용한다.
+    railInitialsV1104.hidden=!initialsV1104;
     if(initialsV1104){
       railInitialsV1104.style.display='flex';
       for(const initial of ['전체',...initialsV1104]){
         const key=initial==='전체'?'all':initial;
         const btn=document.createElement('button');
-        btn.type='button';btn.className='comicRailInitialBtnV1104';btn.textContent=initial;
+        btn.type='button';btn.className='comicRailInitialBtnV1104';
+        const verticalV1155=comicRailIndexDirectionV1155==='vertical';
+        btn.textContent=verticalV1155?(initial==='전체'?'●':initial==='漢字'?'漢':initial):initial;
         btn.classList.toggle('active',(comicRailInitialByModeV1104[mode]||'all')===key);
-        btn.title=initial==='漢字'?'한자로 시작하는 이름 (읽는 법을 자동 판정하지 않음)':initial+' 시작 이름만 표시';
+        btn.title=initial==='전체'?'초성 필터 해제 · 전체 이름 표시':
+          initial==='漢字'?'한자로 시작하는 이름 (읽는 법을 자동 판정하지 않음)':initial+' 시작 이름만 표시';
         btn.setAttribute('aria-pressed',String((comicRailInitialByModeV1104[mode]||'all')===key));
         btn.addEventListener('click',e=>{
           e.preventDefault();e.stopPropagation();
@@ -41457,15 +41676,25 @@ const selectOnlyThisFromText = (e) => {
         railInitialsV1104.appendChild(btn);
       }
     }else{
+      // v1167: 인덱스가 필요 없는 분류에서는 영역 자체를 접는다.
+      // 글자 분류를 선택하면 hidden이 해제되고 기존 20px 세로바가 다시 나타난다.
       railInitialsV1104.style.display='none';
       comicRailInitialByModeV1104[mode]='all';
     }
     const initialFilterV1104=initialsV1104?(comicRailInitialByModeV1104[mode]||'all'):'all';
     let items=baseItems;
     if(activeSection!=='all'||search||initialFilterV1104!=='all'){
-      items=baseItems.filter(name=>{
+      items=baseItems.filter(entry=>{
+        const name=mode==='folder'?entry.name:entry;
         if(search&&!String(name).toLocaleLowerCase().includes(search))return false;
-        if(activeSection!=='all'&&!matchComicRailSectionV1090(name,activeSection,mode))return false;
+        if(activeSection!=='all'){
+          const categoryMatch=mode==='folder'
+            ? (activeSection==='fav'?isFavComicFirstFolderV1163(entry.key)
+              :activeSection==='misc'?entry.direct
+              :matchComicRailSectionV1090(name,activeSection,'folder'))
+            :matchComicRailSectionV1090(name,activeSection,mode);
+          if(!categoryMatch)return false;
+        }
         return initialFilterV1104==='all'||getComicRailInitialV1104(name,activeSection)===initialFilterV1104;
       });
       if(mode==='author' && activeSection==='misc' && (!search||'미분류'.includes(search)))
@@ -41476,15 +41705,62 @@ const selectOnlyThisFromText = (e) => {
     authList.replaceChildren();
     // 세 모드 모두 기존 가상 스크롤 렌더러 1개만 재사용한다.
     initComicRailVirtualV1008('authors', authList, items, name => {
+      if(mode==='folder'){
+        const g=name;
+        const row=document.createElement('div');
+        row.className='wtTagRailRow comicFirstFolderCheckRowV1163';
+        row.dataset.folderKey=g.key;
+        const checked=comicSelectedFirstFoldersV1163.has(g.key);
+        row.classList.toggle('active',checked);
+        const roots=window.__comicZipRootNameMapV980;
+        const rootRecord=(typeof __comicFsRootRecordsCache!=='undefined'&&Array.isArray(__comicFsRootRecordsCache))
+          ? __comicFsRootRecordsCache.find(x=>String(x?.id)===g.rootId):null;
+        const rootLabel=roots?.get(g.rootId)||rootRecord?.name||g.rootId;
+        row.title=`${rootLabel} / ${g.name} · ZIP/CBZ ${g.count}개`;
+        const cb=document.createElement('input');
+        cb.type='checkbox';cb.className='wtTagRailChk';cb.checked=checked;
+        cb.setAttribute('aria-label',g.name+' 폴더 다중 선택');
+        const txt=document.createElement('span');txt.className='wtTagRailTxt comicFirstFolderNameV1132';
+        txt.textContent=g.name;
+        const count=document.createElement('span');count.className='comicFirstFolderCountV1132';count.textContent=String(g.count);
+        row.classList.toggle('is-fav',isFavComicFirstFolderV1163(g.key));
+        row.append(cb,txt,count);
+        const applyFolderSelection=()=>{
+          comicCreatorScrollByModeV1033.folder=authList.scrollTop;
+          renderCreatorListV1033();
+          applyComicRailLinkedFilterV1105();
+        };
+        cb.addEventListener('click',e=>e.stopPropagation());
+        cb.addEventListener('change',e=>{
+          e.stopPropagation();
+          if(cb.checked)comicSelectedFirstFoldersV1163.add(g.key);
+          else comicSelectedFirstFoldersV1163.delete(g.key);
+          applyFolderSelection();
+        });
+        bindChipClickWithDbl(txt,{
+          onSingle:()=>{
+            const only= comicSelectedFirstFoldersV1163.size===1&&comicSelectedFirstFoldersV1163.has(g.key);
+            comicSelectedFirstFoldersV1163.clear();
+            if(!only)comicSelectedFirstFoldersV1163.add(g.key);
+            applyFolderSelection();
+          },
+          onDouble:()=>{toggleFavComicFirstFolderV1163(g.key);applyFolderSelection();}
+        });
+        return row;
+      }
       const isTag = mode === 'tag';
       const isGroup = mode === 'group';
       const key = isTag ? name : (isGroup ? 'group:' : 'author:') + name;
       const label = name==='__comic_uncategorized_v1090__' ? '미분류 작품' : (isTag ? name : (typeof toWtAuthorTitleCase === 'function' ? toWtAuthorTitleCase(name) : name));
-      const row = makeRow(key, label, label);
+      const countsV1164 = isTag ? index.countsV1164?.tags
+        : isGroup ? index.countsV1164?.groups : index.countsV1164?.authors;
+      const workCountV1164 = name==='__comic_uncategorized_v1090__'
+        ? index.uncategorizedV1164 : countsV1164?.get(name);
+      const row = makeRow(key, label, label, workCountV1164);
       // 모호한 [이름]을 작가↔그룹으로 바꿀 때만 교환 버튼 노출.
       if (!isTag && index.ambiguous.has(name)) {
         const btn = document.createElement('button');
-        btn.type = 'button'; btn.textContent = '↔';
+        btn.type = 'button'; btn.textContent = '↔'; btn.classList.add('comicCreatorSwapBtnV1165');
         btn.title = isGroup ? '이 이름만 그룹 → 작가로 변경 ([이름] 형식)' : '이 이름만 작가 → 그룹으로 변경 ([이름] 형식)';
         btn.style.cssText = 'border:0;background:transparent;color:#94bafa;padding:0 3px;cursor:pointer;font-size:13px;flex-shrink:0;';
         btn.addEventListener('click', e => {
@@ -41494,7 +41770,9 @@ const selectOnlyThisFromText = (e) => {
             setComicCreatorTypeV1022(name, target);
           }
         });
-        row.appendChild(btn);
+        const countBadgeV1164 = row.querySelector('.comicCreatorCountV1164');
+        if (countBadgeV1164) row.insertBefore(btn, countBadgeV1164);
+        else row.appendChild(btn);
       }
       return row;
     });
@@ -41512,7 +41790,6 @@ const selectOnlyThisFromText = (e) => {
       e.preventDefault(); e.stopPropagation();
       if (comicCreatorRailModeV1022 === type) return;
       comicCreatorScrollByModeV1033[comicCreatorRailModeV1022] = authList.scrollTop;
-      if(comicCreatorRailModeV1022==='folder' && type!=='folder')comicSelectedFirstFolderV1132='';
       comicCreatorRailModeV1022 = type;
       try { localStorage.setItem(COMIC_CREATOR_MODE_KEY_V1022, type); } catch (_) {}
       renderCreatorListV1033();
@@ -41524,7 +41801,7 @@ const selectOnlyThisFromText = (e) => {
   tabs.className = 'comicCreatorTabsV1033';
   tabs.append(...buttons.values());
   authHeader.append(tabs);
-  authSec.append(authHeader, railFilterWrapV1090, authList);
+  authSec.append(authHeader, railFilterWrapV1090, comicRailListFrameV1155);
   rail.appendChild(authSec);
   renderCreatorListV1033();
   restoreComicRailVirtualV1008();
@@ -116472,7 +116749,7 @@ const VideoTsFfmpegV1138=(()=>{
       const overlay=document.createElement('div');overlay.id='videoTsMp4ChoiceV1138';
       const big=size>maxInput;
       overlay.innerHTML=`<div class="videoTsMp4ChoicePanelV1138" role="dialog" aria-modal="true" aria-label="TS 변환 방식 선택">
-        <strong class="videoTsMp4ChoiceTitleV1138">TS → MP4 · 변환 방식 선택 (빌드 1152)</strong>
+        <strong class="videoTsMp4ChoiceTitleV1138">TS → MP4 · 변환 방식 선택 (빌드 1159)</strong>
         <p>원본은 그대로 유지 · ${size?('원본 '+convertSize(size)):'원본 용량 확인 전'} · 출력은 일반 MP4 1개</p>
         <button type="button" data-kind="native"><b>① PC FFmpeg 변환 (대용량 추천)</b><small>메모리 제한이 거의 없으며 영상·음성 손실 없이 복사 우선. CMD 다운로드 후 TS 파일을 끌어다 놓습니다. 별도의 FFmpeg.exe가 필요합니다.</small></button>
         <button type="button" data-kind="wasm" ${big?'disabled':''}><b>② 브라우저 FFmpeg.wasm 변환${big?' (용량 초과)':''}</b><small>180 MB 이하 시험용. 약 31 MB 변환 엔진 인터넷 로딩, 소형 TS 직접 MP4 저장. 메모리·보안 제한으로 일부 PC에서는 실행되지 않을 수 있습니다.</small></button>
@@ -116634,7 +116911,7 @@ function getVideoTsMp4DialogV1134() {
   layer.id='videoTsMp4DialogV1134';
   layer.innerHTML=`
     <section class="videoTsMp4PanelV1134" role="dialog" aria-modal="true" aria-labelledby="videoTsMp4TitleV1134">
-      <div class="videoTsMp4HeadV1134"><strong id="videoTsMp4TitleV1134">TS / MKV → MP4 변환 (1152)</strong><button type="button" class="zoomBtn" data-tsmp4-close>닫기</button></div>
+      <div class="videoTsMp4HeadV1134"><strong id="videoTsMp4TitleV1134">TS / MKV → MP4 변환 (1153)</strong><button type="button" class="zoomBtn" data-tsmp4-close>닫기</button></div>
       <div class="videoTsMp4FileV1134" data-tsmp4-filename></div>
       <div class="videoTsMp4InfoV1134">원본 TS/MKV는 보존하고 별도의 <b>일반 MP4</b>를 만듭니다.<br><b>무손실 복사 우선</b> · 필요하면 재인코딩을 먼저 확인합니다.<br>인터넷 연결이 필요하며 AVI 입력은 현재 정식 엔진에서 지원되지 않습니다.</div>
       <div class="videoTsMp4TrackV1134"><div data-tsmp4-progress></div></div>
@@ -125286,7 +125563,7 @@ function syncVideoToolbarFoldUI() {
 
     // v430: 영상탭에서만 하단 설명문 제거. 만화탭에서는 기존대로 표시.
     const wtHint = document.getElementById('wtHint');
-    if (wtHint) wtHint.style.display = (isVideo || musicTabActiveV968) ? 'none' : 'inline';
+    if (wtHint) wtHint.style.display = (isVideo || musicTabActiveV968) ? 'none' : 'inline-block';
 
     // 전체화면 상태에서 만화/영상 전환 시 클린 UI 동기화
     try {
@@ -137190,12 +137467,19 @@ img.decoding = 'async';
     if(top>0){el.scrollTop=top; requestAnimationFrame(()=>{if(el.isConnected)el.scrollTop=top;});}
   }
   function chooseVideoRailMainTabV1052(tab){
-    if(!['actor','tag','menu'].includes(tab))return;
+    // v1158: M/S are directly clickable top-level tabs. Keep the existing
+    // persisted "menu" + "M/S" values and legacy menu/style functions intact.
+    if(!['actor','tag','menu','menuM','menuS'].includes(tab))return;
     saveVideoRailScrollV1052();
-    try{localStorage.setItem(VIDEO_MAIN_TAB_KEY_V1052,tab);}catch(_){}
-    if(tab==='actor')setVideoRailMenuV956(false);
-    else if(tab==='menu'){
-      if(getVideoRailSubTabV1052()==='S')setVideoRailStyleV959();
+    const mainTab=(tab==='menuM'||tab==='menuS')?'menu':tab;
+    const subTab=tab==='menuM'?'M':tab==='menuS'?'S':getVideoRailSubTabV1052();
+    try{
+      localStorage.setItem(VIDEO_MAIN_TAB_KEY_V1052,mainTab);
+      if(mainTab==='menu')localStorage.setItem(VIDEO_SUB_TAB_KEY_V1052,subTab);
+    }catch(_){}
+    if(mainTab==='actor')setVideoRailMenuV956(false);
+    else if(mainTab==='menu'){
+      if(subTab==='S')setVideoRailStyleV959();
       else setVideoRailMenuV956(true);
     }
     renderWtTagRail();
@@ -137273,14 +137557,25 @@ img.decoding = 'async';
   const topTabsV1052=document.createElement('div');
   topTabsV1052.className='videoMainTabsV1052';
   topTabsV1052.setAttribute('role','tablist');
-  for(const [tab,label] of [['actor','배우'],['tag','태그'],['menu','메뉴']]){
+  // v1158: 상단에서 배우·태그·M·S를 바로 선택한다. 2단계 메뉴를 표시하지 않는다.
+  for(const [tab,label,title] of [
+    ['actor','배우','배우 레일'],
+    ['tag','태그','태그 레일'],
+    ['menuM','M','기능 메뉴'],
+    ['menuS','S','스타일 설정']
+  ]){
+    const active=tab==='menuM'
+      ? selectedVideoMainTabV1052==='menu' && getVideoRailSubTabV1052()==='M'
+      : tab==='menuS'
+        ? selectedVideoMainTabV1052==='menu' && getVideoRailSubTabV1052()==='S'
+        : selectedVideoMainTabV1052===tab;
     const button=document.createElement('button');button.type='button';
     button.className='videoMainTabV1052';button.textContent=label;
-    button.setAttribute('role','tab');button.setAttribute('aria-selected',String(selectedVideoMainTabV1052===tab));
-    button.classList.toggle('active',selectedVideoMainTabV1052===tab);
-    button.title=label+' 레일 전체 보기';
+    button.setAttribute('role','tab');button.setAttribute('aria-selected',String(active));
+    button.classList.toggle('active',active);
+    button.title=title+' 바로 열기';
     button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();
-      if(getVideoRailMainTabV1052()!==tab)chooseVideoRailMainTabV1052(tab);
+      if(!active)chooseVideoRailMainTabV1052(tab);
     });
     topTabsV1052.appendChild(button);
   }
@@ -137506,26 +137801,7 @@ img.decoding = 'async';
     actressLangHeader.appendChild(btn);
   });
 
-  // v1052: M/S는 메뉴 탭 내부에서만 표시한다. 배우 탭은 한/영/일만 보인다.
-  if(selectedVideoMainTabV1052==='menu'){
-    actressLangHeader.classList.add('videoRailSubTabsV1052');
-    for(const [mode,label,title] of [['M','M','기능 메뉴'],['S','S','스타일 설정']]){
-      const button=document.createElement('button');button.type='button';
-      button.className='videoActressRailLangBtn';button.textContent=label;
-      button.title=title;const active=(mode==='S'?styleModeV959:menuModeV956);
-      button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
-      button.addEventListener('click',e=>{
-        e.preventDefault();e.stopPropagation();
-        if(getVideoRailSubTabV1052()===mode)return;
-        saveVideoRailScrollV1052();
-        try{localStorage.setItem(VIDEO_SUB_TAB_KEY_V1052,mode);}catch(_){}
-        if(mode==='S'){setVideoRailStyleV959();videoRailStyleScrollV959=0;}
-        else setVideoRailMenuV956(true);
-        renderWtTagRail();
-      });
-      actressLangHeader.appendChild(button);
-    }
-  }
+  // v1158: 메뉴 화면의 M/S 내부 버튼 제거 — 상단 네 탭으로 바로 전환.
 
   // 레일 전체 재렌더 때 이전 자동공유 배지 감시자를 정리한다.
   try { videoRailAutoShareBadgeObserverV956?.disconnect(); } catch (_) {}
@@ -137546,7 +137822,7 @@ img.decoding = 'async';
       stylePanelV959.style.display = 'block';
       styleListV959.appendChild(stylePanelV959);
     }
-    actressSec.append(actressLangHeader, styleListV959);
+    actressSec.append(styleListV959);
     rail.appendChild(actressSec);
     styleListV959.scrollTop = videoRailStyleScrollV959;
     restoreVideoRailScrollV1052('menu',styleListV959);
@@ -137640,7 +137916,7 @@ img.decoding = 'async';
         button.title = original?.title || label;
       }
     }
-    actressSec.append(actressLangHeader, menuListV956);
+    actressSec.append(menuListV956);
     rail.appendChild(actressSec);
 
     syncAuxButtonsV957();
@@ -161462,7 +161738,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1152;
+  const VIEWER_BUILD_V789 = 1169;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -162918,28 +163194,103 @@ try {
     if (typeof RTCPeerConnection !== 'function') {
       throw new Error('이 브라우저는 WebRTC P2P를 지원하지 않습니다.');
     }
-    return new RTCPeerConnection({
+    const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' }
-      ]
+      ],
+      // v1153: WebRTC 브라우저의 후보 사전 수집. 이 값은 TURN을 활성화하지 않는다.
+      iceCandidatePoolSize: 2
     });
+    // v1153: IP/포트는 기록하지 않고 후보 유형과 STUN 오류 코드만 추적한다.
+    pc.__viewerIceDiagnosticV1153 = { errors: [], gather: 'not-started', pair: '' };
+    pc.addEventListener('icecandidateerror', event => {
+      const d = pc.__viewerIceDiagnosticV1153;
+      if (!d || d.errors.length >= 5) return;
+      const code = Number(event.errorCode) || 0;
+      if (code) d.errors.push(String(code));
+    });
+    pc.addEventListener('connectionstatechange', () => {
+      if (pc.connectionState !== 'connected') return;
+      void autoP2PReadSelectedPairV1153(pc).then(pair => {
+        if (pc.__viewerIceDiagnosticV1153 && pair) pc.__viewerIceDiagnosticV1153.pair = pair;
+      });
+    });
+    return pc;
   }
 
-  function autoP2PWaitIceCompleteV940(pc, timeoutMs = 12000) {
-    if (!pc || pc.iceGatheringState === 'complete') return Promise.resolve();
+  // v1153: 피어 연결을 확인할 때 원격 IP 주소가 아닌 실제 후보 유형만 저장한다.
+  async function autoP2PReadSelectedPairV1153(pc) {
+    if (!pc || typeof pc.getStats !== 'function') return '';
+    try {
+      const report = await pc.getStats();
+      let pair = null;
+      for (const row of report.values()) {
+        if (row.type === 'transport' && row.selectedCandidatePairId) {
+          pair = report.get(row.selectedCandidatePairId);
+          if (pair) break;
+        }
+      }
+      if (!pair) for (const row of report.values()) {
+        if (row.type === 'candidate-pair' && (row.selected || (row.nominated && row.state === 'succeeded'))) {
+          pair = row; break;
+        }
+      }
+      if (!pair) return '';
+      const local = report.get(pair.localCandidateId);
+      const remote = report.get(pair.remoteCandidateId);
+      return `${local?.candidateType || '?'}↔${remote?.candidateType || '?'}`;
+    } catch (_) { return ''; }
+  }
+
+  function autoP2PCandidateTypesV1153(description) {
+    const sdp = String(description?.sdp || '');
+    const types = new Set();
+    const re = /^a=candidate:.*?\btyp\s+(host|srflx|prflx|relay)\b/gm;
+    for (const m of sdp.matchAll(re)) types.add(m[1]);
+    return [...types].sort().join(',') || '없음';
+  }
+
+  function autoP2PDiagnosticsSummaryV1153(pc) {
+    if (!pc) return 'RTCPeerConnection 없음';
+    const d = pc.__viewerIceDiagnosticV1153 || {};
+    return [
+      `ICE=${pc.iceConnectionState || '?'}`,
+      `연결=${pc.connectionState || '?'}`,
+      `후보수집=${pc.iceGatheringState || '?'}(${d.gather || '?'})`,
+      `로컬후보=${autoP2PCandidateTypesV1153(pc.localDescription)}`,
+      `원격후보=${autoP2PCandidateTypesV1153(pc.remoteDescription)}`,
+      d.pair ? `선택경로=${d.pair}` : '선택경로=미확인',
+      d.errors?.length ? `STUN오류코드=${d.errors.join(',')}` : 'STUN오류코드=없음'
+    ].join(' · ');
+  }
+
+  // v1153: 현 Worker는 trickle-candidate 메시지를 지원한다고 확인되지 않았다.
+  // 기존 완성 SDP 교환을 유지하면서 12초 제한 때문에 srflx가 빠지는 경우를 줄인다.
+  function autoP2PWaitIceCompleteV940(pc, timeoutMs = 30000) {
+    if (!pc) return Promise.resolve();
+    const d = pc.__viewerIceDiagnosticV1153;
+    if (pc.iceGatheringState === 'complete') {
+      if (d) d.gather = 'complete';
+      return Promise.resolve();
+    }
     return new Promise(resolve => {
       let done = false;
-      const finish = () => {
+      const finish = (reason) => {
         if (done) return;
         done = true;
+        if (d) d.gather = reason;
         clearTimeout(timer);
         try { pc.removeEventListener('icegatheringstatechange', check); } catch (_) {}
         resolve();
       };
-      const check = () => { if (pc.iceGatheringState === 'complete') finish(); };
-      const timer = setTimeout(finish, timeoutMs);
+      const check = () => {
+        if (pc.iceGatheringState === 'complete') finish('complete');
+        else if (pc.signalingState === 'closed') finish('closed');
+      };
+      const timer = setTimeout(() => finish('timeout'), timeoutMs);
       pc.addEventListener('icegatheringstatechange', check);
+      check();
     });
   }
 
@@ -163654,6 +164005,7 @@ try {
     url.pathname = url.pathname.replace(/\/+$/, '') + '/ws';
     url.search = '';
     url.searchParams.set('clientId', getClientId());
+    url.searchParams.set('trickleV1154', '1');
     return url.toString();
   }
 
@@ -163800,6 +164152,59 @@ try {
     }
   }
 
+  const pendingRemoteIceV1154 = new Map();
+  function holdRemoteIceV1154(msg) {
+    if (msg.side !== 'send' || !msg.candidate?.candidate) return;
+    const key = String(msg.requestId || '') + ':' + String(msg.iceSessionIdV1154 || '');
+    let list = pendingRemoteIceV1154.get(key) || [];
+    if (!list.some(x => x.candidate === msg.candidate.candidate)) list.push(msg.candidate);
+    if (list.length > 48) list = list.slice(-48);
+    pendingRemoteIceV1154.set(key, list);
+    if (pendingRemoteIceV1154.size > 24) pendingRemoteIceV1154.delete(pendingRemoteIceV1154.keys().next().value);
+  }
+  // v1154: send candidates as they are found. Queue until offer/answer is sent.
+  function bindTrickleIceV1154(session) {
+    if (!session?.trickleV1154) return;
+    session.localIceV1154 = [];
+    session.remoteIceV1154 = [];
+    session.sentIceV1154 = false;
+    session.remoteIceSeenV1154 = new Set();
+    session.pc.addEventListener('icecandidate', event => {
+      if (!event.candidate || state.autoSession !== session || session.cancelled) return;
+      const candidate = event.candidate.toJSON();
+      if (!session.sentIceV1154) { session.localIceV1154.push(candidate); return; }
+      sendWs({ type: 'ice_candidate_v1154', requestId: session.autoRequestId,
+        iceSessionIdV1154: session.iceSessionIdV1154, side: session.mode === 'send' ? 'send' : 'receive', candidate });
+    });
+  }
+  function flushTrickleIceV1154(session) {
+    if (!session?.trickleV1154 || session.sentIceV1154) return;
+    session.sentIceV1154 = true;
+    for (const candidate of session.localIceV1154.splice(0)) {
+      sendWs({ type: 'ice_candidate_v1154', requestId: session.autoRequestId,
+        iceSessionIdV1154: session.iceSessionIdV1154,
+        side: session.mode === 'send' ? 'send' : 'receive', candidate });
+    }
+  }
+  async function applyRemoteIceV1154(session, candidate) {
+    if (!session?.trickleV1154 || !candidate?.candidate || session.cancelled) return;
+    if (session.remoteIceSeenV1154.has(candidate.candidate)) return;
+    session.remoteIceSeenV1154.add(candidate.candidate);
+    if (!session.pc.remoteDescription) {
+      session.remoteIceV1154.push(candidate);
+      return;
+    }
+    try { await session.pc.addIceCandidate(candidate); }
+    catch (err) { console.warn('[v1154 ICE candidate]', String(err?.name || err)); }
+  }
+  async function flushRemoteIceV1154(session) {
+    if (!session?.trickleV1154 || !session.pc.remoteDescription) return;
+    for (const candidate of (session.remoteIceV1154 || []).splice(0)) {
+      try { await session.pc.addIceCandidate(candidate); }
+      catch (err) { console.warn('[v1154 ICE queued]', String(err?.name || err)); }
+    }
+  }
+
   function reportP2PFailureV1117(requestId, reason = 'connection_lost') {
     if (!requestId) return;
     state.failedP2PV1117.set(requestId, reason);
@@ -163808,11 +164213,16 @@ try {
       role:failedSession?.mode||(state.requests.get(requestId)?.mine?'receive':'send'),
       requestId,reason,stage:'P2P 연결/전송',session:failedSession,
       fileName:failedSession?.file?.name||failedSession?.receiveFileNameV951||'',
+      detail:autoP2PDiagnosticsSummaryV1153(failedSession?.pc),
       bytes:failedSession?.sentBytes||failedSession?.received||0
     });
     sendWs({ type: 'transfer_failure', requestId, reason });
     renderLists();
   }
+
+  // 개발자 도구에서 viewerAutoP2PDiagnosticsV1153()로 현재 연결 상태를 확인할 수 있다.
+  window.viewerAutoP2PDiagnosticsV1153 = () =>
+    autoP2PDiagnosticsSummaryV1153(state.autoSession?.pc);
 
   function monitorP2PConnectionV1117(session, pc) {
     let failureTimer = 0;
@@ -163871,11 +164281,15 @@ try {
       // 먼저 받은 나의 개인 offer_available 정보는 공용 통지로 덮어쓰지 않는다.
       if (!request.file && old.file) merged.file = old.file;
       if (!request.offer && old.offer) merged.offer = old.offer;
+      if (!request.iceSessionIdV1154 && old.iceSessionIdV1154) merged.iceSessionIdV1154 = old.iceSessionIdV1154;
+      if (!request.iceCandidatesV1154 && old.iceCandidatesV1154) merged.iceCandidatesV1154 = old.iceCandidatesV1154;
     }
     if (['waiting', 'claimed'].includes(nextStatusV1123)) {
       // 구 연결정보가 새 시도에 남지 않도록 대기/선점 단계에서는 명시적으로 제거.
       merged.offer = null;
       merged.file = null;
+      merged.iceSessionIdV1154 = null;
+      merged.iceCandidatesV1154 = null;
       state.autoReceiveOfferLookupV1123.delete(String(request.id));
     }
 
@@ -165900,6 +166314,8 @@ try {
         mode: 'receive',
         autoMode: true,
         autoRequestId: requestId,
+        trickleV1154: !!(state.workerTrickleV1154 && latest.iceSessionIdV1154),
+        iceSessionIdV1154: latest.iceSessionIdV1154 || null,
         pc,
         channel: null,
         writable,
@@ -165918,6 +166334,7 @@ try {
         done: false,
       };
       state.autoSession = session;
+      bindTrickleIceV1154(session);
       monitorP2PConnectionV1117(session, pc);
 
       pc.addEventListener('connectionstatechange', () => {
@@ -166127,9 +166544,16 @@ try {
       );
 
       await pc.setRemoteDescription(latest.offer);
+      if (session.trickleV1154) {
+        for (const candidate of (latest.iceCandidatesV1154?.send || [])) await applyRemoteIceV1154(session, candidate);
+        const key = requestId + ':' + session.iceSessionIdV1154;
+        for (const candidate of (pendingRemoteIceV1154.get(key) || [])) await applyRemoteIceV1154(session, candidate);
+        pendingRemoteIceV1154.delete(key);
+        await flushRemoteIceV1154(session);
+      }
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
-      await autoP2PWaitIceCompleteV940(pc);
+      if (!session.trickleV1154) await autoP2PWaitIceCompleteV940(pc);
 
       session.startP2PDeadlineV1117?.();
       if (!sendWs({
@@ -166139,6 +166563,7 @@ try {
       })) {
         throw new Error('Cloudflare signaling 연결이 끊어졌습니다.');
       }
+      flushTrickleIceV1154(session);
 
       setTransferStatus(
         '수신 응답 전달 완료 · 공유자와 연결 중…',
@@ -166349,6 +166774,7 @@ try {
       case 'snapshot': {
         state.serverOnDemandV1117 = msg?.features?.onDemandOfferV1117 === true;
         state.workerBulkPublicationsV1125 = msg?.features?.bulkPublicationsV1125 === true;
+        state.workerTrickleV1154 = msg?.features?.trickleIceV1154 === true;
         // 구형 Worker에는 features가 없으므로, 신규 상태 보고를 전송하지 않는다.
         state.workerShareAvailabilityV1116 = msg?.features?.shareAvailabilityV1116 === true;
         state.requests.clear();
@@ -166571,7 +166997,8 @@ try {
             scheduleAutoSendScanV1115(500);
           } else {
             if (pending.automatic) state.autoSendPreparingV1115 = true;
-            void prepareProvider(requestId, pending.entry, pending.handle, { automatic: !!pending.automatic })
+            void prepareProvider(requestId, pending.entry, pending.handle, { automatic: !!pending.automatic,
+              trickleV1154: !!(msg.trickleIceV1154 && state.workerTrickleV1154) })
               .finally(() => {
                 if (pending.automatic) {
                   state.autoSendPreparingV1115 = false;
@@ -166623,6 +167050,17 @@ try {
       case 'answer':
         void applyProviderAnswer(msg);
         break;
+      case 'ice_candidate_v1154': {
+        const session = state.autoSession;
+        if (session?.trickleV1154 && session.autoRequestId === String(msg.requestId || '') &&
+            session.iceSessionIdV1154 === msg.iceSessionIdV1154 &&
+            msg.side === (session.mode === 'send' ? 'receive' : 'send')) {
+          void applyRemoteIceV1154(session, msg.candidate);
+        } else {
+          holdRemoteIceV1154(msg);
+        }
+        break;
+      }
 
       case 'publications_batch_created':
         for(const pub of msg.publications||[])upsertPublicationV946({...pub,mine:true});
@@ -166878,7 +167316,7 @@ try {
     }
   }
 
-  async function prepareProvider(requestId, entry, preparedHandle = null, { automatic = false } = {}) {
+  async function prepareProvider(requestId, entry, preparedHandle = null, { automatic = false, trickleV1154 = false } = {}) {
     await stopAutoSession('새 자동공유 준비');
     setAutoTransferModeV941('send');
 
@@ -166907,6 +167345,8 @@ try {
         autoMode: true,
         autoRequestId: requestId,
         registeredAutoSendV1115: automatic,
+        trickleV1154: !!trickleV1154,
+        iceSessionIdV1154: trickleV1154 ? crypto.randomUUID() : null,
         pc,
         channel,
         file,
@@ -166919,6 +167359,7 @@ try {
       };
 
       state.autoSession = session;
+      bindTrickleIceV1154(session);
       monitorP2PConnectionV1117(session, pc);
 
       pc.addEventListener('connectionstatechange', () => {
@@ -166976,10 +167417,12 @@ try {
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      await autoP2PWaitIceCompleteV940(pc);
+      if (!session.trickleV1154) await autoP2PWaitIceCompleteV940(pc);
 
       if (!sendWs({
         type: 'offer',
+        trickleIceV1154: !!session.trickleV1154,
+        iceSessionIdV1154: session.iceSessionIdV1154,
         requestId,
         sdp: pc.localDescription,
         file: {
@@ -166991,6 +167434,7 @@ try {
       })) {
         throw new Error('Cloudflare signaling 연결이 끊어졌습니다.');
       }
+      flushTrickleIceV1154(session);
 
       // 자동 공유등록은 상대 브라우저가 꺼져 있어도 요청을 선점할 수 있다.
       // 무한정 한 슬롯을 점유하지 않게 수신자 부재 시 서버에 요청을 반납한다.
@@ -167041,6 +167485,10 @@ try {
         session.autoSendOfferTimerV1115 = 0;
       }
       await session.pc.setRemoteDescription(msg.sdp);
+      if (session.trickleV1154) {
+        for (const c of (msg.receiveCandidatesV1154 || [])) await applyRemoteIceV1154(session, c);
+        await flushRemoteIceV1154(session);
+      }
       session.startP2PDeadlineV1117?.();
       setTransferStatus(
         '수신자 응답 적용 완료 · P2P 연결 중…',
@@ -168423,6 +168871,45 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #comicZipLightboxV984 .zipFileNavV1005 button{white-space:nowrap;max-width:none;padding:5px 8px;background:#273c59;border-color:#758dac;}
 #comicZipLightboxV984 .zipFileNavV1005 button:disabled{opacity:.35;cursor:not-allowed;background:#272d36;}
 @media(max-width:690px){#comicZipLightboxV984 .zipFileNavV1005{gap:3px;}#comicZipLightboxV984 .zipFileNavV1005 button{font-size:11px;padding:4px 5px;}}
+</style>
+
+
+<style id="comicVerticalIndexV1155">
+/* v1157: 세로 문자/숫자 인덱스 20px. 레일과 배경을 통일하고 우측 경계선 제거. */
+#wtTagRail.comicUnifiedRailV1033 .comicRailListFrameV1155{
+  display:flex;align-items:stretch;flex:1 1 auto;min-height:0;min-width:0;width:100%;overflow:hidden;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicRailListFrameV1155 > .wtRailList{
+  min-width:0;flex:1 1 auto;box-sizing:border-box;
+}
+#wtTagRail.comicUnifiedRailV1033 .comicRailListFrameV1155[data-index-layout-v1155="vertical"] > .comicRailInitialsV1104{
+  display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+  box-sizing:border-box;flex:0 0 20px;width:20px;min-width:20px;max-width:20px;
+  min-height:0;max-height:none;gap:1px;padding:0;margin:0;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-width:none;
+  border-right:0;background:transparent;touch-action:pan-y;
+}
+/* v1167: 세로 초성 버튼이 없으면 폭을 통째로 돌려준다 (인접 체크박스 자동 왼쪽 이동). */
+#wtTagRail.comicUnifiedRailV1033 .comicRailListFrameV1155 > .comicRailInitialsV1104[hidden]{
+  display:none!important;
+}
+#wtTagRail .comicRailListFrameV1155[data-index-layout-v1155="vertical"] > .comicRailInitialsV1104::-webkit-scrollbar{display:none;}
+#wtTagRail .comicRailListFrameV1155[data-index-layout-v1155="vertical"] > .comicRailInitialsV1104 > .comicRailInitialBtnV1104{
+  display:block;flex:0 0 20px;box-sizing:border-box;width:19px;min-width:19px;max-width:19px;height:20px;
+  margin:0;padding:0;border:0;border-radius:1px;
+  font:11px/20px system-ui,sans-serif;letter-spacing:0;text-align:center;
+  background:transparent;color:#b7cbe2;cursor:pointer;user-select:none;
+}
+#wtTagRail .comicRailListFrameV1155[data-index-layout-v1155="vertical"] > .comicRailInitialsV1104 > .comicRailInitialBtnV1104.active{
+  background:#2364aa;color:#fff;font-weight:700;
+}
+#wtTagRail .comicRailListFrameV1155[data-index-layout-v1155="vertical"] > .comicRailInitialsV1104 > .comicRailInitialBtnV1104:hover{
+  background:#3d5777;color:#fff;
+}
+#comicRailIndexDirectionBoxV1155{display:inline-flex;align-items:center;gap:5px;}
+#comicRailIndexDirectionBoxV1155 .comicRailIndexDirectionBtnV1155.active{
+  background:#2364aa!important;color:#fff!important;border-color:#82b6ed!important;
+}
 </style>
 
 <style id="comicUiV1090">
@@ -173191,6 +173678,460 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
   },true);
   // 메뉴 전환 또는 문서 외부에서 화면을 바꾸더라도 숨겨진 S 패널이 남지 않게 한다.
   window.addEventListener('pagehide',()=>{if(floating)restoreStylePanel();});
+})();
+</script>
+
+<!-- v1159: 공통 버튼 배경 설정; 레일과 기존 개별색은 제외 -->
+
+<!-- v1160: 1159 공통 버튼 팔레트를 상단 선택상자 및 검색창으로 확장 (레일/전용색 예외 유지) -->
+<style id="viewerCommonFormPaletteStyleV1160">
+/* The same color CSS vars as the v1159 palette; no new option or storage key. */
+html :is(#wtBox .wt-actions, #muBox .mu-head) select.zoomBtn:not([style*="background"]):not(.active):not(.selected),
+html :is(#wtBox .wt-actions, #muBox .mu-head) input.zoomBtn:is([type="text"],[type="search"]):not([style*="background"]):not(.active):not(.selected) {
+  background-color:var(--viewer-common-button-bg-v1159,#444444) !important;
+  color:var(--viewer-common-font-color-v1162,var(--viewer-common-button-fg-v1159,#ffffff)) !important;
+  caret-color:var(--viewer-common-font-color-v1162,var(--viewer-common-button-fg-v1159,#ffffff));
+  color-scheme:dark; /* browser-native select picker must be dark even when closed select is transparent */
+}
+/* Hint text legible on vivid, pastel and transparent backgrounds. */
+html :is(#wtBox .wt-actions, #muBox .mu-head) input.zoomBtn:is([type="text"],[type="search"])::placeholder {
+  color:var(--viewer-common-font-color-v1162,var(--viewer-common-button-fg-v1159,#ffffff)) !important;
+  opacity:.70;
+}
+/* v1161: keep dropdown menu dark even for transparent, pastel or vivid closed select.
+   Explicit option colors also cover Chromium's classic HTML select list renderer. */
+html :is(#wtBox .wt-actions, #muBox .mu-head) select.zoomBtn option,
+html :is(#wtBox .wt-actions, #muBox .mu-head) select.zoomBtn optgroup {
+  background-color:#111111 !important;
+  color:#ffffff !important;
+  color-scheme:dark;
+}
+/* v1161: DOM reordering makes these two buttons adjacent without an HTML whitespace text node.
+   The other header buttons naturally have a ~3px whitespace gap; normalize this pair. */
+#videoImageFolderConnectV953 + #wtRailToggleWt {
+  margin-left:3px !important;
+}
+
+</style>
+<style id="viewerCommonButtonPaletteStyleV1159">
+:root{--viewer-common-button-bg-v1159:#444;--viewer-common-button-fg-v1159:#fff;}
+/* 기본 .zoomBtn 계열 중 별도 색상 지정이 없는 버튼만. 레일의 선택/색상/UI는 보존.
+   [style*="background"]는 향후 런타임이 독자 색상을 설정한 경우도 즉시 제외시킨다. */
+html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.selected):not(.on):not(.is-active):not([aria-pressed="true"]):not([aria-selected="true"]):not(.bgBtn):not(.viewerCommonBtnExceptionV1159):not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *):not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *):not(.vg1057-game-list *):not(#videoRandomStylePanel *):not(#videoPileFrameColorBox *) {
+  background-color:var(--viewer-common-button-bg-v1159) !important;
+  color:var(--viewer-common-font-color-v1162,var(--viewer-common-button-fg-v1159)) !important;
+}
+html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.selected):not(.on):not([aria-pressed="true"]):not([aria-selected="true"]):not(.bgBtn):not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):hover {
+  filter:brightness(1.10);
+}
+/* Palettes are intentionally independent from .zoomBtn and from the rail theme. */
+.viewerButtonPaletteV1159{box-sizing:border-box;max-width:240px;color:#dce7f5;font-size:11px;margin:2px auto;padding:5px 4px 4px;}
+.viewerButtonPaletteTitleV1159{font-size:11px;font-weight:750;color:#cfe4ff;text-align:center;white-space:nowrap;margin-bottom:5px;}
+.viewerButtonPaletteRowsV1159{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.viewerButtonPaletteRowWrapV1159{display:flex;align-items:center;gap:5px;width:100%;justify-content:center;}
+.viewerButtonPaletteRowLabelV1159{width:32px;flex:0 0 32px;font-size:9px;text-align:right;color:#a7c2dc;}
+.viewerButtonPaletteRowV1159{display:flex;gap:5px;align-items:center;justify-content:flex-start;min-width:165px;}
+.viewerButtonSwatchV1159{width:19px;height:19px;box-sizing:border-box;display:block;border-radius:50%;border:2px solid rgba(245,248,255,.55);cursor:pointer;padding:0;min-height:0;appearance:none;transition:transform .1s ease,border-color .1s ease;box-shadow:0 1px 3px #0007;background:var(--swatch-v1159,#444);}
+.viewerButtonSwatchV1159[data-palette="background"]{background:repeating-conic-gradient(#999 0% 25%,#383838 0% 50%) 0 0/8px 8px;}
+.viewerButtonSwatchV1159:hover{transform:scale(1.10);border-color:#fff;}
+.viewerButtonSwatchV1159[aria-pressed="true"]{border-color:white;outline:2px solid #0a84ff;outline-offset:1px;}
+.viewerButtonPaletteStatusV1159{min-height:13px;text-align:center;font-size:10px;color:#a9ccef;margin-top:5px;}
+.viewerButtonPaletteInfoV1159{font-size:10px;color:#96a0b0;text-align:center;margin-top:2px;line-height:1.35;}
+#videoRandomStylePanel .viewerButtonPaletteV1159{width:100%;max-width:100%;padding:6px 0 2px;margin:6px 0 0;border-top:1px solid #46505b;}
+#videoRandomStylePanel .viewerButtonPaletteRowV1159{min-width:119px;gap:2px;}
+#videoRandomStylePanel .viewerButtonPaletteRowLabelV1159{width:24px;flex-basis:24px;font-size:8px;}
+#videoRandomStylePanel .viewerButtonPaletteRowWrapV1159{gap:2px;}
+#videoRandomStylePanel .viewerButtonSwatchV1159{width:15px;height:15px;border-width:1px;}
+#videoRandomStylePanel .viewerButtonPaletteTitleV1159{font-size:10px;}
+</style>
+
+<script id="viewerCommonButtonPaletteV1159">
+(()=>{
+  'use strict';
+  const KEY='viewer_common_button_palette_v1159';
+  const COLORS=[
+    {key:'gray',name:'기존 회색',value:'#444444'},
+    {key:'background',name:'배경색 그대로',value:'transparent'},
+    {key:'p1',name:'파스텔 핑크',value:'#f2c5d5'},
+    {key:'p2',name:'파스텔 살구',value:'#f2d5b8'},
+    {key:'p3',name:'파스텔 노랑',value:'#f7e9ad'},
+    {key:'p4',name:'파스텔 민트',value:'#c8e6cf'},
+    {key:'p5',name:'파스텔 하늘',value:'#bfe0f1'},
+    {key:'p6',name:'파스텔 보라',value:'#d6cbf1'},
+    {key:'p7',name:'파스텔 라일락',value:'#e6c5e2'},
+    {key:'v1',name:'선명한 빨강',value:'#d53343'},
+    {key:'v2',name:'선명한 주황',value:'#e8761c'},
+    {key:'v3',name:'선명한 노랑',value:'#e9ba13'},
+    {key:'v4',name:'선명한 초록',value:'#26934a'},
+    {key:'v5',name:'선명한 파랑',value:'#2176d2'},
+    {key:'v6',name:'선명한 남보라',value:'#6040bd'},
+    {key:'v7',name:'선명한 자홍',value:'#c02c90'}
+  ];
+  const byKey=new Map(COLORS.map(c=>[c.key,c]));
+  let selected='gray';
+  try{const v=localStorage.getItem(KEY);if(byKey.has(v))selected=v;}catch(_){ }
+  const colorText=(hex)=>{
+    const n=parseInt(hex.slice(1),16);
+    const vals=[(n>>16)&255,(n>>8)&255,n&255].map(v=>{
+      v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);
+    });
+    return vals[0]*.2126+vals[1]*.7152+vals[2]*.0722>.42?'#111827':'#ffffff';
+  };
+  function sync(){
+    const choice=byKey.get(selected)||byKey.get('gray');
+    document.documentElement.style.setProperty('--viewer-common-button-bg-v1159',choice.value);
+    document.documentElement.style.setProperty('--viewer-common-button-fg-v1159',choice.value==='transparent'?'#ffffff':colorText(choice.value));
+    document.querySelectorAll('.viewerButtonPaletteV1159').forEach(box=>{
+      box.querySelectorAll('.viewerButtonSwatchV1159').forEach(b=>{
+        const active=b.dataset.palette===selected;
+        b.setAttribute('aria-pressed',String(active));
+      });
+      const status=box.querySelector('.viewerButtonPaletteStatusV1159');
+      if(status)status.textContent=choice.name+(choice.value==='transparent'?'':' · '+choice.value.toUpperCase());
+    });
+  }
+  function select(key){
+    if(!byKey.has(key))return;
+    selected=key;
+    try{localStorage.setItem(KEY,key);}catch(_){ }
+    sync();
+  }
+  function mount(target,where){
+    if(!target || target.querySelector('[data-button-palette-kind-v1159="'+where+'"]'))return;
+    const box=document.createElement('div');
+    box.className='viewerButtonPaletteV1159';
+    box.dataset.buttonPaletteKindV1159=where;
+    box.setAttribute('aria-label','공통 버튼 배경색');
+    const heading=document.createElement('div');
+    heading.className='viewerButtonPaletteTitleV1159';heading.textContent='공통 버튼 배경색';
+    const rows=document.createElement('div');rows.className='viewerButtonPaletteRowsV1159';
+    function newRow(label){
+      const wrap=document.createElement('div');wrap.className='viewerButtonPaletteRowWrapV1159';
+      const name=document.createElement('span');name.className='viewerButtonPaletteRowLabelV1159';name.textContent=label;
+      const row=document.createElement('div');row.className='viewerButtonPaletteRowV1159';
+      wrap.append(name,row);rows.appendChild(wrap);return row;
+    }
+    const rowBase=newRow('기본');
+    const rowPastel=newRow('파스텔');
+    const rowVivid=newRow('원색');
+    COLORS.forEach((c,i)=>{
+      const b=document.createElement('button');b.type='button';b.className='viewerButtonSwatchV1159';
+      b.dataset.palette=c.key;b.title=c.name;b.setAttribute('aria-label',c.name);
+      b.style.setProperty('--swatch-v1159',c.value);
+      b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();select(c.key);});
+      (i<2?rowBase:i<9?rowPastel:rowVivid).appendChild(b);
+    });
+    const status=document.createElement('div');status.className='viewerButtonPaletteStatusV1159';
+    box.append(heading,rows,status);
+    if(where==='option'){
+      const info=document.createElement('div');info.className='viewerButtonPaletteInfoV1159';
+      info.textContent='배경색 · 파스텔 7종 · 원색 7종 / 레일과 개별색 버튼은 유지';
+      box.append(info);
+      const card=document.createElement('div');card.className='optCard wide';
+      const title=document.createElement('div');title.className='optCardTitle';title.textContent='버튼 배경 · 공통 색상';
+      const body=document.createElement('div');body.className='optCardBody';body.appendChild(box);
+      card.append(title,body);target.prepend(card);
+    }else target.appendChild(box);
+  }
+  function setup(){
+    // The options dashboard is built on DOMContentLoaded; preserve its existing layout and cards.
+    const sec=[...document.querySelectorAll('#optionsInner .optPaneComic .optSection')].find(x=>x.querySelector('.optSectionTitle')?.textContent.includes('공통 · 화면'));
+    const grid=sec?.querySelector('.optSectionGrid')||document.querySelector('#optionsInner .optPaneComic .optSectionGrid');
+    mount(grid,'option');
+    const primary=document.querySelector('#videoRandomStylePanel .videoRandomStylePrimaryColumn');
+    mount(primary,'style');
+    sync();
+  }
+  // document.readyState may be complete after a dynamically restored viewer.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});
+  else setup();
+  sync();
+  window.viewerCommonButtonColorV1159={get:()=>selected,set:select,colors:COLORS.map(c=>({...c}))};
+})();
+</script>
+
+<!-- v1162: typography only. The previous palette continues to own the background colors. -->
+<style id="viewerCommonButtonTypeStyleV1162">
+:root{
+  --viewer-common-font-family-v1162: system-ui, "Malgun Gothic", sans-serif;
+  --viewer-common-font-size-v1162: 12px;
+  --viewer-common-font-weight-v1162: 600;
+  --viewer-common-font-color-v1162: var(--viewer-common-button-fg-v1159,#fff);
+  --viewer-common-font-special-color-v1162: #fff;
+  --viewer-common-font-active-color-v1162: #fff;
+}
+/* Common zoomBtn controls, but NOT rail tabs, artist lists, style popovers, video controls or cards. */
+html :is(button.zoomBtn,a.zoomBtn,select.zoomBtn,input.zoomBtn):not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):not(#muArtistRailV971 *):not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *):not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *):not(.vg1057-game-list *):not(#videoPileFrameColorBox *):not(#miniToolbar *){
+  font-family:var(--viewer-common-font-family-v1162) !important;
+  font-size:var(--viewer-common-font-size-v1162) !important;
+  font-weight:var(--viewer-common-font-weight-v1162) !important;
+}
+/* Text color respects the four uniquely colored buttons and the blue active state. */
+html :is(button.zoomBtn,a.zoomBtn,select.zoomBtn,input.zoomBtn):not(#wtTagRail *)
+:not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):not(#muArtistRailV971 *)
+:not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *)
+:not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *)
+:not(#viewerUpdateHistoryBtnV1107):not(#viewerSuggestionOpenV1034)
+:not(#viewerLatestVersionBtnWt):not(#viewerPwaInstallBtnWt):not(.active) {
+  color:var(--viewer-common-font-color-v1162) !important;
+}
+html :is(button.zoomBtn,a.zoomBtn).active:not(#wtTagRail *):not(#wtTagRailActressSec *)
+:not(#videoRandomStylePanel *):not(#muArtistRailV971 *)
+:not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *)
+:not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *)
+:not(#viewerUpdateHistoryBtnV1107):not(#viewerSuggestionOpenV1034)
+:not(#viewerLatestVersionBtnWt):not(#viewerPwaInstallBtnWt) {
+  color:var(--viewer-common-font-active-color-v1162) !important;
+}
+/* The four intentionally colored special buttons get identical font choices, retaining their own backgrounds. */
+html :is(#viewerUpdateHistoryBtnV1107,#viewerSuggestionOpenV1034,#viewerLatestVersionBtnWt,#viewerPwaInstallBtnWt) {
+  color:var(--viewer-common-font-special-color-v1162) !important;
+}
+/* In auto-contrast mode an active blue control remains white; a deliberate chosen font color wins. */
+html :is(button.zoomBtn,a.zoomBtn).active:not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *) {
+  color:var(--viewer-common-font-active-color-v1162) !important;
+}
+html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[type="search"])::placeholder {
+  color:var(--viewer-common-font-color-v1162) !important;
+  opacity:.7;
+}
+.viewerCommonTypeCardV1162{min-width:0;}
+.viewerCommonTypeV1162{font-family:system-ui,"Malgun Gothic",sans-serif;font-size:11px;color:#dbe4f2;display:flex;flex-direction:column;gap:7px;padding:4px 2px;}
+.viewerCommonTypeRowV1162{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;}
+.viewerCommonTypeRowV1162>label{flex:0 0 45px;text-align:right;color:#afc7df;font-size:11px;}
+.viewerCommonTypeSelectV1162{flex:1 1 110px;min-width:100px;max-width:215px;color:#fff;background:#333b47;border:1px solid #627185;border-radius:4px;height:24px;padding:1px 3px;font-size:11px;}
+.viewerCommonTypeSliderV1162{width:110px;max-width:65%;accent-color:#0a84ff;}
+.viewerCommonTypeNumV1162{color:#bed8fd;min-width:43px;font-variant-numeric:tabular-nums;font-size:11px;}
+.viewerCommonTypeColorsV1162{display:flex;align-items:center;gap:4px;flex-wrap:wrap;min-width:0;}
+.viewerCommonTypeColorV1162{position:relative;width:19px;height:19px;border-radius:50%;border:2px solid #8b95a3;box-sizing:border-box;cursor:pointer;background:var(--type-swatch,#fff);padding:0;}
+.viewerCommonTypeColorV1162[data-value="auto"]{background:conic-gradient(#000 0 25%,#eee 0 50%,#444 0 75%,#fff 0);}
+.viewerCommonTypeColorV1162[aria-pressed="true"]{outline:2px solid #0a84ff;outline-offset:1px;border-color:#fff;}
+.viewerCommonTypeCustomV1162{height:23px;width:29px;padding:0;border:1px solid #8490a0;border-radius:4px;background:transparent;cursor:pointer;}
+.viewerCommonTypePreviewV1162{padding:6px 8px;background:#252c35;border:1px solid #455569;border-radius:5px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.viewerCommonTypePreviewV1162 button{border:0;border-radius:4px;background:var(--viewer-common-button-bg-v1159,#444);color:var(--viewer-common-font-color-v1162,#fff);padding:4px 7px;cursor:default;font-family:var(--viewer-common-font-family-v1162);font-size:var(--viewer-common-font-size-v1162);font-weight:var(--viewer-common-font-weight-v1162);}
+.viewerCommonTypePreviewV1162 button:last-child{background:#365b85;color:var(--viewer-common-font-special-color-v1162,#fff);}
+.viewerCommonTypeHelpV1162{font-size:10px;line-height:1.4;color:#a3b6ce;}
+/* v1169: Version/build/mode status text beside maximize/restore in the comic/video header.
+   It is not a button: explicitly inherit the shared typography tokens, without
+   affecting any other labels, rail text, background colors, or buttons. */
+#wtLayer .layerHeadModeButtons > [data-viewer-build-label],
+#pageJumpBox > div > [data-viewer-build-label] {
+  font-family: var(--viewer-common-font-family-v1162, system-ui, "Malgun Gothic", sans-serif) !important;
+  font-size: var(--viewer-common-font-size-v1162, 12px) !important;
+  font-weight: var(--viewer-common-font-weight-v1162, 600) !important;
+  color: var(--viewer-common-font-color-v1162, #ffffff) !important;
+}
+</style>
+
+<script id="viewerCommonButtonTypeV1162">
+(()=>{
+  'use strict';
+  const KEY='viewer_common_button_typography_v1162';
+  // Browser/local fonts only: no download, no external font requests.
+  const FONTS=[
+    ['system','기본 (시스템)','system-ui, "Malgun Gothic", sans-serif'],
+    ['malgun','맑은 고딕','"Malgun Gothic", "맑은 고딕", sans-serif'],
+    ['nanum','나눔고딕 (설치 시)','"Nanum Gothic", "맑은 고딕", sans-serif'],
+    ['dotum','돋움','Dotum, "돋움", sans-serif'],
+    ['gulim','굴림','Gulim, "굴림", sans-serif'],
+    ['batang','바탕','Batang, "바탕", serif'],
+    ['gungsuh','궁서','Gungsuh, "궁서", serif'],
+    ['arial','Arial','Arial, "Malgun Gothic", sans-serif'],
+    ['verdana','Verdana','Verdana, "Malgun Gothic", sans-serif'],
+    ['georgia','Georgia','Georgia, "Malgun Gothic", serif'],
+    ['mono','고정폭 (Consolas)','Consolas, "Malgun Gothic", monospace']
+  ];
+  const FONTS_BY_KEY=new Map(FONTS.map(row=>[row[0],row]));
+  const COLOR_CHOICES=[
+    ['auto','자동 대비','auto'],['white','흰색','#ffffff'],['silver','밝은 회색','#cbd5e1'],
+    ['black','검정','#111111'],['yellow','노랑','#ffdc54'],['cyan','하늘','#7dd3fc'],
+    ['pink','핑크','#f9a8d4'],['green','민트','#86efac']
+  ];
+  const colors=new Map(COLOR_CHOICES.map(c=>[c[0],c]));
+  const defaults={font:'system',size:12,weight:600,color:'auto',custom:'#ffffff'};
+  const state={...defaults};
+  try{
+    const saved=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(saved && typeof saved==='object'){
+      if(FONTS_BY_KEY.has(saved.font))state.font=saved.font;
+      if(Number.isInteger(saved.size)&&saved.size>=9&&saved.size<=20)state.size=saved.size;
+      if([400,500,600,700,800].includes(saved.weight))state.weight=saved.weight;
+      if(colors.has(saved.color)||saved.color==='custom')state.color=saved.color;
+      if(/^#[0-9a-fA-F]{6}$/.test(saved.custom||''))state.custom=saved.custom;
+    }
+  }catch(_){ }
+  function setVars(){
+    const root=document.documentElement.style;
+    root.setProperty('--viewer-common-font-family-v1162',FONTS_BY_KEY.get(state.font)[2]);
+    root.setProperty('--viewer-common-font-size-v1162',state.size+'px');
+    root.setProperty('--viewer-common-font-weight-v1162',String(state.weight));
+    const actual=state.color==='custom'?state.custom:(colors.get(state.color)?.[2]||'auto');
+    const isAuto=actual==='auto';
+    root.setProperty('--viewer-common-font-color-v1162',isAuto?'var(--viewer-common-button-fg-v1159,#ffffff)':actual);
+    root.setProperty('--viewer-common-font-special-color-v1162',isAuto?'#ffffff':actual);
+    root.setProperty('--viewer-common-font-active-color-v1162',isAuto?'#ffffff':actual);
+  }
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(_){ }}
+  function refresh(){
+    setVars();
+    document.querySelectorAll('.viewerCommonTypeV1162').forEach(box=>{
+      const fs=box.querySelector('[data-field="font"]');if(fs)fs.value=state.font;
+      const size=box.querySelector('[data-field="size"]');if(size)size.value=state.size;
+      const sizeLabel=box.querySelector('[data-field="sizeLabel"]');if(sizeLabel)sizeLabel.textContent=state.size+'px';
+      const weight=box.querySelector('[data-field="weight"]');if(weight)weight.value=String(state.weight);
+      box.querySelectorAll('[data-type-color]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.typeColor===state.color)));
+      const c=box.querySelector('[data-field="custom"]');if(c)c.value=state.custom;
+      const status=box.querySelector('[data-field="colorLabel"]');
+      if(status)status.textContent=state.color==='custom'?state.custom:(colors.get(state.color)?.[1]||'자동 대비');
+    });
+  }
+  function set(patch){Object.assign(state,patch);persist();refresh();}
+  function make(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!=null)el.textContent=text;return el;}
+  function makeRow(parent,label){
+    const row=make('div','viewerCommonTypeRowV1162');const lbl=make('label','',label);row.appendChild(lbl);parent.appendChild(row);return row;
+  }
+  function mount(){
+    const section=[...document.querySelectorAll('#optionsInner .optPaneComic .optSection')].find(s=>s.querySelector('.optSectionTitle')?.textContent.includes('공통 · 화면'));
+    const grid=section?.querySelector('.optSectionGrid');
+    if(!grid||grid.querySelector('.viewerCommonTypeCardV1162'))return;
+    const card=make('div','optCard wide viewerCommonTypeCardV1162');
+    const title=make('div','optCardTitle','일반 버튼 · 공통 글꼴');
+    const cardBody=make('div','optCardBody');
+    const box=make('div','viewerCommonTypeV1162');
+    const r1=makeRow(box,'글꼴');
+    const font=make('select','viewerCommonTypeSelectV1162');font.dataset.field='font';font.setAttribute('aria-label','공통 버튼 글꼴 종류');
+    for(const [key,name] of FONTS){const opt=document.createElement('option');opt.value=key;opt.textContent=name;font.appendChild(opt);}
+    font.addEventListener('change',()=>set({font:font.value}));r1.appendChild(font);
+    const r2=makeRow(box,'크기');
+    const size=make('input','viewerCommonTypeSliderV1162');size.type='range';size.min=9;size.max=20;size.step=1;size.dataset.field='size';size.setAttribute('aria-label','공통 버튼 글자 크기');
+    size.addEventListener('input',()=>set({size:Number(size.value)}));r2.appendChild(size);
+    const label=make('span','viewerCommonTypeNumV1162');label.dataset.field='sizeLabel';r2.appendChild(label);
+    const r3=makeRow(box,'굵기');
+    const weight=make('select','viewerCommonTypeSelectV1162');weight.dataset.field='weight';weight.setAttribute('aria-label','공통 버튼 글자 굵기');
+    for(const [value,name] of [[400,'보통 · 400'],[500,'중간 · 500'],[600,'약간 굵게 · 600'],[700,'굵게 · 700'],[800,'매우 굵게 · 800']]){const opt=document.createElement('option');opt.value=String(value);opt.textContent=name;weight.appendChild(opt);}
+    weight.addEventListener('change',()=>set({weight:Number(weight.value)}));r3.appendChild(weight);
+    const r4=makeRow(box,'글자색');
+    const colorsBox=make('div','viewerCommonTypeColorsV1162');
+    for(const [key,name,value] of COLOR_CHOICES){const b=make('button','viewerCommonTypeColorV1162');b.type='button';b.dataset.typeColor=key;b.title=name;b.setAttribute('aria-label','글자색 '+name);b.style.setProperty('--type-swatch',value==='auto'?'#fff':value);b.addEventListener('click',()=>set({color:key}));colorsBox.appendChild(b);}
+    const custom=make('input','viewerCommonTypeCustomV1162');custom.type='color';custom.dataset.field='custom';custom.title='사용자 지정 글자색';custom.setAttribute('aria-label','사용자 지정 글자색');custom.addEventListener('input',()=>set({color:'custom',custom:custom.value}));
+    colorsBox.appendChild(custom);r4.appendChild(colorsBox);
+    const status=make('span','viewerCommonTypeNumV1162');status.dataset.field='colorLabel';r4.appendChild(status);
+    const preview=make('div','viewerCommonTypePreviewV1162');
+    for(const name of ['만화','영상','음악','업데이트']){const b=make('button','',name);b.type='button';b.tabIndex=-1;preview.appendChild(b);}
+    box.appendChild(preview);
+    box.appendChild(make('div','viewerCommonTypeHelpV1162','글꼴은 PC에 설치된 글꼴만 사용합니다. 자동 대비는 공통 버튼 배경색을 따르고, 업데이트 등 개별색 버튼은 흰 글자를 유지합니다. 레일 내부 버튼의 글꼴은 변경하지 않습니다.'));
+    cardBody.appendChild(box);card.append(title,cardBody);
+    const palette=grid.querySelector('.viewerButtonPaletteV1159')?.closest('.optCard');
+    if(palette)palette.after(card);else grid.prepend(card);
+    refresh();
+  }
+  setVars();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+  window.viewerCommonButtonTypeV1162={get:()=>({...state}),set:(patch)=>{
+    const next={};
+    if(FONTS_BY_KEY.has(patch?.font))next.font=patch.font;
+    if(Number.isInteger(patch?.size)&&patch.size>=9&&patch.size<=20)next.size=patch.size;
+    if([400,500,600,700,800].includes(patch?.weight))next.weight=patch.weight;
+    if(colors.has(patch?.color)||patch?.color==='custom')next.color=patch.color;
+    if(/^#[0-9a-fA-F]{6}$/.test(patch?.custom||''))next.custom=patch.custom;
+    set(next);
+  }};
+})();
+</script>
+<!-- v1168: 20초마다 팁 교체, 12개 모두 본 뒤 60초간 기존 경로 범례 표시 (기존 메인뷰 안내 삭제). -->
+<style id="viewerComicTipsStyleV1166">
+  /* v1037 title row: one line, ellipsis on narrow viewports, no extra row height */
+  #wtBox .wt-list-title-v1037 #wtHint{
+    display:inline-block;
+    min-width:0;
+    max-width:100%;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    vertical-align:middle;
+    cursor:pointer;
+  }
+</style>
+<script id="viewerComicTipsV1166">
+(function(){
+  'use strict';
+  const hint = document.getElementById('wtHint');
+  if (!hint || hint.dataset.rotatingTipV1166 === '1') return;
+  hint.dataset.rotatingTipV1166 = '1';
+  hint.setAttribute('aria-live','off');
+  hint.setAttribute('role','button');
+  hint.tabIndex = 0;
+  const legend = hint.innerHTML; // existing colored legend, with obsolete main-view text removed
+  const tips = [
+    '작가↔그룹 변경 버튼은 옵션 → 만화·기본에서 보이기·감추기를 선택할 수 있습니다.',
+    '버튼 배경색은 옵션 → 공통·화면에서 파스텔·선명한 색 또는 배경색으로 바꿀 수 있습니다.',
+    '일반 버튼의 글꼴·크기·굵기·글자색도 옵션에서 공통으로 변경할 수 있습니다.',
+    '만화 작가·그룹·태그·폴더 레일은 체크박스로 여러 항목을 선택할 수 있습니다.',
+    '여러 항목을 선택하면 OR는 합집합, AND는 교집합입니다. 기본값은 OR입니다.',
+    '만화 레일의 세로 문자 인덱스는 옵션에서 가로형으로 바꿀 수 있습니다.',
+    '레일의 작가·그룹·태그·폴더 이름 옆 숫자는 등록 작품 수입니다.',
+    '폴더에 만화를 추가했다면 강제스캔으로 등록 목록을 갱신할 수 있습니다.',
+    'ZIP·CBZ 만화는 압축을 풀지 않고 웹뷰어에서 바로 열 수 있습니다.',
+    '만화를 읽은 마지막 페이지는 저장되므로 다음에 이어 볼 수 있습니다.',
+    'Shift + ← / → 키로 같은 폴더의 이전·다음 ZIP·CBZ 만화로 이동할 수 있습니다.',
+    '만화 페이지의 하트 버튼으로 마음에 드는 장면을 즐겨찾기할 수 있습니다.'
+  ];
+  // v1168: 첫 범례는 20초, 이후 팁 12개는 개별 20초씩 표시.
+  // 마지막 팁 뒤에는 원래 경로 안내를 60초 표시하여 화면 변화를 쉬게 한다.
+  const TIP_SECONDS_V1168 = 20;
+  const REST_SECONDS_V1168 = 60;
+  let index = 0; // 0 = 경로 범례, 1..12 = 팁
+  let restingV1168 = false;
+  let elapsedSecondsV1168 = 0;
+  let hovering = false;
+  function draw(){
+    if(index === 0){
+      hint.innerHTML = legend;
+      hint.title = hint.textContent.trim() + (restingV1168
+        ? ' (팁은 1분 쉬는 중 · 클릭하면 다시 보기)'
+        : ' (클릭하면 다음 팁)');
+    }else{
+      hint.textContent = '💡 팁 ' + index + '/' + tips.length + ' · ' + tips[index - 1];
+      hint.title = hint.textContent + ' (클릭하면 다음 팁)';
+    }
+    hint.dataset.tipIndexV1166 = String(index); // 이전 시험 및 기존 요소와 호환
+    hint.dataset.tipPhaseV1168 = restingV1168 ? 'rest' : index === 0 ? 'intro' : 'tip';
+  }
+  function next(){
+    elapsedSecondsV1168 = 0;
+    if(restingV1168){
+      // 경로 범례를 60초 보여준 뒤 첫 팁으로 복귀.
+      restingV1168 = false;
+      index = 1;
+    }else if(index >= tips.length){
+      // 한 차례 모든 팁이 끝났을 때 1분간 움직이지 않는 안내를 표시.
+      index = 0;
+      restingV1168 = true;
+    }else{
+      index += 1;
+    }
+    draw();
+  }
+  hint.addEventListener('mouseenter',()=>{hovering=true;});
+  hint.addEventListener('mouseleave',()=>{hovering=false;});
+  hint.addEventListener('focus',()=>{hovering=true;});
+  hint.addEventListener('blur',()=>{hovering=false;});
+  hint.addEventListener('click',event=>{
+    event.stopPropagation();
+    next();
+  });
+  hint.addEventListener('keydown',event=>{
+    if(event.key==='Enter' || event.key===' '){ event.preventDefault(); next(); }
+  });
+  // 1초 카운터: 마우스 오버, 숨김 탭, 다른 콘텐츠 탭에서는 남은 시간을 보존.
+  // 기존 3초 setInterval과 달리 한 팁을 보여주는 도중 일시정지해도 시간이 줄지 않는다.
+  const timer = setInterval(()=>{
+    if(hovering || document.visibilityState === 'hidden' || !hint.isConnected || hint.style.display==='none') return;
+    elapsedSecondsV1168 += 1;
+    if(elapsedSecondsV1168 >= (restingV1168 ? REST_SECONDS_V1168 : TIP_SECONDS_V1168)) next();
+  },1000);
+  window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
+  draw();
 })();
 </script>
 </body>
