@@ -1,3 +1,11 @@
+<!-- v1197: 최신 업데이트 안내에 세로 자동스크롤(속도·방향키), 가로 자동넘김(간격), 대용량 이미지폴더 개선을 추가. 건의함 이미지 첨부는 서버 미지원 상태로 기능 불변. -->
+<!-- v1196: 선택한 로컬 ZIP·CBZ 작품폴더를 파일명과 관계없이 하나로 표시. 폴더 후보 검색·전체선택·전체해제·묶기/개별표시. 기존 자동 90%·수동 묶음 보존. -->
+<!-- v1195: 세로 자동스크롤 기본 150px/s, 자동스크롤 실행 중 ↑속도 증가/↓감소 (기존 단계), 가로 자동넘김 1~10초 1초 간격·기본 3초. -->
+<!-- v1194: 세로 자동스크롤 200~500px/초(50 단위) 추가, ZIP·CBZ·로컬 이미지폴더 가로뷰 자동 페이지넘김(시간 선택/수동 조작 정지/로딩 완료 대기). -->
+<!-- v1193: ZIP·CBZ·이미지폴더 세로뷰 선택형 부드러운 자동스크롤. 기본 OFF, 6단계 속도, 휠·터치·키보드 수동조작 시 중지, 이미지 로딩 대기, 가상 스크롤 호환. -->
+<!-- v1192: ZIP·CBZ·로컬 이미지폴더 첫 2장 가운데 높이≥너비×2가 있으면 자동 세로뷰. 기존 첫 장 미리보기 재사용, 다른 한 장만 필요시 검사; 직접 전환/명시된 이동 방향 존중. -->
+<!-- v1191: 초대형 ZIP/로컬 이미지폴더 세로뷰 DOM 가상화(최대 28장만 생성·관찰); 페이지 전체 저장 정보/감상기록·가로뷰 유지. -->
+<!-- v1190: 로컬 이미지폴더 페이지 경로 색인(IDB+RAM) · 뷰어 재진입 전체 탐색 생략 · 실제 열람 페이지만 파일핸들 해석 · 20,000장 상한 제거 · 개별/루트 재스캔 시 색인 갱신. -->
 <!-- v1189: 건의 시 사용 브라우저·폴더 경로·오류 발생 과정을 구체적으로 적도록 건의하기 창 및 새로운 1회 업데이트 안내 추가. 개인 경로의 민감정보는 제외하도록 안내. 기능/DB 불변. -->
 <!-- v1188: 수동묶음의 묶음탭에서는 회차별 개별 ZIP 마지막 읽은 페이지만 표시. 일반 목록의 묶음 전체 읽음 배지는 유지. 업데이트 공지를 새 ID로 1회 재안내. -->
 <!-- v1187: 페이지순 상태 복원 후 로컬 ZIP/fsdir IDB 장수 인덱스 로딩. ZIP 레코드 쓰기 커밋 확인, fsdir 저장 실패 표시, 페이지수 재렌더 완화. 원본/저장키 변경 없음. -->
@@ -29998,46 +30006,27 @@ function getWebtoonThumbSrc(value) {
 // FS 폴더에서 이미지 파일 목록 수집 (확장자 필터 + 자연/숫자 정렬)
 async function listFsImages(dirHandle){
   const ex = /\.(?:jpe?g|png|webp|avif|gif|bmp)$/i;
-  const files = [];
-  // 권한 확인/요청
-  try {
-    let p = await dirHandle.queryPermission?.({mode:'read'});
-    if (p !== 'granted') p = await dirHandle.requestPermission?.({mode:'read'});
-    if (p !== 'granted') throw new Error('권한 필요');
-  } catch(e){ throw new Error('폴더 읽기 권한이 없습니다.'); }
-
-  for await (const [name, entry] of dirHandle.entries()){
-    if (entry.kind === 'file' && ex.test(name)) {
-      files.push({ name, handle: entry });
+  const files=[];
+  try{
+    let p=await dirHandle.queryPermission?.({mode:'read'});
+    if(p!=='granted')p=await dirHandle.requestPermission?.({mode:'read'});
+    if(p!=='granted')throw Error('권한 필요');
+  }catch(_){throw Error('폴더 읽기 권한이 없습니다.');}
+  // v1190: 루트는 한 번만 순회. 페이지 20,000장 상한은 잘린 목록을 만들므로 제거.
+  // 실제 전체색인은 최초 1회/명시적 재스캔에서만 실행한다.
+  const visit=async(dir,prefix,depth)=>{
+    if(depth>10)throw Error('서브폴더 깊이가 10단계를 초과합니다. 폴더 구조를 확인해 주세요.');
+    const subs=[];
+    for await(const [name,entry] of dir.entries()){
+      if(name.startsWith('.')||/^Posters$/i.test(name))continue;
+      if(entry.kind==='file'&&ex.test(name))files.push({name:prefix+name,handle:entry});
+      else if(entry.kind==='directory')subs.push({name,handle:entry});
     }
-  }
-  // v1174: 작품 직속 이미지와 회차별 서브폴더 이미지가 함께 있어도 둘 다 사용한다.
-  // 루트의 이미지는 중복 수집하지 않고 서브폴더만 재귀적으로 읽는다.
-  const visit = async (dir, prefix, depth) => {
-    if (depth > 4 || files.length >= 20000) return;
-    const children = [];
-    for await (const [name, entry] of dir.entries()) {
-      if (name.startsWith('.') || /^Posters$/i.test(name)) continue;
-      if (entry.kind === 'file' && ex.test(name)) files.push({name:prefix+name,handle:entry});
-      else if (entry.kind === 'directory') children.push({name,handle:entry});
-    }
-    children.sort((a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'}));
-    for (const child of children) {
-      if (files.length >= 20000) break;
-      await visit(child.handle,prefix+child.name+'/',depth+1);
-    }
+    subs.sort((a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'}));
+    for(const sub of subs)await visit(sub.handle,prefix+sub.name+'/',depth+1);
   };
-  const directSubs=[];
-  for await (const [name,entry] of dirHandle.entries()) {
-    if (entry.kind==='directory' && !name.startsWith('.') && !/^Posters$/i.test(name))directSubs.push({name,handle:entry});
-  }
-  directSubs.sort((a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'}));
-  for(const sub of directSubs){
-    if(files.length>=20000)break;
-    await visit(sub.handle,sub.name+'/',1);
-  }
-  // 숫자 인식 정렬(001, 2, 10 순서)
-  files.sort((a,b)=> a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'}));
+  await visit(dirHandle,'',0);
+  files.sort((a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'}));
   return files;
 }
 
@@ -86502,6 +86491,7 @@ function mergeRootVideos(rootName, found) {
       const cleanupV1103=updatedV1092
         ? await window.ComicMissingV1092?.reconcile(successfulScansV1092,allRootsV1092) : null;
       const removedV1103=Number(cleanupV1103?.removed)||0;
+      await window.ComicFsLocalV990?.invalidatePageManifestsForRootsV1190?.(successfulScansV1092.map(x=>x.root?.id));
       try { document.dispatchEvent(new Event('fs:list:changed')); } catch (_) {}
       try { document.dispatchEvent(new Event('subs:changed')); } catch (_) {}
       try { if (typeof renderWtTagRail === 'function') renderWtTagRail(); } catch (_) {}
@@ -86590,6 +86580,7 @@ function mergeRootVideos(rootName, found) {
       if(!committed)throw Error('작품 목록 저장에 실패했습니다. 기존 목록을 확인해 주세요.');
       const cleanupV1103=await window.ComicMissingV1092?.reconcile(successfulScansV1092,roots);
       const removedV1103=Number(cleanupV1103?.removed)||0;
+      await window.ComicFsLocalV990?.invalidatePageManifestsForRootsV1190?.(successfulScansV1092.map(x=>x.root?.id));
       try{document.dispatchEvent(new Event('fs:list:changed'));}catch(_){}
       try{document.dispatchEvent(new Event('subs:changed'));}catch(_){}
       try{renderWtTagRail();}catch(_){}
@@ -162381,7 +162372,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1189;
+  const VIEWER_BUILD_V789 = 1197;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -169476,7 +169467,15 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #comicZipLightboxV984 .zipLightboxToolsRowV987 .zipLightboxPageInputV987::-webkit-inner-spin-button{appearance:none;}
 #comicZipLightboxV984 .zipLightboxToolsRowV987 .zipLightboxFolderSelectV987{box-sizing:border-box;max-width:235px;min-width:90px;flex:1 1 auto;border:1px solid #667285;border-radius:6px;padding:5px 6px;background:#303846;color:white;font:12px system-ui;cursor:pointer;}
 #comicZipLightboxV984 .zipLightboxToolsRowV987 .zipReadModesV986{flex:none;}
+/* v1193: 세로뷰 자동스크롤 조작부. 가로뷰에서는 표시하지 않는다. */
+#comicZipLightboxV984 .zipAutoScrollGroupV1193{display:inline-flex;align-items:center;gap:3px;flex:none;white-space:nowrap;background:#222936;border:1px solid #667285;border-radius:6px;padding:2px 4px;}
+#comicZipLightboxV984 .zipAutoScrollGroupV1193[hidden]{display:none!important;}
+#comicZipLightboxV984 .zipAutoScrollGroupV1193 button{padding:4px 7px;max-width:none;white-space:nowrap;}
+#comicZipLightboxV984 .zipAutoScrollGroupV1193 button[aria-pressed="true"]{background:#1468aa;color:#fff;border-color:#7dbeff;}
+#comicZipLightboxV984 .zipAutoScrollGroupV1193 select{max-width:110px;color:#fff;background:#303846;border:1px solid #667285;border-radius:5px;padding:4px 3px;font:12px system-ui,sans-serif;cursor:pointer;}
 #comicZipLightboxV984 .zipLightboxToolsRowV987>button{flex:none;}
+/* v1194: 세로 스크롤 / 가로 자동넘김 공통 작은 조작부 (숨김은 [hidden] 속성으로 전환) */
+#comicZipLightboxV984 .zipAutoPageGroupV1194 select{max-width:64px;}
 /* v1086: 로컬 ZIP·CBZ와 이미지폴더 공통 상단바의 고정 체크 */
 #comicZipLightboxV984 .zipHeaderPinV1086{display:inline-flex;align-items:center;gap:4px;flex:none;white-space:nowrap;color:#eef3ff;font:12px/1.4 system-ui,sans-serif;cursor:pointer;user-select:none;}
 #comicZipLightboxV984 .zipHeaderPinV1086 input{appearance:auto;width:13px;height:13px;margin:0;accent-color:#408af5;cursor:pointer;}
@@ -170862,6 +170861,56 @@ async function openLightbox(value, fileJumpV1005=null){
     largerV1076.disabled=verticalImageWidthV1076>=VERTICAL_SIZE_MAX_V1076;
   }
   refreshVerticalSizeControlsV1076();
+  // v1194: 세로 연속뷰 자동스크롤과 200~500px/s 추가 속도 선택.
+  // 페이지 이동/읽기 기록의 저장 방식은 기존대로 유지한다.
+  const AUTO_SCROLL_SPEED_KEY_V1193='comic_local_auto_scroll_speed_v1193';
+  const autoScrollGroupV1193=document.createElement('span');
+  autoScrollGroupV1193.className='zipAutoScrollGroupV1193';
+  autoScrollGroupV1193.setAttribute('role','group');
+  autoScrollGroupV1193.setAttribute('aria-label','세로보기 자동스크롤');
+  autoScrollGroupV1193.hidden=true;
+  const autoScrollToggleV1193=document.createElement('button');
+  autoScrollToggleV1193.type='button';
+  autoScrollToggleV1193.textContent='▶ 자동';
+  autoScrollToggleV1193.title='자동스크롤 시작/일시정지. 실행 중 ↑/↓로 속도 조절, 휠·터치는 정지';
+  autoScrollToggleV1193.setAttribute('aria-pressed','false');
+  const autoScrollSpeedV1193=document.createElement('select');
+  autoScrollSpeedV1193.setAttribute('aria-label','자동스크롤 속도');
+  autoScrollSpeedV1193.title='세로뷰 자동스크롤 속도 (px/초). 자동 실행 중 ↑ 빠르게, ↓ 느리게';
+  const verticalSpeedsV1194=[20,35,50,75,100,150,200,250,300,350,400,450,500];
+  for(const speed of verticalSpeedsV1194){
+    const option=document.createElement('option');option.value=String(speed);
+    option.textContent=(speed===20?'매우 느림 · ':speed===35?'느림 · ':speed===50?'보통 · ':speed===500?'최고속 · ':'')+speed+'px/s';
+    autoScrollSpeedV1193.appendChild(option);
+  }
+  try{const saved=localStorage.getItem(AUTO_SCROLL_SPEED_KEY_V1193);
+    autoScrollSpeedV1193.value=verticalSpeedsV1194.includes(Number(saved))?saved:'150';
+  }catch(_){autoScrollSpeedV1193.value='150';}
+  autoScrollGroupV1193.append(autoScrollToggleV1193,autoScrollSpeedV1193);
+  // v1194: 가로뷰는 연속 스크롤 대신 한 장씩 자동 넘긴다.
+  // 읽을 시간을 초 단위로 지정하고, 다음 장이 실제 디코딩된 뒤 다시 시간을 센다.
+  const AUTO_PAGE_INTERVAL_KEY_V1194='comic_local_horizontal_auto_interval_v1194';
+  const autoPageGroupV1194=document.createElement('span');
+  autoPageGroupV1194.className='zipAutoScrollGroupV1193 zipAutoPageGroupV1194';
+  autoPageGroupV1194.setAttribute('role','group');
+  autoPageGroupV1194.setAttribute('aria-label','가로보기 자동 페이지 넘김');
+  autoPageGroupV1194.hidden=false;
+  const autoPageToggleV1194=document.createElement('button');
+  autoPageToggleV1194.type='button';autoPageToggleV1194.textContent='▶ 자동넘김';
+  autoPageToggleV1194.setAttribute('aria-pressed','false');
+  autoPageToggleV1194.title='가로보기 페이지 자동넘김 시작/일시정지. 직접 페이지를 조작하면 자동 정지';
+  const autoPageIntervalV1194=document.createElement('select');
+  autoPageIntervalV1194.setAttribute('aria-label','자동 페이지 넘김 간격');
+  autoPageIntervalV1194.title='한 페이지를 읽고 다음 페이지로 넘어가는 간격';
+  const autoPageIntervalsV1194=[1,2,3,4,5,6,7,8,9,10];
+  for(const seconds of autoPageIntervalsV1194){
+    const option=document.createElement('option');option.value=String(seconds);
+    option.textContent=seconds+'초';autoPageIntervalV1194.appendChild(option);
+  }
+  try{const saved=localStorage.getItem(AUTO_PAGE_INTERVAL_KEY_V1194);
+    autoPageIntervalV1194.value=autoPageIntervalsV1194.includes(Number(saved))?saved:'3';
+  }catch(_){autoPageIntervalV1194.value='3';}
+  autoPageGroupV1194.append(autoPageToggleV1194,autoPageIntervalV1194);
   cover.style.setProperty('--zip-vertical-image-width-v1076',verticalImageWidthV1076+'px');
   // v987: 페이지 번호로 직접 이동 / ZIP 내부 서브폴더의 첫 페이지로 이동.
   const infoRowV987=document.createElement('div');infoRowV987.className='zipLightboxInfoRowV987';
@@ -170930,7 +170979,7 @@ async function openLightbox(value, fileJumpV1005=null){
   }
   toolsRowV987.append(pageJumpBoxV987);
   if(chapterSelectV1177)toolsRowV987.append(chapterSelectV1177);
-  toolsRowV987.append(folderSelectV987,directionGroupV986,sizeGroupV1076,modeSelect,pinLabelV1086,close);
+  toolsRowV987.append(folderSelectV987,directionGroupV986,sizeGroupV1076,autoScrollGroupV1193,autoPageGroupV1194,modeSelect,pinLabelV1086,close);
   head.append(infoRowV987,toolsRowV987);
   head.addEventListener('click',e=>e.stopPropagation());
   const badge=document.createElement('div');badge.className='zipLightboxBadgeV984';
@@ -171226,12 +171275,226 @@ async function openLightbox(value, fileJumpV1005=null){
   let verticalQueueV986=[], verticalRunningV986=0;
   let verticalItemsV986=[], verticalUrlsV986=new Map(), verticalPendingV986=new Set();
   const verticalVisibleV986=new Set();
+  // v1193: RAF 기반의 부드러운 스크롤. 고정 간격 큰 점프 대신 초당 픽셀을
+  // 누적 이동하고, 아주 작은 속도 변화만 주어 읽기 리듬이 단조롭지 않도록 한다.
+  // 화면이 보이지 않거나 손으로 조작할 때는 반드시 중지하고, 종료 시 프레임 해제.
+  let autoScrollRunningV1193=false,autoScrollFrameV1193=0,autoScrollLastV1193=0,autoScrollCarryV1193=0;
+  function updateAutoScrollControlsV1193(){
+    autoScrollToggleV1193.textContent=autoScrollRunningV1193?'⏸ 일시정지':'▶ 자동';
+    autoScrollToggleV1193.setAttribute('aria-pressed',String(autoScrollRunningV1193));
+    autoScrollToggleV1193.title=autoScrollRunningV1193?'자동스크롤 일시정지':'자동스크롤 시작';
+  }
+  function stopAutoScrollV1193(){
+    autoScrollRunningV1193=false;
+    if(autoScrollFrameV1193)cancelAnimationFrame(autoScrollFrameV1193);
+    autoScrollFrameV1193=0;autoScrollLastV1193=0;autoScrollCarryV1193=0;
+    updateAutoScrollControlsV1193();
+  }
+  function autoScrollTickV1193(now){
+    autoScrollFrameV1193=0;
+    if(!autoScrollRunningV1193)return;
+    if(destroyed||readDirectionV986!=='vertical'||verticalViewV986.hidden||document.visibilityState==='hidden'){
+      stopAutoScrollV1193();return;
+    }
+    const max=Math.max(0,verticalViewV986.scrollHeight-verticalViewV986.clientHeight);
+    const old=verticalViewV986.scrollTop;
+    if(old>=max-1){stopAutoScrollV1193();return;}
+    // 아직 표시되지 않은 페이지에서는 앞질러 지나가지 않고 이미지 로딩을 기다린다.
+    const at=Math.max(0,Math.min(pages.length-1,idx));
+    const wrapper=verticalItemsV986[at],img=wrapper?.querySelector('img');
+    if(!img||img.hidden||!img.complete||img.naturalWidth<=0){
+      scheduleVerticalLoadV986(at);
+      autoScrollLastV1193=now;autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);
+      return;
+    }
+    const dt=autoScrollLastV1193?Math.max(0,Math.min(0.05,(now-autoScrollLastV1193)/1000)):0;
+    autoScrollLastV1193=now;
+    const speed=Number(autoScrollSpeedV1193.value)||150;
+    // ±6% 정도의 완만한 속도 변화. 순간적인 튐이나 강제 페이지 넘김은 없음.
+    autoScrollCarryV1193+=speed*dt*(1+0.045*Math.sin(now/2400)+0.015*Math.sin(now/930));
+    const move=Math.floor(autoScrollCarryV1193);
+    if(move>0){autoScrollCarryV1193-=move;verticalViewV986.scrollTop=Math.min(max,old+move);}
+    if(verticalViewV986.scrollTop>=max-1){stopAutoScrollV1193();return;}
+    autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);
+  }
+  function startAutoScrollV1193(){
+    if(destroyed||readDirectionV986!=='vertical'||verticalViewV986.hidden||autoScrollRunningV1193)return;
+    if(document.visibilityState==='hidden')return;
+    autoScrollRunningV1193=true;autoScrollLastV1193=0;autoScrollCarryV1193=0;
+    updateAutoScrollControlsV1193();
+    autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);
+  }
+  autoScrollToggleV1193.addEventListener('click',()=>{
+    if(autoScrollRunningV1193)stopAutoScrollV1193();else startAutoScrollV1193();
+  });
+  autoScrollSpeedV1193.addEventListener('change',()=>{
+    try{localStorage.setItem(AUTO_SCROLL_SPEED_KEY_V1193,autoScrollSpeedV1193.value);}catch(_){}
+  });
+  // v1195: 자동스크롤 실행 중에만 ↑/↓ 키로 속도 단계 조절.
+  // 수동 세로스크롤 시에는 기존 ↑/↓ 동작을 보존한다.
+  function adjustAutoScrollSpeedV1195(step){
+    const current=Number(autoScrollSpeedV1193.value);
+    const at=verticalSpeedsV1194.indexOf(current);
+    const next=Math.max(0,Math.min(verticalSpeedsV1194.length-1,(at<0?5:at)+step));
+    const value=String(verticalSpeedsV1194[next]);
+    if(autoScrollSpeedV1193.value===value)return;
+    autoScrollSpeedV1193.value=value;
+    autoScrollSpeedV1193.dispatchEvent(new Event('change'));
+  }
+  // 스크롤 이벤트 자체는 자동 이동에서도 발생하므로 정지 신호로 사용하지 않는다.
+  // 사용자가 직접 휠/터치/스크롤바에 손을 댈 때만 중지한다.
+  verticalViewV986.addEventListener('wheel',()=>stopAutoScrollV1193(),{passive:true});
+  verticalViewV986.addEventListener('touchstart',()=>stopAutoScrollV1193(),{passive:true});
+  verticalViewV986.addEventListener('pointerdown',()=>stopAutoScrollV1193(),{passive:true});
+  const onAutoVisibilityV1193=()=>{if(document.visibilityState==='hidden'){
+    stopAutoScrollV1193();stopAutoPageV1194();
+  }};
+  document.addEventListener('visibilitychange',onAutoVisibilityV1193);
+
+  // v1194: 가로뷰 자동 넘김. setInterval 사용을 피하고 이미지 디코딩 완료 후
+  // setTimeout을 하나씩 예약해 느린 디스크/압축 해제 중에 여러 페이지가 겹치지 않게 한다.
+  let autoPageRunningV1194=false,autoPageTimerV1194=0,autoPageEpochV1194=0;
+  function refreshAutoPageV1194(){
+    autoPageToggleV1194.textContent=autoPageRunningV1194?'⏸ 일시정지':'▶ 자동넘김';
+    autoPageToggleV1194.setAttribute('aria-pressed',String(autoPageRunningV1194));
+  }
+  function stopAutoPageV1194(){
+    ++autoPageEpochV1194;
+    autoPageRunningV1194=false;
+    if(autoPageTimerV1194)clearTimeout(autoPageTimerV1194);
+    autoPageTimerV1194=0;
+    refreshAutoPageV1194();
+  }
+  function queueNextAutoPageV1194(epoch){
+    if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal')return;
+    if(idx>=pages.length-1){stopAutoPageV1194();return;}
+    if(autoPageTimerV1194)clearTimeout(autoPageTimerV1194);
+    const delay=Math.max(1,Number(autoPageIntervalV1194.value)||3)*1000;
+    autoPageTimerV1194=setTimeout(async()=>{
+      autoPageTimerV1194=0;
+      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal'||document.visibilityState==='hidden')return;
+      const target=idx+1;
+      const ok=await go(target,true);
+      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal')return;
+      // 파일 읽기에 실패했다면 자동으로 계속 넘어가지 않고 중지한다.
+      if(!ok||idx!==target){stopAutoPageV1194();return;}
+      try{if(typeof image.decode==='function')await image.decode();
+        else if(!image.complete||!image.naturalWidth)throw new Error('이미지 미완료');
+      }catch(_){if(epoch===autoPageEpochV1194)stopAutoPageV1194();return;}
+      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed)return;
+      queueNextAutoPageV1194(epoch);
+    },delay);
+  }
+  function startAutoPageV1194(){
+    if(destroyed||autoPageRunningV1194||readDirectionV986!=='horizontal'||document.visibilityState==='hidden')return;
+    if(idx>=pages.length-1)return; // 마지막 페이지에서는 자동넘김을 시작하지 않는다.
+    stopAutoScrollV1193();
+    autoPageRunningV1194=true;
+    const epoch=++autoPageEpochV1194;
+    refreshAutoPageV1194();
+    // 첫 장 역시 로딩이 진행 중일 수 있으므로 완료 후부터 시간을 잰다.
+    void (async()=>{
+      try{if(image.src&&typeof image.decode==='function')await image.decode();}
+      catch(_) {if(epoch===autoPageEpochV1194)stopAutoPageV1194();return;}
+      queueNextAutoPageV1194(epoch);
+    })();
+  }
+  autoPageToggleV1194.addEventListener('click',()=>{
+    if(autoPageRunningV1194)stopAutoPageV1194();else startAutoPageV1194();
+  });
+  autoPageIntervalV1194.addEventListener('change',()=>{
+    try{localStorage.setItem(AUTO_PAGE_INTERVAL_KEY_V1194,autoPageIntervalV1194.value);}catch(_){}
+    // 이미 페이지를 읽는 중에는 타이머를 추가로 만들지 않는다.
+    // 현재 페이지의 기존 대기 타이머만 변경하고, 읽는 중이면 다음 주기부터 적용.
+    if(autoPageRunningV1194&&autoPageTimerV1194){
+      const epoch=autoPageEpochV1194;
+      queueNextAutoPageV1194(epoch);
+    }
+  });
+  // v1191: 26,000장에서도 DOM·IntersectionObserver를 페이지 수만큼 만들지 않는다.
+  // 장수가 적은 작품은 기존 v986 코드를 그대로 사용한다.
+  const VERTICAL_VIRTUAL_THRESHOLD_V1191=300;
+  const VERTICAL_VIRTUAL_WINDOW_V1191=28;
+  let verticalVirtualV1191=null;
+  function createVerticalPageV1191(i){
+    const wrapper=document.createElement('div');wrapper.className='zipVerticalPageV986';wrapper.dataset.zipIndex=String(i);
+    const img=document.createElement('img');img.alt=pages[i].name;img.hidden=true;img.loading='lazy';wrapper.appendChild(img);
+    heartManagerV1148?.addVertical(wrapper,i+1);
+    return wrapper;
+  }
+  // 페이지 높이 누적값은 펜윅 트리로 관리: 26,000장에서도 스크롤 위치 계산 O(log N).
+  function initVerticalVirtualV1191(){
+    const n=pages.length, estimate=Math.max(160,Math.round((verticalViewV986.clientHeight||window.innerHeight)*.8));
+    const heights=new Float64Array(n), tree=new Float64Array(n+1), measured=new Uint8Array(n);
+    heights.fill(estimate);
+    for(let i=1;i<=n;i++){tree[i]+=estimate;const j=i+(i&-i);if(j<=n)tree[j]+=tree[i];}
+    const sum=count=>{let v=0;for(let j=Math.max(0,Math.min(n,count));j>0;j-=j&-j)v+=tree[j];return v;};
+    const setHeight=(i,value)=>{
+      if(i<0||i>=n||!Number.isFinite(value)||value<=0)return;
+      const next=Math.max(1,Math.round(value)),delta=next-heights[i];
+      measured[i]=1;if(!delta)return;
+      const scrollBefore=verticalViewV986.scrollTop;
+      const before=sum(i),wasAbove=before+heights[i]<=scrollBefore+1;
+      heights[i]=next;
+      for(let j=i+1;j<=n;j+=j&-j)tree[j]+=delta;
+      updateVerticalSpacersV1191();
+      if(wasAbove&&verticalVirtualV1191)verticalViewV986.scrollTop=scrollBefore+delta;
+    };
+    const find=y=>{
+      let pos=0,acc=0,bit=1;
+      while(bit*2<=n)bit*=2;
+      while(bit){const next=pos+bit;if(next<=n&&acc+tree[next]<=y){pos=next;acc+=tree[next];}bit>>=1;}
+      return Math.max(0,Math.min(n-1,pos));
+    };
+    const top=document.createElement('div'),bottom=document.createElement('div');
+    top.className='zipVirtualSpacerV1191';bottom.className='zipVirtualSpacerV1191';
+    top.style.cssText=bottom.style.cssText='display:block;pointer-events:none;overflow:hidden;';
+    verticalVirtualV1191={n,heights,measured,top,bottom,start:-1,end:-1,sum,setHeight,find};
+    verticalItemsV986=new Array(n);
+  }
+  function updateVerticalSpacersV1191(){
+    const v=verticalVirtualV1191;if(!v||v.start<0)return;
+    v.top.style.height=Math.max(0,Math.round(v.sum(v.start)))+'px';
+    v.bottom.style.height=Math.max(0,Math.round(v.sum(v.n)-v.sum(v.end)))+'px';
+  }
+  function renderVerticalWindowV1191(center,force=false){
+    const v=verticalVirtualV1191;if(!v)return;
+    const n=v.n,at=Math.max(0,Math.min(n-1,Number(center)||0));
+    if(!force&&v.start>=0&&at>=v.start+6&&at<v.end-6)return;
+    const start=Math.min(Math.max(0,at-10),Math.max(0,n-VERTICAL_VIRTUAL_WINDOW_V1191));
+    const end=Math.min(n,start+VERTICAL_VIRTUAL_WINDOW_V1191);
+    if(!force&&start===v.start&&end===v.end)return;
+    const oldScroll=verticalViewV986.scrollTop;
+    verticalIOV986?.disconnect();verticalVisibleV986.clear();
+    // 가상 창에서 벗어난 이미지는 URL과 요소를 해제해 사용 중 메모리가 쌓이지 않도록 한다.
+    for(let i=Math.max(0,v.start);i<Math.max(0,v.end);i++){
+      if(i>=start&&i<end)continue;
+      const url=verticalUrlsV986.get(i);
+      if(url){URL.revokeObjectURL(url);verticalUrlsV986.delete(i);}
+      const node=verticalItemsV986[i];if(node){const img=node.querySelector('img');if(img){img.removeAttribute('src');img.hidden=true;}}
+      verticalItemsV986[i]=undefined;verticalPendingV986.delete(i);
+    }
+    v.start=start;v.end=end;
+    const frag=document.createDocumentFragment();
+    for(let i=start;i<end;i++){
+      let wrapper=verticalItemsV986[i];if(!wrapper){wrapper=createVerticalPageV1191(i);verticalItemsV986[i]=wrapper;}
+      // 이전 로딩으로 높이를 알게 된 페이지는 자리표시도 그 높이로 유지한다.
+      if(v.measured[i])wrapper.style.minHeight=Math.round(v.heights[i])+'px';
+      frag.appendChild(wrapper);
+    }
+    updateVerticalSpacersV1191();
+    verticalViewV986.replaceChildren(v.top,frag,v.bottom);
+    verticalViewV986.scrollTop=oldScroll;
+    if(verticalIOV986){for(let i=start;i<end;i++)verticalIOV986.observe(verticalItemsV986[i]);}
+  }
   function syncDirectionButtonsV986(){
     horizontalBtnV986.setAttribute('aria-pressed',String(readDirectionV986==='horizontal'));
     verticalBtnV986.setAttribute('aria-pressed',String(readDirectionV986==='vertical'));
     // 크기 조절은 세로 연속보기에서만 노출한다. 가로/절대경로 보기의 UI는 그대로 둔다.
     const vertical=readDirectionV986==='vertical';
     sizeGroupV1076.hidden=!vertical;
+    autoScrollGroupV1193.hidden=!vertical;
+    autoPageGroupV1194.hidden=vertical;
     head.classList.toggle('zipSizeActiveV1076',vertical);
   }
   function setPageLabelV986(n,flash=false){
@@ -171252,12 +171515,15 @@ async function openLightbox(value, fileJumpV1005=null){
     }
   }
   function cleanVerticalV986(){
+    stopAutoScrollV1193();
     ++verticalEpochV986;
     verticalIOV986?.disconnect();verticalIOV986=null;
     if(verticalScrollFrameV986)cancelAnimationFrame(verticalScrollFrameV986);
     verticalScrollFrameV986=0;verticalQueueV986=[];verticalPendingV986.clear();verticalVisibleV986.clear();
     for(const url of verticalUrlsV986.values())URL.revokeObjectURL(url);
     verticalUrlsV986.clear();verticalItemsV986=[];
+    verticalVirtualV1191=null;
+    verticalViewV986.style.overflowAnchor='';
     verticalViewV986.replaceChildren();
   }
   function trimVerticalV986(){
@@ -171276,13 +171542,14 @@ async function openLightbox(value, fileJumpV1005=null){
   function scheduleVerticalLoadV986(index){
     const i=Number(index),epoch=verticalEpochV986;
     if(destroyed||readDirectionV986!=='vertical'||i<0||i>=pages.length||verticalPendingV986.has(i)||verticalUrlsV986.has(i))return;
+    if(verticalVirtualV1191&&!verticalItemsV986[i])return;
     verticalPendingV986.add(i);verticalQueueV986.push({i,epoch});
     pumpVerticalV986();
   }
   function pumpVerticalV986(){
     while(verticalRunningV986<2 && verticalQueueV986.length){
       const task=verticalQueueV986.shift(),{i,epoch}=task;
-      if(epoch!==verticalEpochV986||readDirectionV986!=='vertical'){verticalPendingV986.delete(i);continue;}
+      if(epoch!==verticalEpochV986||readDirectionV986!=='vertical'||(verticalVirtualV1191&&!verticalItemsV986[i])){verticalPendingV986.delete(i);continue;}
       verticalRunningV986++;
       (async()=>{
         let url=null;
@@ -171295,12 +171562,13 @@ async function openLightbox(value, fileJumpV1005=null){
           verticalUrlsV986.set(i,url);img.hidden=false;img.src=url;
           // v1090: 이어보기 썸네일은 이전 감상 시점의 고정 이미지.
           wrapper.classList.add('is-loaded');
-          img.onload=()=>{if(epoch!==verticalEpochV986)return;
+          img.onload=()=>{if(epoch!==verticalEpochV986||(verticalVirtualV1191&&verticalItemsV986[i]!==wrapper))return;
             // 이미지가 준비되면 임시 80vh 자리표시를 실제 이미지 높이로 바꿔 페이지 사이 빈 공간을 없앤다.
             wrapper.style.minHeight='0px';
             const h=Math.max(1,Math.round(img.getBoundingClientRect().height));
             wrapper.style.minHeight=h+'px';
             wrapper.dataset.zipMeasuredV1076='1';
+            if(verticalVirtualV1191&&verticalItemsV986[i]===wrapper)verticalVirtualV1191.setHeight(i,h);
             heartManagerV1148?.placeVertical(wrapper);
           };
         }catch(e){if(epoch===verticalEpochV986){
@@ -171313,6 +171581,10 @@ async function openLightbox(value, fileJumpV1005=null){
     }
   }
   function currentVerticalPageV986(){
+    if(verticalVirtualV1191){
+      const target=verticalViewV986.scrollTop+Math.min(verticalViewV986.clientHeight*.27,170);
+      return verticalVirtualV1191.find(target);
+    }
     const vr=verticalViewV986.getBoundingClientRect();
     const targetTop=vr.top + Math.min(vr.height*0.27,170);
     let best=idx,bestDistance=Infinity;
@@ -171328,6 +171600,7 @@ async function openLightbox(value, fileJumpV1005=null){
   function verticalProgressV986(){
     if(destroyed||readDirectionV986!=='vertical')return;
     const n=currentVerticalPageV986();
+    if(verticalVirtualV1191)renderVerticalWindowV1191(n);
     if(n!==idx){setPageLabelV986(n,true);trimVerticalV986();}
     // 브라우저에서 관찰자 알림이 지연되어도 현재 페이지 주변을 미리 불러온다.
     for(let k=Math.max(0,idx-1);k<=Math.min(pages.length-1,idx+2);k++)scheduleVerticalLoadV986(k);
@@ -171358,18 +171631,28 @@ async function openLightbox(value, fileJumpV1005=null){
     refreshVerticalSizeControlsV1076();
     try{localStorage.setItem(VERTICAL_SIZE_KEY_V1076,String(nextWidth));}catch(_){}
     if(active){
+      // 희소배열(초대형 가상 세로뷰)의 비표시 페이지에는 DOM 요소가 없다.
+      if(verticalVirtualV1191&&oldEffective>0){
+        const v=verticalVirtualV1191;
+        for(let i=0;i<v.n;i++)if(v.measured[i]&&!verticalItemsV986[i])v.setHeight(i,v.heights[i]*newEffective/oldEffective);
+      }
       for(const wrapper of verticalItemsV986){
+        if(!wrapper)continue;
         const img=wrapper.querySelector('img');
         if(img&&!img.hidden&&img.naturalWidth){
           // 높이 제한이 기존 폭의 높이로 남아 축소를 막지 않도록 재측정.
           wrapper.style.minHeight='0px';
           wrapper.style.minHeight=Math.max(1,Math.round(img.getBoundingClientRect().height))+'px';
           wrapper.dataset.zipMeasuredV1076='1';
+          if(verticalVirtualV1191)verticalVirtualV1191.setHeight(Number(wrapper.dataset.zipIndex),Math.round(img.getBoundingClientRect().height));
         }else if(wrapper.dataset.zipMeasuredV1076==='1'&&oldEffective>0){
           // 화면 밖에서 URL이 해제된 페이지도 이전 높이 캐시만 비례 보정한다.
           const oldHeight=parseFloat(wrapper.style.minHeight);
-          if(Number.isFinite(oldHeight)&&oldHeight>0)
-            wrapper.style.minHeight=Math.max(1,Math.round(oldHeight*newEffective/oldEffective))+'px';
+          if(Number.isFinite(oldHeight)&&oldHeight>0){
+            const h=Math.max(1,Math.round(oldHeight*newEffective/oldEffective));
+            wrapper.style.minHeight=h+'px';
+            if(verticalVirtualV1191)verticalVirtualV1191.setHeight(Number(wrapper.dataset.zipIndex),h);
+          }
         }
       }
       if(anchor){
@@ -171392,47 +171675,68 @@ async function openLightbox(value, fileJumpV1005=null){
     cleanVerticalV986();const epoch=verticalEpochV986;
     image.hidden=true;verticalViewV986.hidden=false;
     if(u){URL.revokeObjectURL(u);u=null;image.removeAttribute('src');}
-    const frag=document.createDocumentFragment();
-    for(let i=0;i<pages.length;i++){
-      const wrapper=document.createElement('div');wrapper.className='zipVerticalPageV986';wrapper.dataset.zipIndex=String(i);
-      const img=document.createElement('img');img.alt=pages[i].name;img.hidden=true;img.loading='lazy';wrapper.appendChild(img);
-      heartManagerV1148?.addVertical(wrapper,i+1);
-      verticalItemsV986.push(wrapper);frag.appendChild(wrapper);
+    const isVirtualV1191=pages.length>VERTICAL_VIRTUAL_THRESHOLD_V1191;
+    if(isVirtualV1191){
+      verticalViewV986.style.overflowAnchor='none';
+      initVerticalVirtualV1191();
     }
-    verticalViewV986.appendChild(frag);
     if(typeof IntersectionObserver==='function'){
       verticalIOV986=new IntersectionObserver(entries=>{
         if(epoch!==verticalEpochV986)return;
         for(const e of entries){const i=Number(e.target.dataset.zipIndex);
+          if(verticalVirtualV1191&&verticalItemsV986[i]!==e.target)continue;
           if(e.isIntersecting){verticalVisibleV986.add(i);scheduleVerticalLoadV986(i);}
           else verticalVisibleV986.delete(i);
         }
         verticalProgressV986();
       },{root:verticalViewV986,rootMargin:'120% 0px'});
-      verticalItemsV986.forEach(x=>verticalIOV986.observe(x));
     }
-    const target=verticalItemsV986[idx];
-    if(target)verticalViewV986.scrollTop=target.offsetTop;
+    if(isVirtualV1191){
+      // 26,000개 대신 처음에는 28개만 만들고 스크롤을 따라 재사용한다.
+      renderVerticalWindowV1191(idx,true);
+      verticalViewV986.scrollTop=verticalVirtualV1191.sum(idx);
+    }else{
+      const frag=document.createDocumentFragment();
+      for(let i=0;i<pages.length;i++){
+        const wrapper=createVerticalPageV1191(i);
+        verticalItemsV986.push(wrapper);frag.appendChild(wrapper);
+      }
+      verticalViewV986.appendChild(frag);
+      if(verticalIOV986)verticalItemsV986.forEach(x=>verticalIOV986.observe(x));
+      const target=verticalItemsV986[idx];
+      if(target)verticalViewV986.scrollTop=target.offsetTop;
+    }
     for(let i=Math.max(0,idx-1);i<=Math.min(pages.length-1,idx+2);i++)scheduleVerticalLoadV986(i);
     setPageLabelV986(idx,true);
   }
   async function setDirectionV986(direction){
     if(destroyed||!['horizontal','vertical'].includes(direction))return;
     if(direction===readDirectionV986)return;
+    stopAutoPageV1194();
     readDirectionV986=direction;syncDirectionButtonsV986();
     heartManagerV1148?.setVertical(direction==='vertical');
     if(direction==='vertical'){++seq;startVerticalV986();}
     else{cleanVerticalV986();verticalViewV986.hidden=true;image.hidden=false;await go(idx);}
     showControls();hideControlsLater(2000);
   }
-  horizontalBtnV986.onclick=()=>void setDirectionV986('horizontal');
-  verticalBtnV986.onclick=()=>void setDirectionV986('vertical');
-  async function go(n){
+  // v1192: 사용자가 직접 방향을 눌렀다면 늦게 끝난 자동 판별이 그 선택을 덮어쓰지 않는다.
+  let autoDirectionCancelledV1192=false;
+  horizontalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;void setDirectionV986('horizontal');};
+  verticalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;void setDirectionV986('vertical');};
+  async function go(n,fromAutoPageV1194=false){
+    // 사람이 직접 회차/페이지를 바꿨다면 자동넘김은 정지. 타이머에서 오는 이동만 예외.
+    if(!fromAutoPageV1194)stopAutoPageV1194();
     window.__comicBalanceV1024?.activity();
-    if(destroyed)return;
+    if(destroyed)return false;
     const to=Math.min(pages.length-1,Math.max(0,n));
     if(readDirectionV986==='vertical'){
       setPageLabelV986(to,true);
+      if(verticalVirtualV1191){
+        renderVerticalWindowV1191(to,true);
+        verticalViewV986.scrollTop=verticalVirtualV1191.sum(to);
+        scheduleVerticalLoadV986(to);trimVerticalV986();
+        return;
+      }
       const wrapper=verticalItemsV986[to];
       if(wrapper){verticalViewV986.scrollTop=wrapper.offsetTop;scheduleVerticalLoadV986(to);trimVerticalV986();}
       return;
@@ -171440,14 +171744,16 @@ async function openLightbox(value, fileJumpV1005=null){
     setPageLabelV986(to,true);
     const mine=++seq;
     try{const data=await readImageV992(pages[idx]);
-      if(mine!==seq||destroyed||readDirectionV986!=='horizontal')return;
+      if(mine!==seq||destroyed||readDirectionV986!=='horizontal')return false;
       const url=URL.createObjectURL(data);
       image.src=url;
       // v1090: 현재 페이지 이미지로 이어보기 썸네일을 덮어쓰지 않는다.
       if(u)URL.revokeObjectURL(u);u=url;
+      return true;
     }catch(e){
       if(mine===seq&&!destroyed){badge.textContent=`${pageLabelV985(idx)} · 열기 실패`;
         counter.textContent=`${pageLabelV985(idx)} · ${errText(e)}`;flashBadge();}
+      return false;
     }
   }
   // v995: ZIP·CBZ 및 로컬 이미지 폴더에 공통 적용되는 가로 페이지 탐색.
@@ -171467,6 +171773,7 @@ async function openLightbox(value, fileJumpV1005=null){
     const deltaX=event.deltaX||0,deltaY=event.deltaY||0;
     let delta=Math.abs(deltaX)>Math.abs(deltaY)?deltaX:deltaY;
     if(!delta)return;
+    stopAutoPageV1194();
     // 단일 wheel 이벤트가 작은 터치패드에서도 자연스럽게 동작하도록 누적.
     if(event.deltaMode===1)delta*=16;
     if(event.deltaMode===2)delta*=window.innerHeight||700;
@@ -171488,6 +171795,7 @@ async function openLightbox(value, fileJumpV1005=null){
     touchStartV995=null;
     if(destroyed||readDirectionV986!=='horizontal'||event.touches.length!==1)return;
     const p=event.touches[0];
+    stopAutoPageV1194();
     touchStartV995={x:p.clientX,y:p.clientY,swiping:false};
   },{passive:true});
   image.addEventListener('touchmove',event=>{
@@ -171565,6 +171873,9 @@ async function openLightbox(value, fileJumpV1005=null){
     flushLastPageV1020(preserveGroupV1184);
     document.removeEventListener('visibilitychange',onPageHiddenV1020);
     window.removeEventListener('pagehide',onPageUnloadV1020);
+    document.removeEventListener('visibilitychange',onAutoVisibilityV1193);
+    stopAutoPageV1194();
+    stopAutoScrollV1193();
     destroyed=true;seq++;
     window.removeEventListener('comic-guide-mode-v1148',onGuideChangeV1148);
     window.removeEventListener('storage',onGuideChangeV1148);
@@ -171582,7 +171893,20 @@ async function openLightbox(value, fileJumpV1005=null){
   function keyHandler(e){
     if(destroyed||!cover.isConnected)return;
     if(e.key==='Escape'){destroy();e.preventDefault();e.stopPropagation();return;}
-    if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))return;
+    // 자동스크롤 속도 선택창에 포커스가 있어도 ↑/↓ 단축키는 동일하게 적용한다.
+    // 다른 입력창 및 선택창의 방향키는 가로채지 않는다.
+    const focusV1195=document.activeElement;
+    if((['INPUT','SELECT','TEXTAREA'].includes(focusV1195?.tagName)&&focusV1195!==autoScrollSpeedV1193)||e.isComposing)return;
+    // v1195: 자동스크롤 중 ↑는 빠르게, ↓는 느리게. 반복 입력은 한 번만 처리.
+    // 다른 뷰어/전체 문서의 방향키 단축키로 전파하지 않는다.
+    if(readDirectionV986==='vertical'&&autoScrollRunningV1193&&(e.key==='ArrowUp'||e.key==='ArrowDown')&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!e.repeat)adjustAutoScrollSpeedV1195(e.key==='ArrowUp'?1:-1);
+      return;
+    }
+    // 다른 이동키는 기존 동작대로 자동스크롤 정지.
+    if(readDirectionV986==='vertical'&&['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key))stopAutoScrollV1193();
+    if(readDirectionV986==='horizontal'&&['ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(e.key))stopAutoPageV1194();
     if(e.shiftKey && (e.key==='ArrowRight'||e.key==='ArrowLeft')){
       if(fileNavV1005)void moveFileV1005(e.key==='ArrowRight'?1:-1);
       e.preventDefault();e.stopPropagation();return;
@@ -171634,6 +171958,51 @@ async function openLightbox(value, fileJumpV1005=null){
   syncDirectionButtonsV986();refreshBadge();
   if(fileJumpV1005?.direction==='vertical')await setDirectionV986('vertical');
   else await go(idx);
+
+  // v1192: 자동 방향은 최초 열기에서만 적용한다. Shift 이전/다음 작품처럼
+  // 기존에 방향을 명시해 전달한 이동은 사용자가 선택한 가로/세로 상태를 우선한다.
+  // 첫 번째 이미지의 기존 '처음 1페이지' 미리보기를 재사용하므로 중복 압축해제를 피한다.
+  if(!destroyed && !['horizontal','vertical'].includes(fileJumpV1005?.direction)){
+    const isLongV1192=(w,h)=>Number.isFinite(w)&&Number.isFinite(h)&&w>0&&h>=w*2;
+    const switchIfNeededV1192=(w,h)=>{
+      if(!destroyed&&!autoDirectionCancelledV1192&&readDirectionV986==='horizontal'&&isLongV1192(w,h)){
+        autoDirectionCancelledV1192=true;
+        void setDirectionV986('vertical');
+        return true;
+      }
+      return false;
+    };
+    const checkSecondV1192=async()=>{
+      if(pages.length<2||destroyed||autoDirectionCancelledV1192)return;
+      let probeUrl=null;
+      try{
+        const blob=await readImageV992(pages[1]);
+        if(destroyed||autoDirectionCancelledV1192)return;
+        probeUrl=URL.createObjectURL(blob);
+        const ratio=await new Promise(resolve=>{
+          const probe=new Image();
+          probe.onload=()=>resolve([probe.naturalWidth,probe.naturalHeight]);
+          probe.onerror=()=>resolve([0,0]);
+          probe.src=probeUrl;
+        });
+        switchIfNeededV1192(ratio[0],ratio[1]);
+      }catch(e){console.warn('[comic auto direction v1192] 두 번째 이미지 비율 확인 실패',e?.message||e);}
+      finally{if(probeUrl)URL.revokeObjectURL(probeUrl);}
+    };
+    const checkFirstV1192=()=>{
+      if(destroyed||autoDirectionCancelledV1192)return;
+      if(!switchIfNeededV1192(firstImageV1090.naturalWidth,firstImageV1090.naturalHeight))
+        void checkSecondV1192();
+    };
+    if(firstImageV1090.complete && firstImageV1090.src){
+      if(firstImageV1090.naturalWidth>0)checkFirstV1192();
+      else void checkSecondV1192(); // 이미 로드 실패한 첫 장도 처리
+    }else{
+      firstImageV1090.addEventListener('load',checkFirstV1192,{once:true});
+      // 첫 장 이미지가 손상돼도 정상적인 둘째 장이라면 세로보기 판별 가능.
+      firstImageV1090.addEventListener('error',()=>void checkSecondV1192(),{once:true});
+    }
+  }
   } finally { balanceV1024?.endOpen(); }
 }
 // 이미 추출한 표지는 폴더 연결 후 ZIP을 다시 열지 않고 WebP 그대로 저장.
@@ -172021,6 +172390,148 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
       else pageRootJobsV1102.delete(rec.handle); // 권한 복원 후 다시 시도 가능
     }
     return id?id+'\0'+String(rec.rel||rec.name):null;
+  }
+  // v1190: 장수(숫자) DB와 별개로, 뷰어에 필요한 '상대경로/순서'만 영구 저장.
+  // 파일 내용·이미지 Blob·FileSystemHandle은 저장하지 않는다.
+  const FS_INDEX_DB_V1190='comic_fs_page_index_v1190';
+  const FS_INDEX_STORE_V1190='paths';
+  const fsIndexRamV1190=new Map(),fsIndexReadJobsV1190=new Map(),fsIndexWriteJobsV1190=new Map();
+  const fsDirHandleCacheV1190=new WeakMap();
+  function rememberFsIndexV1190(key,paths){
+    fsIndexRamV1190.delete(key);
+    fsIndexRamV1190.set(key,paths);
+    while(fsIndexRamV1190.size>6)fsIndexRamV1190.delete(fsIndexRamV1190.keys().next().value);
+  }
+  function validFsPathV1190(path){
+    return typeof path==='string'&&path.length>0&&path.length<=2048&&
+      !path.includes('\\')&&!path.includes('\0')&&
+      path.split('/').every(p=>p&&p!=='.'&&p!=='..')&&imageRE.test(path);
+  }
+  function openFsIndexDbV1190(){return new Promise((yes,no)=>{
+    const request=indexedDB.open(FS_INDEX_DB_V1190,1);
+    request.onupgradeneeded=()=>{
+      if(!request.result.objectStoreNames.contains(FS_INDEX_STORE_V1190))
+        request.result.createObjectStore(FS_INDEX_STORE_V1190);
+    };
+    request.onsuccess=()=>yes(request.result);
+    request.onerror=()=>no(request.error||Error('페이지 경로 DB 열기 실패'));
+    request.onblocked=()=>no(Error('페이지 경로 DB가 다른 탭에서 잠겼습니다'));
+  });}
+  async function readFsIndexV1190(key){
+    if(!key)return null;
+    if(fsIndexRamV1190.has(key))return fsIndexRamV1190.get(key);
+    if(fsIndexReadJobsV1190.has(key))return fsIndexReadJobsV1190.get(key);
+    const job=(async()=>{
+      // 저장 중인 결과가 있다면 완료될 때까지 기다려 오래된 경로를 읽지 않는다.
+      if(fsIndexWriteJobsV1190.has(key))await fsIndexWriteJobsV1190.get(key);
+      if(fsIndexRamV1190.has(key))return fsIndexRamV1190.get(key);
+      let db;
+      try{
+        db=await openFsIndexDbV1190();
+        const stored=await new Promise((yes,no)=>{
+          const tx=db.transaction(FS_INDEX_STORE_V1190,'readonly');
+          const req=tx.objectStore(FS_INDEX_STORE_V1190).get(key);
+          req.onsuccess=()=>yes(req.result||null);
+          req.onerror=()=>no(req.error||Error('페이지 경로 읽기 실패'));
+        });
+        if(!stored||!Array.isArray(stored.paths)||!stored.paths.length||
+           !stored.paths.every(validFsPathV1190))return null;
+        rememberFsIndexV1190(key,stored.paths);
+        return stored.paths;
+      }catch(e){console.warn('[comic FS v1190] 경로 색인 읽기 실패',e);return null;}
+      finally{try{db?.close();}catch(_){}}
+    })().finally(()=>fsIndexReadJobsV1190.delete(key));
+    fsIndexReadJobsV1190.set(key,job);
+    return job;
+  }
+  async function writeFsIndexV1190(key,paths){
+    if(!key||!Array.isArray(paths)||!paths.length||!paths.every(validFsPathV1190))return false;
+    rememberFsIndexV1190(key,paths);
+    const prior=fsIndexWriteJobsV1190.get(key)||Promise.resolve();
+    const job=prior.catch(()=>{}).then(async()=>{
+      let db;
+      try{
+        db=await openFsIndexDbV1190();
+        await new Promise((yes,no)=>{
+          const tx=db.transaction(FS_INDEX_STORE_V1190,'readwrite');
+          tx.objectStore(FS_INDEX_STORE_V1190).put({paths,updatedAt:Date.now()},key);
+          tx.oncomplete=()=>yes();
+          tx.onerror=()=>no(tx.error||Error('페이지 경로 저장 실패'));
+          tx.onabort=()=>no(tx.error||Error('페이지 경로 저장 중단'));
+        });
+        return true;
+      }catch(e){console.warn('[comic FS v1190] 경로 색인 저장 실패',e);return false;}
+      finally{try{db?.close();}catch(_){}}
+    });
+    fsIndexWriteJobsV1190.set(key,job);
+    void job.finally(()=>{if(fsIndexWriteJobsV1190.get(key)===job)fsIndexWriteJobsV1190.delete(key);});
+    return await job;
+  }
+  // v1190: 페이지 목록은 즉시 구축하되 2만~3만 개 파일핸들을 한꺼번에 만들지 않는다.
+  // 실제 파일핸들은 사용자가 해당 이미지를 볼 때만 해당 회차 폴더에서 찾는다.
+  function fsFilesFromPathsV1190(root,paths){
+    let dirCache=fsDirHandleCacheV1190.get(root);
+    if(!dirCache){dirCache=new Map([['',root]]);fsDirHandleCacheV1190.set(root,dirCache);}
+    async function dirFor(prefix){
+      if(dirCache.has(prefix))return dirCache.get(prefix);
+      let at=root,path='';
+      for(const part of prefix.split('/').filter(Boolean)){
+        path=path?path+'/'+part:part;
+        at=dirCache.get(path)||await at.getDirectoryHandle(part,{create:false});
+        if(!dirCache.has(path)){
+          dirCache.set(path,at);
+          while(dirCache.size>48){
+            const oldest=dirCache.keys().next().value;
+            if(oldest===''){dirCache.delete('');continue;}
+            dirCache.delete(oldest);
+          }
+        }
+      }
+      return at;
+    }
+    return paths.map(path=>{
+      let handle=null;
+      return {name:path,handle:{
+        getFile:async()=>{
+          try{
+            if(!handle){
+              const split=path.lastIndexOf('/');
+              const parent=split<0?root:await dirFor(path.slice(0,split));
+              handle=await parent.getFileHandle(path.slice(split+1),{create:false});
+            }
+            return await handle.getFile();
+          }catch(e){
+            handle=null;
+            throw Error('이미지 파일을 찾을 수 없습니다: '+path+' · 작품의 ↻ 재스캔을 눌러 주세요. ('+String(e?.message||e)+')');
+          }
+        }
+      }};
+    });
+  }
+  // 전체/폴더 스캔은 작품 자체 페이지를 새로 세지 않아도 된다. 다음에 열 때
+  // 변경된 파일들을 새로 색인하도록 해당 루트의 과거 경로 목록만 무효화한다.
+  async function invalidateRootsFsIndexV1190(rootIds){
+    const ids=[...new Set((rootIds||[]).map(String).filter(Boolean))];
+    if(!ids.length)return;
+    const matches=key=>ids.some(id=>String(key).startsWith(id+'\0'));
+    for(const key of [...fsIndexRamV1190.keys()])if(matches(key))fsIndexRamV1190.delete(key);
+    let db;
+    try{
+      db=await openFsIndexDbV1190();
+      await new Promise((yes,no)=>{
+        const tx=db.transaction(FS_INDEX_STORE_V1190,'readwrite');
+        const req=tx.objectStore(FS_INDEX_STORE_V1190).openCursor();
+        req.onsuccess=()=>{
+          const cursor=req.result;
+          if(!cursor)return;
+          if(matches(cursor.key))cursor.delete();
+          cursor.continue();
+        };
+        req.onerror=()=>no(req.error||Error('경로 색인 삭제 실패'));
+        tx.oncomplete=()=>yes();tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);
+      });
+    }catch(e){console.warn('[comic FS v1190] 스캔 후 경로 캐시 갱신 실패',e);}
+    finally{try{db?.close();}catch(_){}}
   }
   async function readPageMetaV1102(rec){
     const key=await pageKeyV1102(rec);if(!key)return null;
@@ -172604,20 +173115,27 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
  async function getFiles(value){
    let rec=recFor(value)||await resolveRecV1001(value);
    if(!rec){
-     // 저장된 부모 루트가 없거나 대상이 직계 폴더가 아니라면 기존 복원 경로 사용.
      try{if(typeof ensureComicFsReady==='function')await ensureComicFsReady(false);}catch(_){}
      rec=recFor(value);
    }
-   if(!rec?.handle)throw new Error('연결된 로컬 이미지 폴더를 찾을 수 없습니다. 만화 → 로컬에서 폴더 연결을 확인해 주세요.');
-   if(typeof listFsImages!=='function')throw new Error('로컬 이미지 파일 목록 기능을 찾을 수 없습니다.');
+   if(!rec?.handle)throw Error('연결된 로컬 이미지 폴더를 찾을 수 없습니다. 만화 → 로컬에서 폴더 연결을 확인해 주세요.');
+   const key=await pageKeyV1102(rec);
+   // v1190: 재진입 시 전체 entries() 검사 대신 RAM/IndexedDB의 페이지 상대경로 사용.
+   const cached=await readFsIndexV1190(key);
+   if(cached)return fsFilesFromPathsV1190(rec.handle,cached);
+   // 이전 버전에서 저장한 '총 장수'만으로는 개별 페이지 순서를 알 수 없다.
+   // 기존 작품은 여기서 한 번만 실제 목록을 생성하고 이후에는 경로 색인을 재사용한다.
+   if(typeof listFsImages!=='function')throw Error('로컬 이미지 파일 목록 기능을 찾을 수 없습니다.');
    const files=await listFsImages(rec.handle);
-   if(files.length<20000){
-     metaCache.set(rec.handle,{total:files.length,first:files[0]?.handle||null,firstPath:files[0]?.name||''});
-     if(metaCache.size>maxMeta)metaCache.delete(metaCache.keys().next().value);
-     await savePageMetaV1102(value,rec,{total:files.length,firstPath:files[0]?.name||''},true);
-   }
-   return files;
+   if(!files.length)return files;
+   const paths=files.map(f=>f.name);
+   if(key)await writeFsIndexV1190(key,paths);
+   metaCache.set(rec.handle,{total:files.length,first:files[0]?.handle||null,firstPath:files[0]?.name||''});
+   if(metaCache.size>maxMeta)metaCache.delete(metaCache.keys().next().value);
+   await savePageMetaV1102(value,rec,{total:files.length,firstPath:files[0]?.name||''},true);
+   return fsFilesFromPathsV1190(rec.handle,paths);
  }
+
  // v994: 같은 작가 패널에는 '페이지 장수' 배지가 없으므로 화면에 보이지 않는 배지를 전달해
  // 기존 로컬 이미지 표지 로더를 그대로 재사용한다. 실제 파일을 덮어쓰거나 다시 등록하지 않는다.
  function mountAuthorPoster(value,wrap){
@@ -172627,23 +173145,38 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
  }
  async function rescanExactV1085(value){
    const rec=recFor(value)||await resolveRecV1001(value);
-   if(!rec?.handle)throw new Error('이 작품의 이미지폴더를 찾지 못했습니다. 폴더 권한과 연결을 확인해 주세요.');
+   if(!rec?.handle)throw Error('이 작품의 이미지폴더를 찾지 못했습니다. 폴더 권한과 연결을 확인해 주세요.');
    if(typeof rec.handle.queryPermission==='function' &&
       await rec.handle.queryPermission({mode:'read'})!=='granted')
-      throw new Error('폴더 읽기 권한이 필요합니다. 상단 권한 버튼(P)에서 허용해 주세요.');
-   // 이 작품만 다시 조사한다. 다른 작품의 메타/표지 캐시는 그대로 둔다.
+      throw Error('폴더 읽기 권한이 필요합니다. 상단 권한 버튼(P)에서 허용해 주세요.');
+   // v1190: 명시적으로 ↻를 누른 이 작품만 전체 페이지 경로/장수/표지를 갱신한다.
+   const files=await listFsImages(rec.handle);
+   const key=await pageKeyV1102(rec);
+   const paths=files.map(f=>f.name);
+   if(files.length){
+     if(key && !await writeFsIndexV1190(key,paths))
+       console.warn('[comic FS v1190] 개별 재스캔: 페이지 경로 영구 저장 실패, RAM 목록 사용');
+   }else if(key){
+     fsIndexRamV1190.delete(key);
+     let db=null;
+     try{db=await openFsIndexDbV1190();await new Promise((yes,no)=>{
+       const tx=db.transaction(FS_INDEX_STORE_V1190,'readwrite');
+       tx.objectStore(FS_INDEX_STORE_V1190).delete(key);
+       tx.oncomplete=()=>yes();tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);
+     });}catch(e){console.warn('[comic FS v1190] 빈 폴더 색인 삭제 실패',e);}
+     finally{try{db?.close();}catch(_){}}
+   }
    metaCache.delete(rec.handle);
-   // 신규 등록 중의 임시 표지 핸들은 재검사 결과보다 우선하지 않게 한다.
    if(rec.coverHandleV1040)delete rec.coverHandleV1040;
-   const meta=await inspect(rec.handle);
-   if(!meta)throw new Error('이미지폴더를 읽지 못했습니다.');
+   const meta={total:files.length,first:files[0]?.handle||null,firstPath:files[0]?.name||''};
+   metaCache.set(rec.handle,meta);
+   if(metaCache.size>maxMeta)metaCache.delete(metaCache.keys().next().value);
    await savePageMetaV1102(value,rec,meta,true);
-   // 현재 화면에 보이는 이 작품의 카드만 갱신, 다른 카드·개인 데이터는 유지.
    document.querySelectorAll('#wtList .wtThumbItem[data-wt-value]').forEach(card=>{
      if(card.dataset.wtValue!==value)return;
      const wrap=card.querySelector('.wtThumbImgWrap');
      const badge=wrap?.querySelector('.wtThumbBadgeTotal');
-     if(wrap && badge){
+     if(wrap&&badge){
        badge.textContent=meta.total>0?String(meta.total):'-';
        badge.title=`로컬 이미지 폴더: ${meta.total}장`;
        mount(value,wrap,badge);
@@ -172651,8 +173184,10 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    });
    return {type:'folder',count:meta.total};
  }
+
  window.ComicFsLocalV990={mount,getFiles,mountAuthorPoster,
    rescanExactV1085,
+   invalidatePageManifestsForRootsV1190:invalidateRootsFsIndexV1190,
    findRecord:recFor,
    invalidateIndexV1013:invalidateFolderIndexV1013,
    resolveRecord: value => recFor(value) || resolveRecV1001(value)};
@@ -174515,6 +175050,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <p>로컬 압축만화와 이미지폴더의 페이지 수 IndexedDB 저장·복원 및 페이지순 정렬을 보완했습니다. 저장된 장수는 불필요하게 전체 파일을 다시 검사하지 않고 활용합니다.</p>
   </div>
 </template>
+<!-- v1196: ZIP 파일명이 불규칙한 작품폴더의 일괄 묶음 안내 -->
+<template id="wv1196LatestTemplate">
+  <div class="wv1098Section wv1175Highlight">
+    <h3>📚 폴더 전체묶음 · 일괄 선택 추가</h3>
+    <p><strong>ZIP·CBZ 파일명이 서로 달라도</strong> 같은 실제 작품폴더에 들어 있으면 선택하여 하나의 작품으로 묶을 수 있습니다.</p>
+    <ul>
+      <li>상단 <strong>묶음</strong> 버튼: 자동묶음(90% 규칙) → 수동묶음 → <strong>폴더 전체묶음</strong> 순서로 진행합니다.</li>
+      <li>폴더 후보 목록에서 <strong>검색 결과 전체 선택·전체 선택 해제</strong>를 지원합니다. 후보가 많아도 한 번에 지정할 수 있습니다.</li>
+      <li>일반·작가·그룹·태그 목록에는 <strong>폴더명 대표 표지 하나</strong>로 표시하고, <strong>묶음 탭에서는 원래 ZIP·CBZ를 개별 표지로 펼쳐 표시</strong>합니다.</li>
+      <li>하나의 폴더에 서로 다른 작품이 섞여 있으면 전체묶음을 선택하지 마세요. 이미 자동·수동묶음된 파일을 포함하는 폴더는 중복 묶음 후보에서 제외합니다.</li>
+      <li>폴더 이름과 ZIP 원본, 읽은 기록, 기존 IndexedDB 저장 데이터는 변경하지 않습니다. 선택한 폴더만 묶거나 개별 표시로 되돌릴 수 있습니다.</li>
+    </ul>
+  </div>
+  <div class="wv1098Section"><h3>💬 오류·건의 작성 안내</h3><p>브라우저 종류, 문제의 폴더 경로(개인정보 제외), 오류 재현 과정을 알려주시면 원인 파악에 도움이 됩니다.</p></div>
+</template>
+<!-- v1197: 1196 폴더 전체묶음 공지에 세로·가로 자동 이동 사용법을 포함한 최신 공지. -->
+<template id="wv1197LatestTemplate">
+  <div class="wv1098Section wv1175Highlight">
+    <h3>📚 폴더 전체묶음 · 일괄 선택 추가</h3>
+    <p><strong>ZIP·CBZ 파일명이 서로 달라도</strong> 같은 실제 작품폴더에 들어 있으면 선택하여 하나의 작품으로 묶을 수 있습니다.</p>
+    <ul>
+      <li>상단 <strong>묶음</strong> 버튼: 자동묶음(90% 규칙) → 수동묶음 → <strong>폴더 전체묶음</strong> 순서로 진행합니다.</li>
+      <li>폴더 후보 목록에서 <strong>검색 결과 전체 선택·전체 선택 해제</strong>를 지원합니다. 후보가 많아도 한 번에 지정할 수 있습니다.</li>
+      <li>일반·작가·그룹·태그 목록에는 <strong>폴더명 대표 표지 하나</strong>로 표시하고, <strong>묶음 탭에서는 원래 ZIP·CBZ를 개별 표지로 펼쳐 표시</strong>합니다.</li>
+      <li>하나의 폴더에 서로 다른 작품이 섞여 있으면 전체묶음을 선택하지 마세요. 이미 자동·수동묶음된 파일을 포함하는 폴더는 중복 묶음 후보에서 제외합니다.</li>
+      <li>폴더 이름과 ZIP 원본, 읽은 기록, 기존 IndexedDB 저장 데이터는 변경하지 않습니다. 선택한 폴더만 묶거나 개별 표시로 되돌릴 수 있습니다.</li>
+    </ul>
+  </div>
+
+  <div class="wv1098Section wv1179Chapters">
+    <h3>📖 만화 자동스크롤 · 자동 페이지 넘김</h3>
+    <ul>
+      <li><strong>세로보기:</strong> 뷰어 상단의 <strong>▶ 자동</strong>을 누르면 부드럽게 아래로 스크롤합니다. 속도는 <strong>20~500px/초</strong> 중에서 선택할 수 있으며, 기본값은 <strong>150px/초</strong>입니다.</li>
+      <li><strong>↑ / ↓ 키:</strong> 세로 자동스크롤 실행 중에는 위쪽 방향키로 속도를 한 단계 올리고, 아래쪽 방향키로 한 단계 내립니다. 자동스크롤은 멈추지 않습니다.</li>
+      <li><strong>가로보기:</strong> 뷰어 상단의 <strong>▶ 자동넘김</strong>으로 다음 페이지를 자동으로 넘깁니다. 간격은 <strong>1~10초(1초 단위)</strong>이며 기본값은 <strong>3초</strong>입니다. 이미지가 표시된 뒤 다음 시간을 계산합니다.</li>
+      <li>두 기능은 기본적으로 <strong>꺼짐(OFF)</strong>입니다. 버튼으로 언제든 일시정지할 수 있고, 직접 휠·터치·페이지 이동을 조작하면 자동 동작이 중단됩니다.</li>
+      <li><strong>첫 두 페이지 중 한 장이라도 높이가 너비의 두 배 이상</strong>이면 세로보기로 자동 전환됩니다. 대용량 이미지폴더는 페이지 경로 색인과 가상 스크롤로 시작·스크롤 성능을 개선했습니다.</li>
+    </ul>
+  </div>
+  <div class="wv1098Section"><h3>💬 오류·건의 작성 안내</h3><p>브라우저 종류, 문제의 폴더 경로(개인정보 제외), 오류 재현 과정을 알려주시면 원인 파악에 도움이 됩니다.</p></div>
+</template>
 <!-- v1152: 임시 서비스 중단 공지. 신규 빌드 배포 시 1회 자동 표시, 기록은 유지. -->
 <template id="wv1152LatestTemplate">
   <div class="wv1098Section"><h3>⚠ 자동공유 기능 임시 사용 중단 안내</h3><ul>
@@ -174613,6 +175189,18 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'📚 웹뷰어 1189 묶음탭·건의 안내',
       subtitle:'묶음탭 회차별 읽음 · 오류 건의 시 브라우저·폴더 경로·발생 상황 안내',
       html:document.getElementById('wv1189LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1196-folder-batch-grouping',build:'빌드 1196',
+      title:'📚 웹뷰어 1196 폴더 전체묶음',
+      subtitle:'파일명 무관 폴더 단위 묶기 · 검색결과 전체 선택',
+      html:document.getElementById('wv1196LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1197-auto-scroll-guide',build:'빌드 1197',
+      title:'📚 웹뷰어 1197 묶음·자동스크롤 안내',
+      subtitle:'폴더 전체묶음 · 세로 자동스크롤·방향키 속도 조절 · 가로 자동넘김',
+      html:document.getElementById('wv1197LatestTemplate')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -175395,10 +175983,14 @@ async function runCombinedV1182(){
     // 1. 기존 90% 규칙 후보를 먼저 확인. 자동 후보가 없어도 2단계는 실행한다.
     const result=await reconfigure({silentIfNone:true});
     if(result.status==='busy')return;
-    // 2. 앞 단계의 적용/변경없음 선택이 완전히 끝난 뒤 수동 후보 창을 연다.
+    // 2. 수동 후보를 먼저 확인 (없으면 안내창을 생략).
     const manual=window.ComicZipChaptersV1177?.manual;
     if(!manual?.open)throw new Error('수동 묶음 기능을 불러오지 못했습니다.');
-    await manual.open();
+    await manual.open({silentIfNone:true});
+    // 3. 파일명이 제각각인 1차 작품폴더는 별도로 전체 묶음할 수 있다.
+    const folders=window.ComicZipChaptersV1177?.folder;
+    if(!folders?.open)throw new Error('폴더 전체 묶음 기능을 불러오지 못했습니다.');
+    await folders.open();
   }catch(error){
     console.error('[comic grouping v1182]',error);
     alert('묶음 설정 중 오류: '+String(error?.message||error));
@@ -175412,7 +176004,7 @@ function installButton(){
   if(!ref||document.getElementById('comicZipChapterConfigV1177'))return;
   const btn=document.createElement('button');btn.type='button';btn.id='comicZipChapterConfigV1177';
   btn.className=ref.className;btn.textContent='묶음';
-  btn.title='자동묶음(폴더 내 ZIP·CBZ 90% 규칙) 확인 후 수동묶음(시리즈 선택)을 순서대로 실행';
+  btn.title='자동묶음(90% 조건) → 수동묶음(파일명) → 폴더 전체묶음(파일명 무관)을 순서대로 실행';
   btn.onclick=()=>void runCombinedV1182();ref.insertAdjacentElement('afterend',btn);
   const sync=()=>{btn.style.display=ref.style.display==='none'?'none':'';};
   sync();new MutationObserver(sync).observe(ref,{attributes:true,attributeFilter:['style']});
@@ -175613,13 +176205,13 @@ async function confirmGroups(groups){
     bar.append(group,separate,back,cancel);panel.append(list,note,bar);
   });
 }
-async function open(){
+async function open({silentIfNone=false}={}){
   if(busy)return;
   busy=true;
   try{
     const entries=typeof wtGetEntriesCached==='function'?wtGetEntriesCached(false):[];
     const candidates=findCandidates(entries);
-    if(!candidates.length){alert('수동회차묶음 후보가 없습니다. 같은 폴더의 ZIP·CBZ 중 서로 다른 작품명과 회차번호로 구분되는 파일이 있어야 합니다.');return;}
+    if(!candidates.length){if(!silentIfNone)alert('수동회차묶음 후보가 없습니다. 같은 폴더의 ZIP·CBZ 중 서로 다른 작품명과 회차번호로 구분되는 파일이 있어야 합니다.');return;}
     let previousSelection=[];
     while(true){
       const selected=await chooseGroups(candidates,previousSelection);
@@ -175638,6 +176230,225 @@ api.manual={findCandidates,open,project:manualProject,
   inspect:()=>({count:decisions.size,grouped:[...decisions.values()].filter(v=>v==='group').length})};
 // 최초 초기화된 폴더 인덱스가 있더라도 가상 묶음이 반영되도록 다시 계산한다.
 try{comicFirstFolderIndexV1132.dirty=true;}catch(_){}
+})();
+</script>
+
+<!-- v1196: 작품명 파일이 엉망인 폴더를 사용자가 지정해 하나의 작품으로 표시. 개별 ZIP/기존 IDB 데이터 변경 없음. -->
+<script id="comicFolderWholeGroupingV1196">
+(()=>{
+'use strict';
+const api=window.ComicZipChaptersV1177;
+if(!api||!api.manual||api.folder)return;
+const KEY='comic_zip_whole_folder_modes_v1196';
+const modes=new Map(),collator=new Intl.Collator('ko',{numeric:true,sensitivity:'base'});
+let revision=0,busy=false;
+const cache={raw:null,base:null,rev:-1,generation:-1,projected:null,byValue:new Map(),groups:[]};
+const h=(tag,label,cls)=>{const e=document.createElement(tag);if(label!==undefined)e.textContent=label;if(cls)e.className=cls;return e;};
+const norm=s=>String(s||'').normalize('NFKC').trim().toLocaleLowerCase();
+function folderKey(id,dir){return JSON.stringify(['folder-all',String(id),String(dir)]);}
+function load(data){
+  if(!data||typeof data!=='object'||Array.isArray(data))return false;
+  let changed=false;
+  for(const [key,mode] of Object.entries(data))if(!modes.has(key)&&(mode==='group'||mode==='separate')){
+    modes.set(key,mode);changed=true;
+  }
+  return changed;
+}
+try{load(JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(_){}
+if(typeof idbGetComic==='function')void idbGetComic(KEY).then(data=>{
+  if(load(data)){
+    revision++;cache.raw=null;
+    try{invalidateComicListQueryV1000();renderWebtoonList();}catch(_){}
+    try{renderWtTagRail();}catch(_){}
+  }
+}).catch(e=>console.warn('[whole folder v1196] 저장 정보 읽기 실패',e));
+function changed(){
+  revision++;cache.raw=null;
+  try{invalidateComicListQueryV1000();}catch(_){}
+  try{renderWebtoonList();}catch(_){}
+  try{renderWtTagRail();}catch(_){}
+}
+function persist(){
+  const snapshot=Object.fromEntries(modes);
+  try{localStorage.setItem(KEY,JSON.stringify(snapshot));}catch(e){console.warn('[whole folder v1196] localStorage 저장 실패',e);}
+  if(typeof idbPutComic==='function')void idbPutComic(KEY,snapshot).catch(e=>console.warn('[whole folder v1196] IDB 저장 실패',e));
+  changed();
+}
+const priorProject=api.project.bind(api),priorGroupForValue=api.groupForValue.bind(api);
+// 동일 등록 루트 + 동일 실제 상위 폴더: ZIP 이름이 불규칙해도 한 작품으로 취급할 수 있다.
+// '0차 등록 루트 직속'은 여러 독립 작품이 섞일 가능성이 높아 후보에서 제외한다.
+// 이미 자동/수동 묶음으로 묶인 파일이 섞인 폴더도 중복 그룹이 생기지 않도록 제외한다.
+function chapterOrder(stem){
+  const s=String(stem||'').normalize('NFKC').trim();
+  let m=/^0*(\d{1,5})$/.exec(s);
+  if(!m)m=/[（(]\s*0*(\d{1,5})\s*[-~～]\s*\d{1,5}\s*[)）]/.exec(s);
+  if(!m)m=/(?:^|[^\d])0*(\d{1,5})\s*(?:화|권|회|편|話|巻)?$/.exec(s);
+  return m?Number(m[1]):Number.MAX_SAFE_INTEGER;
+}
+function findCandidates(raw,baseProjection){
+  const visible=new Set((baseProjection||priorProject(raw)).map(e=>String(e?.value||'')));
+  const byDir=new Map();
+  for(const row of raw||[]){
+    const p=api.parse(row?.value);
+    if(!p||!p.dir)continue;
+    const key=folderKey(p.rootId,p.dir);
+    let g=byDir.get(key);
+    if(!g){
+      const segments=p.dir.split('/').filter(Boolean);
+      const rootName=window.__comicZipRootNameMapV980?.get?.(String(p.rootId))||String(p.rootId);
+      g={key,rootId:p.rootId,dir:p.dir,folder:p.dir,title:segments.at(-1)||p.dir,rootName,items:[]};
+      byDir.set(key,g);
+    }
+    g.items.push(p);
+  }
+  const groups=[];
+  for(const g of byDir.values()){
+    if(g.items.length<2||g.items.some(p=>!visible.has(p.value)))continue;
+    g.items.sort((a,b)=>chapterOrder(a.stem)-chapterOrder(b.stem)||collator.compare(a.file,b.file)||a.value.localeCompare(b.value));
+    g.members=g.items.map((p,i)=>({value:p.value,label:p.stem,number:i+1}));
+    g.total=g.members.length;
+    delete g.items;
+    groups.push(g);
+  }
+  groups.sort((a,b)=>collator.compare(a.rootName,b.rootName)||collator.compare(a.dir,b.dir));
+  return groups;
+}
+function project(raw,base){
+  const generation=typeof _webtoonListGeneration==='number'?_webtoonListGeneration:-1;
+  if(cache.raw===raw&&cache.base===base&&cache.rev===revision&&cache.generation===generation)return cache.projected;
+  const byValue=new Map(),skip=new Set(),replacement=new Map(),groups=[];
+  if([...modes.values()].includes('group')){
+    const byValueEntry=new Map((base||[]).map(e=>[String(e.value),e]));
+    for(const g of findCandidates(raw,base)){
+      if(modes.get(g.key)!=='group')continue;
+      const members=g.members.filter(m=>byValueEntry.has(m.value));
+      if(members.length!==g.members.length)continue;
+      // v1188: 묶음탭에서는 각 ZIP별 마지막 읽은 페이지를 표시한다.
+      const series={...g,members,isManualSeriesV1188:true,isFolderSeriesV1196:true};
+      groups.push(series);
+      for(const member of members)byValue.set(member.value,series);
+      for(const member of members.slice(1))skip.add(member.value);
+      const first=byValueEntry.get(members[0].value);
+      replacement.set(members[0].value,{...first,display:g.title});
+    }
+  }
+  const projected=skip.size||replacement.size
+    ?base.filter(e=>!skip.has(String(e.value))).map(e=>replacement.get(String(e.value))||e)
+    :base;
+  Object.assign(cache,{raw,base,rev:revision,generation,projected,byValue,groups});
+  return projected;
+}
+api.project=function(raw){
+  if(!Array.isArray(raw))return priorProject(raw);
+  const base=priorProject(raw);
+  return project(raw,base);
+};
+api.groupForValue=function(value){
+  const raw=typeof wtGetEntriesCached==='function'?(wtGetEntriesCached(false)||[]):[];
+  api.project(raw);
+  return cache.byValue.get(String(value))||priorGroupForValue(value);
+};
+function dialog(title,description){
+  const shade=h('div');shade.id='comicZipManualOverlayV1180';
+  shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');shade.setAttribute('aria-label',title);
+  const panel=h('section',undefined,'cm1180-panel');
+  panel.append(h('h3',title),h('p',description));shade.append(panel);document.body.append(shade);
+  return {panel,close:()=>shade.remove()};
+}
+function choose(candidates,selectedBefore=[]){
+  const box=dialog('폴더 전체묶음 · 작품폴더 선택',
+    '1차 작품폴더 등 동일 실제 폴더의 ZIP·CBZ를 파일명과 관계없이 묶습니다. 서로 다른 작품이 섞인 폴더는 선택하지 마세요.');
+  return new Promise(resolve=>{
+    const search=h('input');search.type='search';search.placeholder='폴더명·경로 검색';search.setAttribute('aria-label','묶음할 폴더 검색');
+    const bar=h('div',undefined,'cm1180-row');
+    const all=h('button','검색 결과 전체 선택'),none=h('button','전체 선택 해제');all.type=none.type='button';bar.append(all,none);
+    const status=h('p');const list=h('div',undefined,'cm1180-list');
+    const footer=h('div',undefined,'cm1180-row');
+    const next=h('button','선택한 폴더 계속','cm1180-primary'),cancel=h('button','건너뛰기');
+    next.type=cancel.type='button';footer.append(next,cancel);
+    let filtered=candidates,limit=120;
+    const checked=new Set(selectedBefore);
+    function refresh(){
+      status.textContent=`${checked.size}개 폴더 선택 / 후보 ${candidates.length}개 (검색 결과 ${filtered.length}개)`;
+      next.disabled=!checked.size;
+    }
+    function render(){
+      const fragment=document.createDocumentFragment();
+      for(const g of filtered.slice(0,limit)){
+        const label=h('label',undefined,'cm1180-item');
+        const input=h('input');input.type='checkbox';input.checked=checked.has(g.key);
+        input.setAttribute('aria-label',g.title+' 선택');
+        const detail=h('div');
+        detail.append(h('div',`${g.title} (${g.members.length}개 압축파일)`),
+          h('div',`${g.rootName} / ${g.dir} · ${g.members.slice(0,3).map(m=>m.label).join(', ')}${g.members.length>3?' …':''}${modes.get(g.key)==='group'?' · 현재 묶음':''}`,'cm1180-sub'));
+        label.append(input,detail);fragment.append(label);
+        input.onchange=()=>{if(input.checked)checked.add(g.key);else checked.delete(g.key);refresh();};
+      }
+      if(filtered.length>limit){
+        const more=h('button',`다음 ${Math.min(120,filtered.length-limit)}개 표시 (${limit}/${filtered.length})`);
+        more.type='button';more.onclick=()=>{limit+=120;render();};fragment.append(more);
+      }
+      list.replaceChildren(fragment);refresh();
+    }
+    search.oninput=()=>{
+      const q=norm(search.value);
+      filtered=q?candidates.filter(g=>norm(g.title+' '+g.rootName+' '+g.dir).includes(q)):candidates;
+      limit=120;render();
+    };
+    // 현재 목록에 표시된 120개뿐 아니라 검색 결과 전체를 선택한다.
+    all.onclick=()=>{for(const g of filtered)checked.add(g.key);render();};
+    none.onclick=()=>{checked.clear();render();};
+    next.onclick=()=>{const selected=candidates.filter(g=>checked.has(g.key));box.close();resolve(selected);};
+    cancel.onclick=()=>{box.close();resolve(null);};
+    box.panel.append(search,bar,status,list,footer);render();
+  });
+}
+function confirm(selected){
+  const count=selected.reduce((a,g)=>a+g.members.length,0);
+  const box=dialog('폴더 전체묶음 · 최종 확인',
+    `${selected.length}개 폴더 · 압축파일 ${count}개를 선택했습니다. 선택한 폴더만 변경합니다.`);
+  return new Promise(resolve=>{
+    const list=h('div',undefined,'cm1180-list');
+    for(const g of selected.slice(0,100))list.append(h('div',`${g.rootName} / ${g.dir} (${g.members.length}개)`,'cm1180-item'));
+    if(selected.length>100)list.append(h('div',`외 ${selected.length-100}개 폴더`,'cm1180-item'));
+    const note=h('p','묶으면 일반·작가·그룹·태그에는 폴더명 대표 표지 한 개, 묶음탭에는 ZIP·CBZ를 개별 표시합니다. 원본 파일과 개별 열람 기록은 유지됩니다.');
+    const row=h('div',undefined,'cm1180-row');
+    const yes=h('button','선택 폴더 전체 묶기','cm1180-primary');
+    const separate=h('button','선택 폴더 개별 표시','cm1180-bad');
+    const back=h('button','이전'),cancel=h('button','변경없이 종료');
+    for(const btn of [yes,separate,back,cancel])btn.type='button';
+    yes.onclick=()=>{box.close();resolve('group');};
+    separate.onclick=()=>{box.close();resolve('separate');};
+    back.onclick=()=>{box.close();resolve('back');};
+    cancel.onclick=()=>{box.close();resolve(null);};
+    row.append(yes,separate,back,cancel);box.panel.append(list,note,row);
+  });
+}
+async function open(){
+  if(busy)return;
+  busy=true;
+  try{
+    const raw=typeof wtGetEntriesCached==='function'?(wtGetEntriesCached(false)||[]):[];
+    const candidates=findCandidates(raw,priorProject(raw));
+    if(!candidates.length){
+      // 자동/수동 단계에서 이미 묶여 충돌할 후보가 없는 경우도 정상이다.
+      return;
+    }
+    let previously=[];
+    while(true){
+      const selected=await choose(candidates,previously);
+      if(!selected||!selected.length)return;
+      const choice=await confirm(selected);
+      if(choice==='back'){previously=selected.map(g=>g.key);continue;}
+      if(!choice)return;
+      for(const g of selected)modes.set(g.key,choice);
+      persist();return;
+    }
+  }finally{busy=false;}
+}
+api.folder={open,findCandidates:(entries)=>findCandidates(entries,priorProject(entries)),
+  getActiveGroups:()=>cache.groups||[],
+  inspect:()=>({saved:modes.size,grouped:[...modes.values()].filter(x=>x==='group').length})};
 })();
 </script>
 
