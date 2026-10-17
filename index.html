@@ -1,3 +1,7 @@
+<!-- v1189: 건의 시 사용 브라우저·폴더 경로·오류 발생 과정을 구체적으로 적도록 건의하기 창 및 새로운 1회 업데이트 안내 추가. 개인 경로의 민감정보는 제외하도록 안내. 기능/DB 불변. -->
+<!-- v1188: 수동묶음의 묶음탭에서는 회차별 개별 ZIP 마지막 읽은 페이지만 표시. 일반 목록의 묶음 전체 읽음 배지는 유지. 업데이트 공지를 새 ID로 1회 재안내. -->
+<!-- v1187: 페이지순 상태 복원 후 로컬 ZIP/fsdir IDB 장수 인덱스 로딩. ZIP 레코드 쓰기 커밋 확인, fsdir 저장 실패 표시, 페이지수 재렌더 완화. 원본/저장키 변경 없음. -->
+<!-- v1186: 페이지순 정렬에서 ZIP/CBZ 캐시 이미지수 + fsdir IDB 전체 이미지수 + 자동/수동 묶음 회차 합계를 사용. 파일 재스캔 없이 저장된 메타데이터만 조회. -->
 <!-- v1185: 자동/수동 ZIP 묶음 표지 읽음 배지를 정렬순번(2/4화)이 아니라 실제 회차/권 번호+회차 내 마지막 페이지(예: 4권 · 13p)로 표시. 개별/기타 만화, 마지막 읽기 및 이어보기 동작 불변. -->
 <!-- v1184: 묶음 대표작 열기 시 마지막 읽은 회차/페이지로 복귀. 썸네일 회차 이동 시 이전 회차의 기록 덮어쓰기 차단, 실제 읽기 이동 없이 초기 표시만으로 묶음기록 변경하지 않음. -->
 <!-- v1183: ZIP 자동·수동 묶음의 마지막 본 페이지를 회차 ZIP ID + 회차 내 페이지로 기억; 이어보기 썸네일/다른 회차로 이동/목록 읽음 배지 공통 적용. 기존 ZIP 개별 기록 보존. -->
@@ -40186,9 +40190,145 @@ function getWebtoonSortScore(value, mode, ratingMap) {
   return 0;
 }
 
+// v1186: 로컬 만화 페이지순 정렬은 기존 ZIP/이미지폴더 장수 IndexedDB를 읽기 전용으로 이용한다.
+// 36,000 ZIP의 중앙 디렉터리를 재스캔하지 않고, 이미 확인한 장수만 기억한다.
+const ComicLocalPageSortV1186 = (() => {
+  const zipCounts = new Map(), folderCounts = new Map();
+  let loading = null, loaded = false, refreshTimer = 0, loadErrors = [];
+  let savedZipRows = 0, savedFolderRows = 0;
+  function updateCount(cache, key, count, schedule = true) {
+    const n = Number(count);
+    if (!key || !Number.isSafeInteger(n) || n <= 0 || cache.get(key) === n) return;
+    cache.set(key, n);
+    // 새 페이지수를 늦게 알아낸 카드가 있더라도 매 카드마다 36,000건 재정렬하지 않는다.
+    if (loaded && schedule && wtSortMode === 'pageTotal' && !refreshTimer) {
+      refreshTimer = setTimeout(() => {
+        refreshTimer = 0;
+        if (wtSortMode !== 'pageTotal') return;
+        invalidateComicListQueryV1000();
+        renderWebtoonList();
+      }, 5000); // 페이지 수가 순차적으로 들어올 때마다 목록이 과도하게 다시 그려지는 문제 완화
+    }
+  }
+  function fsKey(value) {
+    const v = String(value || '');
+    if (!/^fsdir:/i.test(v)) return '';
+    // 1174: 등록루트ID + 원본 상대폴더 위치로 키가 구성되어 있다.
+    const parsed = typeof parseComicFsdirValueV1174 === 'function'
+      ? parseComicFsdirValueV1174(v) : null;
+    if (parsed) return String(parsed.rootId) + '\0' + String(parsed.rel);
+    // v1174 이전의 이름기반 레거시 폴더도 연결된 경우에만 해당 IDB 기록을 참조.
+    const rec = window.ComicFsLocalV990?.findRecord?.(v);
+    return rec?.rootId ? String(rec.rootId) + '\0' + String(rec.rel || rec.name || '') : '';
+  }
+  function readDatabase(dbName, storeName, accept) {
+    return new Promise((resolve, reject) => {
+      if (typeof indexedDB === 'undefined') { reject(new Error('IndexedDB 미지원')); return; }
+      let settled = false, db = null, n = 0;
+      const finish = error => {
+        if (settled) return;
+        settled = true;
+        try { db?.close(); } catch (_) {}
+        if (error) reject(error); else resolve(n);
+      };
+      let req;
+      try { req = indexedDB.open(dbName); } catch (e) { finish(e); return; }
+      req.onerror = () => finish(req.error || new Error(dbName+' 열기 실패'));
+      req.onblocked = () => finish(new Error(dbName+' 열기 차단'));
+      // 저장소가 없는 첫 실행에서도 기존 v1 구조에 맞는 스토어를 생성한다.
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(storeName)) req.result.createObjectStore(storeName);
+      };
+      req.onsuccess = () => {
+        db = req.result;
+        if (!db.objectStoreNames.contains(storeName)) { finish(new Error(storeName+' 누락')); return; }
+        let tx;
+        try { tx = db.transaction(storeName, 'readonly'); }
+        catch (e) { finish(e); return; }
+        tx.oncomplete = () => finish();
+        tx.onabort = () => finish(tx.error || new Error(dbName+' 조회 취소'));
+        tx.onerror = () => finish(tx.error || new Error(dbName+' 조회 오류'));
+        try {
+          const cursorReq = tx.objectStore(storeName).openCursor();
+          cursorReq.onsuccess = () => {
+            const c = cursorReq.result;
+            if (!c) return;
+            try { if (accept(c.key, c.value)) n++; }
+            catch (_) {} // 손상된 개별 행만 건너뛰고 다른 기록은 계속 조회
+            c.continue();
+          };
+          cursorReq.onerror = () => finish(cursorReq.error || new Error(dbName+' 커서 오류'));
+        } catch (e) { finish(e); }
+      };
+    });
+  }
+  async function prepare() {
+    if (loaded) return true;
+    if (loading) return loading;
+    loading = (async () => {
+      const rows = await Promise.allSettled([
+        readDatabase('comic_zip_posters_v979', 'posters', (key, rec) => {
+          const count = Number(rec?.imageCount);
+          if (typeof key !== 'string' || !key.startsWith('zipcomic:@') || !Number.isSafeInteger(count) || count < 1) return false;
+          // 현재 세션에서 ZIP이 갱신된 경우 최신 장수를 우선한다.
+          if (!zipCounts.has(key)) updateCount(zipCounts, key, count, false);
+          return true;
+        }),
+        readDatabase('comic_fs_page_counts_v1102', 'counts', (key, rec) => {
+          const count = Number(rec?.total);
+          if (typeof key !== 'string' || !key.includes('\0') || !Number.isSafeInteger(count) || count < 1) return false;
+          if (!folderCounts.has(key)) updateCount(folderCounts, key, count, false);
+          return true;
+        })
+      ]);
+      savedZipRows = rows[0].status === 'fulfilled' ? rows[0].value : 0;
+      savedFolderRows = rows[1].status === 'fulfilled' ? rows[1].value : 0;
+      loadErrors = rows.flatMap((r, i) => r.status === 'rejected'
+        ? [(i === 0 ? 'ZIP' : '이미지폴더')+': '+String(r.reason?.message || r.reason)] : []);
+      loaded = loadErrors.length === 0;
+      if (loadErrors.length) console.warn('[comic pages v1187] 저장된 페이지 수 조회 실패', loadErrors.join('; '));
+      if (wtSortMode === 'pageTotal') {
+        invalidateComicListQueryV1000();
+        renderWebtoonList();
+      }
+      return loaded;
+    })().catch(err => {
+      console.warn('[comic local page sort v1186] 캐시 장수 조회 실패', err);
+      return false;
+    }).finally(() => { loading = null; });
+    return loading;
+  }
+  function score(value) {
+    const v = String(value || '');
+    if (v.startsWith('zipcomic:@')) {
+      // 대표 ZIP 하나로 보이는 자동/수동 회차묶음은 확인된 회차의 장수를 합산한다.
+      // 묶음 레일에서는 전체 회차를 개별 ZIP으로 표시하므로 파일별 장수로 정렬한다.
+      const g = comicCreatorRailModeV1022 === 'folder' ? null
+        : window.ComicZipChaptersV1177?.groupForValue?.(v);
+      if (Array.isArray(g?.members) && g.members.length > 1) {
+        let sum = 0;
+        for (const member of g.members) sum += zipCounts.get(String(member.value)) || 0;
+        return sum;
+      }
+      return zipCounts.get(v) || 0;
+    }
+    if (/^fsdir:/i.test(v)) return folderCounts.get(fsKey(v)) || 0;
+    return 0;
+  }
+  function noteZip(value, n) { updateCount(zipCounts, String(value || ''), n); }
+  function noteFs(key, n) { updateCount(folderCounts, String(key || ''), n); }
+  return { prepare, score, noteZip, noteFs,
+    stats: () => ({ loaded, zipCount: zipCounts.size, folderCount: folderCounts.size,
+      savedZipRows, savedFolderRows, loadErrors: loadErrors.slice() }) };
+})();
+window.ComicLocalPageSortV1186 = ComicLocalPageSortV1186;
+// v1187: 최초 페이지순 복원은 WT_SORT_MODE 값을 되살리는 리스너에서 실행한다.
+// 이전 초기 리스너는 saved mode가 아직 'none'인 상태에서 실행되어 로컬 카운트를 누락했다.
 function getPageTotalForValue(value) {
   const v = String(value || '').trim();
   if (!v) return 0;
+
+  if (/^(?:zipcomic:@|fsdir:)/i.test(v)) return ComicLocalPageSortV1186.score(v);
 
   let total = 0;
 
@@ -40236,6 +40376,7 @@ function sortWebtoonEntriesByRating(entries, mode, desc = true) {
 }
 function setWtSortMode(mode) {
   wtSortMode = mode || 'none';
+  if (wtSortMode === 'pageTotal') void ComicLocalPageSortV1186.prepare();
   renderWebtoonList();
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -40248,6 +40389,8 @@ document.addEventListener('DOMContentLoaded', () => {
     sel.value = saved;
     wtSortMode = saved;
   } catch (e) {}
+  // v1187: 화면 표시보다 나중에 기록을 복원했어도 캐시 전체를 로딩하고 1회 재정렬한다.
+  if (wtSortMode === 'pageTotal') void ComicLocalPageSortV1186.prepare();
 
   sel.addEventListener('change', () => {
     const mode = sel.value || 'none';
@@ -162238,7 +162381,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1185;
+  const VIEWER_BUILD_V789 = 1189;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -169623,8 +169766,12 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
    if(!thumb||!window.ComicLastPageV1020)return;
    const key=String(value||'');let n=cached.get(key);
    const group=window.ComicZipChaptersV1177?.groupForValue?.(key);
+   // v1188: 묶음탭의 수동 시리즈는 실제 ZIP이 각각 독립 카드다.
+   // 일반·작가·그룹·태그의 묶음 대표 카드만 전체 시리즈 열람기록을 조회한다.
+   // 자동묶음의 기존 표시는 그대로 유지한다.
+   const individualManualV1188=!!group?.isManualSeriesV1188 && comicCreatorRailModeV1022==='folder';
    let groupLast=null,chapterNo=0,chapterLabelV1185='';
-   if(group?.members?.length>1){
+   if(group?.members?.length>1 && !individualManualV1188){
      try{
        groupLast=await window.ComicLastPageV1020.getGroup(group.key,group.members);
        if(groupLast){
@@ -170034,7 +170181,15 @@ async function openDb(){return new Promise((yes,no)=>{const req=indexedDB.open(D
 });}
 async function posterRecord(value, put){const db=await openDb();try{return await new Promise((yes,no)=>{
   const tx=db.transaction(STORE,put?'readwrite':'readonly'); const os=tx.objectStore(STORE);
-  const req=put?os.put(put,value):os.get(value);req.onsuccess=()=>yes(req.result);req.onerror=()=>no(req.error);
+  const req=put?os.put(put,value):os.get(value);
+  let result=null,settled=false;
+  const fail=err=>{if(settled)return;settled=true;no(err||new Error('ZIP 캐시 트랜잭션 실패'));};
+  req.onsuccess=()=>{result=req.result;};
+  req.onerror=()=>fail(req.error);
+  // v1187: IDB put 요청 성공과 실제 저장 트랜잭션 완료는 다르다.
+  tx.oncomplete=()=>{if(!settled){settled=true;yes(result);}};
+  tx.onerror=()=>fail(tx.error);
+  tx.onabort=()=>fail(tx.error);
 });}finally{db.close();}}
 // v1012: ZIP을 실제로 열 때만 디스크의 File 메타데이터를 확인한다.
 // 페이지 목록은 뷰어가 원래 읽은 중앙 디렉터리 결과를 재사용하므로 ZIP을 한 번 더 열지 않는다.
@@ -170097,6 +170252,7 @@ async function syncOpenedZipV1012(value,file,pages){
 function publishPageCountV981(value,count){
   count=Number(count)||0;if(count<1)return;
   pageCountCacheV981.set(value,count);
+  window.ComicLocalPageSortV1186?.noteZip(value,count);
   const refs=pageBadgeRefsV981.get(value);if(!refs)return;
   for(const badge of refs){
     // 카드가 새로 생성된 직후에는 아직 DOM에 붙지 않았을 수 있다.
@@ -170118,7 +170274,7 @@ async function storePageCountV981(value,count,file){
     await posterRecord(value,{...saved,imageCount:count,
       sourceSize:file?.size??saved.sourceSize,
       sourceModified:file?.lastModified??saved.sourceModified});
-  }catch(e){log('이미지 장수 캐시 실패',value,errText(e));}
+  }catch(e){console.warn('[comic ZIP v1187] 이미지 장수 저장 실패',value,errText(e));}
 }
 // v1011: 화면에 보이는 카드가 많아도 조회 요청 자체를 즉시 실행하지 않고 공통 큐에 보관한다.
 // 표지 요청과 동시에 중앙 디렉터리를 읽게 된 경우 ZIP 하나당 한 번만 열도록 공유한다.
@@ -171906,6 +172062,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
     const firstPath=String(meta?.firstPath||'');
     const record={total,firstPath,updatedAt:Date.now()};
     pageMetaCacheV1102.set(key,record);trimPageCacheV1102();
+    window.ComicLocalPageSortV1186?.noteFs(key,total);
     if(updateVisible)publishPageCountV1102(value,total);
     // 같은 작품의 첫 스캔/만화 열기/재스캔 저장은 순서대로 반영한다.
     const previous=pageMetaWriteJobsV1102.get(key)||Promise.resolve();
@@ -171919,10 +172076,10 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
           tx.oncomplete=()=>yes();tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);
         });
       }finally{try{db?.close();}catch(_){}}
-    }).catch(e=>{console.warn('[comicFS v1102] 페이지 장수 저장 실패',rec.name,e);});
+    }).then(()=>true,e=>{console.warn('[comicFS v1102] 페이지 장수 저장 실패',rec.name,e);return false;});
     pageMetaWriteJobsV1102.set(key,job);
     void job.finally(()=>{if(pageMetaWriteJobsV1102.get(key)===job)pageMetaWriteJobsV1102.delete(key);});
-    await job;return true;
+    return await job;
   }
   async function firstHandleFromPathV1102(root,path){
     if(!root?.getFileHandle||!path)return null;
@@ -172332,7 +172489,11 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
       // v1102: IDB 장수를 즉시 표시하고, 저장된 첫 이미지 경로를 사용해 폴더 전체 순회를 생략한다.
       const saved=await readPageMetaV1102(rec);
       if(!wrap.isConnected)return;
-      if(saved)applyCountToBadgeV1102(badge,saved.total);
+      if(saved){
+        applyCountToBadgeV1102(badge,saved.total);
+        const keyV1186=await pageKeyV1102(rec);
+        if(keyV1186)window.ComicLocalPageSortV1186?.noteFs(keyV1186,saved.total);
+      }
       // v1040: 새 폴더는 첫 파일로 포스터를 먼저 표시하며, 저장된 장수가 없으면 후순위로 센다.
       const quickCoverV1040=rec.coverHandleV1040||null;
       let meta=null;
@@ -172696,7 +172857,8 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
     const body = createPanel('send');
     body.innerHTML = `
       <p class="wvSuggestionHelpV1034">불편한 점이나 추가했으면 하는 기능을 보내주세요. 다른 사용자의 건의는 볼 수 없습니다.</p>
-      <textarea id="wvSuggestionInputV1034" rows="6" maxlength="2000" placeholder="기능 건의나 발견한 오류를 적어주세요."></textarea>
+      <p class="wvSuggestionHelpV1034">오류를 건의하실 때 <strong>사용 브라우저(Chrome·Edge 등), 문제가 발생한 폴더 경로, 오류가 발생한 상황·재현 과정</strong>을 조금 더 구체적으로 알려주시면 더 빠른 원인 파악과 해결에 도움이 됩니다. 폴더 경로에 포함된 이름 등 개인정보는 제외해 주세요.</p>
+      <textarea id="wvSuggestionInputV1034" rows="6" maxlength="2000" placeholder="브라우저, 문제가 발생한 폴더 경로(개인정보 제외), 오류 상황·재현 과정 또는 기능 건의를 적어주세요."></textarea>
       <div class="wvSuggestionToolsV1034">
         <span id="wvSuggestionCountV1034">0 / 500자</span>
         <button id="wvSuggestionSendV1034" type="button">건의 보내기</button>
@@ -174306,12 +174468,52 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <h3>📖 ZIP·CBZ 회차묶음 기능 추가</h3>
     <p>같은 작품의 <strong>01·02·03화처럼 이어지는 압축파일</strong>을 발견하면 후보 폴더들을 모아 <strong>한 번만</strong> 묶기 또는 개별 표시를 선택합니다.</p>
     <ul>
-      <li><strong>전체·작가·그룹·태그 목록:</strong> 묶은 작품은 대표 1개만 표시</li>
-      <li><strong>폴더 탭:</strong> 1화·2화 등 ZIP 회차를 전부 표시</li>
-      <li>뷰어에서 회차 선택 가능 · <strong>회차묶음</strong> 버튼으로 언제든 표시 방식 전환</li>
+      <li><strong>전체·작가·그룹·태그 목록:</strong> 묶은 작품은 대표 표지 1개만 표시합니다.</li>
+      <li><strong>묶음 탭(기존 폴더 탭):</strong> 묶은 작품을 1화·2화·3화처럼 개별 ZIP으로 펼쳐 표시합니다. 실제 폴더와 수동 시리즈(◆)도 함께 찾을 수 있습니다.</li>
+      <li>상단 <strong>묶음</strong> 버튼에서 자동묶음(폴더 90% 조건) 다음 수동묶음을 선택합니다. 뷰어에서도 회차를 바꿀 수 있습니다.</li>
     </ul>
   </div>
   <div class="wv1175Minor"><strong>기타 개선</strong> · 이미지폴더 Shift+←/→ 작품 이동 · D 삭제 모드에서 0차 폴더별 등록 해제 · 구형 fsdir 기록 정리 · 직접 이미지/회차폴더 혼합 지원 · 공통 버튼 마우스 오버 표시 강화</div>
+</template>
+<!-- v1188: 기존 공지를 보았던 사용자도 새 ID 때문에 최신 묶음탭 안내를 1회 다시 본다. -->
+<template id="wv1188LatestTemplate">
+  <div class="wv1098Section wv1175Highlight">
+    <h3>📚 만화 묶음 목록과 묶음탭 표시 방식 안내</h3>
+    <p>압축만화 ZIP·CBZ를 <strong>자동묶음 또는 수동묶음</strong>으로 설정하면 <strong>작가·그룹·태그(및 일반 목록)에는 묶인 작품을 대표 표지 하나로 표시</strong>합니다.</p>
+    <ul>
+      <li><strong>묶음 탭(이전 폴더 탭)</strong>은 묶인 작품을 <strong>1화·2화·3화처럼 각각 펼쳐 보는 곳</strong>입니다. 실제 폴더와 수동 시리즈(◆)를 함께 선택할 수 있습니다.</li>
+      <li>상단 <strong>묶음</strong> 버튼을 누르면 <strong>자동묶음 → 수동묶음</strong>을 순서대로 설정합니다. 자동묶음의 기존 <strong>폴더 내 90% 판별 기준</strong>은 그대로입니다.</li>
+      <li><strong>메인·작가·그룹·태그의 대표 표지</strong>는 시리즈 전체에서 마지막으로 읽은 회차와 페이지를 표시합니다.</li>
+      <li><strong>묶음 탭의 수동 시리즈 개별 표지</strong>는 각 ZIP에 기록된 마지막 읽은 페이지만 표시합니다. 예를 들어 3화 13페이지를 읽었다면 다른 회차에 똑같이 표시하지 않습니다.</li>
+    </ul>
+    <div class="wv1175Howto">자동·수동묶음은 <strong>표시 방식</strong>이며, 원본 ZIP·CBZ 파일이나 기존 읽음 기록을 이동·삭제하지 않습니다.</div>
+  </div>
+  <div class="wv1098Section wv1179Chapters">
+    <h3>🛠 최근 개선 사항</h3>
+    <p>로컬 압축만화와 이미지폴더의 페이지 수 IndexedDB 저장·복원 및 페이지순 정렬을 보완했습니다. 저장된 장수는 불필요하게 전체 파일을 다시 검사하지 않고 활용합니다.</p>
+  </div>
+</template>
+<!-- v1189: 묶음탭 설명 유지 + 건의 작성 안내 추가. v1188 기존 공지 읽은 사용자도 새로운 ID로 1회 표시. -->
+<template id="wv1189LatestTemplate">
+  <div class="wv1098Section wv1175Highlight">
+    <h3>📚 만화 묶음 목록과 묶음탭 표시 방식 안내</h3>
+    <p>압축만화 ZIP·CBZ를 <strong>자동묶음 또는 수동묶음</strong>으로 설정하면 <strong>작가·그룹·태그(및 일반 목록)에는 묶인 작품을 대표 표지 하나로 표시</strong>합니다.</p>
+    <ul>
+      <li><strong>묶음 탭(이전 폴더 탭)</strong>은 묶인 작품을 <strong>1화·2화·3화처럼 각각 펼쳐 보는 곳</strong>입니다. 실제 폴더와 수동 시리즈(◆)를 함께 선택할 수 있습니다.</li>
+      <li>상단 <strong>묶음</strong> 버튼을 누르면 <strong>자동묶음 → 수동묶음</strong>을 순서대로 설정합니다. 자동묶음의 기존 <strong>폴더 내 90% 판별 기준</strong>은 그대로입니다.</li>
+      <li><strong>메인·작가·그룹·태그의 대표 표지</strong>는 시리즈 전체에서 마지막으로 읽은 회차와 페이지를 표시합니다.</li>
+      <li><strong>묶음 탭의 수동 시리즈 개별 표지</strong>는 각 ZIP에 기록된 마지막 읽은 페이지만 표시합니다. 예를 들어 3화 13페이지를 읽었다면 다른 회차에 똑같이 표시하지 않습니다.</li>
+    </ul>
+    <div class="wv1175Howto">자동·수동묶음은 <strong>표시 방식</strong>이며, 원본 ZIP·CBZ 파일이나 기존 읽음 기록을 이동·삭제하지 않습니다.</div>
+  </div>
+  <div class="wv1098Section">
+    <h3>💬 건의사항 작성 안내</h3>
+    <p>건의나 오류를 보내실 때 <strong>사용 중인 브라우저, 문제가 발생한 폴더 경로, 어떤 작업 중 발생했는지</strong> 등 상황을 조금 더 구체적으로 적어주시면 <strong>문제를 더 빠르게 파악하고 해결하는 데 도움</strong>이 됩니다. 폴더 경로에 포함된 개인정보는 제외해 주세요.</p>
+  </div>
+  <div class="wv1098Section wv1179Chapters">
+    <h3>🛠 최근 개선 사항</h3>
+    <p>로컬 압축만화와 이미지폴더의 페이지 수 IndexedDB 저장·복원 및 페이지순 정렬을 보완했습니다. 저장된 장수는 불필요하게 전체 파일을 다시 검사하지 않고 활용합니다.</p>
+  </div>
 </template>
 <!-- v1152: 임시 서비스 중단 공지. 신규 빌드 배포 시 1회 자동 표시, 기록은 유지. -->
 <template id="wv1152LatestTemplate">
@@ -174399,6 +174601,18 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'📚 웹뷰어 1179 업데이트',
       subtitle:'작가별 폴더 분류 개선 · ZIP·CBZ 회차묶음 추가',
       html:document.getElementById('wv1179LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1188-grouped-read-progress',build:'빌드 1188',
+      title:'📚 웹뷰어 1188 묶음탭 안내',
+      subtitle:'대표 표지 한 개 · 묶음탭에서 모든 회차 펼치기 · 회차별 읽음 기록',
+      html:document.getElementById('wv1188LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1189-suggestion-context',build:'빌드 1189',
+      title:'📚 웹뷰어 1189 묶음탭·건의 안내',
+      subtitle:'묶음탭 회차별 읽음 · 오류 건의 시 브라우저·폴더 경로·발생 상황 안내',
+      html:document.getElementById('wv1189LatestTemplate')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -175315,7 +175529,7 @@ function manualProject(entries){
       if(decisions.get(candidate.key)!=='group')continue;
       const members=candidate.members.filter(m=>byName.has(m.value));
       if(members.length<2)continue;
-      const g={...candidate,members};
+      const g={...candidate,members,isManualSeriesV1188:true};
       groups.push(g);
       for(const member of members)byValue.set(member.value,g);
       for(const member of members.slice(1))skip.add(member.value);
