@@ -1,4 +1,4 @@
-<!-- v1197: 최신 업데이트 안내에 세로 자동스크롤(속도·방향키), 가로 자동넘김(간격), 대용량 이미지폴더 개선을 추가. 건의함 이미지 첨부는 서버 미지원 상태로 기능 불변. -->
+<!-- v1198: 만화 레일 5탭(작가·그룹·태그·묶음·회차). 묶음은 실제 저장된 시리즈명을 나열/대표 1개, 회차는 기존 폴더/수동 시리즈에서 ZIP 전체 펼침. 단일 미분류 작품 항목 제거. -->
 <!-- v1196: 선택한 로컬 ZIP·CBZ 작품폴더를 파일명과 관계없이 하나로 표시. 폴더 후보 검색·전체선택·전체해제·묶기/개별표시. 기존 자동 90%·수동 묶음 보존. -->
 <!-- v1195: 세로 자동스크롤 기본 150px/s, 자동스크롤 실행 중 ↑속도 증가/↓감소 (기존 단계), 가로 자동넘김 1~10초 1초 간격·기본 3초. -->
 <!-- v1194: 세로 자동스크롤 200~500px/초(50 단위) 추가, ZIP·CBZ·로컬 이미지폴더 가로뷰 자동 페이지넘김(시간 선택/수동 조작 정지/로딩 완료 대기). -->
@@ -2806,10 +2806,10 @@ body.hide-dels #wtGroupBar .comicRootRemoveV1172{display:none!important}
 #wtTagRail.comicUnifiedRailV1033 #wtTagRailAuthSec { flex: 1 1 auto; min-height: 0; }
 #wtTagRail.comicUnifiedRailV1033 .comicCreatorTabsV1033 {
   display: flex; align-items: center; justify-content: stretch; gap: 1px;
-  width: 100%; min-width: 0; overflow: hidden;
+  width: 100%; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
 }
 #wtTagRail.comicUnifiedRailV1033 .comicCreatorTabV1033 {
-  flex: 1 1 0; min-width: 0; padding: 2px 1px; border: 0;
+  flex: 1 0 auto; min-width: 28px; padding: 2px 1px; border: 0;
   border-radius: 3px; cursor: pointer; font-family: inherit;
   font-size: var(--ui-fs); line-height: 1.2; font-weight: 400;
   white-space: nowrap; text-align: center;
@@ -27251,7 +27251,7 @@ for (; i < sourceEntriesV1080.length && added < target; i++) {
   }
 
   // v1132: 선택된 1차 폴더 외 작품은 감상 목록에 섞지 않는다.
-  if (!comicMatchesFirstFolderV1132(v)) continue;
+  if (!comicMatchesFirstFolderV1132(v) || !comicBundleMatchesV1198(v)) continue;
 
   // ✅ 검색 필터
   if (wtFilterText) {
@@ -27260,7 +27260,7 @@ for (; i < sourceEntriesV1080.length && added < target; i++) {
   }
   // ✅ 멀티 태그 필터(체크박스)
 // ✅ 다중 태그/작가 필터 (AND/OR)
-if (comicCreatorRailModeV1022!=='folder' && Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
+if (comicCreatorRailModeV1022!=='folder' && comicCreatorRailModeV1022!=='bundle' && Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
   const hay = (String(display || '') + ' ' + String(v || '')).toLowerCase();
   const toks = window.wtMultiTokens;
   // 파싱은 작가/그룹 필터가 선택된 작품에서만 시행한다.
@@ -29519,9 +29519,9 @@ function wtPixiPassV1080(item) {
   const display = String(item?.display || '');
   const value = String(item?.value || '').trim();
   if (wtGroupFilter && wtGetGroupKeyFromValue(value) !== wtGroupFilter) return false;
-  if (!comicMatchesFirstFolderV1132(value)) return false;
+  if (!comicMatchesFirstFolderV1132(value) || !comicBundleMatchesV1198(value)) return false;
   if (wtFilterText && !(display+' '+value).toLowerCase().includes(wtFilterText)) return false;
-  if (comicCreatorRailModeV1022!=='folder' && Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
+  if (comicCreatorRailModeV1022!=='folder' && comicCreatorRailModeV1022!=='bundle' && Array.isArray(window.wtMultiTokens) && window.wtMultiTokens.length) {
     const hay = (display+' '+value).toLowerCase();
     let parts = null;
     const match = tok => {
@@ -29766,6 +29766,9 @@ function renderWebtoonList() {
   // v1132: 폴더 선택 시 이미 저장된 ZIP/CBZ 작품만 추린다 (원본·저장 키 유지).
   if(comicCreatorRailModeV1022==='folder'&&comicSelectedFirstFoldersV1163.size)
     list=list.filter(item=>comicMatchesFirstFolderV1132(item.value));
+  // v1198: 묶음 탭은 저장된 시리즈의 대표 작품만 표시하며, 개별 ZIP은 회차 탭에서만 본다.
+  if(comicCreatorRailModeV1022==='bundle')
+    list=list.filter(item=>comicBundleMatchesV1198(item.value));
   if(wtMissingOnlyV1092){
     list=list.filter(item=>window.ComicMissingV1092?.contains(item.value));
   }
@@ -41168,8 +41171,8 @@ function loadComicCreatorTypesV1022() {
 }
 const comicCreatorTypesV1022 = loadComicCreatorTypesV1022();
 let comicCreatorRailModeV1022 = 'author';
-const comicCreatorScrollByModeV1033 = { author: 0, group: 0, tag: 0, folder: 0 };
-try { const m = localStorage.getItem(COMIC_CREATOR_MODE_KEY_V1022); if (m === 'group' || m === 'tag' || m === 'folder') comicCreatorRailModeV1022 = m; } catch (_) {}
+const comicCreatorScrollByModeV1033 = { author: 0, group: 0, tag: 0, bundle: 0, folder: 0 };
+try { const m = localStorage.getItem(COMIC_CREATOR_MODE_KEY_V1022); if (m === 'group' || m === 'tag' || m === 'folder' || m === 'bundle') comicCreatorRailModeV1022 = m; } catch (_) {}
 let comicGroupFavV1022 = new Set();
 try { const a = JSON.parse(localStorage.getItem(COMIC_GROUP_FAV_KEY_V1022) || '[]'); if (Array.isArray(a)) comicGroupFavV1022 = new Set(a); } catch (_) {}
 function isFavComicGroupV1022(name) { return comicGroupFavV1022.has(comicCreatorNormV1022(name)); }
@@ -41760,11 +41763,54 @@ window.getComicFirstFolderStatsV1132=()=>({
   mode:comicFolderMultiModeV1163
 });
 
-const comicRailSearchByModeV1090={author:'',group:'',tag:'',folder:''};
-const comicRailSectionByModeV1090={author:'all',group:'all',tag:'all',folder:'all'};
+// v1198: 새 '묶음' 탭은 실질적으로 묶은 시리즈만 작품명별로 표시한다.
+// 기존 folder 모드는 '회차'로 이름만 바꾸어 개별 ZIP과 읽음 기록을 그대로 보존한다.
+// 시리즈명은 자동·수동·폴더 전체묶음의 실제 대표 제목을 재사용한다.
+const comicBundleIndexV1198={raw:null,projected:null,rows:[],byValue:new Map()};
+const comicSelectedBundlesV1198=new Set();
+function getComicBundleIndexV1198(){
+  const idx=comicBundleIndexV1198;
+  const raw=typeof wtGetEntriesCached==='function'?(wtGetEntriesCached(false)||[]):[];
+  const api=window.ComicZipChaptersV1177;
+  const projected=api?.project?.(raw)||raw;
+  if(idx.raw===raw&&idx.projected===projected)return idx;
+  const rows=[],byValue=new Map();
+  for(const entry of projected){
+    const value=String(entry?.value||'');
+    if(!value.startsWith('zipcomic:@'))continue;
+    const series=api?.groupForValue?.(value);
+    if(!series||!Array.isArray(series.members)||series.members.length<2||series.members[0]?.value!==value)continue;
+    const title=String(series.title||entry.display||'').trim()||'이름 없는 묶음';
+    const row={key:'bundle:'+value,name:title,value,rootId:String(series.rootId||''),
+      count:series.members.length,sourceFolder:String(series.dir||series.folder||''),
+      isVirtual:!!series.isManualSeriesV1188};
+    rows.push(row);byValue.set(value,row);
+  }
+  rows.sort((a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'})||a.value.localeCompare(b.value));
+  idx.raw=raw;idx.projected=projected;idx.rows=rows;idx.byValue=byValue;
+  const valid=new Set(rows.map(r=>r.key));
+  for(const key of comicSelectedBundlesV1198)if(!valid.has(key))comicSelectedBundlesV1198.delete(key);
+  return idx;
+}
+function getComicBundleRowsV1198(){
+  const idx=getComicBundleIndexV1198();
+  if(!wtGroupFilter)return idx.rows;
+  return idx.rows.filter(r=>wtGetGroupKeyFromValue(r.value)===wtGroupFilter);
+}
+function comicBundleMatchesV1198(value){
+  if(comicCreatorRailModeV1022!=='bundle')return true;
+  const row=getComicBundleIndexV1198().byValue.get(String(value||''));
+  return !!row&&(!comicSelectedBundlesV1198.size||comicSelectedBundlesV1198.has(row.key));
+}
+window.getComicBundleStatsV1198=()=>({total:getComicBundleIndexV1198().rows.length,
+  visible:getComicBundleRowsV1198().length,selected:[...comicSelectedBundlesV1198]});
+window.addEventListener('webtoonlist:changed',()=>{comicBundleIndexV1198.raw=null;comicBundleIndexV1198.projected=null;});
+
+const comicRailSearchByModeV1090={author:'',group:'',tag:'',bundle:'',folder:''};
+const comicRailSectionByModeV1090={author:'all',group:'all',tag:'all',bundle:'all',folder:'all'};
 // v1104: 작가·그룹·태그별로 대분류와 초성 선택을 독립 유지.
 // 기존 레일 인덱스/즐겨찾기/선택 상태는 변경하지 않고 보이는 배열만 필터링한다.
-const comicRailInitialByModeV1104={author:'all',group:'all',tag:'all',folder:'all'};
+const comicRailInitialByModeV1104={author:'all',group:'all',tag:'all',bundle:'all',folder:'all'};
 // v1155: 기존 필터는 그대로 두고 문자 인덱스의 방향/배치만 선택한다.
 const COMIC_RAIL_INDEX_DIRECTION_KEY_V1155='comic_rail_index_direction_v1155';
 let comicRailIndexDirectionV1155='vertical';
@@ -41850,10 +41896,17 @@ function getComicRailLinkedFilterV1105(){
 }
 function getComicRailLinkedFilterKeyV1105(){
   const f=getComicRailLinkedFilterV1105();
-  return f.mode+'|'+f.section+'|'+f.initial+(f.mode==='folder'?'|'+comicFolderMultiModeV1163+'|'+[...comicSelectedFirstFoldersV1163].sort().join(';'):'');
+  return f.mode+'|'+f.section+'|'+f.initial+(f.mode==='folder'?'|'+comicFolderMultiModeV1163+'|'+[...comicSelectedFirstFoldersV1163].sort().join(';'):f.mode==='bundle'?'|'+[...comicSelectedBundlesV1198].sort().join(';'):'');
 }
 function comicRailEntryMatchesV1105(item,filter){
   if(!filter.active)return true;
+  if(filter.mode==='bundle'){
+    const row=getComicBundleIndexV1198().byValue.get(String(item?.value||''));
+    if(!row)return false;
+    if(filter.section==='fav')return isFavComicFirstFolderV1163(row.key);
+    return matchComicRailSectionV1090(row.name,filter.section,'folder')&&
+      (filter.initial==='all'||getComicRailInitialV1104(row.name,filter.section)===filter.initial);
+  }
   if(filter.mode==='folder'){
     const info=comicGetFirstFolderInfoV1132(item?.value);
     const idx=getComicFirstFolderIndexV1132();
@@ -41940,11 +41993,12 @@ function renderWtTagRail() {
 
   const modeBtn = document.createElement('button');
   modeBtn.type = 'button';
-  modeBtn.textContent = comicCreatorRailModeV1022==='folder'?comicFolderMultiModeV1163:window.wtTagMultiMode;
+  modeBtn.textContent = comicCreatorRailModeV1022==='folder'?comicFolderMultiModeV1163:comicCreatorRailModeV1022==='bundle'?'작품':window.wtTagMultiMode;
   modeBtn.title = '다중 필터 모드 전환 (AND/OR)';
   modeBtn.style.cssText = 'width:100%;border:0;background:transparent;color:#ddd;cursor:pointer;font-size:11px;line-height:14px;padding:4px 4px 4px;margin-top:6px;text-align:center;';
   modeBtn.addEventListener('click', e => {
     e.preventDefault(); e.stopPropagation();
+    if(comicCreatorRailModeV1022==='bundle')return; // 묶음은 서로 다른 작품의 교집합이 불가능하다.
     if(comicCreatorRailModeV1022==='folder'){
       comicFolderMultiModeV1163=comicFolderMultiModeV1163==='OR'?'AND':'OR';
       modeBtn.textContent=comicFolderMultiModeV1163;
@@ -42172,17 +42226,17 @@ const selectOnlyThisFromText = (e) => {
       btn.setAttribute('aria-pressed', String(active));
     }
     // v1163: 폴더도 공통 대분류/초성/가상 스크롤 렌더링으로 통합한다.
-    modeBtn.textContent=mode==='folder'?comicFolderMultiModeV1163:window.wtTagMultiMode;
-    modeBtn.title='다중 선택 AND/OR 전환'+(mode==='folder'?' · OR: 합집합 / AND: 실제 폴더와 수동 시리즈의 교집합':'');
-    modeBtn.setAttribute('aria-disabled','false');
+    modeBtn.textContent=mode==='folder'?comicFolderMultiModeV1163:mode==='bundle'?'작품':window.wtTagMultiMode;
+    modeBtn.title=mode==='bundle'?'묶음 작품명별 분류 · 체크한 묶음만 표시':'다중 선택 AND/OR 전환'+(mode==='folder'?' · OR: 합집합 / AND: 실제 폴더와 수동 시리즈의 교집합':'');
+    modeBtn.setAttribute('aria-disabled',String(mode==='bundle'));
     railSectionsV1090.style.display='';
-    const baseItems = mode==='folder'?getComicFirstFolderRowsV1132():mode === 'tag' ? index.tags : mode === 'group' ? index.groups : index.authors;
+    const baseItems = mode==='folder'?getComicFirstFolderRowsV1132():mode==='bundle'?getComicBundleRowsV1198():mode === 'tag' ? index.tags : mode === 'group' ? index.groups : index.authors;
     const search=(comicRailSearchByModeV1090[mode]||'').trim().toLocaleLowerCase();
     const activeSection=comicRailSectionByModeV1090[mode]||'all';
-    railSearchV1090.placeholder=(mode==='folder'?'폴더·시리즈':mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
+    railSearchV1090.placeholder=(mode==='folder'?'회차 폴더·시리즈':mode==='bundle'?'묶음 작품명':mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
     if(railSearchV1090.value!==comicRailSearchByModeV1090[mode])railSearchV1090.value=comicRailSearchByModeV1090[mode]||'';
     railSectionsV1090.replaceChildren();
-    for(const [cat,label] of [['all','전체'],['fav','★'],['digit','숫자'],['symbol','기호'],['latin','A-Z'],['jp','일본어'],['ko','한글'],['misc','미분류']]){
+    for(const [cat,label] of [['all','전체'],['fav','★'],['digit','숫자'],['symbol','기호'],['latin','A-Z'],['jp','일본어'],['ko','한글'],['misc','미분류']].filter(([cat])=>cat!=='misc'||(mode!=='author'&&mode!=='bundle'))){
       const c=document.createElement('button');c.type='button';c.textContent=label;
       c.className='comicRailSectionBtnV1090';c.classList.toggle('active',activeSection===cat);
       c.title=label+' 목록만 표시';
@@ -42234,26 +42288,52 @@ const selectOnlyThisFromText = (e) => {
     let items=baseItems;
     if(activeSection!=='all'||search||initialFilterV1104!=='all'){
       items=baseItems.filter(entry=>{
-        const name=mode==='folder'?entry.name:entry;
+        const name=mode==='folder'||mode==='bundle'?entry.name:entry;
         if(search&&!String(name).toLocaleLowerCase().includes(search))return false;
         if(activeSection!=='all'){
-          const categoryMatch=mode==='folder'
+          const categoryMatch=(mode==='folder'||mode==='bundle')
             ? (activeSection==='fav'?isFavComicFirstFolderV1163(entry.key)
-              :activeSection==='misc'?entry.direct
+              :activeSection==='misc'?!!entry.direct
               :matchComicRailSectionV1090(name,activeSection,'folder'))
             :matchComicRailSectionV1090(name,activeSection,mode);
           if(!categoryMatch)return false;
         }
         return initialFilterV1104==='all'||getComicRailInitialV1104(name,activeSection)===initialFilterV1104;
       });
-      if(mode==='author' && activeSection==='misc' && (!search||'미분류'.includes(search)))
-        items=items.concat(['__comic_uncategorized_v1090__']);
+      // v1198: 이전의 단일 '미분류 작품' 행을 만들지 않는다. 묶음 탭에는 실제 시리즈명만 나온다.
     }
     if(resetScrollV1090)comicCreatorScrollByModeV1033[mode]=0;
     // 160개 이하일 때 사용하는 일반 append 경로의 옛 행도 지운다.
     authList.replaceChildren();
     // 세 모드 모두 기존 가상 스크롤 렌더러 1개만 재사용한다.
     initComicRailVirtualV1008('authors', authList, items, name => {
+      if(mode==='bundle'){
+        const g=name;
+        const row=document.createElement('div');
+        row.className='wtTagRailRow comicFirstFolderCheckRowV1163';
+        row.dataset.bundleKey=g.key;
+        row.classList.toggle('active',comicSelectedBundlesV1198.has(g.key));
+        row.title=`묶음 작품: ${g.name} · ${g.count}개 ZIP/CBZ\n원래 위치: ${g.sourceFolder||'(등록 루트)'}`;
+        const cb=document.createElement('input');cb.type='checkbox';cb.className='wtTagRailChk';
+        cb.checked=comicSelectedBundlesV1198.has(g.key);
+        cb.setAttribute('aria-label',g.name+' 묶음 선택');
+        const txt=document.createElement('span');txt.className='wtTagRailTxt comicFirstFolderNameV1132';
+        txt.textContent=g.name;
+        const count=document.createElement('span');count.className='comicFirstFolderCountV1132';count.textContent=String(g.count);
+        row.classList.toggle('is-fav',isFavComicFirstFolderV1163(g.key));row.append(cb,txt,count);
+        const apply=()=>{comicCreatorScrollByModeV1033.bundle=authList.scrollTop;renderCreatorListV1033();applyComicRailLinkedFilterV1105();};
+        cb.addEventListener('click',e=>e.stopPropagation());
+        cb.addEventListener('change',e=>{
+          e.stopPropagation();if(cb.checked)comicSelectedBundlesV1198.add(g.key);
+          else comicSelectedBundlesV1198.delete(g.key);apply();
+        });
+        bindChipClickWithDbl(txt,{
+          onSingle:()=>{const only=comicSelectedBundlesV1198.size===1&&comicSelectedBundlesV1198.has(g.key);
+            comicSelectedBundlesV1198.clear();if(!only)comicSelectedBundlesV1198.add(g.key);apply();},
+          onDouble:()=>{toggleFavComicFirstFolderV1163(g.key);apply();}
+        });
+        return row;
+      }
       if(mode==='folder'){
         const g=name;
         const row=document.createElement('div');
@@ -42333,7 +42413,7 @@ const selectOnlyThisFromText = (e) => {
     restoreComicRailVirtualV1008();
   }
 
-  for (const [type, label] of [['author', '작가'], ['group', '그룹'], ['tag', '태그'], ['folder', '묶음']]) {
+  for (const [type, label] of [['author', '작가'], ['group', '그룹'], ['tag', '태그'], ['bundle', '묶음'], ['folder', '회차']]) {
     const btn = document.createElement('button');
     btn.type = 'button'; btn.textContent = label;
     btn.className = 'comicCreatorTabV1033';
@@ -162372,7 +162452,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1197;
+  const VIEWER_BUILD_V789 = 1198;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -175065,6 +175145,28 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   </div>
   <div class="wv1098Section"><h3>💬 오류·건의 작성 안내</h3><p>브라우저 종류, 문제의 폴더 경로(개인정보 제외), 오류 재현 과정을 알려주시면 원인 파악에 도움이 됩니다.</p></div>
 </template>
+<!-- v1198: 작가·그룹·태그·묶음·회차 분리. 기존 안내를 본 사용자도 새 공지를 한 번 표시한다. -->
+<template id="wv1198LatestTemplate">
+  <div class="wv1098Section wv1175Highlight">
+    <h3>📚 만화 목록 5개 탭 · 묶음/회차 분리</h3>
+    <p>만화 왼쪽 레일을 <strong>작가 · 그룹 · 태그 · 묶음 · 회차</strong>로 구분했습니다.</p>
+    <ul>
+      <li><strong>묶음:</strong> 기존의 단일 ‘미분류 작품’ 대신 <strong>이미 묶인 시리즈의 실제 작품명·폴더명</strong>을 각각 분류 행으로 표시합니다. 작품명을 클릭하면 그 묶음의 <strong>대표 포스터 한 개</strong>가 나옵니다.</li>
+      <li><strong>회차:</strong> 이전 ‘묶음’ 탭의 역할을 그대로 유지합니다. 실제 폴더와 수동 시리즈를 선택하면 <strong>01.zip·02.zip 등 모든 개별 회차 표지</strong>를 펼쳐 표시합니다.</li>
+      <li><strong>작가·그룹·태그:</strong> 이전처럼 해당 정보로 탐색합니다. 단일 ‘미분류 작품’ 행은 제거했습니다.</li>
+      <li><strong>묶음 설정 버튼:</strong> 기존 자동묶음(90% 규칙) → 수동묶음 → 폴더 전체묶음의 동작을 유지합니다. 아직 묶이지 않은 작품은 새 묶음탭의 분류 목록에 나오지 않습니다.</li>
+    </ul>
+    <div class="wv1175Howto"><strong>📌 기존 사용자 안내 — 묶음 다시 실행</strong><br>
+      이전 버전에서 만화 폴더를 등록하거나 묶음을 설정했다면, 새 <strong>묶음·회차 분류</strong>를 이용하기 전에 만화탭 상단의 <strong>묶음</strong> 버튼을 <strong>다시 한 번 실행</strong>해 주세요.<br>
+      <strong>자동묶음 → 수동묶음 → 폴더 전체묶음</strong> 순서로 후보를 확인하고 필요한 항목만 선택하면 됩니다. 기존 상태를 바꾸지 않을 때는 <strong>변경없음(현상유지)</strong>를 선택하세요.<br>
+      <strong>스캔이나 원본 ZIP·CBZ 파일 변경은 필요하지 않습니다.</strong> 기존 읽음 기록과 폴더명은 유지됩니다.
+    </div>
+  </div>
+  <div class="wv1098Section wv1179Chapters"><h3>📖 자동스크롤 기능</h3>
+    <p>세로뷰 자동스크롤(20~500px/초, 기본 150), 실행 중 ↑·↓ 속도 조절, 가로뷰 1~10초 자동넘김(기본 3초), 첫 두 장 비율에 따른 자동 세로보기 기능을 이용할 수 있습니다.</p>
+  </div>
+  <div class="wv1098Section"><h3>💬 건의 안내</h3><p>오류를 보내실 때 브라우저 종류, 폴더 경로(개인정보 제외), 재현 과정을 적어주시면 원인 파악에 도움이 됩니다.</p></div>
+</template>
 <!-- v1197: 1196 폴더 전체묶음 공지에 세로·가로 자동 이동 사용법을 포함한 최신 공지. -->
 <template id="wv1197LatestTemplate">
   <div class="wv1098Section wv1175Highlight">
@@ -175201,6 +175303,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'📚 웹뷰어 1197 묶음·자동스크롤 안내',
       subtitle:'폴더 전체묶음 · 세로 자동스크롤·방향키 속도 조절 · 가로 자동넘김',
       html:document.getElementById('wv1197LatestTemplate')?.innerHTML||''
+    },
+    {
+      id:'release-v1198-bundle-chapter-five-tabs-rerun-guide',build:'빌드 1198',
+      title:'📚 웹뷰어 1198 만화 분류 안내',
+      subtitle:'5개 탭 분류 · 기존 사용자 묶음 버튼 다시 실행 안내',
+      html:document.getElementById('wv1198LatestTemplate')?.innerHTML||''
     }
   ];
   let current=history.length-1;
