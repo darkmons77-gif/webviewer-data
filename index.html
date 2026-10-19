@@ -1,3 +1,10 @@
+<!-- v1267: 책장 포스터 바닥을 선반 행 높이의 274/324 지점에 맞춰 배경 시작 위치를 후보정. 가로 배치·4px 안전 여유·저장값 유지. -->
+<!-- v1266: 책장 포스터 1~7열만 기준 좌우 여백 90px(1690폭 비례)을 남기고 초과 공간을 N+1개 사이에 균등배분. 원래 표지 크기·오른쪽 4px 안전유보·8열 이상 계산·DB·업데이트 공지 유지. -->
+<!-- v1265: 책장 포스터별 가로 -1px 제거; 오른쪽 책장 여백만 4px 줄이고, 마지막 포스터 줄바꿈 방지용 4px는 행 전체에만 검사 적용. 초기/크기변경 공통 계산, 업데이트 공지 추가 없음. -->
+<!-- v1264: 책장 9열 이상 좌우 여백을 8열 기준 최소폭으로 유지(실제 책장 가로폭에 비례); 8열 이하는 기존 배율 보존. 업데이트 공지 추가 없음. -->
+<!-- v1272: 영상 FPS 배지 직접 클릭 시 해당 작품만 재측정, 성공 시 갱신·실패 시 기존값 보존. 업데이트 안내에 사용법 추가. -->
+<!-- v1271: 영상 재생 진단 안내 문구만 요청에 따라 조정; 재생/FPS 측정 로직 변경 없음. -->
+<!-- v1270: 책장 은은한 주황색 및 포스터 제목 그림자 보강 · 펼침 우→좌 휠 보정 · StPageFlip 속도(400~1200ms) 설정 · 영상 재생 진단 업데이트 안내. -->
 <!-- v1263: 기존 회색 버튼 배경 저장값을 최초 실행 시 투명(없음)으로 자동 이전; 사용자 지정 다른 색·굵기 보존. 업데이트 공지 추가 없음. -->
 <!-- v1261: 1216~1260 업데이트 공지 한 페이지 통합. 책장 테마 최상위 강조, 두 장 펼침/넘김 두 번째 강조. 기존 공지 기록 1199~1215 유지. -->
 <!-- v1260: 1259 폐기 / 1258 기준. 시작용 가상 책·가로 한 장 3D 삭제, 원본 StPageFlip 중앙 가장자리 드래그만 추가. -->
@@ -11087,9 +11094,12 @@ body.video-fullscreen-clean #videoFullscreenHoverZone {
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1px 2px #000;
   white-space: nowrap;
-  pointer-events: none;
+  pointer-events: auto;
   user-select: none;
+  cursor: pointer;
 }
+.videoFpsBadge:focus-visible { outline:2px solid #ffe2a3; outline-offset:2px; }
+.videoFpsBadge.videoFpsMeasuringV1272 { background:rgba(147,93,21,.95); cursor:wait; }
 
 /* 커버플로우에서도 다른 배지와 같은 축소 크기 */
 #wtList.videoListMode.videoRandomCoverflowMode .videoCard .videoFpsBadge {
@@ -27322,8 +27332,14 @@ if (i >= sourceEntriesV1080.length || target <= 0) return;
     if (totalW > 0) {
       const shelfExtraGapV1219 = shelfThemedV1223 ? 20*shelfScaleV1223 : 0;
       thumbW = (totalW - gap*shelfScaleV1223 * (cols + 1) - shelfExtraGapV1219 * (cols - 1)) / cols;
-      // v1224: leave a full extra pixel per cover so fractional CSS rounding never wraps the last column.
-      if(shelfThemedV1223)thumbW-=1;
+      // v1266: 1~7 columns retain the ORIGINAL v1265 poster width, regardless
+      // of the newly redistributed CSS padding and gaps.
+      if(shelfThemedV1223 && cols<8 && listEl.classList.contains('wtListThumb')){
+        thumbW=window.ComicShelfScaleV1223?.nominalLowCoverWidth(listEl,cols,shelfScaleV1223)??thumbW;
+      }
+      // v1265: do not shrink every cover by 1px.  Reserve up to 4px once
+      // at the end of the whole row, only if the actual flex width needs it.
+      if(shelfThemedV1223)thumbW=window.ComicShelfScaleV1223?.fitCoverWidth(listEl,cols,thumbW)??thumbW;
       if (thumbW < 10) thumbW = 10;
       thumbH = Math.round(thumbW * wtThumbRatio);
     } else {
@@ -118842,6 +118858,22 @@ if (videoExtension) {
     String(entry?.id || '');
 
   fpsBadge.__videoEntry = entry;
+  // v1272: 수동 FPS 재측정. 카드 재생 클릭과 분리하고 키보드도 지원.
+  fpsBadge.tabIndex = 0;
+  fpsBadge.setAttribute('role', 'button');
+  fpsBadge.setAttribute('aria-label', 'FPS 다시 측정');
+  fpsBadge.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+    void remeasureVideoFpsV1272(entry);
+  });
+  fpsBadge.addEventListener('keydown', event => {
+    if(event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    event.stopPropagation();
+    void remeasureVideoFpsV1272(entry);
+  });
 
   const savedFpsV865 =
     Number(entry?.videoFps);
@@ -118853,7 +118885,7 @@ if (videoExtension) {
     fpsBadge.textContent =
       formatVideoFpsBadgeV865(savedFpsV865);
     fpsBadge.title =
-      `미리보기에서 측정한 FPS: ${savedFpsV865}`;
+      `미리보기에서 측정한 FPS: ${savedFpsV865} · 클릭하면 다시 측정`;
   } else {
     fpsBadge.textContent = '';
     fpsBadge.style.display = 'none';
@@ -143191,12 +143223,12 @@ function updateVideoFpsBadgesV865(entry) {
     .forEach(badge => {
       if (String(badge?.dataset?.videoEntryId || '') !== id) return;
       badge.textContent = text;
-      badge.title = `미리보기에서 측정한 FPS: ${fps}`;
+      badge.title = `미리보기에서 측정한 FPS: ${fps} · 클릭하면 다시 측정`;
       badge.style.display = '';
     });
 }
 
-function saveVideoFpsV865(entry, measuredFps) {
+function saveVideoFpsV865(entry, measuredFps, {force = false} = {}) {
   if (!entry?.id) return false;
 
   const fps = normalizeMeasuredVideoFpsV865(measuredFps);
@@ -143222,7 +143254,7 @@ function saveVideoFpsV865(entry, measuredFps) {
   }
 
   const storedFps = Number(list[index]?.videoFps);
-  if (Number.isFinite(storedFps) && storedFps > 0) {
+  if (!force && Number.isFinite(storedFps) && storedFps > 0) {
     entry.videoFps = storedFps;
     updateVideoFpsBadgesV865(entry);
     return false;
@@ -143251,11 +143283,11 @@ function saveVideoFpsV865(entry, measuredFps) {
   return true;
 }
 
-function startVideoFpsMeasurementV865(entry, video) {
+function startVideoFpsMeasurementV865(entry, video, {force = false, onFinish = null} = {}) {
   if (!entry || !video) return false;
 
   const saved = Number(entry?.videoFps);
-  if (Number.isFinite(saved) && saved > 0) {
+  if (!force && Number.isFinite(saved) && saved > 0) {
     updateVideoFpsBadgesV865(entry);
     return false;
   }
@@ -143276,14 +143308,18 @@ function startVideoFpsMeasurementV865(entry, video) {
     if (finished) return;
     finished = true;
     video.__videoFpsMeasureFinishedV865 = true;
-    if (fps > 0) saveVideoFpsV865(entry, fps);
+    const normalized = fps > 0 ? normalizeMeasuredVideoFpsV865(fps) : 0;
+    const didSave = normalized > 0 ? saveVideoFpsV865(entry, normalized, {force}) : false;
+    if (typeof onFinish === 'function') {
+      try { onFinish(didSave ? normalized : 0); } catch (_) {}
+    }
   };
 
   const onFrame = (now, metadata = {}) => {
     if (finished) return;
 
     // 다른 경로에서 이미 저장됐으면 여기서는 즉시 종료.
-    if (Number(entry?.videoFps) > 0) {
+    if (!force && Number(entry?.videoFps) > 0) {
       finish(0);
       return;
     }
@@ -143351,6 +143387,120 @@ function startVideoFpsMeasurementV865(entry, video) {
   } catch (_) {
     finish(0);
     return false;
+  }
+}
+
+// v1272: 보유 동영상 FPS 숫자를 눌러 그 작품만 별도로 다시 측정한다.
+// 자동 미리보기와 분리된 작은 무음 비디오를 사용하고, 성공한 경우에만 이전 FPS를 교체한다.
+const videoFpsRemeasurePendingV1272 = new Set();
+async function remeasureVideoFpsV1272(entry) {
+  const id = String(entry?.id || '');
+  if (!id || videoFpsRemeasurePendingV1272.has(id)) return;
+  videoFpsRemeasurePendingV1272.add(id);
+  const notify = message => {
+    try { showToast(message, 2000); }
+    catch (_) { console.info('[FPS 재측정]', message); }
+  };
+  const badges = () => Array.from(document.querySelectorAll('.videoFpsBadge'))
+    .filter(el => String(el.dataset.videoEntryId || '') === id);
+  const mark = busy => {
+    for (const el of badges()) {
+      el.classList.toggle('videoFpsMeasuringV1272', busy);
+      el.setAttribute('aria-busy', String(busy));
+      if (busy) {
+        el.textContent = '측정 중…';
+        el.title = 'FPS 재측정 중';
+      }
+    }
+  };
+  let video = null;
+  let url = '';
+  let timeoutId = 0;
+  let onAbort = null;
+  const prior = Number(entry?.videoFps) || 0;
+  mark(true);
+  notify('FPS를 다시 측정합니다. 잠시 기다려 주세요.');
+  try {
+    if (typeof HTMLVideoElement === 'undefined' ||
+        typeof HTMLVideoElement.prototype.requestVideoFrameCallback !== 'function') {
+      throw new Error('현재 브라우저는 FPS 측정을 지원하지 않습니다.');
+    }
+    // FPS 배지 클릭은 명시적인 사용자 동작이므로 읽기 권한이 필요하면 요청한다.
+    const handle = await resolveVideoHandle(entry);
+    if (!handle) throw new Error('동영상 파일을 찾지 못했거나 읽기 권한이 없습니다.');
+    const file = await handle.getFile();
+    if (!file || file.size <= 0) throw new Error('파일을 읽을 수 없습니다.');
+    url = URL.createObjectURL(file);
+    video = document.createElement('video');
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.preload = 'auto';
+    video.disablePictureInPicture = true;
+    video.setAttribute('aria-hidden', 'true');
+    // display:none은 Chromium에서 비디오 프레임 콜백을 중단할 수 있어 작게 유지.
+    video.style.cssText = 'position:fixed!important;left:0!important;bottom:0!important;width:24px!important;height:24px!important;opacity:.01!important;pointer-events:none!important;z-index:-1!important;';
+    document.body.appendChild(video);
+    video.src = url;
+    const result = await new Promise((resolve, reject) => {
+      let finished = false;
+      const done = (fps, error) => {
+        if (finished) return;
+        finished = true;
+        if (error) reject(error);
+        else resolve(fps);
+      };
+      onAbort = () => done(0, new Error('FPS 측정 시간 초과 또는 취소'));
+      timeoutId = setTimeout(onAbort, 11000);
+      video.addEventListener('error', () => done(0, new Error('영상 디코딩 또는 재생 실패')), {once:true});
+      video.addEventListener('loadedmetadata', async () => {
+        try {
+          const duration = Number(video.duration);
+          if (Number.isFinite(duration) && duration > 12) {
+            const where = Math.min(duration - 6, Math.max(3, duration * .1));
+            if (where > 0) {
+              const seeked = new Promise((res, rej) => {
+                video.addEventListener('seeked', res, {once:true});
+                video.addEventListener('error', () => rej(new Error('영상 탐색 실패')), {once:true});
+              });
+              video.currentTime = where;
+              await seeked;
+            }
+          }
+          if (finished) return;
+          await video.play();
+          if (finished) return;
+          const started = startVideoFpsMeasurementV865(entry, video, {
+            force: true,
+            onFinish: fps => done(fps, fps > 0 ? null : new Error('FPS를 계산할 프레임이 부족합니다.'))
+          });
+          if (!started) done(0, new Error('FPS 측정을 시작하지 못했습니다.'));
+        } catch (e) { done(0, e); }
+      }, {once:true});
+    });
+    if (!(result > 0)) throw new Error('FPS 측정에 실패했습니다.');
+    notify('FPS 재측정 완료: ' + formatVideoFpsBadgeV865(result));
+  } catch (error) {
+    // 원본 FPS는 측정 성공 이전에 삭제하지 않는다.
+    notify('FPS 재측정 실패: ' + (error?.message || '파일을 확인해 주세요.'));
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (video) {
+      try { video.__videoFpsMeasureStopV1272?.(); } catch (_) {}
+      try { video.pause(); } catch (_) {}
+      try { video.removeAttribute('src'); video.load(); } catch (_) {}
+      try { video.remove(); } catch (_) {}
+    }
+    if (url) { try { URL.revokeObjectURL(url); } catch (_) {} }
+    videoFpsRemeasurePendingV1272.delete(id);
+    mark(false);
+    if (Number(entry?.videoFps) > 0) updateVideoFpsBadgesV865(entry);
+    else {
+      for (const badge of badges()) {
+        badge.textContent = prior > 0 ? formatVideoFpsBadgeV865(prior) : '';
+        badge.title = prior > 0 ? 'FPS를 다시 측정하려면 클릭하세요.' : '';
+      }
+    }
   }
 }
 
@@ -162746,7 +162896,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1263;
+  const VIEWER_BUILD_V789 = 1272;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -163011,6 +163161,11 @@ try {
     const manual = opt.manual === true;
     const button = opt.button || null;
     const oldText = button ? button.textContent : '';
+    // v1269: a user-initiated version check also fills missing shelf images
+    // into an ALREADY-authorized local Actors directory, without prompting.
+    if (manual) {
+      try { void window.ViewerShelfAssetsV1269?.autoSync('latest-button'); } catch (_) {}
+    }
 
     if (button) {
       button.disabled = true;
@@ -171309,10 +171464,25 @@ async function openLightbox(value, fileJumpV1005=null){
   for(const [v,t] of [['flip','StPageFlip'],['none','효과 없음']]){const o=document.createElement('option');o.value=v;o.textContent=t;spreadEffectV1233.appendChild(o);}
   const spreadOrderV1226=document.createElement('select');spreadOrderV1226.title='책 읽기 방향';spreadOrderV1226.setAttribute('aria-label','책 읽기 방향');
   for(const [v,t] of [['ltr','좌→우'],['rtl','우→좌']]){const o=document.createElement('option');o.value=v;o.textContent=t;spreadOrderV1226.appendChild(o);}
+  // v1270: animation duration is different from the 1~10sec AUTO page interval.
+  const SPREAD_SPEED_KEY_V1270='comic_book_flip_duration_v1270';
+  const SPREAD_SPEED_VALUES_V1270=[400,600,800,1000,1200];
+  const spreadSpeedV1270=document.createElement('select');
+  spreadSpeedV1270.title='책넘김 애니메이션 속도 · 작을수록 빠름 (자동넘김 간격과 별개)';
+  spreadSpeedV1270.setAttribute('aria-label','책넘김 애니메이션 시간');
+  for(const ms of SPREAD_SPEED_VALUES_V1270){
+    const o=document.createElement('option');o.value=String(ms);
+    o.textContent=ms+'ms'+(ms===800?' · 기존':'');
+    spreadSpeedV1270.appendChild(o);
+  }
+  let savedSpeedV1270=800;
+  try{const v=Number(localStorage.getItem(SPREAD_SPEED_KEY_V1270));
+    if(SPREAD_SPEED_VALUES_V1270.includes(v))savedSpeedV1270=v;}catch(_){}
+  spreadSpeedV1270.value=String(savedSpeedV1270);
   const spreadInputV1226=document.createElement('select');spreadInputV1226.title='페이지 넘기는 조작 방식';spreadInputV1226.setAttribute('aria-label','넘김 조작');
   for(const [v,t] of [['both','클릭+드래그'],['click','클릭'],['drag','드래그']]){const o=document.createElement('option');o.value=v;o.textContent=t;spreadInputV1226.appendChild(o);}
   try{spreadEffectV1233.value=localStorage.getItem('comic_book_effect_v1233')||'flip';spreadOrderV1226.value=localStorage.getItem('comic_book_order_v1226')||'ltr';spreadInputV1226.value=localStorage.getItem('comic_book_input_v1226')||'both';}catch(_){}
-  spreadOptsV1226.append(spreadEffectV1233,spreadOrderV1226,spreadInputV1226);
+  spreadOptsV1226.append(spreadEffectV1233,spreadOrderV1226,spreadInputV1226,spreadSpeedV1270);
   horizontalBtnV986.textContent='가로';horizontalBtnV986.title='한 장씩 넘겨 보기';
   verticalBtnV986.textContent='세로';verticalBtnV986.title='아래로 이어서 스크롤 보기';
   directionGroupV986.append(horizontalBtnV986,verticalBtnV986,spreadBtnV1226);
@@ -172569,7 +172739,7 @@ async function openLightbox(value, fileJumpV1005=null){
       const holder=document.createElement('div');holder.style.width='100%';holder.style.height='100%';spreadEngineV1226.appendChild(holder);
       const pageSlot=display.findIndex(g=>g.start===mapping.group.start)*2;
       const pf=new St.PageFlip(holder,{width:500,height:705,size:'stretch',minWidth:120,maxWidth:1400,minHeight:170,maxHeight:1974,
-        showCover:false,usePortrait:false,startPage:pageSlot,drawShadow:true,flippingTime:800,maxShadowOpacity:.65,
+        showCover:false,usePortrait:false,startPage:pageSlot,drawShadow:true,flippingTime:Number(spreadSpeedV1270.value)||800,maxShadowOpacity:.65,
         useMouseEvents:true,disableFlipByClick:spreadInputV1226.value==='drag',autoSize:false});
       spreadEngineObjV1226=pf;spreadEngineGroupsV1232=display;
       let lastSlot=pageSlot,initialized=false;
@@ -172801,7 +172971,7 @@ async function openLightbox(value, fileJumpV1005=null){
   spreadViewV1226.addEventListener('click',event=>{
     if(readDirectionV986==='spread'&&event.target===spreadViewV1226&&genuineSpreadOutsideClickV1258(event))destroy();
   });
-  for(const [control,key] of [[spreadEffectV1233,'comic_book_effect_v1233'],[spreadOrderV1226,'comic_book_order_v1226'],[spreadInputV1226,'comic_book_input_v1226']]){
+  for(const [control,key] of [[spreadEffectV1233,'comic_book_effect_v1233'],[spreadOrderV1226,'comic_book_order_v1226'],[spreadInputV1226,'comic_book_input_v1226'],[spreadSpeedV1270,SPREAD_SPEED_KEY_V1270]]){
     control.addEventListener('change',()=>{
       try{localStorage.setItem(key,control.value);}catch(_){}
       if(readDirectionV986==='spread')void showSpreadV1226(idx,true);
@@ -172882,7 +173052,9 @@ async function openLightbox(value, fileJumpV1005=null){
     const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
     if(Math.abs(delta)<25)return;
     lastSpreadWheelV1226=now;
-    void turnSpreadV1226((delta>0?1:-1)*(spreadOrderV1226.value==='rtl'?-1:1));
+    // v1270: a downward/positive wheel turn always means the NEXT logical page, even in RTL.
+    // turnSpreadV1226 already maps logical groups to the engine's physical page direction.
+    void turnSpreadV1226(delta>0?1:-1);
   },{passive:false});
   let wheelSumV995=0;
   let lastWheelEventV995=0;
@@ -174969,7 +175141,8 @@ ABCD-123 ##배우1## ##배우2##.mp4</pre>
 })();
 </script>
 
-<!-- v1224: Shelf proportions also respond to selected column count; reserve 1px against wrapping.
+<!-- v1265: reserve up to 4px once per complete row, without per-poster cropping.
+     v1224: Shelf proportions also respond to selected column count; old 1px/card removed.
      v1223: Scale EVERY shelf geometry measurement from the accurately tuned 1690px layout.
      No comic cover/cache/record modifications. Normal view keeps original pixels. -->
 <script id="comicShelfProportionsV1223">
@@ -175001,19 +175174,75 @@ ABCD-123 ##배우1## ##배우2##.mp4</pre>
    const referenceWidth=2*SIDE+n*BASE_POSTER+(n-1)*GAP+RESERVE;
    return Math.max(.05,Math.min(8,width/referenceWidth));
  }
+ // v1266: calculate the ORIGINAL v1265 nominal cover width, independent of
+ // the new low-column padding/gap. That prevents a CSS feedback loop when
+ // changing column count or resizing the panel. Keep the +7px used by both
+ // original thumbnail renderers. There is still no per-cover -1px subtraction.
+ function nominalLowCoverWidth(list,cols,scale){
+   const n=Math.max(1,Math.min(7,Math.round(Number(cols)||1)));
+   const s=Number.isFinite(scale)?scale:calcScale(list.getBoundingClientRect().width,n);
+   const originalPadding=180*s-4; // v1265: right side 4px shorter
+   const originalGapBudget=9*s*(n+1)+20*s*(n-1);
+   const nominal=(list.clientWidth+7-originalPadding-originalGapBudget)/n;
+   // Also preserve the old v1265 row-wide 4px safety clamp at narrow widths.
+   const originalMax=(list.clientWidth-originalPadding-28*s*(n-1)-4)/n;
+   return Math.max(10,Math.min(nominal,originalMax));
+ }
  function refresh(list,requestedCols){
    if(!list||!list.classList.contains('wtShelfThemeOnV1217'))return 1;
    const width=list.getBoundingClientRect().width;
    if(!Number.isFinite(width)||width<=0)return 1;
    const cols=Number.isFinite(requestedCols) ? requestedCols : currentCols(list);
    const s=calcScale(width,cols);
+   // v1264: for 8+ columns keep the exact established 1265 proportions.
+   const sideScale=Math.max(s,width/BASE);
    const old=Number(list.style.getPropertyValue('--wt-shelf-scale-v1223'));
    if(!Number.isFinite(old)||Math.abs(old-s)>.0001){
      list.style.setProperty('--wt-shelf-scale-v1223',String(s));
    }
+   const oldSide=Number(list.style.getPropertyValue('--wt-shelf-side-scale-v1264'));
+   if(!Number.isFinite(oldSide)||Math.abs(oldSide-sideScale)>.0001){
+     list.style.setProperty('--wt-shelf-side-scale-v1264',String(sideScale));
+   }
+   // v1266: the total leftover width is divided into N+1 equal portions.
+   // The two outside portions each add to the 90px base margin (1690px shelf).
+   // The right CSS padding is 4px shorter, leaving precisely 4px of usable
+   // row-end safety, so the final VISUAL right margin equals the left margin.
+   const compact=cols>=1&&cols<8&&list.classList.contains('wtListThumb')&&
+                 !list.classList.contains('wtPixiModeV1080');
+   if(compact){
+     const cover=nominalLowCoverWidth(list,cols,s);
+     const baseSide=SIDE*(width/BASE);
+     const share=Math.max(0,(width-cols*cover-2*baseSide)/(cols+1));
+     const left=baseSide+share;
+     const right=Math.max(0,left-4);
+     const values={
+       '--wt-shelf-low-left-v1266':left+'px',
+       '--wt-shelf-low-right-v1266':right+'px',
+       '--wt-shelf-low-gap-v1266':share+'px'
+     };
+     for(const [key,val] of Object.entries(values)){
+       if(list.style.getPropertyValue(key)!==val)list.style.setProperty(key,val);
+     }
+   }
+   list.classList.toggle('wtShelfLowColsV1266',compact);
    return s;
  }
- window.ComicShelfScaleV1223={refresh,baseline:BASE,baseColumns:BASE_COLS,calcScale,currentCols};
+ // v1265: match the real flex content width. The 4px reserve belongs to
+ // the entire row (not to each poster); if the nominal width already leaves
+ // 4px or more, leave every poster at its calculated full width.
+ function fitCoverWidth(list,cols,nominal){
+   if(!list?.classList.contains('wtShelfThemeOnV1217') || !Number.isFinite(nominal))return nominal;
+   const count=Math.max(1,Math.round(Number(cols)||BASE_COLS));
+   const style=getComputedStyle(list);
+   const available=list.clientWidth-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0);
+   const gap=parseFloat(style.columnGap);
+   if(!Number.isFinite(available)||available<=0||!Number.isFinite(gap))return nominal;
+   const maxPerCover=(available-gap*(count-1)-4)/count;
+   if(!Number.isFinite(maxPerCover))return nominal;
+   return Math.min(nominal,maxPerCover);
+ }
+ window.ComicShelfScaleV1223={refresh,fitCoverWidth,nominalLowCoverWidth,baseline:BASE,baseColumns:BASE_COLS,calcScale,currentCols};
 })();
 </script>
 <script id="comicRailPosterResizeV1051">
@@ -175057,9 +175286,13 @@ ABCD-123 ##배우1## ##배우2##.mp4</pre>
     // 원래 appendWebtoonListChunk의 레이어 썸네일 폭/별점 계산과 동일.
     // v1219: 초기 렌더와 같은 카드 너비를 적용해 행이 밀려 7열이 되지 않도록 한다.
     const shelfExtraGapV1219 = themed ? 20*shelfScale : 0;
-    // Same 1px rounding safety as appendWebtoonListChunk; do not alter normal mode.
-    const rawWidth=(totalW - 9*shelfScale*(cols+1) - shelfExtraGapV1219*(cols-1))/cols;
-    const width=Math.max(10,rawWidth-(themed?1:0));
+    // v1265: same single 4px row-end safety as the initial cover renderer.
+    let rawWidth=(totalW - 9*shelfScale*(cols+1) - shelfExtraGapV1219*(cols-1))/cols;
+    // v1266: use the same fixed v1265 cover size in both render/reflow paths.
+    if(themed && cols<8 && list.classList.contains('wtListThumb')){
+      rawWidth=window.ComicShelfScaleV1223?.nominalLowCoverWidth(list,cols,shelfScale)??rawWidth;
+    }
+    const width=Math.max(10,themed?(window.ComicShelfScaleV1223?.fitCoverWidth(list,cols,rawWidth)??rawWidth):rawWidth);
     const height = Math.max(1,Math.round(width*ratio));
     const diff = width - 100;
     const base = typeof WEBTOON_RATING_BASE_PX === 'number' ? WEBTOON_RATING_BASE_PX : 10;
@@ -176487,6 +176720,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   </section>
   <div class="wv1261Note">※ 책장 배경은 로컬 실행 시 HTML 옆 <strong>Actors</strong> 폴더에서, GitHub Pages 이용 시 같은 상대경로의 공개 이미지에서 불러옵니다. 원본 만화 파일과 기존 읽음 기록은 변경하지 않습니다.</div>
 </template>
+<!-- v1270: 사용자 제보를 바탕으로 한 영상 재생 진단 안내. 원인을 확정할 수 없으므로 가능성별로 설명. -->
+<template id="wv1270VideoTroubleshootingGuide">
+  <section class="wv1261Feature wv1261Spread">
+    <h3>🎞️ 영상 재생 문제: 원인 확인 안내</h3>
+    <p>일부 영상이 <strong>덜덜 떨리거나</strong>, 재생 버튼을 눌러도 <strong>검은 화면</strong>으로 남거나, 시작까지 <strong>약 5초</strong> 걸린다면, 아래는 확정 진단이 아닌 점검 순서입니다.</p>
+    <ul>
+      <li><strong>떨림·끊김:</strong> 키프레임(GOP)·프레임 타임스탬프(PTS/DTS)·가변 FPS·인코딩 호환성 문제일 수 있습니다. 다시 인코딩을 권장드립니다.</li>
+      <li><strong>시간은 가는데 검은 화면:</strong> 브라우저가 영상 코덱·프로파일을 지원하지 않거나 디코딩에 실패했을 가능성이 있습니다. 확장자가 MP4라도 내부 영상 형식이 호환되지 않을 수 있고, 확장자와 실제 컨테이너가 다른 경우도 있습니다. 필요하면 호환 코덱(H.264/AAC 등)으로 재인코딩해야 할 수 있습니다.</li>
+      <li><strong>재생 시작이 느림(약 5초):</strong> 외장 HDD의 절전 해제, 불안정한 I/O·읽기 재시도, USB 연결 상태·디스크 상태 외에 대용량 파일의 메타데이터 위치, 키프레임 탐색, 브라우저 초기 디코딩도 원인이 될 수 있습니다.</li>
+      <li><strong>FPS 숫자가 팟플레이어와 다름:</strong> 웹뷰어의 FPS 표시는 미리보기 재생 중 측정한 표시 프레임의 <em>추정치</em>입니다.</li>
+      <li><strong>FPS 재측정 기능:</strong> 보유 영상 포스터의 <strong>FPS 숫자 배지를 클릭</strong>하면 해당 영상만 다시 측정합니다. 새 측정이 성공하면 목록과 IndexedDB의 FPS를 갱신하고, 실패하면 이전 값을 유지합니다. 파일 읽기 권한이 필요할 수 있습니다.</li>
+    </ul>
+    <p><strong>권장 확인 순서:</strong> 같은 파일을 팟플레이어와 Chrome/Edge에서 비교 → 다른 드라이브(내장 SSD 등)에 복사해 시작 지연 비교 → 브라우저 하드웨어 가속 전환 테스트 → MediaInfo/ffprobe로 코덱·프레임·타임스탬프 확인 → 필요한 파일만 remux 또는 재인코딩 검토. 재인코딩하기 전 원본은 보존하세요.</p>
+  </section>
+  <section class="wv1261Feature wv1261Other">
+    <h3>📖 만화 책장 · 펼침 조작 개선</h3>
+    <ul>
+      <li><strong>책장 글자:</strong> 은은한 주황색 글자의 그림자를 한 층 더 보강하고 주황색 포스터 제목에도 같은 가독성 처리를 적용했습니다.</li>
+      <li><strong>우→좌 읽기:</strong> 휠을 아래로 내리면 읽기 방향과 관계없이 다음 페이지, 위로 올리면 이전 페이지입니다.</li>
+      <li><strong>책넘김 속도:</strong> 펼침 상단 가이드의 넘김 옵션에서 <strong>400/600/800/1000/1200ms</strong> 선택. 기본값은 기존과 동일한 <strong>800ms</strong>이고 선택값은 저장됩니다. 자동넘김 간격(1~10초)과는 별개입니다.</li>
+    </ul>
+  </section>
+  <div class="wv1261Note">※ FPS 재측정은 <strong>표시·저장된 측정값만 변경</strong>합니다. 영상 재생 엔진과 원본 영상 파일은 수정하지 않습니다.</div>
+</template>
 <!-- v1197: 1196 폴더 전체묶음 공지에 세로·가로 자동 이동 사용법을 포함한 최신 공지. -->
 <template id="wv1197LatestTemplate">
   <div class="wv1098Section wv1175Highlight">
@@ -176641,6 +176898,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'📚 새 오크 책장 모드 & 두 페이지 책넘김',
       subtitle:'1216~1260 업데이트 통합 · 책장 모드 신설 · 두 장 펼침 및 책장 넘김',
       html:document.getElementById('wv1261BookshelfSpreadGuide')?.innerHTML||''
+    },
+    {
+      id:'release-v1272-video-fps-remeasure-comic-controls',build:'빌드 1272',
+      title:'🎞️ 영상 FPS 재측정 · 재생 점검 · 만화 책넘김',
+      subtitle:'FPS 숫자 클릭 재측정 / 영상 재생 점검 / 휠 방향·책넘김·책장 글자 개선',
+      html:document.getElementById('wv1270VideoTroubleshootingGuide')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -179207,23 +179470,33 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
 #wtList.wtShelfThemeOnV1217.wtListThumb:not(.wtPixiModeV1080){
   column-gap:calc(28px * var(--wt-shelf-scale-v1223,1))!important;
 }
+/* v1266: override ONLY the main bookshelf's 1~7-column geometry.
+   Explicit flex gap keeps the last partially-filled row left-aligned. */
+#wtList.wtShelfThemeOnV1217.wtListThumb.wtShelfLowColsV1266:not(.wtPixiModeV1080){
+  column-gap:var(--wt-shelf-low-gap-v1266)!important;
+  padding-left:var(--wt-shelf-low-left-v1266)!important;
+  padding-right:var(--wt-shelf-low-right-v1266)!important;
+}
 #wtList.wtShelfThemeOnV1217.zipInnerChaptersV1202:not(.wtPixiModeV1080){
   column-gap:calc(30px * var(--wt-shelf-scale-v1223,1))!important;
 }
 #wtList.wtShelfThemeOnV1217.fsChaptersV1204:not(.wtPixiModeV1080){
   column-gap:calc(29px * var(--wt-shelf-scale-v1223,1))!important;
 }
-/* v1223: outer clearance is 90px * (list width / 1690); at baseline unchanged.
+/* v1264: for 9+ columns, outer clearance stops shrinking with column count;
+   its 90px baseline scales with bookshelf width. For <=8 columns retain prior scale.
+   v1223: outer clearance is 90px * theme scale; at baseline unchanged.
    v1221: outer bookshelf clearance is 90px per side (v1220: 80px).
    Horizontal gap between books remains 28px; top breathing room remains 28px.
    The 28px top breathing room sits *inside* each shelf row; row pitch also
    grows by 28px so comic bottoms still rest on the wooden board, not across it.
    Column gaps remain exactly the v1219 values (28/30/29px). */
 #wtList.wtShelfThemeOnV1217:is(.wtListThumb,.zipInnerChaptersV1202,.fsChaptersV1204):not(.wtPixiModeV1080){
-  --wt-shelf-content-inset-v1218:calc(90px * var(--wt-shelf-scale-v1223,1));
+  --wt-shelf-content-inset-v1218:calc(90px * var(--wt-shelf-side-scale-v1264,var(--wt-shelf-scale-v1223,1)));
   box-sizing:border-box!important;
   padding-left:var(--wt-shelf-content-inset-v1218)!important;
-  padding-right:var(--wt-shelf-content-inset-v1218)!important;
+  /* v1265: use 4px from the right outer margin, never from every book. */
+  padding-right:max(0px,calc(var(--wt-shelf-content-inset-v1218) - 4px))!important;
   padding-top:calc(28px * var(--wt-shelf-scale-v1223,1))!important;
   background-origin:padding-box!important;
   background-clip:border-box!important;
@@ -179237,7 +179510,7 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
 #wtList.wtShelfThemeOnV1217.fsChaptersV1204:not(.wtPixiModeV1080){
   row-gap:calc(37px * var(--wt-shelf-scale-v1223,1))!important;
 }
-/* v1223: no fixed small-screen override; side margins also use W / 1690. */
+/* v1264: side margins never fall below 90px * (list width / 1690) at 9+ columns. */
 #wtList.wtShelfThemeOnV1217 .wtThumbItem > .wtThumbBtn,
 #wtList.wtShelfThemeOnV1217 .wtThumbItem > .wtThumbBtn > .wtThumbCap {
   background:transparent!important;
@@ -179326,15 +179599,28 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
    // (실제 간격 - 배경 반복 간격) 오차가 누적돼 아래로 갈수록 책이 선반을 벗어난다.
    // CSS background-size에도 측정한 실수값을 그대로 전달해야 한다.
    const pitch=Number.isFinite(raw)&&raw>65?Math.min(2500,raw):340;
-   // First visible row may begin after #wtList's padding.
-   // v1220: The shelf background starts above the first book by the 28px top inset;
-   // otherwise the top wood lip moves *with* the book and the extra margin is lost.
+   // v1267: 포스터의 실제 바닥(표지 프레임 bottom)을 선반 이미지의
+   // 274 / 324 = 84.567901...% 지점에 정확하게 겹친다.
+   // 배경 반복 주기는 실제 카드 행 간격(pitch) 그대로 유지한다.
+   // 포스터와 캡션의 물리적 위치는 변경하지 않아 가로 배치/스크롤/클릭 영역 보존.
+   // 비율이 작아지는 16~20열에서는 배경 시작값이 음수가 될 수 있으므로
+   // Math.max(0, start)로 잘라서는 안 된다.
    const topInset=parseFloat(style.paddingTop)||0;
-   const start=first.getBoundingClientRect().top-box.getBoundingClientRect().top+box.scrollTop-topInset;
-   // v1238: 시작점도 브라우저의 sub-pixel 좌표를 유지.
-   // toFixed(5)는 문자열 길이만 제한하며 좌표를 정수 픽셀로 반올림하지 않는다.
+   const boxRect=box.getBoundingClientRect();
+   let start=first.getBoundingClientRect().top-boxRect.top+box.scrollTop-topInset;
+   if(box.classList.contains('wtListThumb')){
+     const cover=first.querySelector('.wtThumbImgWrap');
+     if(cover){
+       const coverRect=cover.getBoundingClientRect();
+       if(Number.isFinite(coverRect.bottom)&&coverRect.height>0){
+         const FLOOR_RATIO_V1267=274/324;
+         start=coverRect.bottom-boxRect.top+box.scrollTop-pitch*FLOOR_RATIO_V1267;
+       }
+     }
+   }
+   // v1238: 행 반복 높이·바닥 위치 모두 sub-pixel 정확도 유지.
    box.style.setProperty('--wt-shelf-row-height-v1217',pitch.toFixed(5)+'px');
-   box.style.setProperty('--wt-shelf-row-offset-v1217',Math.max(0,start).toFixed(5)+'px');
+   box.style.setProperty('--wt-shelf-row-offset-v1217',start.toFixed(5)+'px');
    if(resizer&&first!==cardObserved){
       if(cardObserved)try{resizer.unobserve(cardObserved)}catch(_){}
       cardObserved=first;
@@ -179406,6 +179692,10 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
    }
    try{if(localStorage.getItem(KEY)==='1')void setEnabled(true,true);}catch(_){}
    window.ComicBookshelfThemeV1217={refresh:schedulePitch,turnOn:()=>setEnabled(true),turnOff:()=>setEnabled(false)};
+   window.addEventListener('viewer-shelf-assets-saved-v1269',()=>{
+     loaded=false;loadedUrl='';
+     if(enabled)void verifyImage().then(ok=>{if(ok)sync();});
+   });
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
@@ -180178,6 +180468,286 @@ html #wtList.wtShelfThemeOnV1217 .wtSingleRescanV1085:is(:hover,:active,:focus,:
   };
   image.onerror=()=>document.documentElement.classList.remove('comicShelfTopReadyV1257');
   image.src='Actors/thema1_top.jpg';
+  window.addEventListener('viewer-shelf-assets-saved-v1269',()=>{
+    const retry=new Image();
+    retry.onload=()=>document.documentElement.classList.add('comicShelfTopReadyV1257');
+    retry.src='Actors/thema1_top.jpg?reload='+Date.now();
+  });
+})();
+</script>
+
+
+<!-- v1268: 책장 UI 글자 가독성 2단계 선택. 기존 오크색(기본)을 변경하지 않고
+     책장 상단/왼쪽 레일만 선명한 아이보리 + 어두운 외곽 그림자로 전환.
+     영상/음악/게임, 포스터 캡션, 선반 기하학, 원본/IDB는 변경하지 않음. -->
+<style id="comicShelfTextContrastCssV1268">
+/* v1269: soft keeps #ffb347 and strengthens only its dark outline a little. */
+html:not(.comicShelfStrongTextV1268) #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtTagRail,#wtBox > .wt-head),
+html:not(.comicShelfStrongTextV1268) #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtTagRail,#wtBox > .wt-head)
+  :is(button,a,span,label,small,strong,b,select,input:not([type="checkbox"]):not([type="radio"]),
+      .wtTagRailTxt,.wtTagRailRow,.wtTagItem,.wtRailHeader,.comicFirstFolderCountV1132,
+      .comicCreatorCountV1164,.videoActressCount,.videoActressName,[data-viewer-build-label]){
+  text-shadow:0 1px 2px rgba(20,8,1,.98),0 0 3px rgba(12,5,0,.96),0 2px 4px rgba(16,6,0,.86),0 0 5px rgba(10,4,0,.66)!important;
+}
+
+/* v1270: orange comic captions use the same 4-layer warm shadow as soft shelf UI.
+   The strong ivory setting applies only to header/rail; titles remain orange.
+   No text size, cover geometry, or other-tab styles are changed. */
+#wtList.wtShelfThemeOnV1217 .wtThumbCap,
+#wtList.wtShelfThemeOnV1217 :is(.zipInnerTitleV1202,.fsChapterLabelV1204,
+  .zipInnerCountV1202,.fsChapterBadgeV1204),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+ #wtList.wtShelfThemeOnV1217:is(.zipInnerChaptersV1202,.fsChaptersV1204)
+ :is(.zipInnerTitleV1202,.fsChapterLabelV1204,.zipInnerCountV1202,.fsChapterBadgeV1204){
+  text-shadow:0 1px 2px rgba(20,8,1,.98),0 0 3px rgba(12,5,0,.96),
+    0 2px 4px rgba(16,6,0,.86),0 0 5px rgba(10,4,0,.66)!important;
+}
+
+/* v1268: contrast controls override shelf header and rail. */
+html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active){
+  --viewer-common-font-color-v1162:#fff7e7;
+  --viewer-common-font-special-color-v1162:#fff7e7;
+  --viewer-common-font-active-color-v1162:#fff7e7;
+}
+html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtTagRail,#wtBox > .wt-head),
+html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtTagRail,#wtBox > .wt-head)
+  :is(button,a,span,label,small,strong,b,select,input:not([type="checkbox"]):not([type="radio"]),
+      .wtTagRailTxt,.wtTagRailRow,.wtTagItem,.wtRailHeader,.comicFirstFolderCountV1132,
+      .comicCreatorCountV1164,.videoActressCount,.videoActressName,[data-viewer-build-label]){
+  color:#fff7e7!important;
+  text-shadow:0 1px 2px rgba(25,12,2,.72),0 0 2px rgba(18,8,1,.50)!important;
+}
+html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtTagRail,#wtBox > .wt-head) :is(input[type="text"],input[type="search"],input[type="number"])::placeholder{
+  color:#fff7e7!important;
+  text-shadow:0 1px 2px rgba(25,12,2,.70)!important;
+  opacity:.8;
+}
+.comicShelfTextContrastOptsV1268{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.comicShelfTextContrastChoiceV1268{min-width:102px;padding:6px 10px;border-radius:6px;cursor:pointer;border:1px solid #647287;
+  font:500 12px/1.4 system-ui,"Malgun Gothic",sans-serif;color:#eef1f5;background:#26303e}
+.comicShelfTextContrastChoiceV1268[aria-pressed="true"]{background:#664221;color:#fff3dc;border-color:#dca65b;box-shadow:inset 0 0 0 1px #dca65b}
+.comicShelfTextContrastChoiceV1268:focus-visible{outline:2px solid #89baff;outline-offset:2px}
+.comicShelfTextContrastHelpV1268{color:#aeb9c8;font-size:11px;line-height:1.5;margin-top:5px}
+</style>
+<script id="comicShelfTextContrastOptionsV1268">
+(()=>{
+  'use strict';
+  const KEY='comic_shelf_text_contrast_v1268';
+  let strong=false;
+  try{strong=localStorage.getItem(KEY)==='strong';}catch(_){}
+  function apply(){
+    document.documentElement.classList.toggle('comicShelfStrongTextV1268',strong);
+    document.querySelectorAll('.comicShelfTextContrastChoiceV1268').forEach(btn=>{
+      btn.setAttribute('aria-pressed',String((btn.dataset.contrast==='strong')===strong));
+    });
+  }
+  function setMode(mode){
+    if(mode!=='soft'&&mode!=='strong')return;
+    strong=mode==='strong';
+    try{localStorage.setItem(KEY,mode);}catch(_){}
+    apply();
+  }
+  function mount(){
+    const section=[...document.querySelectorAll('#optionsInner .optPaneComic .optSection')]
+      .find(node=>node.querySelector('.optSectionTitle')?.textContent.includes('만화 · 기본'));
+    const grid=section?.querySelector('.optSectionGrid');
+    if(!grid||grid.querySelector('#comicShelfTextContrastCardV1268'))return;
+    const card=document.createElement('div');
+    card.id='comicShelfTextContrastCardV1268';
+    card.className='optCard wide';
+    const heading=document.createElement('div');
+    heading.className='optCardTitle';
+    heading.textContent='책장 글자 가독성';
+    const body=document.createElement('div');
+    body.className='optCardBody';
+    const choices=document.createElement('div');
+    choices.className='comicShelfTextContrastOptsV1268';
+    for(const [mode,label] of [['soft','기본 · 은은하게'],['strong','강조 · 선명하게']]){
+      const button=document.createElement('button');
+      button.type='button';
+      button.className='comicShelfTextContrastChoiceV1268';
+      button.dataset.contrast=mode;
+      button.textContent=label;
+      button.title=mode==='soft'?'기존 주황색 유지 · 그림자는 조금 더 진하게':
+        '밝은 아이보리 글자 · 어두운 외곽 그림자는 부드럽게';
+      button.addEventListener('click',()=>setMode(mode));
+      choices.append(button);
+    }
+    const help=document.createElement('div');
+    help.className='comicShelfTextContrastHelpV1268';
+    help.textContent='책장 상단·왼쪽 레일: 은은한 주황색 / 선명한 아이보리 · 책장 포스터 주황색 제목도 그림자 보강 · 다른 탭은 유지';
+    body.append(choices,help);
+    // v1269: explicit user gesture needed for a new folder or denied permission.
+    const saveRow=document.createElement('div');
+    saveRow.className='comicShelfTextContrastOptsV1268';
+    saveRow.style.marginTop='9px';
+    const saveBtn=document.createElement('button');
+    saveBtn.type='button';
+    saveBtn.className='comicShelfTextContrastChoiceV1268';
+    saveBtn.textContent='책장 이미지 저장 / 교체';
+    saveBtn.title='PC의 웹뷰어 폴더(또는 Actors 폴더)를 지정하고 GitHub 원본 책장 이미지 두 개를 저장합니다.';
+    const saveInfo=document.createElement('span');
+    saveInfo.id='comicShelfAssetsStatusV1269';
+    saveInfo.className='comicShelfTextContrastHelpV1268';
+    saveInfo.textContent='연결된 폴더에 자동 저장(기존 파일은 유지) · 이 버튼은 직접 교체';
+    saveBtn.addEventListener('click',()=>{
+      // Initiate the directory picker directly from click (transient activation).
+      if(!window.ViewerShelfAssetsV1269){saveInfo.textContent='저장 기능을 준비 중입니다.';return;}
+      saveBtn.disabled=true;
+      void window.ViewerShelfAssetsV1269.pickAndSave().then(result=>{
+        if(result?.cancelled)return;
+        saveInfo.textContent=result?.message||'책장 이미지 저장을 확인해주세요.';
+      }).catch(error=>{
+        saveInfo.textContent='저장 실패: '+String(error?.message||error);
+      }).finally(()=>{saveBtn.disabled=false;});
+    });
+    saveRow.append(saveBtn,saveInfo);
+    body.append(saveRow);
+    card.append(heading,body);
+    grid.append(card);
+    apply();
+  }
+  apply();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
+  else mount();
+  window.ComicShelfTextContrastV1268={get:()=>strong?'strong':'soft',set:setMode};
+})();
+</script>
+
+
+<!-- v1269: GitHub bookshelf asset synchronization into already-authorized Actors/;
+     first-time directory selection and replacement require explicit button click. -->
+<script id="comicShelfAssetsLocalSyncV1269">
+(()=>{
+  'use strict';
+  const ROOT_KEY='viewer_shelf_asset_root_v1269';
+  const REPO='https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/Actors/';
+  const FILES=Object.freeze(['thema1.jpg','thema1_top.jpg']);
+  let queue=Promise.resolve();
+  let lastStatus='';
+  function announce(message,showToast=false){
+    lastStatus=String(message||'');
+    const status=document.getElementById('comicShelfAssetsStatusV1269');
+    if(status)status.textContent=lastStatus;
+    if(showToast)try{window.showToast?.(lastStatus,3500);}catch(_){}
+  }
+  async function getGrantedRoot(){
+    const candidates=[];
+    try{const cached=window.getVideoPosterRootHandleCachedV872?.();if(cached)candidates.push(cached);}catch(_){}
+    for(const key of [typeof VIDEO_POSTER_ROOT_KEY==='string'?VIDEO_POSTER_ROOT_KEY:null,ROOT_KEY]){
+      if(!key||typeof idbGetComic!=='function')continue;
+      try { const root=await idbGetComic(key);if(root)candidates.push(root); }catch(_){}
+    }
+    for(const root of candidates){
+      if(root?.kind!=='directory'||typeof root.queryPermission!=='function')continue;
+      try{if(await root.queryPermission({mode:'readwrite'})==='granted')return root;}catch(_){}
+    }
+    return null;
+  }
+  async function actorsFor(root){
+    return String(root.name||'').toLowerCase()==='actors'
+      ? root : root.getDirectoryHandle('Actors',{create:true});
+  }
+  async function existsNonempty(dir,name){
+    try{
+      const file=await (await dir.getFileHandle(name)).getFile();
+      return file.size>0;
+    }catch(error){
+      if(error?.name==='NotFoundError')return false;
+      throw error;
+    }
+  }
+  async function fetchJpeg(name){
+    const url=REPO+name+'?v='+Date.now();
+    const response=await fetch(url,{cache:'no-store',mode:'cors'});
+    if(!response.ok)throw new Error(name+' HTTP '+response.status);
+    const blob=await response.blob();
+    if(blob.size<1000||blob.size>15*1024*1024)throw new Error(name+' 이미지 크기가 올바르지 않습니다.');
+    const sig=new Uint8Array(await blob.slice(0,3).arrayBuffer());
+    if(sig[0]!==255||sig[1]!==216||sig[2]!==255)throw new Error(name+' JPEG 형식이 아닙니다.');
+    return blob;
+  }
+  async function doSync(root,{overwrite=false,silent=false}={}){
+    const dir=await actorsFor(root);
+    const pending=[];
+    for(const name of FILES){
+      if(!overwrite&&await existsNonempty(dir,name))continue;
+      pending.push(name);
+    }
+    if(!pending.length){
+      const message='Actors 책장 이미지 2개가 이미 있습니다. 기존 파일을 유지했습니다.';
+      if(!silent)announce(message,true);
+      return {saved:0,message};
+    }
+    // Download and verify everything BEFORE writing any file.
+    const blobs=await Promise.all(pending.map(fetchJpeg));
+    let saved=0;
+    for(let i=0;i<pending.length;i++){
+      const fh=await dir.getFileHandle(pending[i],{create:true});
+      const writable=await fh.createWritable();
+      try{await writable.write(blobs[i]);await writable.close();saved++;}
+      catch(error){try{await writable.abort();}catch(_){}throw error;}
+    }
+    const message='Actors 폴더에 책장 이미지 '+saved+'개 저장 완료'+(overwrite?' (최신 이미지로 교체)':'');
+    if(!silent)announce(message,true);
+    try{window.dispatchEvent(new CustomEvent('viewer-shelf-assets-saved-v1269',{detail:{saved}}));}catch(_){}
+    return {saved,message};
+  }
+  function enqueue(action){
+    const job=queue.catch(()=>{}).then(action);
+    queue=job.catch(()=>{});
+    return job;
+  }
+  function autoSync(reason='startup'){
+    return enqueue(async()=>{
+      const root=await getGrantedRoot();
+      if(!root)return {saved:0,skipped:'permission'};
+      try{return await doSync(root,{overwrite:false,silent:true});}
+      catch(error){
+        console.warn('[shelf assets v1269] '+reason+' 자동저장 생략:',error?.message||error);
+        return {saved:0,skipped:'failed'};
+      }
+    });
+  }
+  // Called directly inside an actual click handler; the picker must occur
+  // before any idb/fetch/permission-await that could consume user activation.
+  async function pickAndSave(){
+    if(typeof window.showDirectoryPicker!=='function'){
+      throw new Error('Chrome/Edge 등 폴더 쓰기 지원 브라우저에서 이용할 수 있습니다.');
+    }
+    let root;
+    try{root=await window.showDirectoryPicker({mode:'readwrite',id:'viewer-shelf-assets'});}
+    catch(error){if(error?.name==='AbortError')return {cancelled:true};throw error;}
+    if(typeof root.queryPermission==='function'&&
+       await root.queryPermission({mode:'readwrite'})!=='granted'){
+      if(typeof root.requestPermission!=='function'||
+         await root.requestPermission({mode:'readwrite'})!=='granted'){
+        throw new Error('선택한 폴더의 쓰기 권한이 필요합니다.');
+      }
+    }
+    // Separate shelf key: choosing Actors directly does NOT overwrite
+    // the user's existing Posters/Actors/Scenes root or its permissions.
+    const result=await enqueue(()=>doSync(root,{overwrite:true,silent:false}));
+    if(typeof idbPutComic==='function'){
+      try{await idbPutComic(ROOT_KEY,root);}catch(error){
+        console.warn('[shelf assets v1269] 폴더 기억 실패:',error?.message||error);
+      }
+    }
+    return result;
+  }
+  window.ViewerShelfAssetsV1269={autoSync,pickAndSave,getStatus:()=>lastStatus};
+  function autoOnGithub(){
+    // Only authorized directories; never show a permission prompt on page load.
+    try{if(window.viewerIsGitHubOnlineV873?.())void autoSync('github-open');}catch(_){}
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(autoOnGithub,1300),{once:true});
+  }else setTimeout(autoOnGithub,1300);
 })();
 </script>
 
