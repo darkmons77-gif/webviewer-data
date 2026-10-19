@@ -162745,7 +162745,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1261;
+  const VIEWER_BUILD_V789 = 1262;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -176785,7 +176785,7 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
 /* The same color CSS vars as the v1159 palette; no new option or storage key. */
 html :is(#wtBox .wt-actions, #muBox .mu-head) select.zoomBtn:not([style*="background"]):not(.active):not(.selected),
 html :is(#wtBox .wt-actions, #muBox .mu-head) input.zoomBtn:is([type="text"],[type="search"]):not([style*="background"]):not(.active):not(.selected) {
-  background-color:var(--viewer-common-button-bg-v1159,#444444) !important;
+  background-color:var(--viewer-common-button-bg-v1159,transparent) !important;
   color:var(--viewer-common-font-color-v1162,var(--viewer-common-button-fg-v1159,#ffffff)) !important;
   caret-color:var(--viewer-common-font-color-v1162,var(--viewer-common-button-fg-v1159,#ffffff));
   color-scheme:dark; /* browser-native select picker must be dark even when closed select is transparent */
@@ -176811,7 +176811,7 @@ html :is(#wtBox .wt-actions, #muBox .mu-head) select.zoomBtn optgroup {
 
 </style>
 <style id="viewerCommonButtonPaletteStyleV1159">
-:root{--viewer-common-button-bg-v1159:#444;--viewer-common-button-fg-v1159:#fff;}
+:root{--viewer-common-button-bg-v1159:transparent;--viewer-common-button-fg-v1159:#fff;}
 /* 기본 .zoomBtn 계열 중 별도 색상 지정이 없는 버튼만. 레일의 선택/색상/UI는 보존.
    [style*="background"]는 향후 런타임이 독자 색상을 설정한 경우도 즉시 제외시킨다. */
 html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.selected):not(.on):not(.is-active):not([aria-pressed="true"]):not([aria-selected="true"]):not(.bgBtn):not(.viewerCommonBtnExceptionV1159):not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *):not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *):not(.vg1057-game-list *):not(#videoRandomStylePanel *):not(#videoPileFrameColorBox *) {
@@ -176865,7 +176865,7 @@ html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.
     {key:'v7',name:'선명한 자홍',value:'#c02c90'}
   ];
   const byKey=new Map(COLORS.map(c=>[c.key,c]));
-  let selected='gray';
+  let selected='background';
   try{const v=localStorage.getItem(KEY);if(byKey.has(v))selected=v;}catch(_){ }
   const colorText=(hex)=>{
     const n=parseInt(hex.slice(1),16);
@@ -176875,7 +176875,7 @@ html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.
     return vals[0]*.2126+vals[1]*.7152+vals[2]*.0722>.42?'#111827':'#ffffff';
   };
   function sync(){
-    const choice=byKey.get(selected)||byKey.get('gray');
+    const choice=byKey.get(selected)||byKey.get('background');
     document.documentElement.style.setProperty('--viewer-common-button-bg-v1159',choice.value);
     document.documentElement.style.setProperty('--viewer-common-button-fg-v1159',choice.value==='transparent'?'#ffffff':colorText(choice.value));
     document.querySelectorAll('.viewerButtonPaletteV1159').forEach(box=>{
@@ -176952,7 +176952,7 @@ html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.
 :root{
   --viewer-common-font-family-v1162: system-ui, "Malgun Gothic", sans-serif;
   --viewer-common-font-size-v1162: 12px;
-  --viewer-common-font-weight-v1162: 600;
+  --viewer-common-font-weight-v1162: 500;
   --viewer-common-font-color-v1162: var(--viewer-common-button-fg-v1159,#fff);
   --viewer-common-font-special-color-v1162: #fff;
   --viewer-common-font-active-color-v1162: #fff;
@@ -177005,7 +177005,7 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[typ
 .viewerCommonTypeColorV1162[aria-pressed="true"]{outline:2px solid #0a84ff;outline-offset:1px;border-color:#fff;}
 .viewerCommonTypeCustomV1162{height:23px;width:29px;padding:0;border:1px solid #8490a0;border-radius:4px;background:transparent;cursor:pointer;}
 .viewerCommonTypePreviewV1162{padding:6px 8px;background:#252c35;border:1px solid #455569;border-radius:5px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
-.viewerCommonTypePreviewV1162 button{border:0;border-radius:4px;background:var(--viewer-common-button-bg-v1159,#444);color:var(--viewer-common-font-color-v1162,#fff);padding:4px 7px;cursor:default;font-family:var(--viewer-common-font-family-v1162);font-size:var(--viewer-common-font-size-v1162);font-weight:var(--viewer-common-font-weight-v1162);}
+.viewerCommonTypePreviewV1162 button{border:0;border-radius:4px;background:var(--viewer-common-button-bg-v1159,transparent);color:var(--viewer-common-font-color-v1162,#fff);padding:4px 7px;cursor:default;font-family:var(--viewer-common-font-family-v1162);font-size:var(--viewer-common-font-size-v1162);font-weight:var(--viewer-common-font-weight-v1162);}
 .viewerCommonTypePreviewV1162 button:last-child{background:#365b85;color:var(--viewer-common-font-special-color-v1162,#fff);}
 .viewerCommonTypeHelpV1162{font-size:10px;line-height:1.4;color:#a3b6ce;}
 /* v1169: Version/build/mode status text beside maximize/restore in the comic/video header.
@@ -177015,7 +177015,7 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[typ
 #pageJumpBox > div > [data-viewer-build-label] {
   font-family: var(--viewer-common-font-family-v1162, system-ui, "Malgun Gothic", sans-serif) !important;
   font-size: var(--viewer-common-font-size-v1162, 12px) !important;
-  font-weight: var(--viewer-common-font-weight-v1162, 600) !important;
+  font-weight: var(--viewer-common-font-weight-v1162, 500) !important;
   color: var(--viewer-common-font-color-v1162, #ffffff) !important;
 }
 </style>
@@ -177045,7 +177045,7 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[typ
     ['pink','핑크','#f9a8d4'],['green','민트','#86efac']
   ];
   const colors=new Map(COLOR_CHOICES.map(c=>[c[0],c]));
-  const defaults={font:'system',size:12,weight:600,color:'auto',custom:'#ffffff'};
+  const defaults={font:'system',size:12,weight:500,color:'auto',custom:'#ffffff'};
   const state={...defaults};
   try{
     const saved=JSON.parse(localStorage.getItem(KEY)||'null');
@@ -177895,7 +177895,7 @@ api.folder={open,findCandidates:(entries)=>findCandidates(entries,priorProject(e
 <style id="viewerCommonButtonHoverV1178">
 html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.selected):not(.on):not(.is-active):not([aria-pressed="true"]):not([aria-selected="true"]):not(.bgBtn):not(.viewerCommonBtnExceptionV1159):not(#wtTagRail *):not(#wtTagRailActressSec *):not(#videoRandomStylePanel *):not(#wtRail *):not(#videoRail *):not(#comicRail *):not(#musicArtistRail *):not(.wtTagRail *):not(.videoRail *):not(.comicRail *):not(.muRail *):not(.vg1057-game-list *):not(#videoRandomStylePanel *):not(#videoPileFrameColorBox *):not(:disabled):hover,
 html :is(#wtBox .wt-actions,#muBox .mu-head) :is(select.zoomBtn,input.zoomBtn:is([type="text"],[type="search"])):not([style*="background"]):not(.active):not(.selected):not(:disabled):hover {
-  background-color:color-mix(in srgb,var(--viewer-common-button-bg-v1159,#444444) 72%,#7da9e2 28%) !important;
+  background-color:color-mix(in srgb,var(--viewer-common-button-bg-v1159,transparent) 72%,#7da9e2 28%) !important;
   border-color:#8bbdf5 !important;
   box-shadow:inset 0 0 0 1px rgba(195,225,255,.36),0 0 0 1px rgba(91,165,246,.45) !important;
   filter:none !important;
@@ -179453,7 +179453,7 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
 }
 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail button:is(.active,.selected,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]){
   color:var(--viewer-common-font-active-color-v1162,#ffffff)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   text-decoration:underline!important;
   text-decoration-color:#ffb347!important;
   text-underline-offset:2px;
@@ -179530,7 +179530,7 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
 html :is(#wtTagRail,#muArtistRailV971){
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   color:var(--viewer-common-font-color-v1162,#fff)!important;
 }
 html :is(#wtTagRail,#muArtistRailV971) :is(
@@ -179543,7 +179543,7 @@ html :is(#wtTagRail,#muArtistRailV971) :is(
 ){
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   color:var(--viewer-common-font-color-v1162,#fff)!important;
 }
 /* All badges/counters/creator labels must not retain their earlier pale blue, pink, grey, or orange colors. */
@@ -179554,7 +179554,7 @@ html #wtTagRail .wtTagRailRow.is-video-actress.is-fav .videoActressName,
 html #wtTagRail .wtTagRailRow.is-video-actress.is-fav .videoActressCount{
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   color:var(--viewer-common-font-color-v1162,#fff)!important;
   filter:none!important;
   opacity:1!important;
@@ -179574,7 +179574,7 @@ html #muArtistRailV971 button:is(.active,.selected,[aria-pressed="true"]){
   color:var(--viewer-common-font-active-color-v1162,#fff)!important;
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
 }
 html #wtTagRail :is(input[type="search"],input[type="text"])::placeholder,
 html #muArtistRailV971 :is(input[type="search"],input[type="text"])::placeholder{
@@ -179585,7 +179585,7 @@ html #muArtistRailV971 :is(input[type="search"],input[type="text"])::placeholder
    not to artist list rows or search fields. Book-mode transparent background wins below. */
 html #wtTagRail :is(.comicCreatorTabV1033,.comicRailSectionBtnV1090,
  .comicRailInitialBtnV1104,.videoMainTabV1052,.wtRailCommonWidthArrowV1054):not(.active):not([aria-selected="true"]):not([aria-pressed="true"]){
-  background-color:var(--viewer-common-button-bg-v1159,#444)!important;
+  background-color:var(--viewer-common-button-bg-v1159,transparent)!important;
 }
 /* User's prior request: wooden side rail button surfaces remain transparent. */
 html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail button{
@@ -179598,7 +179598,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
  :is(button.zoomBtn,[data-viewer-build-label]){
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   color:var(--viewer-common-font-color-v1162,#fff)!important;
 }
 </style>
@@ -180066,7 +180066,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
   color:var(--viewer-common-font-color-v1162,#ffb347)!important;
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
   filter:none!important;
   opacity:1!important;
@@ -180078,7 +180078,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
   color:var(--viewer-common-font-color-v1162,#ffb347)!important;
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
   font-size:var(--viewer-common-font-size-v1162,12px)!important;
-  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,500)!important;
   text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
 }
 </style>
