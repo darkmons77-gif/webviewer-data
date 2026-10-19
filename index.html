@@ -1,3 +1,6 @@
+<!-- v1276: ZIP/CBZ 및 이미지폴더 만화 장수 출처를 하늘색(저장 복원)/연두색(이번 실행에서 새로 확인)으로 표시. 장수·DB 로직 유지. -->
+<!-- v1275: 작가·그룹·태그 탭만 변경할 때 오른쪽 포스터/스크롤 유지, 묶음·회차의 특수 목록 전환 및 실제 필터 변경은 기존 갱신 유지. -->
+<!-- v1274: 만화 목록 초기·스크롤·더보기의 카운터/더보기 버튼 중복 갱신 제거, 초기 로딩 실패·빈 상태 갱신 보존. -->
 <!-- v1267: 책장 포스터 바닥을 선반 행 높이의 274/324 지점에 맞춰 배경 시작 위치를 후보정. 가로 배치·4px 안전 여유·저장값 유지. -->
 <!-- v1266: 책장 포스터 1~7열만 기준 좌우 여백 90px(1690폭 비례)을 남기고 초과 공간을 N+1개 사이에 균등배분. 원래 표지 크기·오른쪽 4px 안전유보·8열 이상 계산·DB·업데이트 공지 유지. -->
 <!-- v1265: 책장 포스터별 가로 -1px 제거; 오른쪽 책장 여백만 4px 줄이고, 마지막 포스터 줄바꿈 방지용 4px는 행 전체에만 검사 적용. 초기/크기변경 공통 계산, 업데이트 공지 추가 없음. -->
@@ -28922,6 +28925,7 @@ console.debug('[appendWebtoonListChunk] done', {
 });
 updateWtCountUI();
 ensureWtLoadMoreButton();
+return true; // v1274: 호출한 쪽에서 중복 갱신하지 않도록 완료 여부 반환
 }
 function shortAuthorLabel(name, max = 8) {
   const s = String(name || '').trim();
@@ -29093,10 +29097,7 @@ function maybeAppendMoreWebtoons() {
   wtListCooldownUntil = now + 300;
   isLoadingMore = true;
 
-  appendWebtoonListChunk();
-  if (typeof updateWtCountUI === 'function') {
-    updateWtCountUI();
-  }
+  appendWebtoonListChunk(); // v1274: 카운터·더보기는 공통 함수에서 한 번만 갱신
 
   isLoadingMore = false;
 }
@@ -29454,6 +29455,7 @@ function comicScanPreviewRenderV1023(force = false) {
   if (!box) return false;
   const visibleCount = Math.min(s.items.length, s.limit);
   if (!s.started && !force) return true;
+  let chunkUpdatedV1274 = false;
   if (!s.rendered || force) {
     box.innerHTML = '';
     box.classList.toggle('wtListThumb', wtViewMode !== 'text');
@@ -29461,17 +29463,24 @@ function comicScanPreviewRenderV1023(force = false) {
     wtListCache = s.items.slice(0,visibleCount);
     wtListRenderedCount = 0;
     s.firstPage = true;
-    appendWebtoonListChunk();
+    chunkUpdatedV1274 = appendWebtoonListChunk() === true;
     s.firstPage = false;
     s.rendered = true;
     comicScanAttachScrollV1023();
   } else if (visibleCount > wtListCache.length) {
     // 기존 카드를 다시 만들지 않고 필요한 뒤쪽만 점진적으로 렌더링한다.
     wtListCache.push(...s.items.slice(wtListCache.length, visibleCount));
-    while (wtListRenderedCount < wtListCache.length) appendWebtoonListChunk();
+    while (wtListRenderedCount < wtListCache.length) {
+      const updated = appendWebtoonListChunk() === true;
+      chunkUpdatedV1274 = updated || chunkUpdatedV1274;
+      if (!updated) break; // 렌더 불가 상태에서 무한 루프 방지
+    }
   }
-  updateWtCountUI();
-  ensureWtLoadMoreButton();
+  // v1274: 새 카드가 없던 상태 변경·빈 목록에서는 여기서만 갱신
+  if (!chunkUpdatedV1274) {
+    updateWtCountUI();
+    ensureWtLoadMoreButton();
+  }
   comicScanStatusV1023(s);
   return true;
 }
@@ -30024,10 +30033,12 @@ function renderWebtoonList() {
   box.classList.toggle('wtListThumb', wtViewMode === 'thumb');
   box.classList.toggle('wtListText',  wtViewMode === 'text');
 
-  // 첫 페이지 렌더
-  appendWebtoonListChunk();
-  updateWtCountUI();
-  ensureWtLoadMoreButton();
+  // 첫 페이지 렌더: 공통 함수에서 카운터·더보기를 갱신하므로 중복 호출 생략.
+  if (appendWebtoonListChunk() !== true) {
+    // 필터 결과가 0건이거나 초기 페이지 생성이 생략된 예외 경로
+    updateWtCountUI();
+    ensureWtLoadMoreButton();
+  }
 
   // 스크롤 이벤트: 한번만 연결
   if (!wtListScrollAttached) {
@@ -34541,12 +34552,8 @@ function ensureWtLoadMoreButton() {
 
     btn.addEventListener('click', () => {
       if (comicScanPreviewMoreV1023()) return;
+      // v1274: 공통 append 함수가 카운터·더보기 상태를 모두 갱신
       appendWebtoonListChunk();
-      if (typeof updateWtCountUI === 'function') {
-        updateWtCountUI();
-      }
-      // 남은 게 없으면 버튼 제거
-      ensureWtLoadMoreButton();
     });
   }
 
@@ -41545,16 +41552,23 @@ function refreshComicRailVirtualV1008() {
     if (instance?.list?.isConnected) instance.refresh();
   }
 }
+let comicRailVirtualRestoreRafV1273 = 0;
 function restoreComicRailVirtualV1008() {
+  // v1273: 여러 경로에서 연속 호출되더라도 다음 프레임에 1회만 강제 갱신한다.
   // fragment 안의 DOM이 다시 붙은 뒤 실제 clientHeight 기준으로 복원.
+  if (comicRailVirtualRestoreRafV1273) return;
   const run = () => {
+    comicRailVirtualRestoreRafV1273 = 0;
     for (const kind of ['tags', 'authors']) {
       const instance = comicRailVirtualV1008[kind];
       if (instance?.list?.isConnected) instance.refresh(true);
     }
   };
-  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
-  else setTimeout(run, 0);
+  if (typeof requestAnimationFrame === 'function') {
+    comicRailVirtualRestoreRafV1273 = requestAnimationFrame(run);
+  } else {
+    comicRailVirtualRestoreRafV1273 = setTimeout(run, 0);
+  }
 }
 function initComicRailVirtualV1008(kind, list, values, makeRowForValue) {
   comicRailVirtualV1008[kind]?.dispose();
@@ -42713,11 +42727,18 @@ const selectOnlyThisFromText = (e) => {
     btn.addEventListener('click', e => {
       e.preventDefault(); e.stopPropagation();
       if (comicCreatorRailModeV1022 === type) return;
-      comicCreatorScrollByModeV1033[comicCreatorRailModeV1022] = authList.scrollTop;
+      const previousModeV1275 = comicCreatorRailModeV1022;
+      comicCreatorScrollByModeV1033[previousModeV1275] = authList.scrollTop;
       comicCreatorRailModeV1022 = type;
       try { localStorage.setItem(COMIC_CREATOR_MODE_KEY_V1022, type); } catch (_) {}
       renderCreatorListV1033();
-      applyComicRailLinkedFilterV1105();
+      // v1275: 작가·그룹·태그 간 탭 이동은 왼쪽 레일만 전환한다.
+      // 선택·초성·분류 변경이 없으므로 오른쪽 포스터 DOM/렌더 깊이/스크롤을 보존.
+      // 묶음·회차는 작품 투영 자체가 다른 특수 목록이므로 기존 갱신 유지.
+      const basicTabsV1275 = ['author', 'group', 'tag'];
+      if (!(basicTabsV1275.includes(previousModeV1275) && basicTabsV1275.includes(type))) {
+        applyComicRailLinkedFilterV1105();
+      }
     });
     buttons.set(type, btn);
   }
@@ -162896,7 +162917,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1272;
+  const VIEWER_BUILD_V789 = 1276;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -170658,6 +170679,40 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+<!-- v1276: 장수 출처 시각화만 추가. 원본 검사·저장·정렬 로직은 그대로 둠. -->
+<style id="comicPageCountSourceColorsV1276">
+/* 저장된 장수: 하늘색 / 이번 실행에서 실제로 센 장수: 연두색.
+   책장 모드의 공통 주황색 !important보다 우선해 출처를 구분한다. */
+#wtList .wtThumbBadgeTotal[data-page-count-source-v1276="saved"],
+#wtList.wtShelfThemeOnV1217 .wtThumbImgWrap .wtThumbBadgeTotal[data-page-count-source-v1276="saved"]{
+  color:#80ccff!important;
+  text-shadow:0 1px 2px #080e19,0 0 3px #07121e!important;
+}
+#wtList .wtThumbBadgeTotal[data-page-count-source-v1276="fresh"],
+#wtList.wtShelfThemeOnV1217 .wtThumbImgWrap .wtThumbBadgeTotal[data-page-count-source-v1276="fresh"]{
+  color:#b7fa83!important;
+  text-shadow:0 1px 2px #071606,0 0 3px #0a1c07!important;
+}
+</style>
+<script id="comicPageCountSourceColorsJsV1276">
+(()=>{
+  'use strict';
+  // dataset만 설정. 색상은 CSS에 맡겨 매 배지마다 불필요한 style 재기록을 막는다.
+  window.ComicPageCountSourceV1276=Object.freeze({
+    mark(badge,origin,title){
+      if(!badge)return;
+      if(origin==='saved'||origin==='fresh'){
+        badge.dataset.pageCountSourceV1276=origin;
+        badge.title=String(title||'페이지 장수')+
+          (origin==='saved'?' · 저장된 장수 불러옴 (하늘색)':' · 이번 실행에서 새로 장수 확인 (연두색)');
+      }else{
+        delete badge.dataset.pageCountSourceV1276;
+        if(title)badge.title=String(title);
+      }
+    }
+  });
+})();
+</script>
 <script id="comicZipArchiveV979">
 /* v982 - cover manager and page count; based on v981 */
 (()=>{
@@ -170671,6 +170726,7 @@ const transientPostersV980=new Set(); // 화면에 보였지만 Posters/Comics�
 const zipRootNamesV980 = new Map();
 window.__comicZipRootNameMapV980 = zipRootNamesV980;
 const pageCountCacheV981=new Map(), pageCountJobsV981=new Map(), pageBadgeRefsV981=new Map();
+const pageCountOriginsV1276=new Map(); // IDB에서 복원 vs 이번 실행에서 직접 확인
 // v1011: 표지/장수 확인이 동일한 ZIP 중앙 디렉터리를 동시에 읽지 않도록 단일 실행 작업으로 병합.
 const archiveReadJobsV1011=new Map(), posterJobsV1011=new Map();
 // v1012: 이 실행에서 실제로 연 ZIP의 파일 서명만 추적한다. 전체 ZIP 메타데이터를 일괄 조회하지 않는다.
@@ -170832,6 +170888,7 @@ async function syncOpenedZipV1012(value,file,pages){
   openedZipSignaturesV1012.set(value,signature);
   if(changed){
     pageCountCacheV981.delete(value);
+    pageCountOriginsV1276.delete(value);
     archiveReadJobsV1011.delete(value);
     pageCountJobsV981.delete(value);
     // 수동 표지는 ZIP 내부 변경과 독립된 사용자 설정이므로 이미지까지 비우지 않는다.
@@ -170861,7 +170918,7 @@ async function syncOpenedZipV1012(value,file,pages){
   document.querySelectorAll('.wtThumbBadgeTotal[data-comic-zip-value]').forEach(badge=>{
     if(badge.dataset.comicZipValue!==value)return;
     badge.textContent=String(pages.length);
-    badge.title=`압축파일 내부 이미지 ${pages.length}장`;
+    window.ComicPageCountSourceV1276?.mark(badge,'fresh',`압축파일 내부 이미지 ${pages.length}장`);
   });
   if(changed&&!next.manual){
     // 갱신은 열기를 막지 않고 제한된 기존 표지 큐에서 비동기로 수행한다.
@@ -170872,8 +170929,11 @@ async function syncOpenedZipV1012(value,file,pages){
   return {changed,count:pages.length};
 }
 // ZIP 중앙목록의 이미지 수만 캐시한다. 새 폴더/다른 목록으로 이동해도 같은 ZIP을 매번 열지 않는다.
-function publishPageCountV981(value,count){
+function publishPageCountV981(value,count,origin='fresh'){
   count=Number(count)||0;if(count<1)return;
+  // 단순 저장값 조회는 saved, 실제 중앙디렉터리 검사/재스캔은 fresh.
+  // 세션 내 새로 센 숫자는 카드가 새로 만들어져도 출처를 보존한다.
+  if(origin==='fresh'||!pageCountOriginsV1276.has(value))pageCountOriginsV1276.set(value,origin);
   pageCountCacheV981.set(value,count);
   window.ComicLocalPageSortV1186?.noteZip(value,count);
   const refs=pageBadgeRefsV981.get(value);if(!refs)return;
@@ -170881,7 +170941,7 @@ function publishPageCountV981(value,count){
     // 카드가 새로 생성된 직후에는 아직 DOM에 붙지 않았을 수 있다.
     // isConnected로 건너뛰면 목록을 전환하고 돌아온 카드의 장수가 영구히 '-'로 남는다.
     badge.textContent=String(count);
-    badge.title=`압축파일 내부 이미지 ${count}장`;
+    window.ComicPageCountSourceV1276?.mark(badge,pageCountOriginsV1276.get(value),`압축파일 내부 이미지 ${count}장`);
   }
   // 이미 갱신된 카드 참조는 해제하고 캐시의 숫자만 유지한다.
   pageBadgeRefsV981.delete(value);
@@ -170919,7 +170979,7 @@ function getImageCountV981(value){
     if(pageCountCacheV981.has(value))return pageCountCacheV981.get(value);
     const saved=await posterRecord(value).catch(()=>null);
     if(Number(saved?.imageCount)>0){
-      const n=Number(saved.imageCount);publishPageCountV981(value,n);return n;
+      const n=Number(saved.imageCount);publishPageCountV981(value,n,'saved');return n;
     }
     const {file,pages}=await archiveInfoV1011(value);
     if(!zipIsCurrentV1012(value,file))return pageCountCacheV981.get(value)||0;
@@ -170937,7 +170997,7 @@ function mountPageCountV981(value,badge,wrap){
   if(pageCountCacheV981.has(value)){
     const count=pageCountCacheV981.get(value);
     badge.textContent=String(count);
-    badge.title=`압축파일 내부 이미지 ${count}장`;
+    window.ComicPageCountSourceV1276?.mark(badge,pageCountOriginsV1276.get(value)||'saved',`압축파일 내부 이미지 ${count}장`);
     return;
   }
   if(!pageBadgeRefsV981.has(value))pageBadgeRefsV981.set(value,new Set());
@@ -173664,7 +173724,7 @@ async function rescanExactV1085(value){
   return {type:'zip',count:pages.length,changed:result.changed};
 }
 function forgetCachedV1205(match){
-  for(const key of [...pageCountCacheV981.keys()])if(match(key))pageCountCacheV981.delete(key);
+  for(const key of [...pageCountCacheV981.keys()])if(match(key)){pageCountCacheV981.delete(key);pageCountOriginsV1276.delete(key);}
   for(const key of [...objectUrls.keys()])if(match(key)){
     const url=objectUrls.get(key);if(url)try{URL.revokeObjectURL(url);}catch(_){}
     objectUrls.delete(key);
@@ -173712,6 +173772,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
   // 이미지 Blob/핸들은 저장하지 않으며 ZIP·영상 DB에는 접근하지 않는다.
   const PAGE_DB_V1102='comic_fs_page_counts_v1102', PAGE_STORE_V1102='counts';
   const pageMetaCacheV1102=new Map(),pageMetaReadJobsV1102=new Map(),pageMetaWriteJobsV1102=new Map();
+  const freshFsPageKeysV1276=new Set(); // 이번 실행에서 실제로 센 폴더 키
   const pageRootJobsV1102=new WeakMap();
   function trimPageCacheV1102(){
     while(pageMetaCacheV1102.size>700)pageMetaCacheV1102.delete(pageMetaCacheV1102.keys().next().value);
@@ -173914,22 +173975,24 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
     })().finally(()=>pageMetaReadJobsV1102.delete(key));
     pageMetaReadJobsV1102.set(key,job);return job;
   }
-  function applyCountToBadgeV1102(badge,count,source='로컬 이미지 폴더'){
+  function applyCountToBadgeV1102(badge,count,source='로컬 이미지 폴더',origin=null){
     if(!badge||!Number.isSafeInteger(count)||count<0)return;
     badge.textContent=count>0?String(count):'-';
-    badge.title=count>0?`${source}: ${count}장`:'이미지를 찾을 수 없음';
+    const description=count>0?`${source}: ${count}장`:'이미지를 찾을 수 없음';
+    window.ComicPageCountSourceV1276?.mark(badge,count>0?origin:null,description);
   }
   function publishPageCountV1102(value,total){
     if(!Number.isSafeInteger(total)||total<0)return;
     for(const card of document.querySelectorAll('#wtList .wtThumbItem[data-wt-value]')){
       if(card.dataset.wtValue!==value)continue;
-      applyCountToBadgeV1102(card.querySelector('.wtThumbBadgeTotal'),total);
+      applyCountToBadgeV1102(card.querySelector('.wtThumbBadgeTotal'),total,'로컬 이미지 폴더','fresh');
     }
   }
   async function savePageMetaV1102(value,rec,meta,updateVisible=false){
     const total=Number(meta?.total);
     if(!Number.isSafeInteger(total)||total<0||meta?.incomplete)return false;
     const key=await pageKeyV1102(rec);if(!key)return false;
+    freshFsPageKeysV1276.add(key);
     const firstPath=String(meta?.firstPath||'');
     const record={total,firstPath,updatedAt:Date.now()};
     pageMetaCacheV1102.set(key,record);trimPageCacheV1102();
@@ -174399,14 +174462,19 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
       // v1102: IDB 장수를 즉시 표시하고, 저장된 첫 이미지 경로를 사용해 폴더 전체 순회를 생략한다.
       const saved=await readPageMetaV1102(rec);
       if(!wrap.isConnected)return;
+      let savedPageKeyV1276=null;
       if(saved){
-        applyCountToBadgeV1102(badge,saved.total);
-        const keyV1186=await pageKeyV1102(rec);
+        // 기존 페이지순 정렬에서 쓰던 키를 재사용해 출처 표시에 추가 조회가 발생하지 않는다.
+        savedPageKeyV1276=await pageKeyV1102(rec);
+        applyCountToBadgeV1102(badge,saved.total,'로컬 이미지 폴더',
+          savedPageKeyV1276&&freshFsPageKeysV1276.has(savedPageKeyV1276)?'fresh':'saved');
+        const keyV1186=savedPageKeyV1276;
         if(keyV1186)window.ComicLocalPageSortV1186?.noteFs(keyV1186,saved.total);
       }
       // v1040: 새 폴더는 첫 파일로 포스터를 먼저 표시하며, 저장된 장수가 없으면 후순위로 센다.
       const quickCoverV1040=rec.coverHandleV1040||null;
       let meta=null;
+      let inspectedNowV1276=false;
       if(quickCoverV1040){
         meta={total:saved?.total??null,first:quickCoverV1040};
       }else if(metaCache.has(rec.handle)){
@@ -174419,7 +174487,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
       if(!meta){
         try{
           meta=await inspect(rec.handle);
-          if(meta)void savePageMetaV1102(value,rec,meta);
+          if(meta){inspectedNowV1276=true;void savePageMetaV1102(value,rec,meta);}
         }catch(e){
           console.warn('[comic FS v1001] 이미지 폴더 읽기 재시도 대기',value,e);
           waitForMountV1001(wrap,work);return;
@@ -174428,8 +174496,13 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
      if(!meta){waitForMountV1001(wrap,work);return;}
      if(!wrap.isConnected)return;
      pendingMountsV1001.delete(wrap);
-     if(meta.total===null){badge.textContent='…';badge.title='표지 우선 표시 · 페이지 장수는 나중에 확인합니다';}
-     else applyCountToBadgeV1102(badge,meta.total);
+     if(meta.total===null){
+       badge.textContent='…';
+       window.ComicPageCountSourceV1276?.mark(badge,null,'표지 우선 표시 · 페이지 장수는 나중에 확인합니다');
+     }else{
+       const isFreshV1276=inspectedNowV1276||!!(savedPageKeyV1276&&freshFsPageKeysV1276.has(savedPageKeyV1276));
+       applyCountToBadgeV1102(badge,meta.total,'로컬 이미지 폴더',isFreshV1276?'fresh':saved?'saved':'fresh');
+     }
      if(!meta.first)return;
      let firstFile=null;
      try{firstFile=await meta.first.getFile();}
@@ -174470,7 +174543,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
              if(!exact)return;
              await savePageMetaV1102(value,rec,exact);
              if(!wrap.isConnected)return;
-             applyCountToBadgeV1102(badge,exact.total);
+             applyCountToBadgeV1102(badge,exact.total,'로컬 이미지 폴더','fresh');
              // Full natural sort may identify a different first page.
              // Correct the preview in-place, without a whole-list rerender.
              if(exact.first){
@@ -174598,7 +174671,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
      const badge=wrap?.querySelector('.wtThumbBadgeTotal');
      if(wrap&&badge){
        badge.textContent=meta.total>0?String(meta.total):'-';
-       badge.title=`로컬 이미지 폴더: ${meta.total}장`;
+       window.ComicPageCountSourceV1276?.mark(badge,'fresh',`로컬 이미지 폴더: ${meta.total}장`);
        mount(value,wrap,badge);
      }
    });
@@ -174608,6 +174681,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
  function forgetCachedV1205(matchRootKey){
    for(const key of [...fsIndexRamV1190.keys()])if(matchRootKey(key))fsIndexRamV1190.delete(key);
    for(const key of [...pageMetaCacheV1102.keys()])if(matchRootKey(key))pageMetaCacheV1102.delete(key);
+   for(const key of [...freshFsPageKeysV1276])if(matchRootKey(key))freshFsPageKeysV1276.delete(key);
  }
  window.ComicFsLocalV990={mount,getFiles,chapterPathsV1207,mountAuthorPoster,saveSelectedPageCoverV1215,forgetCachedV1205,
    rescanExactV1085,
