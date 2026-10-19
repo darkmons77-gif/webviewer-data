@@ -1,3 +1,29 @@
+<!-- v1261: 1216~1260 업데이트 공지 한 페이지 통합. 책장 테마 최상위 강조, 두 장 펼침/넘김 두 번째 강조. 기존 공지 기록 1199~1215 유지. -->
+<!-- v1260: 1259 폐기 / 1258 기준. 시작용 가상 책·가로 한 장 3D 삭제, 원본 StPageFlip 중앙 가장자리 드래그만 추가. -->
+<!-- v1258: 펼침에서 책 안에서 시작한 드래그를 바깥에서 놓아도 닫히지 않게 수정; 가로 한 장 보기에서 실제 이미지 영역만 3D 종이 넘김(440ms). -->
+<!-- v1257: 포스터 ↻ 색을 폴더 ↻과 통일(모드별), thema1_top.jpg 우선 로드, 없으면 thema1 중앙 나뭇결 타일을 책장 헤더에 반복 표시. -->
+<!-- v1256: 펼침 자동넘김(가로 1~10초 설정 재사용, 책넘김 완료 후 대기) · 책장 포스터 첫 클릭 3D 책 열림 연출. v1254 안정화 유지. -->
+<!-- v1255: 회차 카드 hover 외곽선 제거, 책장 회차 표지에만 책 그림자/두께 적용(제목 제외), 책장 포스터/회차 페이지수 주황색 통일. -->
+<!-- v1253: 상단 버튼 스크롤 막대 숨김(휠/터치 스크롤 유지), 책장모드 ZIP·이미지폴더 회차 안내/제목/배지 텍스트 공통 오크 스타일. -->
+<!-- v1252: 작품별 ↻ 재스캔 배경/테두리 제거, 상단 너비 감소 시 제목/힌트 축소 및 버튼 단일 행 가로 스크롤로 줄바꿈 방지. -->
+<!-- v1251: 레일 선택 밑줄 제거, H/K 캡션 통일, 회차보기 오크 활성, 책장만/책장전체 V모드, 책장 자동 전체화면 해제. -->
+<!-- v1250: 책장모드 최상단 버튼은 외곽선 제거, 이하 활성 버튼은 v1248 책장 갈색/금색 스타일 복원, 폴더별 ↻ 재스캔 버튼은 항상 투명. -->
+<!-- v1249: 사이드/책장 1px 경계선 완전 제거; 일반 활성화 버튼의 파랑을 권한 정상 상태(#2466b9, #8cbaff)로 통일. 기존 상태 버튼 색은 보존. -->
+<!-- v1248: 책장모드 상단/사이드 공통글자에 실제 책장 포스터 캡션과 동일한 2중 그림자 적용, 글자색/글꼴/다른 탭 변경 없음. -->
+<!-- v1247: 책장모드 공통 글자 팔레트 자체를 로컬 글자 주황(#FFB347)으로 전환. 활성/특수 버튼·상단/사이드의 높은 우선순위 흰색 규칙까지 동기화, 일반모드/영상/음악/포스터는 보존. -->
+<!-- v1246: 책장 모드 상단·사이드 글자색 로컬 포스터 주황(#FFB347) 통일; 불필요한 외곽 주황 테두리/발광 제거; 패널 여백에 같은 원목 무늬 노출. 책장 피치/DB/포스터 구분 색 유지. -->
+<!-- v1245: 책장 모드 최상단 버튼줄과 최외곽 패널 여백을 중앙 나뭇결 반복 텍스처로 통일(사이드 대비 약 25% 어둡게). 공통 글꼴·주황 경계·책장 상단 thema1_top 및 전체보기 유지. -->
+<!-- v1244: 레일의 이름·즐겨찾기·작품수·탭/필터 버튼을 공통 글꼴·크기·굵기·색상 팔레트에 연동. 책장 나뭇결/투명 배경 유지. -->
+<!-- v1243: 책장 레일 thema1 원본 좌표 크롭+반복, 메뉴 버튼 배경 투명화. 추가 이미지 불필요. -->
+<!-- v1241: 영상 탭 책장·전체 숨김 · 만화 한줄 개수 우측 비율 · 책장/전체/그림 순서 · 만화 랜덤 기본정렬 · 전체 기본 책장만 보기. v1238 행간 소수점 유지. -->
+<!-- v1240: 만화 리셋/ZIP표지/해제를 기능창으로 이동 · 그림 단일 토글 · 책장 ON시 V 전체화면 자동진입 · 전체보기→전체 · v1238 소수점 행높이 유지. -->
+<!-- v1239: 책장 전체보기 모드 선택(책장상단까지/책장만), 기본 상단 포함, 선택 저장 및 행높이 재동기화. -->
+<!-- v1238: 책장 배경의 행 반복 높이/시작점을 반올림하지 않고 실제 카드 행 위치와 소수점까지 동기화. 1px 누적 오차 방지. -->
+<!-- v1237: 책장 상단 전용 2048x108 완성형 thema1_top.jpg와 100% 맞춤 CSS, 좌우 테두리 얇게, 색상 일치. -->
+<!-- v1236: 책장 모드의 목록/탭/폴더 상단 나무 배경 (Actors/thema1_top.jpg), 원본 UI 동작 유지. -->
+<!-- v1254: 펼침 StPageFlip 이동 중 페이지 묶음 재생성 방지, 유휴 상태에서만 재구축 및 사전 범위 확장. -->
+<!-- v1235: 펼침 가로 이미지를 양면 전체 한 장으로 표시. 앞 장 단독·뒤에서 정상 두 장 복귀, StPageFlip 양면 분할·효과 없음 지원. -->
+<!-- v1234: 만화 라이트박스 가이드(일반/ZIP·CBZ/이미지폴더) 자동숨김 5초→2초, 배지·펼침 짝짓기 변경 없음. -->
 <!-- v1214: 작가·그룹·태그의 회차 작품 카드 메타줄에 회차보기 바로가기. 검증된 회차 레일 항목을 정확히 선택, 감상/색인 무변경. -->
 <!-- v1213: 가로 자동넘김 중 ←/→ 수동 페이지 이동도 자동넘김 유지. 이동 후 이미지 준비 시점부터 새 간격 대기, 스페이스/일시정지로 정지. -->
 <!-- v1212: 가로뷰 자동넘김 실행 중 방향키 ↑/↓로 1초 단위 간격 조절(1~10초), 저장·타이머 갱신. 세로뷰 유지. -->
@@ -12248,6 +12274,15 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
     <div class="videoRandomStyleTertiaryColumn" id="videoRandomStyleTertiaryColumn" aria-label="보조 기능">
       <div class="videoRandomSecondaryTitle videoRandomAuxTitleV789">보조 기능</div>
 
+      <!-- v1240: 만화 전용 기존 버튼의 DOM·핸들러·ID를 그대로 기능창으로 옮기는 슬롯 -->
+      <div class="videoRandomAuxRowV789 cols-2" aria-label="만화 목록 관리">
+        <div class="videoRandomAuxSlotV789" id="comicAuxResetSlotV1240" data-aux-mode="comic"></div>
+        <div class="videoRandomAuxSlotV789" id="comicAuxZipPosterSlotV1240" data-aux-mode="comic"></div>
+      </div>
+      <div class="videoRandomAuxRowV789 cols-1" aria-label="만화 연결 관리">
+        <div class="videoRandomAuxSlotV789" id="comicAuxUnlinkSlotV1240" data-aux-mode="comic"></div>
+      </div>
+
       <div class="videoRandomAuxRowV789 cols-2" aria-label="캡처">
         <div class="videoRandomAuxSlotV789" id="videoRandomAuxFaceCaptureSlotV789" data-aux-mode="video"></div>
         <div class="videoRandomAuxSlotV789" id="videoRandomAuxPosterCaptureSlotV789" data-aux-mode="video"></div>
@@ -12508,8 +12543,9 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
       <button class="zoomBtn" id="wtViewPixiV1080" type="button" title="작가별 보기: 작가 라벨 + 가로 작품열, 펼치기">작가별</button>
       <button class="zoomBtn" id="wtEditBtn"  title="목록 수정">수정</button>
 	  <!-- ✅ 정렬 (수정 다음) -->
-<select class="zoomBtn" id="wtSortSel" title="정렬">
-  <option value="none" selected>이름순</option>
+<select class="zoomBtn" id="wtSortSel" title="만화 목록 정렬">
+  <option value="random" selected>랜덤</option>
+  <option value="none">이름순</option>
   <option value="story">스토리</option>
   <option value="style">그림체</option>
   <option value="pageTotal">페이지순</option>
@@ -12792,8 +12828,10 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
   <option value="1.9">1.9</option>
   <option value="2.0">2.0</option>
 </select>
-      <button class="zoomBtn" id="wtViewThumb" title="썸네일로 보기">그림</button>
-      <button class="zoomBtn" id="wtViewText"  title="텍스트로 보기">글자</button>
+      <button class="zoomBtn" type="button" id="wtShelfThemeToggleV1217" aria-pressed="false" title="오크 책장 배경 켜기/끄기 (HTML과 같은 위치의 Actors/thema1.jpg)">책장</button>
+      <button class="zoomBtn" type="button" id="comicShelfFullViewBtnV1225" aria-haspopup="menu" aria-expanded="false" title="책장 전체 방식 선택 (기본: 책장만 보기)">전체</button>
+      <button class="zoomBtn" id="wtViewThumb" type="button" aria-pressed="true" title="그림 보기 ON/OFF · 끄면 글자 목록">그림</button>
+      <button class="zoomBtn" id="wtViewText"  title="구버전 보기모드 호환용 (화면 표시 없음)" aria-hidden="true" tabindex="-1" hidden>글자</button>
       <button class="zoomBtn" id="wtClearBtn" title="만화 목록만 비우기 (설정·표지 캐시·폴더 연결은 유지)">리셋</button>
 	  <button class="zoomBtn" id="comicZipPosterBtnV979" title="ZIP/CBZ 표지 캐시 설정·전체 생성">ZIP표지</button>
 	  <button class="zoomBtn" id="wtPathBtn" title="fsdir: 상대경로를 절대경로로 변환">경로</button>
@@ -13905,7 +13943,7 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
   <button class="lbMaxHeightBtn" data-v="60">60</button>
   <button class="lbMaxHeightBtn" data-v="50">50</button>
 </div>
-<span>라이트박스 상단바(자동숨김 상하단 마우스 감지시 5초) :</span>
+<span>라이트박스 상단바(자동숨김 상하단 마우스 감지시 2초) :</span>
 <div id="lbTopBarPosBox">
   <button class="lbTopBarPosBtn" data-pos="top">상단</button>
   <button class="lbTopBarPosBtn" data-pos="bottom">하단</button>
@@ -17280,6 +17318,9 @@ function updateWtViewButtonsUI() {
   const bText  = document.getElementById('wtViewText');
   const bPixi  = document.getElementById('wtViewPixiV1080');
   if (!bThumb || !bText) return;
+  // v1240: "그림" 단일 토글. ON=그림, OFF=글자. 구형 글자 버튼은 참조용 DOM만 유지.
+  bThumb.setAttribute('aria-pressed', wtViewMode === 'thumb' ? 'true' : 'false');
+  bThumb.title = wtViewMode === 'thumb' ? '그림 보기 ON · 누르면 글자 목록' : '그림 보기 OFF · 누르면 그림 목록';
   bThumb.classList.toggle('active', wtViewMode === 'thumb');
   bText.classList.toggle('active', wtViewMode === 'text');
   bPixi?.classList.toggle('active', wtViewMode === 'pixi');
@@ -20298,7 +20339,7 @@ let wtListCache = [];             // 현재 필터 적용된 목록 캐시
 let wtListRenderedCount = 0;      // 지금까지 화면에 그린 개수
 let wtListScrollAttached = false; // 스크롤 이벤트 중복 방지
 let wtListCooldownUntil = 0;   // 다음 로딩을 허용할 시각 (ms)
-let wtSortMode = 'none'; // 'none' | 'story' | 'style' | 'total'
+let wtSortMode = 'random'; // v1241 기본: 랜덤, 변경 시 선택값 저장
 let wtSortDesc = true;   // true=내림차순(높은 평점 위), false=오름차순
 let THUMB_REQ_SEQ = 0;
 let FIRST_INDEX = null; // 가장 작은 존재 파일 번호 (예: 0 또는 1)
@@ -27268,9 +27309,20 @@ if (i >= sourceEntriesV1080.length || target <= 0) return;
         totalW = cssFavW;
       }
     }
-    // 스크롤 사라진만큼 추가
+    // v1223: 1690px 화면의 1222 계산을 그대로 기준으로 삼는다.
+    // 각 여백/간격(기존 산식의 9px, 20px 포함)에 폭 배율 s를 곱한다.
+    const shelfThemedV1223 = !pixiCtx && !!listEl?.classList.contains('wtShelfThemeOnV1217');
+    const shelfScaleV1223 = shelfThemedV1223 ?
+      (window.ComicShelfScaleV1223?.refresh(listEl,cols)||1) : 1;
+    if (totalW > 0 && shelfThemedV1223) {
+      const themedStyle=getComputedStyle(listEl);
+      totalW=Math.max(0,totalW-(parseFloat(themedStyle.paddingLeft)||0)-(parseFloat(themedStyle.paddingRight)||0));
+    }
     if (totalW > 0) {
-      thumbW = (totalW - gap * (cols + 1)) / cols;
+      const shelfExtraGapV1219 = shelfThemedV1223 ? 20*shelfScaleV1223 : 0;
+      thumbW = (totalW - gap*shelfScaleV1223 * (cols + 1) - shelfExtraGapV1219 * (cols - 1)) / cols;
+      // v1224: leave a full extra pixel per cover so fractional CSS rounding never wraps the last column.
+      if(shelfThemedV1223)thumbW-=1;
       if (thumbW < 10) thumbW = 10;
       thumbH = Math.round(thumbW * wtThumbRatio);
     } else {
@@ -34528,7 +34580,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 그림 / 글자 보기 버튼 이벤트
 document.getElementById('wtViewThumb')?.addEventListener('click', () => {
-  wtViewMode = 'thumb';
+  // v1240: 활성화된 그림 버튼을 다시 누르면 글자로 전환한다.
+  // 작가별 모드에서 누르면 원래처럼 일반 그림 목록으로 돌아간다.
+  wtViewMode = wtViewMode === 'thumb' ? 'text' : 'thumb';
   saveWtViewMode();
   updateWtViewButtonsUI();
   renderWebtoonList();
@@ -40530,24 +40584,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('wtSortSel');
   if (!sel) return;
 
-  // (선택) 저장값 복원
+  // v1241: 처음 적용할 때 구버전 이름순 기본값을 랜덤으로 한 번 전환한다.
+  // 이후 사용자가 직접 고른 정렬은 로컬 저장값을 그대로 존중한다.
   try {
-    const saved = localStorage.getItem('WT_SORT_MODE') || 'none';
+    let saved = localStorage.getItem('WT_SORT_MODE');
+    if (localStorage.getItem('WT_SORT_DEFAULT_V1241') !== '1') {
+      if (!saved || saved === 'none') saved = 'random';
+      localStorage.setItem('WT_SORT_MODE', saved);
+      localStorage.setItem('WT_SORT_DEFAULT_V1241', '1');
+    }
+    if (!saved || !Array.from(sel.options).some(o => o.value === saved)) saved='random';
     sel.value = saved;
     wtSortMode = saved;
-  } catch (e) {}
+  } catch (e) { sel.value='random'; wtSortMode='random'; }
   // v1187: 화면 표시보다 나중에 기록을 복원했어도 캐시 전체를 로딩하고 1회 재정렬한다.
   if (wtSortMode === 'pageTotal') void ComicLocalPageSortV1186.prepare();
 
   sel.addEventListener('change', () => {
-    const mode = sel.value || 'none';
+    const mode = sel.value || 'random';
+    if (mode === 'random') regenerateComicRandomSeedV1241();
     try { localStorage.setItem('WT_SORT_MODE', mode); } catch (e) {}
     setWtSortMode(mode); // ✅ 너 함수 호출
   });
 });
 
+// v1241: 수만 개 만화를 한 번만 섞은 순서로 사용. 검색/스크롤/탭 이동 때 재추첨 방지.
+// 작품 고유값의 32비트 해시를 1회 계산해 사용하므로 대량 목록의 비교·재정렬 비용을 제한한다.
+let comicRandomSeedV1241 = (Math.random() * 0x100000000) >>> 0;
+let comicRandomRankCacheV1241 = new Map();
+function regenerateComicRandomSeedV1241(){
+  comicRandomSeedV1241 = (Math.random() * 0x100000000) >>> 0;
+  comicRandomRankCacheV1241.clear();
+  invalidateComicListQueryV1000();
+}
+function comicRandomRankV1241(it){
+  const key=String(it?.value ?? it?.display ?? '');
+  if (comicRandomRankCacheV1241.has(key)) return comicRandomRankCacheV1241.get(key);
+  let h=(2166136261 ^ comicRandomSeedV1241) >>> 0;
+  for(let i=0;i<key.length;i++){h=Math.imul(h ^ key.charCodeAt(i),16777619)>>>0;}
+  h^=h>>>16;h=Math.imul(h,0x7feb352d)>>>0;h^=h>>>15;
+  comicRandomRankCacheV1241.set(key,h>>>0);
+  return h>>>0;
+}
 function sortWebtoonEntries(list) {
   if (!Array.isArray(list)) return list;
+  if (wtSortMode === 'random') {
+    const scores=new Map();
+    for(const entry of list)scores.set(entry,comicRandomRankV1241(entry));
+    return list.slice().sort((a,b)=>scores.get(a)-scores.get(b));
+  }
 
   // 북마크만 보기: 원래 제목 정렬과 필터 동작 유지.
   if (wtSortMode === 'bookmarkOnly') {
@@ -43449,7 +43534,7 @@ function showLightboxTopBarAuto() {
 
   __lbTopBarAutoHideTimer = setTimeout(() => {
     hideLightboxTopBarAuto();
-  }, 5000);
+  }, 2000);
 }
 
 function hideLightboxTopBarAuto() {
@@ -43507,14 +43592,14 @@ document.addEventListener('DOMContentLoaded', () => {
       showLightboxTopBarAuto();
     });
 
-    // 버튼 조작 중에는 사라지지 않게, 벗어나면 5초 후 숨김
+    // 버튼 조작 중에는 사라지지 않게, 벗어나면 2초 후 숨김
     bar.addEventListener('mouseleave', () => {
       const pos = getLightboxTopBarPos();
       if (pos === 'top-auto' || pos === 'bottom-auto') {
         clearLightboxTopBarAutoHideTimer();
         __lbTopBarAutoHideTimer = setTimeout(() => {
           hideLightboxTopBarAuto();
-        }, 5000);
+        }, 2000);
       }
     });
   }
@@ -162660,7 +162745,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1216;
+  const VIEWER_BUILD_V789 = 1261;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -163405,6 +163490,10 @@ try {
     if (cols) {
       const anchor = p2pReceiveBtnV933 || autoShareBtnV934 || subtitleOrganizerBtn || metaBtn;
       if (anchor) placeImmediatelyAfterV915(anchor, cols);
+      // v1241: 컬럼 선택의 바로 오른쪽에 비율 선택을 두고 만화/영상 전환 후에도 위치 유지.
+      // 영상에서는 기존 updateContentModeUI()가 비율 셀렉트를 숨긴다.
+      const comicRatioV1241 = document.getElementById('wtThumbRatio');
+      if (comicRatioV1241) placeImmediatelyAfterV915(cols, comicRatioV1241);
       if (cols.title !== '리스트 한 줄에 표시할 포스터 개수') {
         cols.title = '리스트 한 줄에 표시할 포스터 개수';
       }
@@ -163472,6 +163561,12 @@ try {
     moveIntoSlot('viewerFullResetBtnWt', 'videoRandomAuxResetSlotV790', true);
     moveIntoSlot('toggleFullWt', 'videoRandomAuxFullSlotV792', true);
     moveIntoSlot('wtOpenInWt', 'videoRandomAuxLightviewSlotV792', true);
+
+    // v1240: 만화 상단의 리셋·ZIP표지·해제를 기존 기능창의 만화 전용 칸으로 이동.
+    // moveIntoSlot()은 이미 이동한 노드를 다시 삽입하지 않으므로 MutationObserver 루프 없음.
+    moveIntoSlot('wtClearBtn', 'comicAuxResetSlotV1240');
+    moveIntoSlot('comicZipPosterBtnV979', 'comicAuxZipPosterSlotV1240');
+    moveIntoSlot('fsComicUnlink', 'comicAuxUnlinkSlotV1240');
 
     // 만화 전용 도구
     moveIntoSlot('toggleOrientWt', 'videoRandomAuxOrientationSlotV790', true);
@@ -169709,7 +169804,43 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 <!-- v979: ZIP/CBZ 가상 만화 + Posters/Comics WebP 표지 캐시; 지연 생성, IDB 매핑, 안전한 개별 압축 해제 -->
 
 <!-- v984: ZIP/CBZ 만화 라이트박스의 화면점유 상단 헤더를 제거하고 자동숨김 겹침 UI로 변경 -->
+<!-- v1228: StPageFlip Canvas 이미지 강제왜곡/흐림 제거: HTML 이미지 페이지 + contain으로 선명도/원본 비율 유지 -->
+<!-- v1227: StPageFlip 초기화 flip 반복 재생성 방지 · 책넘김 시에만 페이지 묶음 갱신 -->
+<!-- v1233: 펼침 진입 당시 페이지에서 양면 묶음 시작(홀짝 무관), 넘김효과 없음 선택, 가로보기와 동일한 반투명 배경·외부 클릭 닫기 -->
+<!-- v1232: 펼침에서 가로 이미지가 항상 첫 면(좌→우 왼쪽/우→좌 오른쪽)에 오도록 자동 짝짓기 · Foldchiyomi풍 선택 제거 -->
+<!-- v1226: ZIP/CBZ/이미지폴더 전용 두 페이지 책넘김 (StPageFlip) -->
+<style id="comicBookSpreadCssV1226">
+#comicZipLightboxV984 .zipReadModesV986 button[aria-pressed="true"]{background:#375d98;color:#fff}
+#comicZipLightboxV984 .zipBookOptionsV1226{display:inline-flex;gap:3px;align-items:center;max-width:none}
+#comicZipLightboxV984 .zipBookOptionsV1226[hidden]{display:none!important}
+#comicZipLightboxV984 .zipBookOptionsV1226 select{background:#303846;color:#fff;border:1px solid #667285;border-radius:5px;font-size:12px;padding:4px 3px;max-width:144px;min-width:0}
+#comicZipLightboxV984 .zipBookSpreadV1226{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;background:transparent;overflow:hidden;touch-action:pan-y}
+#comicZipLightboxV984 .zipBookSpreadV1226[hidden]{display:none!important}
+/* v1229: StPageFlip의 500:705 단일 페이지 × 2와 펼침 프레임의 기하학적 비율을 정확히 일치시킨다. */
+#comicZipLightboxV984 .zipBookFrameV1226{width:min(calc(100vw - 24px), calc((100vh - 34px) * 1.4184397163120568));aspect-ratio:1000 / 705;max-height:calc(100vh - 34px);display:flex;position:relative;perspective:1750px;background:#ddd;box-shadow:0 15px 65px #000c;isolation:isolate;overflow:visible;user-select:none;touch-action:pan-y}
+#comicZipLightboxV984 .zipBookSheetV1226{flex:1 1 50%;min-width:0;max-width:50%;height:100%;object-fit:contain;background:#eee;pointer-events:none;user-select:none}
+/* v1235: 넘김 효과 없음에서는 가로 원본 하나를 양쪽 종이 전체에 맞추어 표시한다. */
+#comicZipLightboxV984 .zipBookWideV1235{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;background:#f5f0e7;pointer-events:none;user-select:none;-webkit-user-drag:none}
+#comicZipLightboxV984 .zipBookWideV1235[hidden]{display:none!important}
+#comicZipLightboxV984 .zipBookFrameV1226::after{content:"";position:absolute;top:0;bottom:0;left:calc(50% - 4px);width:8px;background:linear-gradient(90deg,#0006,#fff4,#0006);box-shadow:0 0 13px #0009;pointer-events:none;z-index:4}
+#comicZipLightboxV984 .zipBookEngineV1226{position:absolute;inset:0;z-index:5}
+#comicZipLightboxV984 .zipBookEngineV1226[hidden]{display:none!important}
+#comicZipLightboxV984 .zipBookEngineV1226 .stf__parent{margin:auto}
+/* v1228: 원본 이미지의 브라우저 직접 렌더링: 종이넘김은 StPageFlip, 비율/이미지 화질은 img에서 유지. */
+#comicZipLightboxV984 .zipBookEngineV1226 .zipBookStPageV1228{overflow:hidden;background:#f5f0e7;box-sizing:border-box}
+#comicZipLightboxV984 .zipBookEngineV1226 .zipBookStPageV1228>img{display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;object-position:center center;image-rendering:auto;pointer-events:none;user-select:none;-webkit-user-drag:none;background:#f5f0e7}
+/* v1235: 가로로 긴 원본을 StPageFlip 두 종이에 같은 크기의 캔버스로 투영한 후
+   왼쪽 면/오른쪽 면을 각각 절반씩 잘라 보여준다. 종이 넘김과 이미지 비율 유지. */
+#comicZipLightboxV984 .zipBookEngineV1226 .zipBookStPageV1228.zipBookWideHalfV1235{position:relative;overflow:hidden}
+#comicZipLightboxV984 .zipBookEngineV1226 .zipBookStPageV1228.zipBookWideHalfV1235>img{position:absolute;top:0;left:0;width:200%;height:100%;max-width:none;max-height:none;object-fit:contain;object-position:center center;background:#f5f0e7}
+#comicZipLightboxV984 .zipBookEngineV1226 .zipBookStPageV1228.zipBookWideHalfV1235[data-half="right"]>img{left:-100%}
+
+#comicZipLightboxV984 .zipBookNoteV1226{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);z-index:8;color:#f4eddc;background:#111a;padding:3px 11px;border-radius:5px;font:12px/1.5 sans-serif;pointer-events:none;text-align:center;white-space:nowrap}
+</style>
+
 <style id="comicZipLightboxStyleV984">
+
+
 #comicZipLightboxV984{position:fixed;inset:0;z-index:2147482990;background:#06070b;overflow:hidden;display:flex;align-items:center;justify-content:center;}
 #comicZipLightboxV984 .zipLightboxImageV984{display:block;width:100vw;height:100vh;max-width:none;max-height:none;object-fit:contain;margin:0;padding:0;cursor:pointer;user-select:none;}
 #comicZipLightboxV984 .zipLightboxTopZoneV984{position:fixed;top:0;left:0;right:0;height:42px;z-index:2;background:transparent;}
@@ -171171,9 +171302,19 @@ async function openLightbox(value, fileJumpV1005=null){
   let readDirectionV986='horizontal';
   const directionGroupV986=document.createElement('span');directionGroupV986.className='zipReadModesV986';directionGroupV986.setAttribute('role','group');directionGroupV986.setAttribute('aria-label','만화 읽기 방향');
   const horizontalBtnV986=document.createElement('button'),verticalBtnV986=document.createElement('button');
+  const spreadBtnV1226=document.createElement('button');spreadBtnV1226.textContent='펼침';spreadBtnV1226.title='두 페이지 펼쳐서 책처럼 넘기기';
+  const spreadOptsV1226=document.createElement('span');spreadOptsV1226.className='zipBookOptionsV1226';spreadOptsV1226.hidden=true;
+  const spreadEffectV1233=document.createElement('select');spreadEffectV1233.title='펼침 페이지 넘김 효과';spreadEffectV1233.setAttribute('aria-label','페이지 넘김 효과');
+  for(const [v,t] of [['flip','StPageFlip'],['none','효과 없음']]){const o=document.createElement('option');o.value=v;o.textContent=t;spreadEffectV1233.appendChild(o);}
+  const spreadOrderV1226=document.createElement('select');spreadOrderV1226.title='책 읽기 방향';spreadOrderV1226.setAttribute('aria-label','책 읽기 방향');
+  for(const [v,t] of [['ltr','좌→우'],['rtl','우→좌']]){const o=document.createElement('option');o.value=v;o.textContent=t;spreadOrderV1226.appendChild(o);}
+  const spreadInputV1226=document.createElement('select');spreadInputV1226.title='페이지 넘기는 조작 방식';spreadInputV1226.setAttribute('aria-label','넘김 조작');
+  for(const [v,t] of [['both','클릭+드래그'],['click','클릭'],['drag','드래그']]){const o=document.createElement('option');o.value=v;o.textContent=t;spreadInputV1226.appendChild(o);}
+  try{spreadEffectV1233.value=localStorage.getItem('comic_book_effect_v1233')||'flip';spreadOrderV1226.value=localStorage.getItem('comic_book_order_v1226')||'ltr';spreadInputV1226.value=localStorage.getItem('comic_book_input_v1226')||'both';}catch(_){}
+  spreadOptsV1226.append(spreadEffectV1233,spreadOrderV1226,spreadInputV1226);
   horizontalBtnV986.textContent='가로';horizontalBtnV986.title='한 장씩 넘겨 보기';
   verticalBtnV986.textContent='세로';verticalBtnV986.title='아래로 이어서 스크롤 보기';
-  directionGroupV986.append(horizontalBtnV986,verticalBtnV986);
+  directionGroupV986.append(horizontalBtnV986,verticalBtnV986,spreadBtnV1226);
   // v1076: ZIP·CBZ 및 로컬 이미지폴더 세로보기만 720px에서 80px 단위로 변경.
   // 작품별이 아닌 공통 사용자 설정으로 저장하며, 가로보기·절대경로 만화에 영향 없음.
   const VERTICAL_SIZE_KEY_V1076='comic_local_vertical_image_width_v1076';
@@ -171238,10 +171379,10 @@ async function openLightbox(value, fileJumpV1005=null){
   const autoPageToggleV1194=document.createElement('button');
   autoPageToggleV1194.type='button';autoPageToggleV1194.textContent='▶ 자동넘김';
   autoPageToggleV1194.setAttribute('aria-pressed','false');
-  autoPageToggleV1194.title='가로보기 자동넘김 시작/일시정지. 실행 중 ↑/↓ 간격 조절, ←/→ 수동 넘김 후 계속 재생, Space 일시정지';
+  autoPageToggleV1194.title='가로/펼침 자동넘김 시작·일시정지. 실행 중 ↑/↓ 간격 조절, ←/→ 수동 넘김 후 계속 재생, Space 일시정지';
   const autoPageIntervalV1194=document.createElement('select');
   autoPageIntervalV1194.setAttribute('aria-label','자동 페이지 넘김 간격');
-  autoPageIntervalV1194.title='가로 자동넘김 간격(1~10초). 자동 실행 중 ↑ 짧게(빠르게), ↓ 길게(느리게)';
+  autoPageIntervalV1194.title='가로/펼침 자동넘김 간격(1~10초). 실행 중 ↑ 빠르게, ↓ 느리게';
   const autoPageIntervalsV1194=[1,2,3,4,5,6,7,8,9,10];
   for(const seconds of autoPageIntervalsV1194){
     const option=document.createElement('option');option.value=String(seconds);
@@ -171319,12 +171460,21 @@ async function openLightbox(value, fileJumpV1005=null){
   }
   toolsRowV987.append(pageJumpBoxV987);
   if(chapterSelectV1177)toolsRowV987.append(chapterSelectV1177);
-  toolsRowV987.append(folderSelectV987,directionGroupV986,sizeGroupV1076,autoScrollGroupV1193,autoPageGroupV1194,modeSelect,pinLabelV1086,close);
+  toolsRowV987.append(folderSelectV987,directionGroupV986,spreadOptsV1226,sizeGroupV1076,autoScrollGroupV1193,autoPageGroupV1194,modeSelect,pinLabelV1086,close);
   head.append(infoRowV987,toolsRowV987);
   head.addEventListener('click',e=>e.stopPropagation());
   const badge=document.createElement('div');badge.className='zipLightboxBadgeV984';
   badge.setAttribute('aria-live','off');
   const verticalViewV986=document.createElement('div');verticalViewV986.className='zipLightboxVerticalV986';verticalViewV986.hidden=true;
+  const spreadViewV1226=document.createElement('div');spreadViewV1226.className='zipBookSpreadV1226';spreadViewV1226.hidden=true;
+  const spreadFrameV1226=document.createElement('div');spreadFrameV1226.className='zipBookFrameV1226';
+  const spreadLeftV1226=document.createElement('img'),spreadRightV1226=document.createElement('img');
+  spreadLeftV1226.className=spreadRightV1226.className='zipBookSheetV1226';
+  spreadLeftV1226.alt='책 왼쪽 페이지';spreadRightV1226.alt='책 오른쪽 페이지';spreadLeftV1226.draggable=spreadRightV1226.draggable=false;
+  const spreadWideV1235=document.createElement('img');spreadWideV1235.className='zipBookWideV1235';spreadWideV1235.alt='양면에 펼쳐진 가로 만화 페이지';spreadWideV1235.draggable=false;spreadWideV1235.hidden=true;
+  const spreadEngineV1226=document.createElement('div');spreadEngineV1226.className='zipBookEngineV1226';spreadEngineV1226.hidden=true;
+  const spreadNoteV1226=document.createElement('div');spreadNoteV1226.className='zipBookNoteV1226';spreadNoteV1226.textContent='2페이지 펼침';
+  spreadFrameV1226.append(spreadLeftV1226,spreadRightV1226,spreadWideV1235,spreadEngineV1226);spreadViewV1226.append(spreadFrameV1226,spreadNoteV1226);
   verticalViewV986.setAttribute('aria-label','ZIP 만화 세로 스크롤 보기');
   // v988: ZIP 마지막 본 페이지 미리보기. 파일 자체는 변경하지 않고 작품별 페이지 번호만 저장.
   const lastBoxV988=document.createElement('div');lastBoxV988.id='zipLastPageV988';
@@ -171365,7 +171515,7 @@ async function openLightbox(value, fileJumpV1005=null){
     }
     void go(Math.max(0,(groupLastV1183?.page||resumePageV1090)-1));
   });
-  cover.append(image,verticalViewV986,topZone,badge,head,lastBoxV988);document.body.appendChild(cover);
+  cover.append(image,verticalViewV986,spreadViewV1226,topZone,badge,head,lastBoxV988);document.body.appendChild(cover);
   // v1020: 과거 localStorage 기록을 사용하지 않고 IndexedDB에서만 마지막 페이지를 읽는다.
   // 작품의 기존 고유 ID를 그대로 키로 사용하여 동명이인 작품/서로 다른 루트의 충돌을 방지한다.
   let savedLastPageV988=1;
@@ -171578,7 +171728,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(destroyed||guideModeV1148()==='hidden')return;
     clearTimeout(controlsTimer);head.classList.add('is-visible');
   }
-  function hideControlsLater(ms=5000){
+  function hideControlsLater(ms=2000){
     clearTimeout(controlsTimer);
     if(guideModeV1148()==='hidden'){head.classList.remove('is-visible');return;}
     if(headerPinnedV1086){head.classList.add('is-visible');return;}
@@ -171613,13 +171763,13 @@ async function openLightbox(value, fileJumpV1005=null){
   modeSelect.addEventListener('change',()=>{
     mode=modeSelect.value;
     try{localStorage.setItem(MODE_KEY,mode);}catch(_){}
-    refreshBadge();showControls();hideControlsLater(2600);
+    refreshBadge();showControls();hideControlsLater(2000);
   });
-  const revealTop=()=>{showControls();hideControlsLater(5000);};
+  const revealTop=()=>{showControls();hideControlsLater(2000);};
   topZone.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')revealTop();});
   topZone.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();revealTop();});
   head.addEventListener('pointerenter',showControls);
-  head.addEventListener('pointerleave',()=>hideControlsLater(5000));
+  head.addEventListener('pointerleave',()=>hideControlsLater(2000));
   cover.addEventListener('pointermove',e=>{
     if(e.pointerType!=='mouse')return;
     const bottom=['bottom','bottom-auto'].includes(guideModeV1148());
@@ -171707,12 +171857,13 @@ async function openLightbox(value, fileJumpV1005=null){
   }};
   document.addEventListener('visibilitychange',onAutoVisibilityV1193);
 
-  // v1194: 가로뷰 자동 넘김. setInterval 사용을 피하고 이미지 디코딩 완료 후
-  // setTimeout을 하나씩 예약해 느린 디스크/압축 해제 중에 여러 페이지가 겹치지 않게 한다.
+  // v1256: 가로 한 장/펼침 양면 자동넘김은 같은 버튼과 간격(1~10초)을 사용한다.
+  // 펼침은 물리적인 책넘김이 끝난 뒤 다음 간격을 시작한다. v1254의 유휴 재생성 보호를 유지.
   let autoPageRunningV1194=false,autoPageTimerV1194=0,autoPageEpochV1194=0;
   function refreshAutoPageV1194(){
     autoPageToggleV1194.textContent=autoPageRunningV1194?'⏸ 일시정지':'▶ 자동넘김';
     autoPageToggleV1194.setAttribute('aria-pressed',String(autoPageRunningV1194));
+    autoPageToggleV1194.title=readDirectionV986==='spread'?'펼침 자동 책넘김 / 일시정지 · ↑↓ 간격 조절 · Space 중지':'가로 자동 페이지 넘김 / 일시정지 · ↑↓ 간격 조절 · Space 중지';
   }
   function stopAutoPageV1194(){
     ++autoPageEpochV1194;
@@ -171721,38 +171872,78 @@ async function openLightbox(value, fileJumpV1005=null){
     autoPageTimerV1194=0;
     refreshAutoPageV1194();
   }
+  const autoPageEligibleV1256=epoch=>autoPageRunningV1194&&epoch===autoPageEpochV1194&&!destroyed&&
+    (readDirectionV986==='horizontal'||readDirectionV986==='spread')&&document.visibilityState!=='hidden';
+  function hasNextSpreadV1256(){return !!spreadCurrentGroupV1232 && spreadCurrentGroupV1232.end<pages.length;}
+  const pauseAutoV1256=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  async function waitSpreadSettledV1256(before,epoch){
+    // StPageFlip의 flip 이벤트는 전환 종료보다 일찍 올 수 있으므로 read 상태도 확인.
+    const deadline=performance.now()+7000;
+    while(autoPageEligibleV1256(epoch)&&performance.now()<deadline){
+      const changed=spreadCurrentGroupV1232?.start!==before;
+      const state=spreadEngineObjV1226?.getState?.()||'read';
+      if(changed&&!spreadBusyV1226&&state==='read')return true;
+      await pauseAutoV1256(65);
+    }
+    return false;
+  }
+  async function waitSpreadIdleV1256(epoch){
+    const deadline=performance.now()+8500;
+    while(autoPageEligibleV1256(epoch)&&performance.now()<deadline){
+      const state=spreadEngineObjV1226?.getState?.()||'read';
+      // 재생성이 예약돼 있다면 5번째 넘김 문제가 재발하지 않도록 끝날 때까지 기다린다.
+      if(!spreadBusyV1226&&state==='read'&&!spreadStRebaseTimerV1227)return true;
+      await pauseAutoV1256(85);
+    }
+    return false;
+  }
   function queueNextAutoPageV1194(epoch){
-    if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal')return;
-    if(idx>=pages.length-1){stopAutoPageV1194();return;}
+    if(!autoPageEligibleV1256(epoch))return;
+    if(readDirectionV986==='horizontal'?idx>=pages.length-1:!hasNextSpreadV1256()){
+      stopAutoPageV1194();return;
+    }
     if(autoPageTimerV1194)clearTimeout(autoPageTimerV1194);
     const delay=Math.max(1,Number(autoPageIntervalV1194.value)||3)*1000;
     autoPageTimerV1194=setTimeout(async()=>{
       autoPageTimerV1194=0;
-      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal'||document.visibilityState==='hidden')return;
-      const target=idx+1;
-      const ok=await go(target,true);
-      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal')return;
-      // 파일 읽기에 실패했다면 자동으로 계속 넘어가지 않고 중지한다.
-      if(!ok||idx!==target){stopAutoPageV1194();return;}
-      try{if(typeof image.decode==='function')await image.decode();
-        else if(!image.complete||!image.naturalWidth)throw new Error('이미지 미완료');
-      }catch(_){if(epoch===autoPageEpochV1194)stopAutoPageV1194();return;}
-      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed)return;
-      queueNextAutoPageV1194(epoch);
+      if(!autoPageEligibleV1256(epoch))return;
+      if(readDirectionV986==='spread'){
+        if(!await waitSpreadIdleV1256(epoch)){if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;}
+        if(!autoPageEligibleV1256(epoch))return;
+        const before=spreadCurrentGroupV1232?.start;
+        if(before===undefined){stopAutoPageV1194();return;}
+        const issued=await turnSpreadV1226(1,true);
+        if(!autoPageEligibleV1256(epoch))return;
+        if(!issued||!await waitSpreadSettledV1256(before,epoch)){
+          if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;
+        }
+      }else{
+        const target=idx+1;
+        const ok=await go(target,true);
+        if(!autoPageEligibleV1256(epoch))return;
+        if(!ok||idx!==target){stopAutoPageV1194();return;}
+        try{if(typeof image.decode==='function')await image.decode();
+          else if(!image.complete||!image.naturalWidth)throw Error('이미지 미완료');
+        }catch(_){if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;}
+      }
+      if(autoPageEligibleV1256(epoch))queueNextAutoPageV1194(epoch);
     },delay);
   }
   function startAutoPageV1194(){
-    if(destroyed||autoPageRunningV1194||readDirectionV986!=='horizontal'||document.visibilityState==='hidden')return;
-    if(idx>=pages.length-1)return; // 마지막 페이지에서는 자동넘김을 시작하지 않는다.
-    stopAutoScrollV1193();
-    autoPageRunningV1194=true;
+    if(destroyed||autoPageRunningV1194||
+       !['horizontal','spread'].includes(readDirectionV986)||document.visibilityState==='hidden')return;
+    if(readDirectionV986==='horizontal'?idx>=pages.length-1:!hasNextSpreadV1256())return;
+    stopAutoScrollV1193();autoPageRunningV1194=true;
     const epoch=++autoPageEpochV1194;
     refreshAutoPageV1194();
-    // 첫 장 역시 로딩이 진행 중일 수 있으므로 완료 후부터 시간을 잰다.
     void (async()=>{
-      try{if(image.src&&typeof image.decode==='function')await image.decode();}
-      catch(_) {if(epoch===autoPageEpochV1194)stopAutoPageV1194();return;}
-      queueNextAutoPageV1194(epoch);
+      if(readDirectionV986==='horizontal'){
+        try{if(image.src&&typeof image.decode==='function')await image.decode();}
+        catch(_){if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;}
+      }else if(!await waitSpreadIdleV1256(epoch)){
+        if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;
+      }
+      if(autoPageEligibleV1256(epoch))queueNextAutoPageV1194(epoch);
     })();
   }
   autoPageToggleV1194.addEventListener('click',()=>{
@@ -171760,16 +171951,8 @@ async function openLightbox(value, fileJumpV1005=null){
   });
   autoPageIntervalV1194.addEventListener('change',()=>{
     try{localStorage.setItem(AUTO_PAGE_INTERVAL_KEY_V1194,autoPageIntervalV1194.value);}catch(_){}
-    // 이미 페이지를 읽는 중에는 타이머를 추가로 만들지 않는다.
-    // 현재 페이지의 기존 대기 타이머만 변경하고, 읽는 중이면 다음 주기부터 적용.
-    if(autoPageRunningV1194&&autoPageTimerV1194){
-      const epoch=autoPageEpochV1194;
-      queueNextAutoPageV1194(epoch);
-    }
+    if(autoPageRunningV1194&&autoPageTimerV1194)queueNextAutoPageV1194(autoPageEpochV1194);
   });
-  // v1212: 가로 자동넘김 실행 중 ↑는 간격을 1초 줄여 더 빠르게,
-  // ↓는 1초 늘려 더 느리게. 기존 change 이벤트를 통해 저장 및 타이머 재예약.
-  // 파일을 읽는 중이라면 기존 로직대로 다음 페이지부터 새 간격을 적용한다.
   function adjustAutoPageIntervalV1212(step){
     const at=autoPageIntervalsV1194.indexOf(Number(autoPageIntervalV1194.value));
     const next=Math.max(0,Math.min(autoPageIntervalsV1194.length-1,(at<0?2:at)+step));
@@ -171778,9 +171961,6 @@ async function openLightbox(value, fileJumpV1005=null){
     autoPageIntervalV1194.value=value;
     autoPageIntervalV1194.dispatchEvent(new Event('change'));
   }
-  // v1213: 자동넘김 중 ←/→는 '수동 한 장 보기'만 수행한다.
-  // 대기 타이머를 취소하고 현재 선택한 이미지가 준비된 뒤 새 대기시간을 시작한다.
-  // epoch로 진행 중이던 자동넘김 응답이나 연속 키 입력의 오래된 타이머를 무효화한다.
   async function nudgeAutoPageV1213(delta){
     if(!autoPageRunningV1194){void go(idx+delta);return;}
     const epoch=++autoPageEpochV1194;
@@ -171788,13 +171968,27 @@ async function openLightbox(value, fileJumpV1005=null){
     const target=Math.max(0,Math.min(pages.length-1,idx+delta));
     try{
       const ok=await go(target,false,true);
-      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed||readDirectionV986!=='horizontal')return;
+      if(!autoPageEligibleV1256(epoch))return;
       if(!ok||idx!==target){stopAutoPageV1194();return;}
       if(typeof image.decode==='function')await image.decode();
-      else if(!image.complete||!image.naturalWidth)throw new Error('이미지 미완료');
-      if(!autoPageRunningV1194||epoch!==autoPageEpochV1194||destroyed)return;
-      queueNextAutoPageV1194(epoch);
-    }catch(_){if(epoch===autoPageEpochV1194)stopAutoPageV1194();}
+      else if(!image.complete||!image.naturalWidth)throw Error('이미지 미완료');
+      if(autoPageEligibleV1256(epoch))queueNextAutoPageV1194(epoch);
+    }catch(_){if(autoPageEligibleV1256(epoch))stopAutoPageV1194();}
+  }
+  async function nudgeSpreadAutoV1256(step){
+    if(!autoPageRunningV1194){void turnSpreadV1226(step);return;}
+    const epoch=++autoPageEpochV1194;
+    if(autoPageTimerV1194){clearTimeout(autoPageTimerV1194);autoPageTimerV1194=0;}
+    if(!await waitSpreadIdleV1256(epoch)){
+      if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;
+    }
+    const before=spreadCurrentGroupV1232?.start;
+    if(before===undefined){stopAutoPageV1194();return;}
+    const issued=await turnSpreadV1226(step,true);
+    if(!autoPageEligibleV1256(epoch))return;
+    if(issued && await waitSpreadSettledV1256(before,epoch))queueNextAutoPageV1194(epoch);
+    else if(issued===false&&spreadCurrentGroupV1232?.start===before)queueNextAutoPageV1194(epoch);
+    else stopAutoPageV1194();
   }
   // v1191: 26,000장에서도 DOM·IntersectionObserver를 페이지 수만큼 만들지 않는다.
   // 장수가 적은 작품은 기존 v986 코드를 그대로 사용한다.
@@ -171875,11 +172069,15 @@ async function openLightbox(value, fileJumpV1005=null){
   function syncDirectionButtonsV986(){
     horizontalBtnV986.setAttribute('aria-pressed',String(readDirectionV986==='horizontal'));
     verticalBtnV986.setAttribute('aria-pressed',String(readDirectionV986==='vertical'));
+    spreadBtnV1226.setAttribute('aria-pressed',String(readDirectionV986==='spread'));
+    spreadOptsV1226.hidden=readDirectionV986!=='spread';
     // 크기 조절은 세로 연속보기에서만 노출한다. 가로/절대경로 보기의 UI는 그대로 둔다.
     const vertical=readDirectionV986==='vertical';
     sizeGroupV1076.hidden=!vertical;
     autoScrollGroupV1193.hidden=!vertical;
+    // v1256: 가로와 펼침은 동일한 자동넘김 컨트롤을 사용한다.
     autoPageGroupV1194.hidden=vertical;
+    autoPageGroupV1194.setAttribute('aria-label',readDirectionV986==='spread'?'펼침 자동 책넘김':'가로보기 자동 페이지 넘김');
     head.classList.toggle('zipSizeActiveV1076',vertical);
   }
   function setPageLabelV986(n,flash=false){
@@ -172054,7 +172252,7 @@ async function openLightbox(value, fileJumpV1005=null){
         if(!destroyed){verticalViewV986.style.overflowAnchor='';verticalProgressV986();heartManagerV1148?.relayout();}
       });
     }
-    showControls();hideControlsLater(2600);
+    showControls();hideControlsLater(2000);
   }
   smallerV1076.addEventListener('click',()=>setVerticalImageWidthV1076(verticalImageWidthV1076-VERTICAL_SIZE_STEP_V1076));
   largerV1076.addEventListener('click',()=>setVerticalImageWidthV1076(verticalImageWidthV1076+VERTICAL_SIZE_STEP_V1076));
@@ -172100,20 +172298,538 @@ async function openLightbox(value, fileJumpV1005=null){
     for(let i=Math.max(0,idx-1);i<=Math.min(pages.length-1,idx+2);i++)scheduleVerticalLoadV986(i);
     setPageLabelV986(idx,true);
   }
+  // v1235: 가로 이미지 한 파일은 양면 전체, 직전 세로 이미지는 단독, 이후 정상 짝짓기.
+  // 예: 6번 가로 이미지 => [1,2] [3,4] [5 단독] [6 양면] [7,8].
+  let spreadEpochV1226=0,spreadBusyV1226=false,spreadEngineObjV1226=null;
+  let spreadEngineGroupsV1232=[],spreadCurrentGroupV1232=null;
+  const spreadUrlsV1226=new Map(),spreadOrientationV1232=new Map();
+  let spreadGroupsV1232=[],spreadNextV1232=0,spreadAnchorV1232=0; // 첫 진입 때 현재 페이지를 기준으로 고정 (홀수·짝수 모두 가능)
+  let spreadBuildTaskV1232=Promise.resolve();
+  let spreadStRebaseTimerV1227=0;
+  let spreadRebaseLastInputV1254=0;
+  function cancelStRebaseV1227(){if(spreadStRebaseTimerV1227){clearTimeout(spreadStRebaseTimerV1227);spreadStRebaseTimerV1227=0;}}
+  // A rebase must never destroy the current StPageFlip while a page is folding.
+  // Its flip event can fire near the end of the animation, and the old 830ms timer
+  // coincided with the user's next click near the end of the 6-group page window.
+  function scheduleSafeSpreadRebaseV1254(pf,group,epoch){
+    cancelStRebaseV1227();
+    const schedule=delay=>{
+      spreadStRebaseTimerV1227=setTimeout(check,delay);
+    };
+    const check=()=>{
+      spreadStRebaseTimerV1227=0;
+      if(destroyed||readDirectionV986!=='spread'||spreadEpochV1226!==epoch||spreadEngineObjV1226!==pf)return;
+      // Another page was selected; its own flip callback will decide the new window.
+      if(spreadCurrentGroupV1232?.start!==group.start)return;
+      const state=typeof pf.getState==='function'?pf.getState():'read';
+      const idleFor=performance.now()-spreadRebaseLastInputV1254;
+      if(spreadBusyV1226||state!=='read'||idleFor<1050){
+        schedule(Math.max(230,Math.min(700,1100-idleFor)));
+        return;
+      }
+      // A user click cannot race with the DOM/page-flip replacement.
+      spreadEngineV1226.style.pointerEvents='none';
+      void showSpreadV1226(group.start,true).catch(err=>{
+        console.warn('[v1254] 안정 상태 책 묶음 재생성 실패',err);
+      }).finally(()=>{spreadEngineV1226.style.pointerEvents='';});
+    };
+    schedule(1250);
+  }
+  // StPageFlip listens to the same pointer events; only record activity here.
+  // Do not stop propagation and do not change the existing click/drag behavior.
+  spreadEngineV1226.addEventListener('pointerdown',()=>{spreadRebaseLastInputV1254=performance.now();},true);
+  spreadEngineV1226.addEventListener('touchstart',()=>{spreadRebaseLastInputV1254=performance.now();},{capture:true,passive:true});
+  const spreadBlankV1226='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="500" height="705"><rect width="500" height="705" fill="#f5f0e7"/></svg>');
+  function spreadBaseV1226(n){
+    const i=Math.max(0,Math.min(pages.length-1,n));
+    const found=spreadGroupsV1232.find(g=>g.start<=i && i<g.end);
+    return found?.start ?? i;
+  }
+  function clearSpreadV1226(){
+    cancelStRebaseV1227();++spreadEpochV1226;spreadBusyV1226=false;
+    try{spreadEngineObjV1226?.destroy?.();}catch(_){}
+    spreadEngineObjV1226=null;spreadEngineGroupsV1232=[];spreadCurrentGroupV1232=null;
+    spreadEngineV1226.replaceChildren();spreadEngineV1226.hidden=true;
+    spreadPointerV1226=null;
+    for(const url of spreadUrlsV1226.values())URL.revokeObjectURL(url);
+    spreadUrlsV1226.clear();spreadOrientationV1232.clear();
+    spreadGroupsV1232=[];spreadNextV1232=0;spreadAnchorV1232=0;
+    spreadViewV1226.hidden=true;spreadLeftV1226.removeAttribute('src');spreadRightV1226.removeAttribute('src');
+    spreadWideV1235.hidden=true;spreadWideV1235.removeAttribute('src');
+  }
+  async function spreadUrlV1226(i){
+    if(i<0||i>=pages.length)return spreadBlankV1226;
+    if(spreadUrlsV1226.has(i))return spreadUrlsV1226.get(i);
+    const raw=await readImageV992(pages[i]);
+    if(destroyed||readDirectionV986!=='spread')return spreadBlankV1226;
+    const url=URL.createObjectURL(raw);spreadUrlsV1226.set(i,url);return url;
+  }
+  async function landscapePageV1232(i){
+    if(i<0||i>=pages.length)return false;
+    if(spreadOrientationV1232.has(i))return spreadOrientationV1232.get(i);
+    let result=false;
+    try{
+      const url=await spreadUrlV1226(i);
+      result=await new Promise(resolve=>{
+        const probe=new Image();let done=false;
+        const finish=ok=>{if(done)return;done=true;clearTimeout(timeout);const wide=ok&&probe.naturalWidth>probe.naturalHeight;probe.onload=null;probe.onerror=null;probe.removeAttribute('src');resolve(wide);};
+        const timeout=setTimeout(()=>finish(false),10000);
+        probe.onload=()=>finish(true);probe.onerror=()=>finish(false);probe.src=url;
+      });
+    }catch(e){console.warn('[v1232] 가로 페이지 판별 실패 (일반 페이지로 처리)',i,e);}
+    spreadOrientationV1232.set(i,result);return result;
+  }
+  function trimSpreadV1226(base){
+    // StPageFlip 내부 책 묶음에 사용 중인 페이지 URL은 남겨 두어 넘기는 중 이미지 소실을 방지한다.
+    const inEngine=new Set(spreadEngineGroupsV1232.flatMap(g=>g.wide||g.end===g.start+1?[g.start]:[g.start,g.start+1]));
+    for(const [i,u] of spreadUrlsV1226){
+      if(Math.abs(i-base)>32&&!inEngine.has(i)){URL.revokeObjectURL(u);spreadUrlsV1226.delete(i);}
+    }
+  }
+  // v1233: 기존 0페이지 고정 짝짓기 대신, 펼침에 들어올 때 보고 있던
+  // 정확한 페이지를 첫 면으로 사용한다. 읽기 방향에 따라 왼쪽 또는 오른쪽.
+  // 주변 페이지는 앞/뒤로 점진적으로 연결해 큰 ZIP/이미지폴더를 전수 검사하지 않는다.
+  async function ensureSpreadsV1232(index){
+    const requested=Math.max(0,Math.min(pages.length-1,Number(index)||0));
+    const run=async()=>{
+      // 처음 펼치거나 먼 곳으로 페이지를 직접 점프할 때만 시작점을 갱신한다.
+      // 단순히 첫 1~2개 묶음 쪽으로 되돌아왔다고 기준 페이지를 바꾸지 않는다.
+      if(!spreadGroupsV1232.length ||
+         requested>spreadNextV1232+48 || requested<spreadGroupsV1232[0].start-48){
+        spreadAnchorV1232=requested;
+        spreadGroupsV1232=[];
+        spreadNextV1232=requested;
+      }
+      // 뒤로 펼칠 때도 가로 이미지는 혼자 양면을 차지하고,
+      // 가로 이미지 바로 앞의 세로 이미지는 다른 장과 합치지 않는다.
+      let backwardLimit=0;
+      while(spreadGroupsV1232.length&&requested<spreadGroupsV1232[0].start&&backwardLimit++<50){
+        const end=spreadGroupsV1232[0].start;
+        const last=end-1;
+        const wide=await landscapePageV1232(last);
+        const nextWide=!wide&&end<pages.length&&await landscapePageV1232(end);
+        const prevWide=!wide&&last>0&&await landscapePageV1232(last-1);
+        const start=Math.max(0,end-(wide||nextWide||prevWide?1:2));
+        spreadGroupsV1232.unshift({start,end,wide});
+      }
+      let selected=spreadGroupsV1232.findIndex(g=>g.start<=requested&&requested<g.end);
+      // 현재 펼침과 뒤쪽 최대 7개를 미리 준비한다.
+      let forwardLimit=0;
+      while((selected<0||spreadGroupsV1232.length<selected+8)&&spreadNextV1232<pages.length&&forwardLimit++<50){
+        const start=spreadNextV1232;
+        const wide=await landscapePageV1232(start);
+        // 가로 원본은 한 파일만으로 양면 전체. 두 번째 장이 가로라면
+        // 첫 세로 장을 단독 표시하고, 다음 펼침에서 가로 한 장만 보여준다.
+        const nextWide=!wide&&start+1<pages.length&&await landscapePageV1232(start+1);
+        const end=Math.min(pages.length,start+(wide||nextWide?1:2));
+        spreadGroupsV1232.push({start,end,wide});spreadNextV1232=end;
+        if(selected<0&&start<=requested&&requested<end)selected=spreadGroupsV1232.length-1;
+      }
+      if(selected<0)selected=Math.max(0,spreadGroupsV1232.findIndex(g=>g.start<=requested&&requested<g.end));
+      return {groups:spreadGroupsV1232.slice(),at:selected,group:spreadGroupsV1232[selected]};
+    };
+    const task=spreadBuildTaskV1232.catch(()=>{}).then(run);
+    spreadBuildTaskV1232=task;
+    return task;
+  }
+  function spreadPairV1232(g){
+    if(!g)return[-1,-1];
+    if(g.wide)return[g.start,g.start]; // 실제 이미지 하나를 양면에 분할 투영
+    const first=g.start,second=g.end>g.start+1?g.start+1:-1;
+    return spreadOrderV1226.value==='rtl'?[second,first]:[first,second];
+  }
+  function spreadPageTextV1235(group){
+    return (group.start+1)+(group.wide?' · 양면 이미지':group.end>group.start+1?'–'+group.end:' · 단독');
+  }
+  async function paintSpreadV1226(group,epoch){
+    const [left,right]=spreadPairV1232(group);
+    const [l,r]=await Promise.all([spreadUrlV1226(left),spreadUrlV1226(right)]);
+    if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226)return false;
+    if(group.wide){
+      spreadWideV1235.src=l;spreadWideV1235.hidden=false;
+      spreadLeftV1226.style.visibility='hidden';spreadRightV1226.style.visibility='hidden';
+    }else{
+      spreadWideV1235.hidden=true;spreadWideV1235.removeAttribute('src');
+      spreadLeftV1226.style.visibility='';spreadRightV1226.style.visibility='';
+      spreadLeftV1226.src=l;spreadRightV1226.src=r;
+    }
+    trimSpreadV1226(group.start);
+    spreadNoteV1226.textContent=spreadPageTextV1235(group)+' / '+pages.length+' · '+(spreadOrderV1226.value==='rtl'?'우→좌':'좌→우');
+    return true;
+  }
+  const spreadScriptV1226={ready:null};
+  // StPageFlip: 우선 Actors 폴더 오프라인 라이브러리, 실패 시 CDN.
+  function loadStLibraryV1226(){
+    if(window.St?.PageFlip)return Promise.resolve(true);
+    if(spreadScriptV1226.ready)return spreadScriptV1226.ready;
+    spreadScriptV1226.ready=(async()=>{
+      for(const src of ['Actors/page-flip.browser.js','https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js']){
+        const loaded=await new Promise(resolve=>{
+          const el=document.createElement('script');let done=false;
+          const finish=ok=>{if(done)return;done=true;clearTimeout(timer);if(!ok)el.remove();resolve(ok)};
+          const timer=setTimeout(()=>finish(false),2500);
+          el.onload=()=>finish(!!window.St?.PageFlip);el.onerror=()=>finish(false);el.src=src;document.head.appendChild(el);
+        });
+        if(loaded)return true;
+      }
+      return false;
+    })();return spreadScriptV1226.ready;
+  }
+  // v1230: StPageFlip 기본 렌더러는 넘기지 않는 다음 고정 페이지(bottomPage)에도
+  // 매 프레임 translate3d + rotate(0) + clip-path를 적용한다. 브라우저의 GPU
+  // 텍스처 리샘플링으로 그 페이지마저 흐릿해졌다가 애니메이션 종료 후 선명해질 수 있다.
+  // 접히는 종이의 draw는 건드리지 않고, 회전각 0인 bottomPage의 위치 표현만
+  // 실제 픽셀에 정렬한 2D translate로 바꾼다. 클립/그림자/넘김 이벤트는 그대로 둔다.
+  // 배포 라이브러리 구조가 다르면 원래 렌더러를 그대로 사용한다.
+  function stabilizeStStationaryPageV1230(pf){
+    let renderer=null;
+    try{renderer=pf?.getRender?.();}catch(_){}
+    if(!renderer||typeof renderer.drawBottomPage!=='function')return false;
+    if(renderer.__viewerStBottomSharpV1230)return true;
+    const defaultDraw=renderer.drawBottomPage;
+    renderer.drawBottomPage=function(){
+      defaultDraw.call(this);
+      if(window.__viewerStBottomSharpV1230===false)return;
+      try{
+        if(this.getOrientation?.()!=='landscape')return;
+        const page=this.bottomPage,flipping=this.flippingPage;
+        if(!page||!flipping||page===flipping||page.getDrawingDensity?.()!=='soft'||flipping.getDrawingDensity?.()!=='soft')return;
+        const el=page.getElement?.();
+        if(!el||el.style.display==='none')return;
+        const transform=el.style.transform||'';
+        // StPageFlip 2.0.7의 움직이지 않는 페이지: translate3d(x,y,0) rotate(0rad).
+        // 회전 중인 4·5페이지에는 적용되지 않는다.
+        if(!/rotate\(\s*[-+]?0(?:\.0+)?rad\s*\)/.test(transform))return;
+        const match=/translate3d\(\s*([-+\d.eE]+)px\s*,\s*([-+\d.eE]+)px\s*,\s*0(?:px)?\s*\)/.exec(transform);
+        if(!match)return;
+        const x=Number(match[1]),y=Number(match[2]);
+        if(!Number.isFinite(x)||!Number.isFinite(y))return;
+        // v1231: 정지화면(simpleDraw)의 left/top과 넘김 중(bottomPage)의
+        // translate가 같은 '정수 CSS 픽셀'을 사용하도록 기준점을 통일한다.
+        // StPageFlip forward=0, back=1 (랜드스케이프 두 페이지 기준).
+        const rect=this.getRect?.(),direction=this.getDirection?.();
+        const originX=(rect && (direction===0 || direction===1))
+          ? rect.left+(direction===0?rect.pageWidth:0):NaN;
+        const originY=rect?.top;
+        const nearRest=Number.isFinite(originX)&&Number.isFinite(originY)
+          && Math.abs(x-originX)<=2 && Math.abs(y-originY)<=2;
+        const stableX=nearRest?Math.round(originX):Math.round(x);
+        const stableY=nearRest?Math.round(originY):Math.round(y);
+        el.style.transform=`translate(${stableX}px, ${stableY}px)`;
+        // 움직이는 종이의 변형/그림자/clip-path는 수정하지 않는다.
+        el.style.willChange='auto';
+      }catch(_){/* CDN/배포 버전이 다른 경우 원본 렌더링 유지 */}
+    };
+    // v1231: 정지 상태에서는 StPageFlip이 단순 페이지를 left/top 좌표로 배치한다.
+    // 같은 기준으로 픽셀을 맞추지 않으면 넘김 시작/종료 시 최대 1px 점프 가능.
+    // 내부 애니메이션/하드 페이지는 건드리지 않는다.
+    for(const [method,slot] of [['drawLeftPage','leftPage'],['drawRightPage','rightPage']]){
+      if(typeof renderer[method]!=='function')continue;
+      const original=renderer[method];
+      renderer[method]=function(){
+        original.call(this);
+        if(window.__viewerStBottomSharpV1230===false)return;
+        try{
+          if(this.getOrientation?.()!=='landscape')return;
+          const page=this[slot];
+          if(!page||page===this.flippingPage||page===this.bottomPage||page.getDrawingDensity?.()!=='soft')return;
+          const el=page.getElement?.();
+          if(!el||!el.classList?.contains('--simple'))return;
+          const left=Number.parseFloat(el.style.left),top=Number.parseFloat(el.style.top);
+          if(Number.isFinite(left))el.style.left=Math.round(left)+'px';
+          if(Number.isFinite(top))el.style.top=Math.round(top)+'px';
+        }catch(_){/* 런타임/라이브러리 버전 불일치 시 기존 렌더링 유지 */}
+      };
+    }
+    renderer.__viewerStBottomSharpV1230=true;
+    return true;
+  }
+
+  async function buildStBookV1232(mapping,epoch){
+    const available=await loadStLibraryV1226();
+    if(!available||destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226)return false;
+    const rtl=spreadOrderV1226.value==='rtl';
+    // Prepare 12 forward groups (rather than 6) so the next user's click never
+    // arrives exactly as the library is running out of registered pages.
+    const lo=Math.max(0,mapping.at-3),hi=Math.min(mapping.groups.length,mapping.at+12);
+    const logical=mapping.groups.slice(lo,hi);
+    const display=rtl?logical.slice().reverse():logical;
+    const sources=[];
+    try{
+      for(const g of display){
+        const [left,right]=spreadPairV1232(g);
+        sources.push(await spreadUrlV1226(left),await spreadUrlV1226(right));
+      }
+    }catch(e){console.warn('[v1232] 책 페이지 준비 실패',e);return false;}
+    if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226)return false;
+    try{
+      try{spreadEngineObjV1226?.destroy?.();}catch(_){}
+      spreadEngineObjV1226=null;spreadEngineV1226.replaceChildren();spreadEngineV1226.hidden=false;
+      const holder=document.createElement('div');holder.style.width='100%';holder.style.height='100%';spreadEngineV1226.appendChild(holder);
+      const pageSlot=display.findIndex(g=>g.start===mapping.group.start)*2;
+      const pf=new St.PageFlip(holder,{width:500,height:705,size:'stretch',minWidth:120,maxWidth:1400,minHeight:170,maxHeight:1974,
+        showCover:false,usePortrait:false,startPage:pageSlot,drawShadow:true,flippingTime:800,maxShadowOpacity:.65,
+        useMouseEvents:true,disableFlipByClick:spreadInputV1226.value==='drag',autoSize:false});
+      spreadEngineObjV1226=pf;spreadEngineGroupsV1232=display;
+      let lastSlot=pageSlot,initialized=false;
+      pf.on('init',()=>{
+        if(spreadEngineObjV1226!==pf||destroyed)return;
+        const current=Number(pf.getCurrentPageIndex?.());
+        if(Number.isFinite(current))lastSlot=2*Math.floor(current/2);
+        initialized=true;
+      });
+      pf.on('flip',event=>{
+        if(spreadEngineObjV1226!==pf||readDirectionV986!=='spread'||destroyed)return;
+        const atPage=Number(event.data);if(!Number.isFinite(atPage)||atPage<0)return;
+        const slot=2*Math.floor(atPage/2);
+        if(!initialized){lastSlot=slot;return;}
+        if(slot===lastSlot)return;
+        lastSlot=slot;
+        const g=display[slot/2];if(!g)return;
+        spreadCurrentGroupV1232=g;
+        cancelStRebaseV1227();setPageLabelV986(g.start,true);
+        spreadNoteV1226.textContent='StPageFlip · '+spreadPageTextV1235(g)+' / '+pages.length;
+        const globalAt=spreadGroupsV1232.findIndex(x=>x.start===g.start);
+        // Rewindow only close to the *edge* of the existing registered groups.
+        // It is intentionally deferred until the engine is idle; 830ms was too
+        // close to the 800ms animation duration and could cancel the fifth flip.
+        const nearFront=lo>0&&globalAt<=lo+2&&g.start>0;
+        const nearBack=globalAt>=hi-4&&g.end<pages.length;
+        if(nearFront||nearBack){
+          scheduleSafeSpreadRebaseV1254(pf,g,spreadEpochV1226);
+        }
+      });
+      const sheets=sources.map((src,i)=>{
+        const sheet=document.createElement('div');sheet.className='zipBookStPageV1228';
+        const g=display[Math.floor(i/2)];
+        if(g.wide){
+          sheet.classList.add('zipBookWideHalfV1235');
+          sheet.dataset.half=i%2===0?'left':'right';
+        }
+        const img=document.createElement('img');img.src=src;img.alt=g.wide?'양면 이미지의 '+(i%2===0?'왼쪽':'오른쪽'):'만화 페이지';img.draggable=false;img.decoding='async';sheet.appendChild(img);return sheet;
+      });
+      if(typeof pf.loadFromHTML!=='function')throw new Error('StPageFlip HTML 렌더링을 지원하지 않습니다.');
+      pf.loadFromHTML(sheets);
+      stabilizeStStationaryPageV1230(pf); // v1231의 선명도 및 1px 보정 유지
+      trimSpreadV1226(mapping.group.start);
+      spreadWideV1235.hidden=true;spreadWideV1235.removeAttribute('src');
+      spreadLeftV1226.style.visibility='hidden';spreadRightV1226.style.visibility='hidden';
+      spreadNoteV1226.textContent='StPageFlip · '+spreadPageTextV1235(mapping.group)+' / '+pages.length;
+      return true;
+    }catch(e){
+      console.warn('[v1232] StPageFlip 초기화 실패, 정적 두 장 보기로 전환',e);
+      try{spreadEngineObjV1226?.destroy?.();}catch(_){}spreadEngineObjV1226=null;
+      spreadEngineV1226.replaceChildren();spreadEngineV1226.hidden=true;spreadEngineGroupsV1232=[];
+      return false;
+    }
+  }
+  async function showSpreadV1226(index,rebuild=false){
+    if(destroyed||readDirectionV986!=='spread')return false;
+    cancelStRebaseV1227();const epoch=++spreadEpochV1226;
+    spreadBusyV1226=true;
+    try{
+      const mapping=await ensureSpreadsV1232(index);
+      if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226||!mapping.group)return false;
+      const group=mapping.group;spreadCurrentGroupV1232=group;
+      setPageLabelV986(group.start,true);
+      const local=spreadEngineGroupsV1232.findIndex(g=>g.start===group.start);
+      if(spreadEngineObjV1226&&!rebuild&&local>=0){
+        spreadEngineObjV1226.turnToPage(local*2);return true;
+      }
+      // 효과 없음: StPageFlip의 책장 생성·3D 애니메이션 없이 두 원본 이미지 표시.
+      if(spreadEffectV1233.value==='flip' && await buildStBookV1232(mapping,epoch))return true;
+      if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226)return false;
+      spreadNoteV1226.textContent=spreadEffectV1233.value==='none'?'넘김 효과 없음 · 두 장 보기':'StPageFlip 연결 없음 · 기본 두 장 보기';
+      try{spreadEngineObjV1226?.destroy?.();}catch(_){}spreadEngineObjV1226=null;
+      spreadEngineV1226.replaceChildren();spreadEngineV1226.hidden=true;spreadEngineGroupsV1232=[];
+      spreadLeftV1226.style.visibility='';spreadRightV1226.style.visibility='';
+      return await paintSpreadV1226(group,epoch);
+    }finally{if(epoch===spreadEpochV1226)spreadBusyV1226=false;}
+  }
+  async function turnSpreadV1226(step,fromAutoV1256=false){
+    spreadRebaseLastInputV1254=performance.now();
+    if(readDirectionV986!=='spread'||spreadBusyV1226||destroyed)return false;
+    const current=spreadCurrentGroupV1232;
+    if(!current)return false;
+    const before=await ensureSpreadsV1232(step>0?Math.min(pages.length-1,current.end):Math.max(0,current.start-1));
+    if(destroyed||readDirectionV986!=='spread')return false;
+    let at=before.groups.findIndex(g=>g.start===current.start);
+    if(at<0){ // 먼 페이지 점프에 따른 재색인 직후
+      await showSpreadV1226(current.start,true);return false;
+    }
+    const target=before.groups[at+step];
+    if(!target)return false;
+    if(!fromAutoV1256)stopAutoPageV1194();
+    const local=spreadEngineGroupsV1232.findIndex(g=>g.start===target.start);
+    if(spreadEngineObjV1226&&local>=0){
+      const active=spreadEngineGroupsV1232.findIndex(g=>g.start===current.start);
+      if(active>=0){
+        const towardIncreasing=local>active;
+        if(towardIncreasing)spreadEngineObjV1226.flipNext();else spreadEngineObjV1226.flipPrev();
+        return true;
+      }
+    }
+    setPageLabelV986(target.start,true);return await showSpreadV1226(target.start,true);
+  }
+  // v1260: 1259의 별도 빈 종이/가상 이미지 드래그는 완전 폐기.
+  // StPageFlip이 이미 보여 주고 있는 실제 종이의 fold()만 사용한다.
+  // 원본 StPageFlip은 위아래 모서리 드래그를 그대로 처리하며,
+  // 바깥 가장자리의 중앙 띠만 여기서 실제 엔진으로 직접 전달한다.
+  let centerEdgeDragV1260=null;
+  const centerEdgeBookPosV1260=(pf,x,y)=>{
+    const dist=pf?.getUI?.()?.getDistElement?.();
+    const r=dist?.getBoundingClientRect?.();
+    if(!r?.width||!r?.height)return null;
+    return {x:x-r.left,y:y-r.top,rect:r};
+  };
+  function resetCenterEdgeDragV1260(cancel=false){
+    const st=centerEdgeDragV1260;centerEdgeDragV1260=null;
+    if(!st)return;
+    try{
+      if(st.moved){
+        // userStop -> Flip.stopMove(): 임계선까지 넘겼다면 기존 실제 페이지가 넘어간다.
+        st.pf.userStop(st.last);
+      }else if(!cancel&&spreadInputV1226.value!=='drag'&&st.maxDistance<9){
+        // 실제 짧은 클릭에만 기존 넘김을 한 번 발생시킨다.
+        if(st.side==='right')st.pf.flipNext('top');else st.pf.flipPrev('top');
+      }
+    }catch(e){console.warn('[v1260] 실제 종이 중앙 드래그 종료',e);}
+  }
+  spreadEngineV1226.addEventListener('mousedown',event=>{
+    if(event.button!==0||destroyed||readDirectionV986!=='spread'||spreadBusyV1226||
+       spreadEngineV1226.hidden||!spreadEngineObjV1226||centerEdgeDragV1260||
+       spreadInputV1226.value==='click')return;
+    const pf=spreadEngineObjV1226;
+    if(pf.getState?.()!=='read')return;
+    const p=centerEdgeBookPosV1260(pf,event.clientX,event.clientY);
+    if(!p)return;
+    const rect=p.rect;
+    // 가운데 25~75% 높이만 가로채므로 기존 상·하단 모서리 조작은 건드리지 않는다.
+    const yn=p.y/rect.height;
+    if(yn<.25||yn>.75)return;
+    const zone=Math.min(72,Math.max(27,rect.width*.055));
+    const side=p.x<zone?'left':p.x>rect.width-zone?'right':null;
+    if(!side)return;
+    // 이전/다음 페이지가 실제로 존재할 때만 자체 드래그로 받는다.
+    const pageIndex=Number(pf.getCurrentPageIndex?.());
+    const last=Number(pf.getPageCount?.())-1;
+    if(!Number.isFinite(pageIndex)||!Number.isFinite(last)||
+       (side==='left'&&pageIndex<=0)||(side==='right'&&pageIndex>=last))return;
+    const y=Math.max(4,Math.min(12,rect.height*.015));
+    const start={x:p.x,y};
+    try{
+      centerEdgeDragV1260={pf,side,originX:event.clientX,originY:event.clientY,
+        start,last:start,moved:false,maxDistance:0};
+      stopAutoPageV1194();
+      spreadRebaseLastInputV1254=performance.now();
+      event.preventDefault();event.stopImmediatePropagation();
+    }catch(e){centerEdgeDragV1260=null;console.warn('[v1260] 중앙 드래그 시작 실패',e);}
+  },true);
+  window.addEventListener('mousemove',event=>{
+    const st=centerEdgeDragV1260;if(!st)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const p=centerEdgeBookPosV1260(st.pf,event.clientX,event.clientY);
+    if(!p)return;
+    const dx=event.clientX-st.originX;
+    st.maxDistance=Math.max(st.maxDistance,Math.hypot(dx,event.clientY-st.originY));
+    if(!st.moved){
+      if(Math.abs(dx)<9||Math.abs(dx)<Math.abs(event.clientY-st.originY)*.65)return;
+      st.moved=true;
+      try{st.pf.startUserTouch(st.start);}catch(e){centerEdgeDragV1260=null;return;}
+    }
+    // 끝을 위·아래 모서리 대신 상단 근처에 고정하면, 접히는 경계가
+    // 대각선 삼각형이 아니라 거의 수직이 되는 원본 종이 계산을 활용한다.
+    const pos={x:p.x,y:st.start.y};st.last=pos;
+    try{st.pf.userMove(pos,false);}catch(e){console.warn('[v1260] 중앙 드래그 이동 실패',e);}
+    spreadRebaseLastInputV1254=performance.now();
+  },true);
+  window.addEventListener('mouseup',event=>{
+    if(!centerEdgeDragV1260)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const st=centerEdgeDragV1260;
+    st.maxDistance=Math.max(st.maxDistance,Math.hypot(event.clientX-st.originX,event.clientY-st.originY));
+    const p=centerEdgeBookPosV1260(st.pf,event.clientX,event.clientY);
+    if(p&&st.moved){
+      st.last={x:p.x,y:st.start.y};
+      try{st.pf.userMove(st.last,false);}catch(_){ }
+    }
+    resetCenterEdgeDragV1260(false);
+  },true);
+  window.addEventListener('blur',()=>resetCenterEdgeDragV1260(true));
+  let spreadPointerV1226=null;
+  // 라이브러리 미연결 시에는 정적인 두 장 보기와 클릭·드래그 페이지 이동을 제공한다.
+  spreadFrameV1226.addEventListener('pointerdown',event=>{
+    if(readDirectionV986!=='spread'||spreadBusyV1226||!spreadEngineV1226.hidden)return;
+    spreadPointerV1226={x:event.clientX,y:event.clientY,id:event.pointerId};
+  });
+  spreadFrameV1226.addEventListener('pointerup',event=>{
+    const start=spreadPointerV1226;spreadPointerV1226=null;
+    if(!start||readDirectionV986!=='spread'||spreadBusyV1226||!spreadEngineV1226.hidden)return;
+    const dx=event.clientX-start.x,dy=event.clientY-start.y;
+    const direction=spreadOrderV1226.value==='rtl'?-1:1;
+    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.2){
+      if(spreadInputV1226.value!=='click')void turnSpreadV1226((dx<0?1:-1)*direction);
+    }else if(Math.abs(dx)<14&&Math.abs(dy)<14&&spreadInputV1226.value!=='drag'){
+      const r=spreadFrameV1226.getBoundingClientRect();
+      void turnSpreadV1226((event.clientX>r.left+r.width/2?1:-1)*direction);
+    }
+  });
+  spreadFrameV1226.addEventListener('pointercancel',()=>{spreadPointerV1226=null;});
+  // v1258: 마우스를 책 안에서 누른 뒤 바깥에서 놓으면 click 타깃이 바깥 컨테이너가
+  // 될 수 있다. 바깥에서 '누르고 + 같은 곳에서 놓은' 실제 짧은 클릭에만 종료를 허용.
+  // StPageFlip이 내부에서 이벤트 전파를 차단하더라도 capture 단계에서 시작점을 기록한다.
+  let spreadOutsideDownV1258=null;
+  cover.addEventListener('pointerdown',event=>{
+    if(readDirectionV986!=='spread'||!event.isPrimary)return;
+    const r=spreadFrameV1226.getBoundingClientRect();
+    const insideFrame=event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom;
+    spreadOutsideDownV1258={x:event.clientX,y:event.clientY,at:performance.now(),
+      id:event.pointerId,wasOutside:!insideFrame};
+  },true);
+  function genuineSpreadOutsideClickV1258(event){
+    if(readDirectionV986!=='spread')return true;
+    const start=spreadOutsideDownV1258;
+    spreadOutsideDownV1258=null;
+    // 드래그로 생긴 합성 click이나 시작점을 알 수 없는 클릭으로 닫지 않는다.
+    if(!start||!start.wasOutside||performance.now()-start.at>2000)return false;
+    if(Math.hypot(event.clientX-start.x,event.clientY-start.y)>8)return false;
+    if(event.button!==0 && event.detail!==0)return false;
+    const r=spreadFrameV1226.getBoundingClientRect();
+    return !(event.clientX>=r.left&&event.clientX<=r.right&&event.clientY>=r.top&&event.clientY<=r.bottom);
+  }
+  spreadViewV1226.addEventListener('click',event=>{
+    if(readDirectionV986==='spread'&&event.target===spreadViewV1226&&genuineSpreadOutsideClickV1258(event))destroy();
+  });
+  for(const [control,key] of [[spreadEffectV1233,'comic_book_effect_v1233'],[spreadOrderV1226,'comic_book_order_v1226'],[spreadInputV1226,'comic_book_input_v1226']]){
+    control.addEventListener('change',()=>{
+      try{localStorage.setItem(key,control.value);}catch(_){}
+      if(readDirectionV986==='spread')void showSpreadV1226(idx,true);
+    });
+  }
+
   async function setDirectionV986(direction){
-    if(destroyed||!['horizontal','vertical'].includes(direction))return;
+    if(destroyed||!['horizontal','vertical','spread'].includes(direction))return;
     if(direction===readDirectionV986)return;
     stopAutoPageV1194();
     readDirectionV986=direction;syncDirectionButtonsV986();
     heartManagerV1148?.setVertical(direction==='vertical');
-    if(direction==='vertical'){++seq;startVerticalV986();}
-    else{cleanVerticalV986();verticalViewV986.hidden=true;image.hidden=false;await go(idx);}
+    if(direction==='vertical'){
+      clearSpreadV1226();++seq;startVerticalV986();
+    }else if(direction==='spread'){
+      cleanVerticalV986();verticalViewV986.hidden=true;image.hidden=true;spreadViewV1226.hidden=false;
+      if(u){URL.revokeObjectURL(u);u=null;image.removeAttribute('src');}
+      setPageLabelV986(spreadBaseV1226(idx),true);
+      await showSpreadV1226(idx,true);
+    }else{
+      clearSpreadV1226();cleanVerticalV986();verticalViewV986.hidden=true;image.hidden=false;await go(idx);
+    }
     showControls();hideControlsLater(2000);
   }
   // v1192: 사용자가 직접 방향을 눌렀다면 늦게 끝난 자동 판별이 그 선택을 덮어쓰지 않는다.
   let autoDirectionCancelledV1192=false;
-  horizontalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;void setDirectionV986('horizontal');};
-  verticalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;void setDirectionV986('vertical');};
+  horizontalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;try{localStorage.setItem('comic_reader_view_v1226','horizontal');}catch(_){}void setDirectionV986('horizontal');};
+  verticalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;try{localStorage.setItem('comic_reader_view_v1226','horizontal');}catch(_){}void setDirectionV986('vertical');};
+  spreadBtnV1226.onclick=()=>{autoDirectionCancelledV1192=true;try{localStorage.setItem('comic_reader_view_v1226','spread');}catch(_){}void setDirectionV986('spread');};
   async function go(n,fromAutoPageV1194=false,preserveAutoPageV1213=false){
     // 기본 수동 이동은 기존대로 자동넘김을 정지한다. v1213 방향키 건너뛰기만 예외.
     if(!fromAutoPageV1194&&!preserveAutoPageV1213)stopAutoPageV1194();
@@ -172132,14 +172848,19 @@ async function openLightbox(value, fileJumpV1005=null){
       if(wrapper){verticalViewV986.scrollTop=wrapper.offsetTop;scheduleVerticalLoadV986(to);trimVerticalV986();}
       return;
     }
-    setPageLabelV986(to,true);
+    setPageLabelV986(readDirectionV986==='spread'?spreadBaseV1226(to):to,true);
+    if(readDirectionV986==='spread')return showSpreadV1226(to);
     const mine=++seq;
     try{const data=await readImageV992(pages[idx]);
       if(mine!==seq||destroyed||readDirectionV986!=='horizontal')return false;
       const url=URL.createObjectURL(data);
+      if(mine!==seq||destroyed||readDirectionV986!=='horizontal'){
+        URL.revokeObjectURL(url);return false;
+      }
+        const previousUrl=u;
       image.src=url;
-      // v1090: 현재 페이지 이미지로 이어보기 썸네일을 덮어쓰지 않는다.
-      if(u)URL.revokeObjectURL(u);u=url;
+      if(previousUrl)URL.revokeObjectURL(previousUrl);
+      u=url;
       return true;
     }catch(e){
       if(mine===seq&&!destroyed){badge.textContent=`${pageLabelV985(idx)} · 열기 실패`;
@@ -172152,6 +172873,16 @@ async function openLightbox(value, fileJumpV1005=null){
   // 터치는 왼쪽 스와이프=다음, 오른쪽 스와이프=이전.
   // 세로 연속 보기에서는 브라우저 기본 휠·터치 스크롤을 그대로 살린다.
   let lastWheelTurnV995=0;
+  let lastSpreadWheelV1226=0;
+  spreadViewV1226.addEventListener('wheel',event=>{
+    if(destroyed||readDirectionV986!=='spread'||event.ctrlKey||event.target.closest?.('.zipLightboxHeaderV984'))return;
+    event.preventDefault();
+    const now=performance.now();if(now-lastSpreadWheelV1226<400)return;
+    const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+    if(Math.abs(delta)<25)return;
+    lastSpreadWheelV1226=now;
+    void turnSpreadV1226((delta>0?1:-1)*(spreadOrderV1226.value==='rtl'?-1:1));
+  },{passive:false});
   let wheelSumV995=0;
   let lastWheelEventV995=0;
   const WHEEL_LIMIT_V995=50;
@@ -172276,7 +173007,8 @@ async function openLightbox(value, fileJumpV1005=null){
     onLocalFavoritesV1150=()=>{};
     resetFavThumbsV1150();
     clearTimeout(controlsTimer);clearTimeout(badgeTimer);
-    cleanVerticalV986();cover.remove();if(u)URL.revokeObjectURL(u);
+    resetCenterEdgeDragV1260(true);
+    cleanVerticalV986();clearSpreadV1226();cover.remove();if(u)URL.revokeObjectURL(u);
     const own=lastImageV988.dataset.ownedUrl;if(own)URL.revokeObjectURL(own);
     if(firstOwnedUrlV1090)URL.revokeObjectURL(firstOwnedUrlV1090);
     window.ComicReadProgressV1090?.update(value,idx+1);
@@ -172299,7 +173031,7 @@ async function openLightbox(value, fileJumpV1005=null){
     }
     // v1212: 가로 자동넘김 중 ↑는 1초 감소(빠르게), ↓는 1초 증가(느리게).
     // 자동이 꺼진 경우는 기존 방향키 동작을 그대로 둔다.
-    if(readDirectionV986==='horizontal'&&autoPageRunningV1194&&(e.key==='ArrowUp'||e.key==='ArrowDown')&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey){
+    if(['horizontal','spread'].includes(readDirectionV986)&&autoPageRunningV1194&&(e.key==='ArrowUp'||e.key==='ArrowDown')&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey){
       e.preventDefault();e.stopImmediatePropagation();
       if(!e.repeat)adjustAutoPageIntervalV1212(e.key==='ArrowUp'?-1:1);
       return;
@@ -172313,7 +173045,7 @@ async function openLightbox(value, fileJumpV1005=null){
       return;
     }
     // Space 또는 상단 ⏸ 일시정지 버튼으로 자동넘김을 확실히 중지한다.
-    if(readDirectionV986==='horizontal'&&autoPageRunningV1194&&e.key===' '&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey){
+    if(['horizontal','spread'].includes(readDirectionV986)&&autoPageRunningV1194&&e.key===' '&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey){
       stopAutoPageV1194();e.preventDefault();e.stopImmediatePropagation();return;
     }
     // 다른 이동키·휠·터치는 기존대로 자동스크롤/넘김 정지.
@@ -172323,23 +173055,33 @@ async function openLightbox(value, fileJumpV1005=null){
       if(fileNavV1005)void moveFileV1005(e.key==='ArrowRight'?1:-1);
       e.preventDefault();e.stopPropagation();return;
     }
+    if(readDirectionV986==='spread'&&autoPageRunningV1194&&
+       (e.key==='ArrowRight'||e.key==='ArrowLeft')&&!e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
+      e.preventDefault();e.stopImmediatePropagation();
+      const sign=(e.key==='ArrowRight'?1:-1)*(spreadOrderV1226.value==='rtl'?-1:1);
+      void nudgeSpreadAutoV1256(sign);return;
+    }
+    if(readDirectionV986==='spread'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){
+      const sign=e.key==='ArrowRight'?1:-1;
+      void turnSpreadV1226(sign*(spreadOrderV1226.value==='rtl'?-1:1));e.preventDefault();e.stopImmediatePropagation();return;
+    }
     if(e.key==='ArrowRight'){void go(idx+1);e.preventDefault();e.stopPropagation();}
     if(e.key==='ArrowLeft'){void go(idx-1);e.preventDefault();e.stopPropagation();}
   }
   // v1170: 오래된 문서 capture 핸들러보다 먼저 Shift+방향키를 처리한다.
   // 열린 ZIP/fsdir 뷰어에만 반응하므로 다른 탭의 단축키는 바꾸지 않는다.
   window.addEventListener('keydown',keyHandler,true);
-  back.onclick=()=>void go(idx-1);next.onclick=()=>void go(idx+1);close.onclick=destroy;
+  back.onclick=()=>readDirectionV986==='spread'?void turnSpreadV1226(-1):void go(idx-1);next.onclick=()=>readDirectionV986==='spread'?void turnSpreadV1226(1):void go(idx+1);close.onclick=destroy;
   const jumpToInputV987=()=>{
     const n=Number(pageInputV987.value);
     if(!Number.isInteger(n)||n<1||n>pages.length){pageInputV987.value=String(idx+1);return;}
-    void go(n-1);showControls();hideControlsLater(2600);
+    void go(n-1);showControls();hideControlsLater(2000);
   };
   pageGoBtnV987.onclick=jumpToInputV987;
   pageInputV987.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();jumpToInputV987();}});
   folderSelectV987.addEventListener('change',()=>{
     const first=firstPageByFolderV987.get(folderSelectV987.value);
-    if(first!==undefined){void go(first);showControls();hideControlsLater(2600);}
+    if(first!==undefined){void go(first);showControls();hideControlsLater(2000);}
   });
   // v987: 가로 보기 img는 화면 전체를 차지하지만 object-fit:contain으로 실제 그림은 가운데 일부다.
   // 그림 자체 클릭은 기존 페이지 이동, 그림 밖의 검은 레터박스 클릭만 뷰어 닫기.
@@ -172365,11 +173107,22 @@ async function openLightbox(value, fileJumpV1005=null){
     const r=img.getBoundingClientRect();
     if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)destroy();
   });
-  cover.addEventListener('click',e=>{if(e.target===cover)destroy();});
+  cover.addEventListener('click',e=>{
+    if(e.target!==cover)return;
+    if(readDirectionV986==='spread'){
+      if(genuineSpreadOutsideClickV1258(e))destroy();
+    }else destroy();
+  });
   attachZipAuthorPanelV988(cover,value,destroy);
   syncDirectionButtonsV986();refreshBadge();
+  let preferredBookModeV1226='horizontal';
+  try{if(localStorage.getItem('comic_reader_view_v1226')==='spread')preferredBookModeV1226='spread';}catch(_){}
   if(fileJumpV1005?.direction==='vertical')await setDirectionV986('vertical');
-  else await go(idx);
+  else if(fileJumpV1005?.direction==='spread')await setDirectionV986('spread');
+  else if(fileJumpV1005?.direction==='horizontal')await go(idx);
+  else if(preferredBookModeV1226==='spread'){
+    autoDirectionCancelledV1192=true;await setDirectionV986('spread');
+  }else await go(idx);
 
   // v1192: 자동 방향은 최초 열기에서만 적용한다. Shift 이전/다음 작품처럼
   // 기존에 방향을 명시해 전달한 이동은 사용자가 선택한 가로/세로 상태를 우선한다.
@@ -174215,6 +174968,53 @@ ABCD-123 ##배우1## ##배우2##.mp4</pre>
 })();
 </script>
 
+<!-- v1224: Shelf proportions also respond to selected column count; reserve 1px against wrapping.
+     v1223: Scale EVERY shelf geometry measurement from the accurately tuned 1690px layout.
+     No comic cover/cache/record modifications. Normal view keeps original pixels. -->
+<script id="comicShelfProportionsV1223">
+(()=>{
+ 'use strict';
+ // v1224: preserve the proportions of the tuned 1690px / 8-column bookshelf.
+ // The 1223 layout has a 162px nominal cover, 90px side inset, 28px card gap,
+ // and 18px residual breathing room in the width budget at this baseline.
+ const BASE=1690, BASE_COLS=8, BASE_POSTER=162, SIDE=90, GAP=28, RESERVE=18;
+ function currentCols(list){
+   const chapter=list?.classList.contains('zipInnerChaptersV1202') ||
+                 list?.classList.contains('fsChaptersV1204');
+   if(chapter){
+     const raw=Number(list.style.getPropertyValue(
+       list.classList.contains('zipInnerChaptersV1202') ?
+       '--zip-inner-columns-v1202' : '--fs-chapter-cols-v1204'));
+     if(Number.isFinite(raw)&&raw>=1)return Math.max(1,Math.min(20,Math.round(raw)));
+   }
+   const inLayer=!!document.getElementById('wtLayer')?.contains(list);
+   const raw=inLayer ?
+     (typeof wtColsLayer==='number' ? wtColsLayer :
+       (typeof wtThumbCols==='number' ? wtThumbCols : 8)) :
+     (typeof wtColsNormal==='number' ? wtColsNormal :
+       (typeof wtThumbCols==='number' ? wtThumbCols : 8));
+   return Math.max(1,Math.min(20,Math.round(Number(raw)||8)));
+ }
+ function calcScale(width,cols){
+   const n=Math.max(1,Math.min(20,Math.round(Number(cols)||BASE_COLS)));
+   const referenceWidth=2*SIDE+n*BASE_POSTER+(n-1)*GAP+RESERVE;
+   return Math.max(.05,Math.min(8,width/referenceWidth));
+ }
+ function refresh(list,requestedCols){
+   if(!list||!list.classList.contains('wtShelfThemeOnV1217'))return 1;
+   const width=list.getBoundingClientRect().width;
+   if(!Number.isFinite(width)||width<=0)return 1;
+   const cols=Number.isFinite(requestedCols) ? requestedCols : currentCols(list);
+   const s=calcScale(width,cols);
+   const old=Number(list.style.getPropertyValue('--wt-shelf-scale-v1223'));
+   if(!Number.isFinite(old)||Math.abs(old-s)>.0001){
+     list.style.setProperty('--wt-shelf-scale-v1223',String(s));
+   }
+   return s;
+ }
+ window.ComicShelfScaleV1223={refresh,baseline:BASE,baseColumns:BASE_COLS,calcScale,currentCols};
+})();
+</script>
 <script id="comicRailPosterResizeV1051">
 /* v1051: 레일 토글, 패널 리사이즈 후 만화 카드/캡션 폭만 반응형 재계산.
    표지와 비동기 ZIP/FS 캐시 로더를 유지하므로 대량 목록에서 재스캔이 없다. */
@@ -174229,23 +175029,36 @@ ABCD-123 ##배우1## ##배우2##.mp4</pre>
     const layer = document.getElementById('wtLayer');
     const list = document.getElementById('wtList');
     const box = document.getElementById('wtBox');
-    if (!layer || !list || !box || !layer.contains(list) ||
+    const inLayer=!!layer?.contains(list);
+    const themed=!!list?.classList.contains('wtShelfThemeOnV1217');
+    if (!list || !box || (!inLayer && !themed) ||
         !list.classList.contains('wtListThumb') ||
         (typeof contentMode !== 'undefined' && contentMode !== 'comic')) {
       list?.classList.remove('comicRailAutoSizeV1051');
       return;
     }
-    const totalW = box.clientWidth + 7;
-    if (!Number.isFinite(totalW) || totalW < 30) return;
-    const requested = typeof wtColsLayer === 'number' ? wtColsLayer :
-                      (typeof wtThumbCols === 'number' ? wtThumbCols : 8);
+    // v1223: match the 1222 layout's +7px measurement at the 1690px baseline.
+    let totalW=(inLayer ? box.clientWidth : list.clientWidth)+7;
+    const requested = inLayer ? (typeof wtColsLayer === 'number' ? wtColsLayer : wtThumbCols) :
+                                (typeof wtColsNormal === 'number' ? wtColsNormal : wtThumbCols);
     const cols = Math.max(1, Math.min(20, requested || 8));
+    // v1224: both the window width and the selected column count set the theme scale.
+    const shelfScale=themed?(window.ComicShelfScaleV1223?.refresh(list,cols)||1):1;
+    if(themed){
+      const shelfStyle=getComputedStyle(list);
+      totalW-=(parseFloat(shelfStyle.paddingLeft)||0)+(parseFloat(shelfStyle.paddingRight)||0);
+    }
+    if (!Number.isFinite(totalW) || totalW < 30) return;
     const ratio = typeof wtThumbRatio === 'number' && wtThumbRatio > 0 ? wtThumbRatio : 1.5;
     if (Math.abs(totalW-lastWidth) < .5 && cols === lastCols && ratio === lastRatio &&
         list.classList.contains('comicRailAutoSizeV1051')) return;
     lastWidth = totalW; lastCols = cols; lastRatio = ratio;
     // 원래 appendWebtoonListChunk의 레이어 썸네일 폭/별점 계산과 동일.
-    const width = Math.max(10,(totalW - 9*(cols+1))/cols);
+    // v1219: 초기 렌더와 같은 카드 너비를 적용해 행이 밀려 7열이 되지 않도록 한다.
+    const shelfExtraGapV1219 = themed ? 20*shelfScale : 0;
+    // Same 1px rounding safety as appendWebtoonListChunk; do not alter normal mode.
+    const rawWidth=(totalW - 9*shelfScale*(cols+1) - shelfExtraGapV1219*(cols-1))/cols;
+    const width=Math.max(10,rawWidth-(themed?1:0));
     const height = Math.max(1,Math.round(width*ratio));
     const diff = width - 100;
     const base = typeof WEBTOON_RATING_BASE_PX === 'number' ? WEBTOON_RATING_BASE_PX : 10;
@@ -175401,6 +176214,25 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #wv1098NoticeOverlay .wv1216Area strong,#wv1098NoticeOverlay .wv1216Intro strong,#wv1098NoticeOverlay .wv1216Aside strong{color:#f2da93;}
 #wv1098NoticeOverlay .wv1216Aside{margin:9px 0 3px;padding:8px 11px;font-size:12px;line-height:1.6;color:#c5d8ed;border-left:3px solid #6c94b7;background:#182538;border-radius:5px;}
 @media(max-width:520px){#wv1098NoticeOverlay .wv1216Intro{padding:8px 9px;}#wv1098NoticeOverlay .wv1216Area{padding:8px 9px;}#wv1098NoticeOverlay .wv1216Area h3{font-size:14px;}}
+
+/* v1261: Latest single-page guide for bookshelf and spread. Scoped to the update dialog only. */
+#wv1098NoticeOverlay .wv1261Feature{margin:8px 0 11px;border-radius:11px;padding:15px 16px;line-height:1.62;}
+#wv1098NoticeOverlay .wv1261Feature h3{margin:0 0 6px;line-height:1.35;}
+#wv1098NoticeOverlay .wv1261Feature p{margin:5px 0 7px;}
+#wv1098NoticeOverlay .wv1261Feature ul{margin:5px 0 0;padding-left:18px;}
+#wv1098NoticeOverlay .wv1261Feature li{margin:3px 0;}
+#wv1098NoticeOverlay .wv1261Feature strong{color:#ffe3a0;}
+#wv1098NoticeOverlay .wv1261Hero{background:linear-gradient(130deg,#352719,#302517 60%,#271e18);border:1px solid #cb9c57;box-shadow:inset 0 0 0 1px rgba(234,177,95,.18),0 5px 21px #0004;}
+#wv1098NoticeOverlay .wv1261Hero h3{font-size:21px;color:#ffcf7c;letter-spacing:-.4px;text-shadow:0 1px 2px #120b05;}
+#wv1098NoticeOverlay .wv1261Hero .wv1261Lead{color:#fff3d7;font-size:15px;font-weight:700;}
+#wv1098NoticeOverlay .wv1261Hero .wv1261Pill{display:inline-block;background:#704419;border:1px solid #e0ac66;border-radius:999px;padding:1px 10px;color:#ffdf9a;font-size:11px;font-weight:800;margin-bottom:6px;}
+#wv1098NoticeOverlay .wv1261Hero .wv1261How{margin-top:9px;padding:9px 10px;border-left:3px solid #edb45a;border-radius:5px;background:rgba(0,0,0,.19);color:#ffedd0;}
+#wv1098NoticeOverlay .wv1261Spread{background:#182b43;border:1px solid #527da9;}
+#wv1098NoticeOverlay .wv1261Spread h3{font-size:18px;color:#c6e7ff;}
+#wv1098NoticeOverlay .wv1261Other{background:#192638;border:1px solid #34465d;padding:11px 14px;}
+#wv1098NoticeOverlay .wv1261Other h3{font-size:15px;color:#baddff;}
+#wv1098NoticeOverlay .wv1261Note{margin:9px 0 2px;font-size:12px;color:#b9cadb;line-height:1.55;}
+@media(max-width:520px){#wv1098NoticeOverlay .wv1261Feature{padding:11px 12px;margin:7px 0;}#wv1098NoticeOverlay .wv1261Hero h3{font-size:19px;}#wv1098NoticeOverlay .wv1261Spread h3{font-size:17px;}#wv1098NoticeOverlay .wv1261Hero .wv1261Lead{font-size:14px;}}
 </style>
 <div id="wv1098NoticeOverlay" aria-hidden="true">
   <section class="wv1098Dialog" role="dialog" aria-modal="true" aria-labelledby="wv1098NoticeTitle" aria-describedby="wv1098NoticeSubtitle">
@@ -175621,6 +176453,39 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   </div>
   <div class="wv1216Aside">✨ 회차 표지 겹침·긴 이미지 표시를 개선하고, 회차 작품명은 원래 제목 그대로, 즐겨찾기 이름은 다른 탭처럼 주황색으로 통일했어요. 새 작품을 폴더에 추가했다면 먼저 <strong>[스캔]</strong>으로 목록을 갱신한 뒤 <strong>[회차]</strong>로 검사하세요.</div>
 </template>
+<!-- v1261: 1216~1260 업데이트를 새로운 책장 모드와 두 페이지 펼침을 중심으로 한 장에 통합. -->
+<template id="wv1261BookshelfSpreadGuide">
+  <section class="wv1261Feature wv1261Hero">
+    <div class="wv1261Pill">가장 큰 업데이트 · NEW</div>
+    <h3>📚 진짜 책장처럼! 오크 책장 모드 신설</h3>
+    <p class="wv1261Lead">만화 포스터 목록이 나무 선반 위에 책이 꽂힌 듯한 <strong>새로운 책장 화면</strong>으로 바뀝니다.</p>
+    <ul>
+      <li>실제 <strong>원목 선반 배경</strong> 위에 만화 표지를 배치하고, 표지에 <strong>책등·입체 그림자</strong>를 적용해 책처럼 보여요.</li>
+      <li>상단 메뉴·왼쪽 레일·회차 목록도 <strong>나뭇결 배경과 주황색 글씨</strong>로 통일했어요. 화면 크기와 한 줄 표지 개수가 바뀌어도 선반 위치를 맞춥니다.</li>
+      <li><strong>[전체]</strong> 메뉴에서 <strong>[책장만 보기]</strong> 또는 <strong>[책장전체]</strong>를 선택할 수 있어요. 기존 일반 목록으로도 언제든 돌아갈 수 있습니다.</li>
+    </ul>
+    <div class="wv1261How"><strong>사용법</strong> · 만화 목록 상단 <strong>[그림]</strong> 옆의 <strong>[책장]</strong> 버튼 클릭 → 책장 모드 ON/OFF.<br>책장 이미지: <strong>Actors/thema1.jpg</strong> · 상단 이미지: <strong>Actors/thema1_top.jpg</strong> (상단 이미지가 없어도 나뭇결로 대체 표시).</div>
+  </section>
+  <section class="wv1261Feature wv1261Spread">
+    <h3>📖 두 페이지 펼침 &amp; 진짜 책장 넘김</h3>
+    <p>이제 만화를 <strong>왼쪽·오른쪽 두 장씩 펼쳐 보고</strong>, 종이를 잡아 넘기듯 <strong>3D 페이지 넘김(StPageFlip)</strong>을 즐길 수 있어요.</p>
+    <ul>
+      <li>뷰어에서 <strong>[펼침]</strong> 선택 → <strong>[StPageFlip]</strong> 또는 <strong>[효과 없음]</strong> 선택.</li>
+      <li>좌→우 / 우→좌 읽기 방향을 지원하고, <strong>양쪽 페이지가 합쳐진 가로 이미지</strong>는 펼친 두 면 전체에 표시해요.</li>
+      <li>책 모서리 드래그와 바깥 가장자리 중앙 조작을 개선했으며, 넘김 중 화면 닫힘·이미지 선명도·페이지 멈춤 문제를 보정했어요.</li>
+      <li><strong>[자동넘김]</strong>도 펼침에서 사용 가능! <strong>1~10초 간격</strong>으로 책장을 넘기고, ↑·↓로 속도를 조절할 수 있어요.</li>
+    </ul>
+  </section>
+  <section class="wv1261Feature wv1261Other">
+    <h3>✨ 그 밖의 주요 개선</h3>
+    <ul>
+      <li><strong>회차보기:</strong> 책장 모드에서도 회차 표지에만 책 효과가 적용되고, 제목·페이지 수는 읽기 쉬운 주황색으로 표시해요.</li>
+      <li><strong>만화 목록:</strong> 책장 전환 및 전체 화면 선택 동작 개선, 기본 랜덤 정렬, 재스캔 버튼 색상·디자인 통일.</li>
+      <li><strong>화면 최적화:</strong> 버튼 줄바꿈 방지와 가로 스크롤 막대 숨김, 선반 배경의 미세한 1px 어긋남 보정.</li>
+    </ul>
+  </section>
+  <div class="wv1261Note">※ 책장 배경은 로컬 실행 시 HTML 옆 <strong>Actors</strong> 폴더에서, GitHub Pages 이용 시 같은 상대경로의 공개 이미지에서 불러옵니다. 원본 만화 파일과 기존 읽음 기록은 변경하지 않습니다.</div>
+</template>
 <!-- v1197: 1196 폴더 전체묶음 공지에 세로·가로 자동 이동 사용법을 포함한 최신 공지. -->
 <template id="wv1197LatestTemplate">
   <div class="wv1098Section wv1175Highlight">
@@ -175769,6 +176634,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'📚 만화 업데이트 한눈에 보기',
       subtitle:'1199~1215 기능 통합 안내 · 버튼 위치와 사용법',
       html:document.getElementById('wv1216CombinedComicGuide')?.innerHTML||''
+    },
+    {
+      id:'release-v1261-combined-1216-1260',build:'1216~1260',
+      title:'📚 새 오크 책장 모드 & 두 페이지 책넘김',
+      subtitle:'1216~1260 업데이트 통합 · 책장 모드 신설 · 두 장 펼침 및 책장 넘김',
+      html:document.getElementById('wv1261BookshelfSpreadGuide')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -176245,7 +177116,7 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) input.zoomBtn:is([type="text"],[typ
     const preview=make('div','viewerCommonTypePreviewV1162');
     for(const name of ['만화','영상','음악','업데이트']){const b=make('button','',name);b.type='button';b.tabIndex=-1;preview.appendChild(b);}
     box.appendChild(preview);
-    box.appendChild(make('div','viewerCommonTypeHelpV1162','글꼴은 PC에 설치된 글꼴만 사용합니다. 자동 대비는 공통 버튼 배경색을 따르고, 업데이트 등 개별색 버튼은 흰 글자를 유지합니다. 레일 내부 버튼의 글꼴은 변경하지 않습니다.'));
+    box.appendChild(make('div','viewerCommonTypeHelpV1162','글꼴은 PC에 설치된 글꼴만 사용합니다. 글꼴·크기·굵기·색은 상단 공통 버튼과 사이드 레일 목록·탭·작품수에 함께 적용됩니다. 책장모드의 레일 배경은 투명을 유지합니다.'));
     cardBody.appendChild(box);card.append(title,cardBody);
     const palette=grid.querySelector('.viewerButtonPaletteV1159')?.closest('.optCard');
     if(palette)palette.after(card);else grid.prepend(card);
@@ -177717,8 +178588,8 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) :is(select.zoomBtn,input.zoomBtn:is
     groupBar?.querySelectorAll('.wtGroupBtn').forEach(b=>b.classList.toggle('active',
       b.dataset.group===(typeof wtGroupFilter==='string'?wtGroupFilter:'')));
     if(typeof wtSortMode!=='undefined'&&wtSortMode==='bookmarkOnly'){
-      wtSortMode='none';const sort=document.getElementById('wtSortSel');if(sort)sort.value='none';
-      try{localStorage.setItem('WT_SORT_MODE','none');}catch(_){ }
+      wtSortMode='random';const sort=document.getElementById('wtSortSel');if(sort)sort.value='random';
+      try{localStorage.setItem('WT_SORT_MODE','random');}catch(_){ }
     }
     if(typeof comicRailSectionByModeV1090!=='undefined')comicRailSectionByModeV1090.folder='all';
     if(typeof comicRailInitialByModeV1104!=='undefined')comicRailInitialByModeV1104.folder='all';
@@ -178018,6 +178889,1283 @@ html :is(#wtBox .wt-actions,#muBox .mu-head) :is(select.zoomBtn,input.zoomBtn:is
 })();
 </script>
 
+
+
+<!-- v1225: 책장 전체보기 = 기존 V 전체화면에서 상단 2줄+레일 동시 숨김. ESC로 복귀, 표지 비율/행 계산 재적용. -->
+<style id="comicShelfImmersiveCssV1225">
+/* The entry action lives beside the bookshelf toggle, and only appears for active theme. */
+/* v1241: 책장·전체는 만화 전용. 영상·음악 탭에서는 테마가 켜진 상태여도 감춘다. */
+#wtShelfThemeToggleV1217, #comicShelfFullViewBtnV1225{display:none!important}
+#wtBox:has(#wtContentComic.active):not(.music-tab-active-v968) #wtShelfThemeToggleV1217{display:inline-block!important}
+#wtBox:has(#wtContentComic.active):not(.music-tab-active-v968) #wtShelfThemeToggleV1217[aria-pressed="true"] + #comicShelfFullViewBtnV1225{display:inline-block!important}
+html.comicShelfImmersiveV1225,html.comicShelfImmersiveV1225 body{
+  overflow:hidden!important;
+  background:#8a511f!important;
+}
+html.comicShelfImmersiveV1225 #pageJumpBox,
+html.comicShelfImmersiveV1225 #miniToolbar,
+html.comicShelfImmersiveV1225 #miniMiddleBar{
+  display:none!important;
+}
+html.comicShelfImmersiveV1225 #wtLayer{
+  display:block!important;
+  inset:0!important;
+  pointer-events:auto!important;
+}
+html.comicShelfImmersiveV1225 #wtLayer #wtPanel{
+  position:absolute!important;
+  left:0!important;top:0!important;right:0!important;bottom:0!important;
+  transform:none!important;
+  box-sizing:border-box!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  background:#8a511f!important;
+  overflow:hidden!important;
+}
+html.comicShelfImmersiveV1225 #wtLayer .wtLayerHead,
+html.comicShelfImmersiveV1225 #wtLayer #wtBox > .wt-head,
+html.comicShelfImmersiveV1225 #wtLayer #wtBox > #wtHint,
+html.comicShelfImmersiveV1225 #wtLayer #wtResizeHandle,
+html.comicShelfImmersiveV1225 #wtPanelBody > #wtTagRail,
+html.comicShelfImmersiveV1225 #wtPanelBody > #muArtistRailV971{
+  display:none!important;
+}
+html.comicShelfImmersiveV1225 #wtLayer #wtPanelBody{
+  display:flex!important;
+  flex:1 1 100%!important;
+  width:100%!important;height:100%!important;
+  min-height:0!important;min-width:0!important;
+  gap:0!important;
+}
+html.comicShelfImmersiveV1225 #wtLayer #wtPanelBody > #wtBox{
+  box-sizing:border-box!important;
+  flex:1 1 100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  border:0!important;
+  background:#8a511f!important;
+}
+html.comicShelfImmersiveV1225 #wtLayer #wtList{
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+}
+/* The view stays clean. A tiny, translucent exit appears only when the corner is hovered/focused. */
+#comicShelfImmersiveExitV1225{display:none;position:fixed;right:10px;top:8px;z-index:12500;
+  border:1px solid rgba(255,245,219,.55);border-radius:5px;
+  background:rgba(27,15,6,.82);color:#fff5df;
+  padding:6px 11px;font:12px/1.2 sans-serif;
+  opacity:0;cursor:pointer;transition:opacity .18s ease;
+}
+html.comicShelfImmersiveV1225 #comicShelfImmersiveExitV1225{display:block}
+html.comicShelfImmersiveV1225 #comicShelfImmersiveExitV1225:hover,
+html.comicShelfImmersiveV1225 #comicShelfImmersiveExitV1225:focus-visible{opacity:1}
+
+/* v1239: 전체화면에서도 나무 메뉴바(#wtBox > .wt-head)만 남기는 선택형 모드.
+   외곽 .wtLayerHead 와 왼쪽 레일은 기존 전체보기와 동일하게 숨긴다. */
+html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtBox > .wt-head{
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  width:100%!important;
+}
+html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
+  flex:1 1 0%!important;
+  height:auto!important;
+  min-height:0!important;
+}
+/* 팝업은 메뉴 헤더 밖 body에 두어 부모 overflow에 잘리지 않게 한다. */
+#comicShelfFullViewMenuV1239{
+  position:fixed;z-index:2147483500;
+  display:none;box-sizing:border-box;min-width:200px;padding:5px;
+  border:1px solid #b8894e;border-radius:7px;
+  background:#332214;color:#fff0d7;
+  box-shadow:0 9px 26px rgba(0,0,0,.65);
+  font:13px/1.3 system-ui,sans-serif;
+}
+#comicShelfFullViewMenuV1239[data-open="true"]{display:flex;flex-direction:column;gap:3px}
+#comicShelfFullViewMenuV1239 button{
+  box-sizing:border-box;display:flex;align-items:center;gap:6px;
+  width:100%;padding:9px 10px;text-align:left;
+  border:1px solid transparent;border-radius:5px;
+  font:inherit;color:inherit;background:transparent;cursor:pointer;
+}
+#comicShelfFullViewMenuV1239 button:hover,
+#comicShelfFullViewMenuV1239 button:focus-visible{background:#75502a;outline:1px solid #d7a85b}
+#comicShelfFullViewMenuV1239 button[aria-checked="true"]{border-color:#b88a50;background:#68421f}
+#comicShelfFullViewMenuV1239 .comicShelfChoiceMarkV1239{width:18px;flex:0 0 18px;color:#ffe1a2}
+</style>
+<script id="comicShelfImmersiveV1225">
+(()=>{
+ 'use strict';
+ const ROOT='comicShelfImmersiveV1225';
+ const HEADER='comicShelfWithHeaderV1239';
+ const MODE_KEY='comic_shelf_fullview_mode_v1239';
+ // v1251: 책장만 보기 = UI 숨김, 책장전체 = 기존 V와 같은 일반 전체화면.
+ // 예전 '상단까지' 선택값은 새 '책장전체'에 연결하고, 책장만 기본값은 유지한다.
+ let selectedMode='shelf';
+ try{
+   if(localStorage.getItem('comic_shelf_fullview_default_v1241')!=='1'){
+     localStorage.setItem(MODE_KEY,'shelf');
+     localStorage.setItem('comic_shelf_fullview_default_v1241','1');
+   }
+   const stored=localStorage.getItem(MODE_KEY);
+   if(stored==='full'||stored==='header')selectedMode='full';
+ }catch(_){}
+ let lastActive=false,lastHeader=false,lastFullAll=false;
+ let resyncPending=false;
+ function eligible(){
+   const list=document.getElementById('wtList');
+   const layer=document.getElementById('wtLayer');
+   const panel=document.getElementById('wtPanel');
+   const box=document.getElementById('wtBox');
+   const comic=document.getElementById('wtContentComic');
+   const video=document.getElementById('wtContentVideo');
+   const music=document.getElementById('wtContentMusicV968');
+   if(document.fullscreenElement!==document.documentElement)return false;
+   if(!list?.classList.contains('wtShelfThemeOnV1217'))return false;
+   if(!layer||!panel||!box||!panel.contains(box))return false;
+   if(getComputedStyle(layer).display==='none')return false;
+   if(video?.classList.contains('active')||music?.classList.contains('active'))return false;
+   if(comic && !comic.classList.contains('active'))return false;
+   return true;
+ }
+ function reflow(){
+   if(resyncPending)return;
+   resyncPending=true;
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+     resyncPending=false;
+     try{window.scheduleComicThumbReflowV1051?.()}catch(_){}
+     try{window.ComicBookshelfThemeV1217?.refresh?.()}catch(_){}
+   }));
+ }
+ function sync(){
+   // v1251: 'full' 모드는 CSS 숨김/강제확대 없이 브라우저의 V 전체화면만 사용한다.
+   const active=eligible() && selectedMode==='shelf';
+   const withHeader=false; // 이전 '상단까지' 중간 모드는 더 이상 사용하지 않음
+   const fullAll=eligible() && selectedMode==='full';
+   const changed=active!==lastActive || withHeader!==lastHeader || fullAll!==lastFullAll;
+   document.documentElement.classList.toggle(ROOT,active);
+   document.documentElement.classList.toggle(HEADER,false);
+   document.documentElement.classList.toggle('comicShelfFullAllV1251',fullAll);
+   lastActive=active;lastHeader=withHeader;lastFullAll=fullAll;
+   if(changed)reflow();
+ }
+ function init(){
+   const action=document.getElementById('comicShelfFullViewBtnV1225');
+   if(!action)return;
+   const exit=document.createElement('button');
+   exit.id='comicShelfImmersiveExitV1225';
+   exit.type='button';
+   exit.textContent='전체 종료';
+   exit.title='책장 전체 종료 (Esc)';
+   document.body.appendChild(exit);
+   // 버튼이 많은 상단 메뉴를 늘리지 않기 위해, '전체' 클릭 시
+   // 헤더 바깥의 작고 독립적인 메뉴를 열어 두 가지 화면을 바로 선택한다.
+   const menu=document.createElement('div');
+   menu.id='comicShelfFullViewMenuV1239';
+   menu.setAttribute('role','menu');
+   menu.setAttribute('aria-label','책장 전체보기 방식');
+   const choices=[
+     ['shelf','책장만 보기'],
+     ['full','책장전체']
+   ];
+   const buttons=[];
+   let previousFocus=null;
+   function dismiss(restore=false){
+     const wasOpen=menu.dataset.open==='true';
+     menu.dataset.open='false';
+     action.setAttribute('aria-expanded','false');
+     if(restore&&wasOpen&&previousFocus?.isConnected)previousFocus.focus();
+   }
+   function updateChoices(){
+     for(const [mode,btn] of buttons){
+       const chosen=mode===selectedMode;
+       btn.setAttribute('aria-checked',chosen?'true':'false');
+       btn.firstElementChild.textContent=chosen?'✓':'';
+     }
+   }
+   function enter(mode){
+     selectedMode=mode;
+     try{localStorage.setItem(MODE_KEY,mode)}catch(_){}
+     updateChoices();dismiss();
+     // 직접 클릭 이벤트 안에서 기존 전체화면 버튼을 호출해야
+     // 브라우저의 전체화면 사용자 제스처 권한이 유지된다.
+     if(!document.fullscreenElement){
+       document.getElementById('toggleFullBtn')?.click();
+     }else if(document.fullscreenElement===document.documentElement){
+       sync();
+     }
+   }
+   for(const [mode,label] of choices){
+     const choice=document.createElement('button');
+     choice.type='button';choice.setAttribute('role','menuitemradio');
+     const mark=document.createElement('span');mark.className='comicShelfChoiceMarkV1239';
+     const text=document.createElement('span');text.textContent=label;
+     choice.append(mark,text);
+     choice.addEventListener('click',()=>enter(mode));
+     menu.appendChild(choice);buttons.push([mode,choice]);
+   }
+   document.body.appendChild(menu);
+   updateChoices();
+   action.addEventListener('click',()=>{
+     if(menu.dataset.open==='true'){dismiss();return;}
+     updateChoices();previousFocus=document.activeElement;
+     const rect=action.getBoundingClientRect();
+     menu.dataset.open='true';
+     action.setAttribute('aria-expanded','true');
+     const w=menu.offsetWidth,h=menu.offsetHeight;
+     menu.style.left=Math.max(6,Math.min(rect.left,innerWidth-w-6))+'px';
+     menu.style.top=(rect.bottom+7+h<=innerHeight?rect.bottom+5:Math.max(6,rect.top-h-5))+'px';
+     buttons.find(([mode])=>mode===selectedMode)?.[1].focus();
+   });
+   document.addEventListener('pointerdown',e=>{
+     if(menu.dataset.open==='true'&&!menu.contains(e.target)&&e.target!==action)dismiss();
+   },true);
+   document.addEventListener('keydown',e=>{
+     if(menu.dataset.open!=='true')return;
+     if(e.key==='Escape'){
+       e.preventDefault();e.stopImmediatePropagation();dismiss(true);
+     }else if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+       e.preventDefault();
+       const focused=buttons.findIndex(([,btn])=>btn===document.activeElement);
+       buttons[(focused+(e.key==='ArrowDown'?1:buttons.length-1)+buttons.length)%buttons.length][1].focus();
+     }
+   },true);
+   document.addEventListener('fullscreenchange',()=>dismiss());
+   exit.addEventListener('click',()=>{
+     if(document.fullscreenElement)void document.exitFullscreen().catch(()=>{});
+     else {document.documentElement.classList.remove(ROOT);sync();}
+   });
+   document.addEventListener('fullscreenchange',sync);
+   document.addEventListener('keydown',e=>{
+     if(!lastActive||e.key!=='Escape')return;
+     e.preventDefault();e.stopImmediatePropagation();
+     if(document.fullscreenElement)void document.exitFullscreen().catch(()=>{});
+   },true);
+   // Active theme and content tab may change while fullscreen without a resize event.
+   const watcher=new MutationObserver(sync);
+   for(const id of ['wtList','wtContentComic','wtContentVideo','wtContentMusicV968']){
+     const el=document.getElementById(id);
+     if(el)watcher.observe(el,{attributes:true,attributeFilter:['class']});
+   }
+   window.addEventListener('resize',()=>{if(lastActive||lastFullAll)reflow()},{passive:true});
+   sync();
+   window.ComicShelfImmersiveV1225={sync,get active(){return lastActive}};
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+<!-- v1224: 책장 포스터 최종 가로 -1px 안전 여유 · 현재 한 줄 개수까지 반영해 여백/간격/선반 높이 비례 계산 -->
+<!-- v1223: 1690px 화면 기준 오크 선반 레이아웃 여백/간격/이미지 크기를 화면폭 배율로 동기화 -->
+<!-- v1217: 오크 책장 이미지 1장 / 각 포스터 줄에 맞춰 세로 반복. 기존 카드 DOM과 DB는 변경하지 않음. -->
+<style id="comicBookshelfThemeCssV1217">
+#wtShelfThemeToggleV1217[aria-pressed="true"] {
+  background:#815018!important; color:#fff3cc!important;
+  border-color:#e3b978!important; box-shadow:inset 0 0 0 1px #d59b4b;
+}
+#wtList.wtShelfThemeOnV1217:is(.wtListThumb,.zipInnerChaptersV1202,.fsChaptersV1204):not(.wtPixiModeV1080){
+  background-color:#8a511f!important;
+  background-image:var(--wt-shelf-image-v1217,none)!important;
+  background-repeat:repeat-y!important;
+  /* one wide wooden shelf asset is scaled once per actual poster row */
+  background-size:100% var(--wt-shelf-row-height-v1217,340px)!important;
+  background-position:0 var(--wt-shelf-row-offset-v1217,0px)!important;
+  background-attachment:local;
+}
+/* v1219: Leave an extra 10px of breathing room on each side of each book.
+   The former 8px natural column gap becomes 28px only for bookshelf visuals.
+   Row gap stays unchanged: the book height decreases naturally by aspect ratio. */
+#wtList.wtShelfThemeOnV1217.wtListThumb:not(.wtPixiModeV1080){
+  column-gap:calc(28px * var(--wt-shelf-scale-v1223,1))!important;
+}
+#wtList.wtShelfThemeOnV1217.zipInnerChaptersV1202:not(.wtPixiModeV1080){
+  column-gap:calc(30px * var(--wt-shelf-scale-v1223,1))!important;
+}
+#wtList.wtShelfThemeOnV1217.fsChaptersV1204:not(.wtPixiModeV1080){
+  column-gap:calc(29px * var(--wt-shelf-scale-v1223,1))!important;
+}
+/* v1223: outer clearance is 90px * (list width / 1690); at baseline unchanged.
+   v1221: outer bookshelf clearance is 90px per side (v1220: 80px).
+   Horizontal gap between books remains 28px; top breathing room remains 28px.
+   The 28px top breathing room sits *inside* each shelf row; row pitch also
+   grows by 28px so comic bottoms still rest on the wooden board, not across it.
+   Column gaps remain exactly the v1219 values (28/30/29px). */
+#wtList.wtShelfThemeOnV1217:is(.wtListThumb,.zipInnerChaptersV1202,.fsChaptersV1204):not(.wtPixiModeV1080){
+  --wt-shelf-content-inset-v1218:calc(90px * var(--wt-shelf-scale-v1223,1));
+  box-sizing:border-box!important;
+  padding-left:var(--wt-shelf-content-inset-v1218)!important;
+  padding-right:var(--wt-shelf-content-inset-v1218)!important;
+  padding-top:calc(28px * var(--wt-shelf-scale-v1223,1))!important;
+  background-origin:padding-box!important;
+  background-clip:border-box!important;
+}
+#wtList.wtShelfThemeOnV1217.wtListThumb:not(.wtPixiModeV1080){
+  row-gap:max(0px,calc(78px * var(--wt-shelf-scale-v1223,1) - 42px))!important; /* 42px caption + 36px gap scaled as a unit */
+}
+#wtList.wtShelfThemeOnV1217.zipInnerChaptersV1202:not(.wtPixiModeV1080){
+  row-gap:calc(38px * var(--wt-shelf-scale-v1223,1))!important;
+}
+#wtList.wtShelfThemeOnV1217.fsChaptersV1204:not(.wtPixiModeV1080){
+  row-gap:calc(37px * var(--wt-shelf-scale-v1223,1))!important;
+}
+/* v1223: no fixed small-screen override; side margins also use W / 1690. */
+#wtList.wtShelfThemeOnV1217 .wtThumbItem > .wtThumbBtn,
+#wtList.wtShelfThemeOnV1217 .wtThumbItem > .wtThumbBtn > .wtThumbCap {
+  background:transparent!important;
+}
+#wtList.wtShelfThemeOnV1217 .wtThumbCap,
+#wtList.wtShelfThemeOnV1217 .zipInnerCardV1202,
+#wtList.wtShelfThemeOnV1217 .fsChapterCardV1204 {
+  text-shadow:0 1px 3px #211004,0 0 3px #211004;
+}
+#wtList.wtShelfThemeOnV1217 .wtThumbImg,
+#wtList.wtShelfThemeOnV1217 .zipInnerCardV1202 img,
+#wtList.wtShelfThemeOnV1217 .fsChapterCardV1204 img{
+  box-shadow:2px 3px 6px rgba(25,11,1,.65);
+}
+#wtList.wtShelfThemeOnV1217 .zipInnerCardV1202,
+#wtList.wtShelfThemeOnV1217 .fsChapterCardV1204{
+  background:transparent!important;
+  border-color:rgba(88,47,20,.38)!important;
+}
+/* v1222: Light 3-D book finish, active ONLY when the bookshelf theme is enabled.
+   The book cover, ratio, row spacing, controls and actual image remain untouched. */
+#wtList.wtShelfThemeOnV1217.wtListThumb:not(.wtPixiModeV1080) .wtThumbItem > .wtThumbBtn {
+  /* Let the cover cast a shadow beyond the former clip edge. Captions clip themselves. */
+  overflow:visible!important;
+}
+#wtList.wtShelfThemeOnV1217 :is(.wtThumbImgWrap,.zipInnerCoverV1202,.fsChapterCoverV1204){
+  position:relative;
+  isolation:isolate;
+  border-radius:2px!important;
+  box-shadow:3px 3px 5px rgba(18,8,1,.63), 0 8px 8px -5px rgba(17,7,0,.84), 1px 0 0 rgba(255,239,210,.22)!important;
+}
+/* 5px spine: left dark fold + a narrow varnished reflection. */
+#wtList.wtShelfThemeOnV1217 :is(.wtThumbImgWrap,.zipInnerCoverV1202,.fsChapterCoverV1204)::before{
+  content:"";
+  position:absolute;top:0;bottom:0;left:0;width:6px;
+  background:linear-gradient(90deg,rgba(10,7,5,.56) 0%,rgba(38,20,10,.4) 40%,rgba(255,248,223,.26) 77%,rgba(12,7,5,.17) 100%);
+  box-shadow:2px 0 3px -2px rgba(15,8,2,.6);
+  z-index:3;pointer-events:none;
+}
+/* Slight edge bevel on the cover to keep pages looking like books, not flat prints. */
+#wtList.wtShelfThemeOnV1217 :is(.wtThumbImgWrap,.zipInnerCoverV1202,.fsChapterCoverV1204)::after{
+  content:"";
+  position:absolute;inset:0;
+  border-radius:inherit;
+  box-shadow:inset 0 1px rgba(255,255,255,.20),inset -2px 0 2px rgba(10,6,3,.35),inset 0 -2px 2px rgba(18,7,1,.24);
+  z-index:2;pointer-events:none;
+}
+/* ZIP/FS chapter cards have an outer overflow clip, so show their depth on the card itself. */
+#wtList.wtShelfThemeOnV1217 :is(.zipInnerCardV1202,.fsChapterCardV1204){
+  box-shadow:3px 5px 8px rgba(15,7,2,.60),0 7px 10px -6px rgba(0,0,0,.75);
+}
+</style>
+<script id="comicBookshelfThemeV1217">
+(()=>{
+ 'use strict';
+ const KEY='comic_bookshelf_theme_v1217';
+ // Folder layout: WebViewer.html and Actors/ must be siblings.
+ const REL='Actors/thema1.jpg';
+ let enabled=false,loadedUrl='',loaded=false,checkPromise=null;
+ let box=null,btn=null,mutation=null,resizer=null,cardObserved=null,scheduled=false;
+ function persist(flag){try{localStorage.setItem(KEY,flag?'1':'0')}catch(_){}}
+ function isVisualList(el){return !!el && (el.classList.contains('wtListThumb')||el.classList.contains('zipInnerChaptersV1202')||el.classList.contains('fsChaptersV1204'));}
+ function currentCard(el){
+   if(!el)return null;
+   for(let n=el.firstElementChild;n;n=n.nextElementSibling){
+     if(n.matches?.('.wtThumbItem,.zipInnerCardV1202,.fsChapterCardV1204'))return n;
+   }
+   return null;
+ }
+ function calculatePitch(){
+   if(!box||!enabled||!isVisualList(box))return;
+   window.ComicShelfScaleV1223?.refresh(box);
+   const first=currentCard(box);
+   if(!first)return;
+   const top=first.getBoundingClientRect().top;
+   let next=null, scanned=0;
+   for(let n=first.nextElementSibling;n&&scanned<80;n=n.nextElementSibling,scanned++){
+      if(!n.matches?.('.wtThumbItem,.zipInnerCardV1202,.fsChapterCardV1204'))continue;
+      const ntop=n.getBoundingClientRect().top;
+      if(ntop>top+3){next=ntop;break;}
+   }
+   const style=getComputedStyle(box);
+   const gap=parseFloat(style.rowGap)||parseFloat(style.gap)||8;
+   const raw=next!==null ? next-top : first.getBoundingClientRect().height+gap;
+   // v1238: CSS flex 행 간격은 소수 픽셀이다. 반올림하면 한 줄마다
+   // (실제 간격 - 배경 반복 간격) 오차가 누적돼 아래로 갈수록 책이 선반을 벗어난다.
+   // CSS background-size에도 측정한 실수값을 그대로 전달해야 한다.
+   const pitch=Number.isFinite(raw)&&raw>65?Math.min(2500,raw):340;
+   // First visible row may begin after #wtList's padding.
+   // v1220: The shelf background starts above the first book by the 28px top inset;
+   // otherwise the top wood lip moves *with* the book and the extra margin is lost.
+   const topInset=parseFloat(style.paddingTop)||0;
+   const start=first.getBoundingClientRect().top-box.getBoundingClientRect().top+box.scrollTop-topInset;
+   // v1238: 시작점도 브라우저의 sub-pixel 좌표를 유지.
+   // toFixed(5)는 문자열 길이만 제한하며 좌표를 정수 픽셀로 반올림하지 않는다.
+   box.style.setProperty('--wt-shelf-row-height-v1217',pitch.toFixed(5)+'px');
+   box.style.setProperty('--wt-shelf-row-offset-v1217',Math.max(0,start).toFixed(5)+'px');
+   if(resizer&&first!==cardObserved){
+      if(cardObserved)try{resizer.unobserve(cardObserved)}catch(_){}
+      cardObserved=first;
+      resizer.observe(first);
+   }
+ }
+ function schedulePitch(){
+   if(scheduled)return;
+   scheduled=true;
+   requestAnimationFrame(()=>{scheduled=false;calculatePitch()});
+ }
+ function sync(){
+    if(!box||!btn)return;
+    box.classList.toggle('wtShelfThemeOnV1217',enabled&&loaded);
+    if(enabled&&loaded)window.ComicShelfScaleV1223?.refresh(box);
+    if(enabled&&loaded)box.style.setProperty('--wt-shelf-image-v1217',`url("${loadedUrl}")`);
+    else box.style.removeProperty('--wt-shelf-image-v1217');
+    btn.setAttribute('aria-pressed',enabled?'true':'false');
+    btn.title=enabled?'책장 테마 끄기 (일반 배경으로 복귀)':'책장 테마 켜기 · Actors/thema1.jpg';
+    if(enabled)schedulePitch();
+    // v1218: 카드의 가용 너비는 테마 On/Off와 동시에 재계산한다.
+    // v1051 reflow only resizes DOM/CSS; no IndexedDB scans or cover reload.
+    try {window.scheduleComicThumbReflowV1051?.();}catch(_){}
+ }
+ function verifyImage(){
+   if(loaded)return Promise.resolve(true);
+   if(checkPromise)return checkPromise;
+   checkPromise=new Promise(resolve=>{
+     const img=new Image();
+     const url=new URL(REL,document.baseURI).href;
+     img.onload=()=>{loaded=true;loadedUrl=url;resolve(true)};
+     img.onerror=()=>resolve(false);
+     img.src=url;
+   }).finally(()=>checkPromise=null);
+   return checkPromise;
+ }
+ async function setEnabled(flag,quiet=false){
+    if(!flag){enabled=false;persist(false);sync();return;}
+    const ok=await verifyImage();
+    if(!ok){
+      enabled=false;persist(false);sync();
+      if(!quiet)alert('책장 이미지가 없습니다. 웹뷰어 HTML 파일과 같은 폴더에 있는 Actors 폴더에 thema1.jpg를 넣어주세요.\n예: 웹뷰어 v2.91.html / Actors/thema1.jpg');
+      return;
+    }
+    enabled=true;persist(true);sync();
+ }
+ function init(){
+   box=document.getElementById('wtList');
+   btn=document.getElementById('wtShelfThemeToggleV1217');
+   if(!box||!btn)return;
+   // v1251: 책장 버튼은 책장 테마만 켜고 끈다. 전체화면은 '전체' 또는 V로만 진입한다.
+   btn.addEventListener('click',()=>{
+     void setEnabled(!enabled);
+   });
+   mutation=new MutationObserver(schedulePitch);
+   mutation.observe(box,{childList:true,attributes:true,attributeFilter:['class']});
+   if(typeof ResizeObserver!=='undefined'){
+     resizer=new ResizeObserver(schedulePitch);
+     resizer.observe(box);
+   }
+   window.addEventListener('resize',()=>{
+     if(enabled&&loaded)window.ComicShelfScaleV1223?.refresh(box);
+     window.scheduleComicThumbReflowV1051?.();
+     schedulePitch();
+   },{passive:true});
+   for(const id of ['wtColsThumb','wtThumbRatio','wtViewThumb','wtViewText']){
+     document.getElementById(id)?.addEventListener('change',schedulePitch);
+     document.getElementById(id)?.addEventListener('click',schedulePitch);
+   }
+   try{if(localStorage.getItem(KEY)==='1')void setEnabled(true,true);}catch(_){}
+   window.ComicBookshelfThemeV1217={refresh:schedulePitch,turnOn:()=>setEnabled(true),turnOff:()=>setEnabled(false)};
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
+})();
+</script>
+
+<!-- v1240: 글자 버튼을 화면에서 제거하되 기존 모드 동기화 코드의 DOM 참조는 보존 -->
+<style id="comicUnifiedPictureToggleCssV1240">
+#wtViewText { display:none!important; }
+</style>
+<!-- v1237: 크롭한 thema1_top.jpg를 왜곡 없이 전체 헤더에 딱 맞도록 적용. -->
+<style id="comicShelfHeaderThemeCssV1237">
+/* v1237: Actors/thema1_top.jpg 는 흰 여백이 없는 2048x108 완성형 배경입니다.
+   상단 이미지의 테두리를 얇게 조정한 버전이므로 확대/잘라내지 않습니다.
+   기존 만화·영상 버튼의 레이아웃 및 폴더바 기능에는 영향을 주지 않습니다. */
+#wtBox:has(> #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) > .wt-head {
+  box-sizing:border-box;
+  /* Default even before optional top image finishes checking: middle of thema1 wood, same as rail. */
+  background-color:#9c622f;
+  background-image:var(--comic-rail-grain-v1243,none);
+  background-repeat:repeat;
+  background-size:400px 300px;
+  background-position:left top;
+  padding:clamp(10px,0.85vw,15px) clamp(24px,1.85vw,34px);
+  margin-bottom:0;
+  color:#fff6df;
+  text-shadow:0 1px 3px rgba(26,10,0,.9);
+}
+/* 이미지 없는 환경에서도 헤더/검색/버튼이 계속 표시됩니다. */
+</style>
+
+<!-- v1243: thema1.jpg 가운데 영역의 좌표 크롭/반복 레일. 추가 이미지는 불필요.
+     원본 좌표: x=910, y=219, width=400, height=300 (2048x682 기준). -->
+<style id="comicShelfRailThemeCssV1243">
+/* 책장 테마의 만화 레일에만 적용. 테마가 꺼지거나 다른 탭이면 기존 표현을 유지. */
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail{
+  background-color:#9c622f!important;
+  background-image:var(--comic-rail-grain-v1243,none)!important;
+  background-repeat:repeat-y!important;
+  background-position:left top!important;
+  background-size:100% auto!important;
+  border-right:1px solid #ffb347!important;
+  box-shadow:none!important;
+}
+/* 나무 배경을 가리는 레일 내부 불투명 패널과 버튼 배경 제거. */
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(
+  .wtRailHeader,.wtRailSection,.wtRailList,.comicRailFilterV1090,.wtRailCommonWidthRowV1054,
+  .comicCreatorTabsV1033,.comicRailSectionsV1090,.comicRailInitialsV1104,
+  .comicRailListFrameV1155,.comicRailVirtualCanvasV1009,.comicRailVirtualRowsV1008
+){
+  background-color:transparent!important;
+  background-image:none!important;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail button{
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  text-shadow:0 1px 2px rgba(20,8,0,.9)!important;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail button:is(.active,.selected,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]){
+  color:var(--viewer-common-font-active-color-v1162,#ffffff)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  text-decoration:underline!important;
+  text-decoration-color:#ffb347!important;
+  text-underline-offset:2px;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(#comicRailSearchV1090,input[type="search"]){
+  background:transparent!important;
+  color:var(--viewer-common-font-color-v1162,#ffffff)!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.85)!important;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(.wtTagRailTxt,.wtRailHeader,.comicFirstFolderCountV1132){
+  text-shadow:0 1px 2px rgba(13,5,0,.85);
+}
+/* v1242에서 적용한 로컬 만화 주황 경계 유지 */
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanel{
+  border-color:#ffb347!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.55), 0 0 0 1px rgba(255,179,71,.18)!important;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead{
+  background:rgba(39,21,7,.92)!important;
+  color:#ffb347!important;
+  border-bottom:1px solid #ffb347!important;
+  padding:2px 4px!important;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead .zoomBtn,
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead [data-viewer-build-label]{
+  color:var(--viewer-common-font-color-v1162,#ffffff)!important;
+}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtBox{
+  outline:1px solid rgba(255,179,71,.75);
+  outline-offset:-1px;
+}
+</style>
+<script id="comicShelfRailCropV1243">
+(()=>{
+ 'use strict';
+ // 원본 파일을 브라우저에서 직접 읽어 좌표만 캔버스로 잘라 타일로 사용.
+ // 로컬 file:// 보안설정이 캔버스 추출을 제한하는 경우 동일 위치에서
+ // 미리 만든 텍스처를 HTML에 내장해 자동 대체한다(추가 JPG 불필요).
+ const sx=910,sy=219,sw=400,sh=300,blend=18;
+ const fallback='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCAEsAZADASIAAhEBAxEB/8QAGgAAAwEBAQEAAAAAAAAAAAAAAgMEAQAFBv/EAEgQAAIBAwICBwILBgYBAwQDAAECAwAEERIhBVETFCIxQWFxYoEVIzJScoKRobHB0SQzNEJz4QZDU2ODkkQW8PE1RVSTZKLS/8QAGQEBAQEBAQEAAAAAAAAAAAAAAQACAwQG/8QAJREAAgEEAgMBAQADAQAAAAAAAAERAhIhUUFhAxMxInEEUoEU/9oADAMBAAIRAxEAPwDzS0xGxib1BFIkW41akWAAD55BpPVJ4AeiuXYeC9GBToZ75RugI5EKfvr4SNH207CW6uUTPQ6j/UBokv589q2jH196TLe3sZ2gR/qgY++s+GHjwzxEHyQ1q1vgpRWLqTSS1vHg+Ib+1TvxeHUFAfI/lBoBxmGQ5MbH0JBohd2tyMNEWPJk1ffUqY+hOg1vLdzsZtXIqKNngYAMFUsfEYqd47RTqFm6+fRmu1WzoSIX28hkfbQ1okxxsonO06IfAGQ/rWG1mVsG6hC8+kNLS6to12DD1QGiF/ZEANMRnnEDRFRrBQLVtPZnjYcwTQi3uY8mKWHf5wolvrOTbpywG2OjxQtbWMn8rrnxDYFGV9L6HG9yQRM1sW5DfNbIzONOqJG8xUycNt9ytw489iR7800Wu3YuZM89VDgUjGtb5hmN4f8ArRCx4mV7Twg+hwaIQTf/AJrr6MKIrcpsL9z5MBVJQJWw4rvl7c+gNGLLiK7noieW9a093BvJeKB5gVvXLh+6VDyIH96pqKAQl+gwY4T5ljQqLwH5Fv8A9mFO6/MveoY/Srk4ijHHSBT4gjNEvQQIa3vnOU6sPeTXC04iRuluAPEMabPxeGHsu6MeQjJ/CkpxyN9hG7DyiamatEkguq3o3Aj/AOxrjbX4OrTHj1NZ8MIDhYbk+kTUxeKathBOPUEUTVomkKki4gcBY4ccyxohBxELjFt+Jpg4gSP3FyzeQ2rmurrAK2s2PJhTL0UIDq9+381uvmFND1K9Bx0kW/ka6S7vQdrd19XFLe7vwQREcczNSp6I17S8DgNcQqPIHNMNkzpgyuD46TShd3Z+Uqe9z+lAJrl2ykiZ+u35UZIZHw+SI4E85B9o00W2+TPN55c1M0ko2eb3iFzSXuUUYMlwTzWJhVDfIljxxLnMm3m1KFpbZ1qU27/GkR38UYJbrD48DATT4+L2YG4ceXV2/Sq2pFKB6SxAIAy3kK5OokkMJj9HNPTjXDc4ZJs+HxJpsd7audUSTseXRkZql6IQltbN3G7X6xohw+J9zNcr5mQ02S9h1Y6C6H1D+tAbiGQbQXTeiY/E0ZLAuW0ES9m+Cn2mJrIo5RueIW+PQ1QtzGg24deM3ki0JuUkY44deg8jGKpZOCSaCdsmPikArobG7bf4TQn2SKsAVhvwy6/6L+taVKbrwm7PoFH503v4FoscPnYYa4mf0kFEOGORg9Ox/q0a6zuOG3C88laMJIpyLSbfvwR+tFzKEIHDJSNIspT7Uk+32Cs+B5VB7MAHLtHFVCNJNniuFzzb+9GOGwZBAnYe1Jip1laSfBcQG6xZ5hD+tEtpYxr8aB7kNUHhVqc9h9/9xq48JtQO58f1D+tZv7G0QEsB8iFmH9M1gHDc72smfKKn9TskJwDn6bHFNAtUUAlPU5ovNWnndZu4yBJ0WPAlaBr8K+OmQE9+E2psd1K5Gq4RgRg5xn76PoWwehdOeGUGu0GJ7FiaKQ5EiE+0xUU6MmQ7G2P/ACUoG5Bw0UDDx8a0oZMjqYPpRKIYQwyOitT5rJSpFlxkRr9U5rBBHuGtSgPfggUKxWkbEaZVPrTJQchuAxJeQEeBSmrJcSDSZADyaGsFl0u8c0/27Ume14ghwHYL4aBk/jVhh8HpFviUxN4/IxWdDaq2uOBGPiSQKngEisOkEpOPlaST9ld0xikOWEx9q3K4qtFMsaeFRvHHkeA3pfXozktAGXmVNB8JkDsqqEfy7rWjiUTNplYKfM5rNvRShovLRUOuEDyEZrOs2DDBtGYHwAIoelgl7ij59oimdHGgy0ae45/OiFoZ7Em14bJuLSVPR6ZHacPx24pgOZbNJ+EuHqxVlcHP+k1UwycNuBk6PRgRU5RI1IuEKcEDJ+dvT9dogxHb9IB81aT8HcJdgQkZI32aj6jw9tgsf/c7fYaJXZQxizIwylkw8jgVoklY4FgvvIpDWPD1P70If6hoTbWPcb/GeUhowQ9ri7i3FgFHkRRC7uyMmzwPpUjobNBg8QYjkXOKA2lgw1C9P/Y0QhyWLxC67ltU+s9C17enP7HAfPXUAisgSOshvPUaNbe205Wf36iabSllDX3ER3QWq+rGgNzeMc9DaE+prY47bGnp1b6QNGY7dfkmEegNExwX/RfT3xJIFsvohNCZ71RkrG3pFimkxxjUcAc9JNALhGOUdT5biqXoY7EniF3EcNFJv4iOsS7vmOQkgUnwUVQ0i5HSE+mqp5bmxU4bUTyBJrS/hko13ecs8pPLSKajT6dxJnnpFeYH4e7YV3HvYULdV1aVmlB8naq0T2NdxjsrIfdSmmugc4J8mFQpHayHBuZMjnKaYLZO9LyZR5PREEPZrk7r0QPnvQNJdADPQ556TQNGWIA4gVI54OaGV5ogP2gOOYjNJD0vLxjhlixz0Gj6W5JzhCPKOoV4jPgr0TkHbV0Zrhd3QxojlZfNcVWspKxcXzkgKFxzFCsl2M6gD7smk9Zudy0R+zNat3cNgaWzyA2otehkcoui+Qxx6YonmvY+4q3lqqdrq9xhIl+s2KFHvpMhlij9Dmq0JKVuLhwdZ0+S4NC5mHdIwHj2RUum+zgSRqRzGa3oeIMSWmgP1abSkqRmH+dIOfYFF1jSe3LKcclFSZ4iAFFxEAPAR0PS8VU5WeM+sfdRbJSXNexDGesD3VrXsIAyZlU/OU15zXHFV3FxGx9Kx7jikgBedD5H/wCKvWNx6B4hBH8nWfRDQHisWcamHkVqFW4i4IS4VfMLnFF1fiBG9xF6laV40DqKxDb3GWV4yfMg0D8Ojdttj7BxQva2zHOIA2PDK0Ih6DBjwSP9zatfxmRnateyscrHwwlBJfyABXhuV+ihoelmY4aAnzSUV3W5Ysr1WZ892ZhSkRzPaN+8hcZ8XQ06M8PYY7HoRU/XtA7UDBuTSahQvcLNHuqfVOD+FMMMFqR2aHTGtuc79+/41rws+8ZRT55qOOOBiA0Cj2sqT+NN6C1UEpIqN45JzRAgvYXQYMkoVvnAmjiWeA/H3Ik8sUCo2cwjVjv7yDR5mUZltR7o81SyhDHnjZSGkjAPsikqlp4N95xT1Fm6doaG80Io8RqQAyA+uPxrNxQJFvZMO06D6xolhsl3UxnHtU49CUIk1N5qlCJLULk5Qd2XTFEtmogJegkOFkYD1oDbRSZHSkZ8C2KIxWznAkTJ7iDiuaIx4DSqR9Lei57KBB4THJssrbfNfvpbcJCdzS5566e0MZOozMvoaww53W7lPpSqnsrUJ+CQVwHm38NdZ8Bo2BqnH/JVDLImMXUhP0c0WLkgA3Lgf0xTfVsrURj/AA7Gx3kmx9OiTgECfzTgeILVQet5/ihgc0rvjiMm/UHlpIqvqfJWrQteCW2c5mPlmiPA4AMlbkeQOK0i6PyLtdQ8Qv5UEkvEh2WmBI9kjNU1bJpaDXhtrCNRiuSPNjXCGyQ6miP1mNLivL0HEi5HMHup/WFb5YYjnoFDnksAleHuO9B6SEUsx2O+mRA3lJWypaEa5VUj2hSnPCsBsQ7chitJf0yzTa2zjJKMeeulpZ28T6l0A8w9YLrhLbGSNcH5OO+smn4TGCWDn6KUpVfAlFIKEYDqR6ijboWQhiuPpCvLj4hwtTgI48d1pi33DJSAAB9JanTUaTRXp4cuzkrt4vtRRvwxRiMw+pYmlrNaEZXTgeGCawS2w+S0PpmswxKjfWMZAR4s+XhXScUt9xqZh7AP6VP1mEbKUz/78qDrTn5ADHyPfVaiYw8at8ECG4PmIjWfCUbHC29yfMx0oXdwSAbOcb94O1PW4m8bOf3Ypa6BM7rsS/Kt58eUVA1/YjZoblf+I0/rsijawujj2R+tJPFnBP7Bc/8AUfrRa9FK2GLq1dcqs2PoHNcs8APZ61n6NTHiszMdNnOPI4rhxWXOkWc+fQU2MpWynpM9ztjkRg0S9EnymbfmaWvFbgA/sUg9RQnjlyBtZSEDxIotqK5DFeEsV1tk9wXNcIYWbJN1keZwKQ3+Irgd9oR5D/4oB/iGY7tA4HMqTiqyoLkeiYIyuzTD61COHQHuSc59o154/wAQZbwHloNaP8QSKd9h9Cq2sZpPQ+DbZuyFmHlkilnhcCg4aUDlrNJTj2R8qPPtCmjjOodqaIegqitDgHPE8bvaauWg0BuOLKcFLRgfdRPxaVAS9lOoHjtSjxiPSXe3nA+cVrUPRnC5A6xxFTg20bA+IIohc3rdnqmOfdQfDVtIMxye/QTiuHGIlOGuoyPACM5rUPQStnSXN6OyLJh5gA10U3EMYazcDmHA+6mDi6Y7UiDfxGM0mXiRLHHRkeGHxUpfAY2UHrrnCwp9cg4oGhuVOWgtcjlmpl42itgxIDz15p4410iEtIuB3qCBTbVoppFxi7WTVCmgnvCsQtVRXPHSR2INOaWvGI3AMalCeZzRpxNiMNAz+aMKy1Vofzsrlu+IEEC3UN3Z1bVC8vEFPx8ELDwwKevFYNJDRyxHm4rVubZ8FJg7ctVZTa4FpPkjNzdq3bgRl5AYxXG5n8Ld1B8M5q9VLAkAg81OaaltI27yb+G1V60Vp4xnuc/uQPLJFN+EJ4mAMCNnmxr1DC47LHNH1R1wQEx51exaK17PMHFZQpPQR+5qUeLMoJNqGzyevUeJgSpRQO/IBxSegTfaIE+yaVVTooZ56cb3wbEgczJXNxTXvHbA/WNXdDCB24YCOdMIjUARxQ/98VXUaKKtnmDidyUwsQRuWrNYvEb8nSYnPoa9JIxna3BPs71pdACGgcEe1VdTooezzhcXbneGRRz1CukaeQbxO2PEvirNUZx2HPPGDRC7s0Ol4W+um1Ny0Spezz1iGctEvvko0hjcbrGTy6Q16CyWZ3WFN/ZolMGMx20efPFF/RWkJtrUqexGG83JqZrG3DdoR+6vYLqBhY1J8lG1MRTIdlb0K4oXlaKxM8VbKIjCIpHLTVC8KsVj7cbM3kTXpmKUHBXSOYYVnRRHcuDjzp9zL1o8hrDhxOBZTrjx1mktYWfyRZynzMmK94LET+8VWoHAGO1q92aPcy9aPEWwkTeCz7vnSE04w32QVgAPPlXpFguTnHqCK1ZWYaQxbPI0+1jYedIvFX72AI7uyNqxbHjDjV1xhnkoq90nOyXEqeR7qiZOJBiVbpBn/UxSq6noy6UMTgt45zPfXTHwwQMVTFwrSu15dHHfmSotV8cgwSg+Umc1wF/Jv0Ugx7Qodz5FQej8Hp/rXJ/5aFbCGM5KuSebmoXXiirnodWOcyg1ySXhPxphiPtSZotq2Mou6tAGwIjnmCaaF0jso21eUbiXVjrEZAO5VqMXUqZ+MjIP+6KHRUKaPWZWKjvX1ApLLK/yXAPkoqIcQY5LYPgD0ookuXk2EwJHfhhtWbakUoo6K7Bzrb3gUJjvBuzjHhtmkNckE6pgD9Mb1wuGH86lT49KK1+i/IbdafvaLH9KgQXSHObdh5piuwZe0JY/c2aaLZnGFl1jlsMVS+SM6xP3CO1z5jNLNzdD5UNmfq99VrZMFAGv3EUJgkRvkufeKLignF1Z694io8Mgimda4adnLY5do1W9u7fyZA86X1TJyUYeO2/5VKpFAlbvhkQOlzGPEgYFH1iwcZEob0wT+FM6irqdUbeVL+DlU5C49DgmlNbKADe2Lgr0+45gfpU7XdmGId1ckd4QGqDYqCWNs4Y7b4b8KWbCM/8AjS+oBFaVVJmAY47KYbXRxyWMbUluD2bkydPryf5gKY9kqYXoWXO++RQ9U1HaBifnVq7TC2eBL8JQjSJ8DlkDFMg4UkQHRPAD4ncmqI7ezB+PE6nHdp2rZLe1x8Tq9+1V7fI2pHHh0si6WvGH0Tikv/h+3yNdzq55Joo7bUx30nzYihaGBW0STr59s/pQqnsoWjvgmK2Q9DMw81Yk/jQhbpP3d2ce1nNH8H27pqjMj/Qc/pXHhaMOyLkDkHJquXLCOjVur1R2ZVOOfjR/CHEk3WJHzypUXCAD/EXS57gRmqU4ReDaK+kI5MgH30N0DD4J/h26QkyWkoxyrm/xMNtVtJ55GKrHDr1W7SmQeUo/MU9refRpHD7k+aOhqmjRQyBf8RWjEZgk/wCuaYOPWCHLWzD1io+qNEO1w69JPiVU/gaJkjVe3Z3XviNH44Qwxf8A6isc7wOh8PizQjjlmWyIn88RmqI7e0kXV0cgI8ChzRLb26j5MgHoaz+NFD2TfDNnj92cc+j3pcnHoF2W3kf6lXiytn2BKnmcGiHCoDjtA+ffVNC4KHs8huPfNtGPLs0acWl7xZDfmQK9U8MiByZH+ogrOqRjA1TkDnim6jRWvZ5g4rdj93FEg8cNRGe9l7ReIDwG9eg1tboMuJlB8SMUJigAx0sgBqup0UPZ5rJxA7pPHnO2AaYq8W2GqEjG5H96qPQIOzJMR4mj+KK5EpA792NV3Q29kRt+KFgTJGu3zQaX0N4oJaeQH2RivQ6RF36U+9gKBr+3jTLzJjxww/WpVVaC1bIGguXO8srHmDvWdBcA762xzzmn/DFmDhHhfkWkrW41bRbkRE8g1auq0ELYqRrpUxFG+ccyamPwhjeOTPoap+H7fXjoyc/Nahf/ABBbIw+JY59vatJ1aBpbJQ3ECd4WG9c0d+xxiUegq88dQrlbVX8hLk/Zis+HUA3sZwx7gFzVdV/qSS2eeYL896k48StCbe8cENGmBzNel8MSlSRw+YjzFAOJ3EpBi4XI3mF2++tKuvQWrZ5o4ZdvurAE+YpkPCL/AH2HrtXprcXkmzWMsY5hR+tBLd3gGIhLnxBiNXsrKykh+BLwnaUZ9Riul4BdADEyavUbVR8IXif5QzzMZoXvb/B0xIwPJDtSq6wdNJJ/6ZuWOS0XrnNUR/4akXBM0YHLTXC9vgP4RzjktNhnu23a1cHvyV2/Gh117FKg74CA77jSB4gU0cIC4xOT6GkST3TH9w6r5Ka1Zpcdssg9pTms/p8mop0P+Dd9rqUeYenw2TRj+OnI5ZzUqxo2/WgnMGTBpbGOPUXuSV8NLEmiHsJRUIL8kDrpcfMKAUei8jB+MHvxVixxP/M/vFMCwDAE0Q55audxuEefG10h+OulKnw04xVEYkc60u4s926nFUyLCvfIjr49qopbOylJHSyQk9zK2BUmn9KIKUMi7LPCT6GuL3TnS0sfoM15UkE1qdUPEnC8nTXQC9v4Pk6JwfEIwptn4F0HptNcJsejbyYsakubm/B+KW3GfmjBH20peK8RZcPZgD13PuJpi8SiZSHs7rI9K0qWuAlMml4hcx5LQSHHiWBroeP6QAYZW8iFqnrtq6ZM0kfsyIf0pDyWxAOmRdW+tdJH41tQ/tIPHIfw2GI+IZgeSDanC8SRSejlGPZxUwkjY/EzQygd+pQpofhGNWx0SnyBB/Op0LhEntjmvUB7Mdwx8mxmnJdTnfo3UAbDFAvEINGCugHngVz3Nq2CJIwO7vBrEPRqex4vJyN0ZfUim9LfHGlowD4ioOmgU9iaLz2xRx3yNtrQ45Vl0jJY0l44wZkXzIJrFS7b/wAyMHnoNJW8iLd6g8gwrjdKh2AwebiiHopQx4b8je/J8lXFL6jdyMNXEZwOQfFEt3Ez6VOWx88UazwE6SFz5kU/pBgnPCrgt/HXA9Jc0LcLk72vblsH/Uq4SquQAuPpD9aX1q3Vtwg9+arqihE5s3IIa9I8mUE0peGKflXoB56apm4hCp1CFWHPUoqZ+NIx0x2zN5g7CtK8vyNj4WucJfyAnxAxRjhzKCBxGUnmMZqIcZJJUQPt3qGFab9nGeqSb92ZBSqfIZupHPwmOU4kvbp2HjroRwKDPauLth/UpXSytt0Sp59KT+FY0dzKQOlyOWGzV+tlFOikcFsY1yXusd+DKd6E8O4cp1aZvrSsRUgtroMVVJmz44YD76c1hcvHg2zM3MzYFMPZStDxb8OyNUMTeozRCPhqHAtoR9QVEvBrpl+REh/qZohwK5bYtAPPUc0Qv9hnouAtQQBHGo8kH6URlhU4yn2Co14TIg0tcLnyQ074LCqP2lvsrLS2OdFIkgzu67+VaXtwdmQ+8VMvD7ZjvcS+oxTn4bbOMF5nHnt+VDjY50M6aNjuwI8jisaeBDhpBv7RpJ4ZagAaJR9ehbhNswGHlT0cGiFsZeg2uoV/nUj6Rouswlcrmpj/AIctySZJbnB8dVanAreP93fXA8iwrUUbMy9DTfIBuD91AeKQEgCM/bT04fCm/Tt9YA0MnCoHOemGr+kBQrClimvou8BQPvrBfxsdgp9RW/AhB1C5iPqlNbhcqLkSWp+pWopKWAeJIV0gxqPoVxvA42KEeQpU3D7kxkLHanPJiteVJYXkB1uuBzU6qaaKXyZdbR6r3keQRr9y0QvoyMFnGea146KCcSKyjxOPD7atifhwOjUnqXA/GtPxpEq5H9LFn96g+kKIyxkg9KnuahEXDnTCyY/5FrktLR2wejIHjqBNZtGTBxKKZ8CKIH26cdbxkxiBc8kGKF0t3UE2zk88D8aR1eRcmNWjHIEn8qcP4GV9Gi3kG8pWQ+AwNqZGjjHxKj7BUwnuIthHqB+dGTTFvYT2JoAh5pkH7KmiTGyyNG3atj9LOa2GRJD2UG3lQteWqbKc/wBRGArusxlQYAAPHoxkffWXSNw9u1/KPf4VmgDYjfnmhWdwD3Y5FdJp8bRvtISp9K5tNG5QGoqAOkb0oehjfOQh8d1GarzGAfjY1HtHBP20toy5BCD1Dg5oTZYZFLw+0ffQuTyWp34bG5wqgY8QMV63QSZyseV5FgK0xqAMqqty15zW15GgsTPnp+CzjJSXV5OxpXwVeIVZQMg+D5r6UiJv5dJ5b1zLGOyA2fJa2v8AIqMvxI+f+ELm1bDxyOB4NGCKp+HLY7G0UNjxQV6OI3BHRO3qtC1tD3tb/alT8tL+orGeYL+1kOOqR5+iK1prdTvaoc+yKvbh9s+D0Ue/s0Y4ZapuVXHICj2UlYzzhPZhe1aov1RRrcQgApawH1FWNw7h5G4QnlQHhNlp2UfaRT7KCsqEKYpcHqKZz4R03qBl2FqijzGKFuFRLtFLOuO4LIaz4OuB2kvJ19X/AFoupfxlD5RvwWR8mGFB5LmiSwCYLaW8iNqDq9/jBvpvfg1vVL6PcXxOR4pV/wBGOh6W6HujiB8lojaSDcaPd31Mlpeuf4kEfRojb3sXfdgeQIojsZ6KDBKoBBwfKtWCQnsyke8ClI93GMmYyg/PIA91CZ5VO5iYnwRgcUWtlJYlrLIuQbcn223oOhlifdox9EEipHN1pyIFPpkmgEt+qaehdc+LgilUPYXdHoZLHOtfTJrADk4cfaa8luul8lIwPInP30iVrzPbWQL9MCn09h7Oj25mVU+MkjH1qQJrcb9LEuPHOa8TU6MCdA5EnNNFxM2czMFHiq0+jsPZ0e00tvIQBKj+i1jNHGpzIPQA15AupM/F3c5PlgfjS3l4g5OLyT01DP4U+nsfYj2usA40o7HyQ0Yuo02e3lz/AE814Uc18r7TT6vnFwRVsFzeY7c0z+asNqzV4oFVSWdfiOQLabbnHigbi4Q4FvOMePRUvrVwRj9occ80S3E3/wDIPkd6xakak3r8ko1BJiPNCKJXlYHGpftzTUnxgkSehHfTkaB2OpF1Y/mFBInjhbBOZCfU1gtBryFlz9KqneLSAIiVHcaB5EGCiPjn3UNkIMCqSQCT45asVVOxjUnmTnFNDBh/LgnxO9b1dZTsQCO/O1EikLaONT8iPV5ChlghddRij9MBqZ0WhjgMfDbes1hf5HHqMUqrsoRI1vE2wEY+rSJbCN8EqjY5rXpag22ccuzWCLU27NkeI8PdW6a3szVSiw2794ds+zQlY1HaaUn2mqc9L/qhT7Kg/nQMs+dpEYeOuMj8DWEhHtDA/wDlsfPUaVJZ277NEGHLJpZEw7+jC+zIaNH8NW/0q1ngsALYQKdoyoHmdqFoLfBKlgeWo71SqK7EAZOPBv713QNjBB7+/u/GtKqpBCIzGoTBVsDuyCaEx27EAyXaj2XOPsq0wNGdg2DzNLkiUnEjhfMgilVsIJj0cR1rdyHHcHizWrxcKNxE+DyxVRtlUDTLG1K6mS2UZGPLYUzS/oZ4O+Gl8AnoDXR8VRm1FVBHN96CSyYkNKFjA8dQoX4VFLpPWfvFNtATUP8AhHVkBEHmWFNS+RthqzzBFRyWDEaUYMvM7UscO1HEsqJjk1HrpY3s9RZZG2VWJ+kKYuvHxgkx9IV472sVs4K3Qx9Kl3VysI34ig8iaz6W/g+xL6e7iTOwYDw7QoDHO5+W2BzYV4EfHLdBhuIxg++tTjscjaVvEPnpOPtq/wDPUi9tJ7unC4WTHv7qVhwN5gT9KvHfiqAgmWN8+AfFGvFoQNskjnIMVeqovZSz2l0nIJDeVZoTIyVB868Y8YslbJkQH+p3Uwf4is8/xMS+G7Gp+Kol5Fs9dIYjltS+5P70SIgPZYHPzq8luOW2nUZ48fTNCn+JLUA/tMBPnJWfTXofZSe30S530/lRBAhwQMkeVeKn+I4JFISS2fz1A/nWtxqMkZmiiHlj8ql4Ky9lJ6rLCxOpTt4kD9Kxgu2BgHyrxX4zBvpuOl+jG341w4rPgAdMwPgEO1aXgqB+Sk9oMpypV9vI1hI8FYH0rxjc8VfJSBtHgWOKFeI3mrQwBI+Vg0+hgvKj2mJPeDn/AN+VSSSqhPeT6Cko005B1NjnqGPxrTYTs+TokB7u3ipeOPouvQMnEbYbENnkFpU13rXEduzZHiNqq6vCikT2j+ocEVwt7DAxGo+k4/WtKEZyzxBbTdJqMZjB+aKshaSHssZznyr0Bb2SnsmIc9zR/sTbNoPLvrVXmkFRBHqiYDPS59N6MHAOY5j5kCq+rWpHxTID5P8ArQ9Wt5CdT5x39v8AvXK5G4Jh0p2WKQHmcCiVbsHCBSeTMKYbK1fbp3A5BiaJeHwjukuPXeq9FaB+3Yy9uvqHG1cEvXBxbAjzmAo24ZE43lmbHMmuPCbdRqVvt1YoupGDDHequVhjJ8QZwPwo1e5AwY4k9Js/lXLYxxr2ZF9yk1nVtBPxinP+2aHUhSNYyEgaR/8AtH6VwW5bddKgeBl/tWdWDd8mk/0zQG2UHJmbHkh/WsyaGHrY+SIz/wAv9q2NrgZLJGudv339qUYEzjpJjnlHQm3VDuty31RVJDSXVt5bdRzZyxoGdgezenT4iNQPvrggzgW8pPtAUxYpiMLbIR5sBUmgPM6xeOCIkkT7DmmRR8UO5DsPNgK9wS2IU6WiBHjrJ/Cltd2oGx155K2PtrveuEc4fJ5yWnEZB2mCnw3zThwq6dMmcavIUbX/AEZOiLH/AGP5UD8TnIwmcHxC4/Gq58IIGfBcyr2pM48e7H30GiWFWPXCR83OTSuleQDpFBPtkmiV41OSsYPsqcj7qJZJGr1iTcSmMcyorTaTyLhboFuQQCly3LAYxgH1OftpKXLqcB1U+Yx+VUs0kOWzljyskkoz4gCm9TXYC4lPlqxQCeSUhTIpHLIp0ZMRx355YNZdTFIU3DoGGHLt9cmsNiqKAjsF8RozTJGdfkiQtyKj9aFbxh2WRST4E4NF1RWoW1nGF7Tnf5sdR3NnbTFQYrhlB+ZjNemHBXLCRPQaqJZbYjDSkEeJQitLyNA6EeSLHhcQObaT/oT+dFFa8LzqMZHrDXsaYjukxYeJABoCpk7KTuPcBV7WFiJEh4fnA1+6IfpR9XsFOrQ5P9MCntZuRtPNms6ouBqnuPto9k8iqEAJLQt+57vnCuZuHykKIIz56aaLOM+MzDzYUIgiHyQwPniq8rCWbh1ng74PgFQmpJLWKEbI3l2STXrGPOytIc/NoxYDbLMCeclbp8rRl+OTxEJG7QyP9QiqEMBXe3lGe/s16ZsAp7LjPPVmjNuwAUgZ91D8xes80fBSr27SVz45izUIkhS4H7KqQ8jFv9lfQIhUlcnP0M0byohChMn2lApXmJ+MgjvrRV75lHJYTiqFv7QeEzDxzGaMys3ZGPQEfpQENkkIFHmaw/JIqg74V4eP8uZSP9g0i6urK5Qgi4c+GYcYpwIzhio99ZII89ynz11KpaKGeYs0kfyLcuPDUMGjiZnIEllEPPeri0UYGpo/dJige9tl36WMDl0ord0r4CWTDAe4W0QU8mJojYxgaur22rwOiuF3bOMNcBB7MgrjJaDc3spHINmucs1CD0uNi0Y+jGcUYyw3mVfPR+tJE1lqI6ec+QP601JLPv6pcSe07AfnRk0dJAx3EwceSigVWdgNYOPnDP4inqY/lRWuhvOYVrPcbHVax/aTWSBInQdl4MfQrC8x/mgb6uKBkkkfLXeBzSIY+00LW4z27m4f3gVChqzSqcarYeemuMt0G1K9ofPJBpAtbbHa1N6zb0JtbIE9hz9fP51YIoFxchtxb78mNGzO4+RDkc2NSC3tD/4kjeer+9EtjCoOiOVCe4aiaoRSUazjJ6EN763t6choPvNRPw6Nh20c+YZhS/gu3RhommXPhqJqhFJevSj5LRfYawTTKDqaMHPzSai+Dou9rm5zy1kfdRraRqpYPLn2mNUJEV6pnPZuLcjkYzmswe9rrf2Y/wBana3UkZkbPs74ruhcD5TN6mgYPKFxxBgSkccfoDXKeJvu9yEHspn8a9GaJMBI+kHNjn8qBYU06WkB89DE16r0cbSVYrlu091O3rgU5bcE/GXD+nSU9DZIvbMkhH+0cVp6oxBWM/8A6jWbhgneyhXdZ2yebk0mW3KjMc+r2VLA16cSxuNSwybfNjpyOqggwzj6oFV0FEnjxJekfFtcA/Tz+NJl4jdp8XOofG2HSvfDK5BWF8eZArZooGTaJc+OoZqXlXKC18M8TXqi7VmhJ7gpIFbHHGSC0cMZHmSas6uwOI1bGf5TQyRXBBUJn3UzSyyhLXkkD6UmcDz3H301uKTxgZIkJ5oKBLEowdtJYb9pc08wq3eyEn/aNDsKaidru8+V1bOfFRikm5GrDRTI3lk16UVsB3Ox8gMU8pCoy+vPtUXUr4hUnkJd3EbaY2nA9pcim9YlYgu8LeRjxXqdYiG2lAOZX+9LaeFuyCn2Vm5Pg0l2R9eKbCFQOanFGt5bMQsjxr9LP604GAZIK581oZrW3uAMmP1C70fnRSzOktNg01uPPvrf2UnVHd2Qb2jpNTycPt8dpy+PAKBWxcKtzutsxPhqpikJqHabh86b22PsiU4rGimVMu0BHiQ5rDwq2LZkiXV57Gu+DIMEDYHvAI/Or8jkwzwoAr3NqufbzWma1Hy5on8wx2pQ4PaRsSo+0rTG4cpXARW9WApigJq0Lk4hbEYjadj3dknFSu6jfQ+rzGfzquCxeI9kIF9c08W7NuRHjnpFLdKBSzxzfaNsSb9xC0Zu8qDhyfHbNe0tjHpBdU8tKVotFbZEbB+d/wDFHsp0UPZ4yzRsACT6EYojLCuTojIHfkV7J4cx71wPoZrl4bGe0Ygcd/Z2qvp0MM8qKe2k7tJzyXNUdCjKCqEchoxXodCkYx3DyTFAdW2HJHmM4ovXBRshFuZMqY5D6qK5rJIl7NqCfNVq4y7YzKCOQFYzMxxqIHngUXDBCqmMHEGD3bKK1pmQj4l6t0sV30nlg0k2bucmZvUDuqTXIORS8TOvHQsBzZdqybiIQ6eiDE94AFVfB0hGDMz+q0A4Qqn5ZPlin8GXcTHiOwHViAfEqtY9+UG0GryGKr+Cy3e2FHlSn4U4BCudP0QK0rCmonXiDEYNtGM82AoBeXLNjqsCL4FmBp8fC2TOuYj76w8IZ92eQ47jpp/BfoHrs57KxxHHiKxLy4Td0gA9cGmrwo+EkmR5Yrfg9gpLOxPhsKvwWRD3lw2Siqfo1kUtxJuVhH0lpo4ajA9uQHy2ro7F4nyJXA9rBq/BZAMl1KcKsWeYXamCO6VO10Bbl3UbRNGM9IMnyxRgqMdJPGp82H61hxo0hCyX2RritwvMOTiqRPPoGiOCRubE0avbjdruLHqKwzWy9oXSY91Zf8NL+mDjSS5xCxY9wLAZpcl/N3LajH9XvpUN1M+/wRgA+LCndbuQ2BwoLnxLitWxwZTECaaQ/uQhPgWNY4uxuqR/+/Wq9V6xOILYHw7RNLae/VsMsSMPYLCmSJXHESuASB5MfyrVt7nAJl3PMH9aoae9Yb3EK+keKWWu3ODfwIBzG9MvoMHLBc4IMpT0Gc/bSzbXQJPTM4/60bJLn/6ohPsoTWIl4jZ6/Ng+PQUyyMEdyV7Tv39xYgfdTYomVT8UNXMSmuMUud+Iyn6oFLkt5D/5twM8gN6y2IbxiRsNEyk+KykVnVQv+dcEj/cJo0sYUA13sqnzcUElvw9N3v5c+8/gKp7IVLFqOekuGPm+KDRHjfpM/wBStY8PT/7hN6aT+laEspAOivJcnw6InP3VpMAEt1z3zN6yCmGyY7h3Xlgit6iuctcp9bb7q5oJYsEX9vjwBWqeygwWEwwTczY+kKMcOmYj9smQeopiOuMNfkHyjpMiTlsxX5fyK1JvZYGPwy7TAjup38y4GKTJw7iB+TLKw/q0iSTiSNjUWX2Qc1pe60984+qa1nZnAI4VesSQH1czLvWmw4n/AKkiY/3c/lQBuIFhojkbzYEU5Y+IlhrgJ9GIpl9Fg6OHiUf/AJDe8A1Ukd08eDOdXoBSXtrlQdVu5zyl/vWxROnyrJ2PnJWW2aSQzq14GDG4cD6YH5Uax3IbJuwPWUD8qBJHU9rhWfU5poZyMrwZf+tYuYjOjjKZe6cv/W2rFRE36wT/AMv96SRPns8Hh94NFpuPDhlsPWgpGERZOhizHlIf1oXhSRdL9NkfNlIpLJfA/FWlunMqpNL6HiWdQaJT7SEUpdlPQxuHZcNrmA5dLXScMjkH8RcZ5dJ+lCEvP8yePX4aFrXhu2GBeMG5aKpeyjoWOCIxLdNcr9GU0a8GYEYuLkjzkrorW7KkSXUxI+b3Cjitplz0kjv5ljVc9hC0Lk4dekYSWUDn0tLFnfKDqeZseOsVVJa3LjslRy7ZzS1sb1GJaRX5KWNaVeOAdIjoptJx04bw7YxQCK9UjZ3x3kEVeFvMY6K38ssawLf/AOjb48e0aFX/AArSF4ZpSSEk9GIoeqT6N+kXHdhhXqZuzj4u2Hlk0QF2y7R2+rzyarxVJ5kVvOR8ZJMPrCjaCcLvPIwHcNRFX9BxHGdNqd/BTXdW4k7bi3H1TVeVp5xhJX964P0jRw2luwzNctn61Wmx4gozrtw3mhxWrZ3xG7W5+pVcVqJJeH2LD9+xHoa5eH8OAA6Q/fV5t7pV+Vbg+OVqctIraes2qNzKUJvYwtEUvD7fOYS5+rmuWCRMaYHY+SgVXruBv1+2HloFGs0ynL31uV5YArTrqQQiLqUwOrqp35kVhsnjPSGJh4YBFWNM+o6b2A554rQyyAL8IQZ8gKFXUUIAPcyks4jTmsed/fQOjFsRXCwH0GaJLZZEL9DesnmQAKU9rak5MRUjxY5/CtQAYcg6etBz46iBn7K1GuI90S3YeWd6UZYRjo2Q+GGQj8qcjTsuFideRQCpoE2D09wxOYEj8idqAPOzZURah4hhRtHespIEpA8CoBoI4LjVnTMjegFWBlh9ZulPcqeanOfuo1ur5hu7gcwmfxNELSUka5JTv3B/0psyNHHno5G8tW9ZcChJllYbzv8A9Bmk9NcKx0T3TfTRSKJn0nVJAqk92pxQyXUZGNEan2WP6VIjTJcs3ZRt99QUCmLJfnG8xUeOFqdJkl7JSYA+K5rJLiW3GhY5mTnmkSlr28hGcyMOQ0mmR8WndcdV1k88Ka8xpC5wZOj9SaZBGigkXDk8xkflU0jMvgvJuXOVtGB8yKYBMMa7Ye4j9KkQqwx00xHlqrTFbgby3HuLVk1kKSGQnIgXv7u8UOm6zhI41+ygW3sWbeS8B54anLBZpuJLj3q1MgCIuJsw0uiAeIIozLfKCjXQY+VYBa53MrDkQwrDJYocNbZPmrVTJBrNdd7TqfrULtdyZIuQB5MtaJuHhcrbhvJUY4pS3ttk4sZQP6JoEYWvQMLdlQOTp+lZ087Ah7p2P9Rc/hSzc2W5NrMD/TNYlxaMciEJ9JD+lU9EGJJgcdbnH/IB+VAWmPdeXHuuMflTukswvyEJPj0bGkmSzxgKo/4zVJQcRLIMPxK5UDlPXLZpjPwpcqfO4/tQG5t9OEWMe0YzRIbcnd4HPmlMlBz2xBz8Mz585zSYumWTCcSkl8jLn8qvD2XRkHoRn2TUbQcPjPSKqrzKEilVSgjJQJLwAsLsjH/vlSXuL0jIvpdR8x+lGk3D1Gztk+Oo0YSwJzrmbPiKMIhS3PEVGOvHHoP0rOscRLfxQZeWAD+FE3U91zcr56c0Kx2Oca7wHmy7UytBA1bm51DUyt/yYP4UTNrzrup4/oSimQi1T5EyufaTcV0rWRPxmhm5dGc1jDeEbSwJUxYx8IXZ8+mFcIrcnPwjek+GZq5fg5WyI0z/AEzRfsDHV0cOR4FTmog1FuR8ZdXI/wCXFEsdkNxd3BHMznasUwuOzDER5mjCoq7W0Bz51kUCUsMHN5ce64al/sC911OfWZjTW0gb2tuufaxXLEiAsttD7nqTKBDDhyjLXFwxP+41ckdhqODKSe/LtTB0jjHU0xz6SmJ1lfkWsJPnJvTgIYvRar/ls4HmTW64cApaSnHKOtL8SBwsVsAfbOaCZuJONKJoPMODmpIpNJQglrOfP0BWidcYNhIR9EUUS3Yj+MNxnyINczTjbF364FOAFmeIn+BlHpGtLM0Q+VYuB5oKYZZjsWuT9UUQVmG8N0/qKhJ+hvGBM1usmPaY02KO7/yzDET/ACmPJ+2tWNFAV0nb1mzW9WglfSIJG8tZ3rTYJCrg3sRAkuo1z7GKGFrrVkzxvnbAyKr6pGp/gcjH8z5pU0TRHsWMa+YcDFSchB0isCBNKY/oyneh+LcFQGk9ZTvQpGWOXaNhyL5xRAMrEJ1YciNyKpL6TtBCjAC2wT/vGi6GFDr6BSw+fITT+jucEu8LeiZNKkS4YgH3aYxvVJQae0oMfQo3IRE/nXC4uFXSW35iPFEIXcZkjk28gKJAIh2bbB8376pEnjuJ1fIuEP0lqjpLk4cMuT80KPxpeqXV27e2X6TCnCSEgiVbbPLVWX9EVJJe6dPWVX6i1gn4jAMdKmk+OBRYtWyDFbeofNF0Vk40rAjv5PgUz0BkN7fybrfQgfQqhp7pvlXsSnmFqN7FXI0W8S/8vfRpw6Adpurpjv1SZocFDGiW6b/zoz9WtW7uQdPXYs+I00HV4D8nqTeayU62gVN9NkT5miUMM7rE4GTcQHlnalPeXP8AqWf/AHaqJLdpGBWK0Po4rJLabGENmvqQaE0OSUXd0Pky22PHtNimi9ujjEsI56WpoSaMb9T1cxvWxm4VtpLMeWmpkkcs7nJyDzzIT+VD1mdtvi195/SmOl0VOHhDeBUV2i9Re00ecd5FZk0TlrxjssbD6RoelvgMKsAHjktVSNxAfIeAjx2onn4kxxm3UelUsCQzXYXsxWxPnqND013ne3tVPkhqt1vXAw0St4nT31zx3ekESOCN9lpTIQEu5U/cW655qaUYbgjsxWeR3jSQabJFcudTXl5qPze6lSQ3pGGku5B6CtoyxIjvmJ1W1uijxwaYkV8+C0dqR5IaakLrGdUdyx8/GkPbtjKR3CjxBzSAUkl9FkdSt3XyBFAtxOAC3C4wD39o0+DXEm6BfpFs/ZS2GqQl58E8gcD7apRZCSUJunDEB5jO1G0zt/4TA+QagVUBwbuQjxGaKSGNl7M8uPHZt6MCAL0xnD27BvZGKI3kqsOjs3cnvoUWIbp0mfMMa3VIGGzv56WGKmlokw2uAg1NZOG5Y3+2s67OdxaMoHMZphVmXv0eelmoZIJGAKz4PgUyPxrOBEycUlI0qijnmM0Md5LIMaow/hlDiqY7W6dMpdEk82Fd8Gzq2tpy22/bFa/IZAEt7naSI+QjrG6+TtMF8ujFN6B8YLbcxJU8sCoclSfPpCTRKkoFsbxWwZz70FY17MuEeVD9XFckNvI+WcFs9xJrpoLdWwWiHmVNblGYYfW10kdbCj2SaWbnKkJe7+BfcUcEVqxAM0PpoNFIlsn+XE+PZxRKkskyySNsb6EnyBozFKuc3S48MBq5pbLORAgc+IGcUwSWYVmUu3kFOaX/AAhzWVv0ZQWc5zsSEGTUUtrZwrnoZ1x3ZXf8at0gf5Mh59o1gmgY4NmrEd2t8UKoWiQGFlGlZwnMMBRJBZyHAuJ9XirMKtHQoDixhB/q1gQMci1thy7YNLqJISnD4Y1+LjYjn0oFCOFvrLCO4cchMAKqMTacvbwnPgDmjS7CAoEZfIRnasyyhEosZ1G4vIx7MgNGYiuMzXZPtY/Si1W8hJM9yzctxj7qS86B10xyjGw1ZxTLCEHN0c/xbmffuDR5FKa2gt1/cXB5sIu7766e7CEBiNvpbUUfECw2MWjzJ3qyaEdNA7aRFK/mbcU1lsZ10vbSIVH+mVpycRLDGiFFHcdzmuN3JKNymPA6TUwJhb8OkGNM4HkCKHqVirBUa61eQ/WrMz6dyhPod6Hp1QaplBI5ZoljAmbhRZQyx3ePABQaJbV417cM8i/NeBTQreQasos2eYkNH10pktJIB6narJJHZgwAbWaPf+W2G9O1Wp7Js5c8+rj9aCO6juV1C4Pft2iK2V5UI6O7QfSY0DALSRJ+7tZducIA/GmdJEy5NoM8hHmgF3Og7V/ECeWabFxCTBXrURPM5zU0SF9HFKRqszt3fFini2iVDps8H6NI665ft3gxn5uKwXiuSG4g+OWk71QyTAuIj8oQemFJxSmLle3bySY5xnargYQNXXE9/fXdKMZW7Y/QShMiO3S3lJ0Wu47wQR+dUrZp/LaHP0j+tCZ2BOZpx56MUsy9INBlnbz7qSkbLYXUpCrD0K81lOTQGwuEUp0ujzMxzQKqKc62B9piaGVrbWGmuIAORpyZBFvdwuQHSZf6xBFaROQP4gHylzTo5Yj/AA8i47srFXSdYH+ZM3oAtM7KDhbXzR6lmZR7Tb0pYbzIMnEpI/ILn8q5oJ2KtiUn2jmiMDqRqXtDnnFGSH9YmVCnXpHztkxUtpXUjXKZAO/MKjNINsNR1vCNXgFNZ1KE9kKGHsrTgRxu7HVmS1yR84kZrJb+ykG1lHge2f1oEgtC+gRqGHg5xRRywQnS1tAhOwBOxqaXACZZkVQcRwKfFJDmqIImdB+0SaTzkpc00anAt1VvJMj7aYJHIGFl1eGE2pnAJZAlhTWAJ3I8RpY1gtIgpOgzH1IxVHSzBQFDA+OF76U80gJDJhvMHBok1gJYLeMYWBRnmxoerLMw1Flx4KSBXAtgMzoPJVyaW0iRybdLIebd1EFgeYcfKLADYapMVy2YjIdLkoT5lhQpdO6kL0WeTt/ajNzcYXdQMYOjcfhVL4IYII85dWlYjvJAFJESPqVBIFB+T021TamcuHQR+e/arERtJJIx7K5qzslBUrwxsAttFqHiZM10jtKTkRquO8ZNIjPQgEtIBnbKAU1pSqliHcju7VCTkRDIQVxP0I+aIwPvNOyCh7rgDw6X9KSW6ZgxhR87FmycVRNGvVwIjEhHgm2a6MwilIAVIW0bb6W/313Vyd2jhTkCCTSiQG/iSccs1jCJhhrojJ51yNmuegJGLY7eIP61kc0AOWu44c+CgH8axLWyBOZ1lPJmpotbLIIihyP5u/H21qUGRDdTkYlL5pCPnIB+ArgbPIAJZz81mzT2vY4gQssYI2+SKFL0tnLoTj/TpkIEvAidowygZ+exrAWAJS1mby1sKYL9wdpMeWg1puzIMsxJ5AEUS+RgHrMi4DWzaeRUnFdrlb5MMKjn0RNGlywGFLbc0JrXudaHPSeoQiooAQSHssYT59Hj863RcqTtbOvgcEGlCbwJ25dHvQNhshCVz4FKo2UlemfTubeLzJJpZS6ZdS31uQOUeam0yd7MoI/2ya0xOdzNj6hFCUE2YqurHN9bt5GGjC3gHZWNvNVxWhl+S1xGDz0700OQMC6C+eK05JCoUuQcMzP7KoBim9BOdury488VrzIQAl7Dq8T3ULRNIN7lTnk2KzLIyK36N+3byIeZYEUyTpPCPV9YUpbOVNxcKBjuMmaxbKTVrNyFHIUxyUnCK4dstaah3bE1xt5kbCWrN72/WnCORfk3C7921FqlQAF1ZuecUSxgUsch7TW7qB4Af3ogwxg2ErDmXx+db0spbSQpz5Z/OixMFzpV+WlcVZAzREvaWwVueuY4H31rqJFDLw5CfDD0LdLp7USAeorQz4z1cZx4EVECpeInXYD1U5oZGeYdjh+fpYFOF0VUaoZATyIxSZLgFSWWYr5ECpfwAUt7tDqLQwKf5SSaapuHXCXFuD84qTUqTweAm97UGISc9AzfXNMFJYsNwo+P4jE+fDTilTwWoYGWaNTj/UbNBGis3xfDckeNUK8qDPU4A3IkUwQj9hIw0hkI7gC21Ay2rMOjtpH9C1W9NdvuI0QjuMYBxS2a7YY6WUc8ECgUtgRqsedHD9/bGOXeTTdcoI+KtYh6b0llcjEizt6k0iS1UNqMYA9tiaUpJsquIrlt1u4I18ewM/bQpCGGqS4dgPEN3/ZU6QmRMYhaMHw3FNhmMZ0I2kH5se1TmIJQc3V2OA6DHg5YmndOCcJEjjwyhNL16WOti+ds4C70t5CpYdMynHgaQYelFBkaFtY78SEfYKzX0m3QwlDvqILH8aSsmgZDu3vyK6LCFjqdwaikqSaQDTqSMDwA05pTIo/eya8nYY7q6JtTjEROPErnFMa8JGlVXKnvK0JOcC2gOihTMgx6jOa5QrFnSORuSliBR9elQaUkjXmQorDLczxkGd8+ylTWwknaabWNVvEMeLEtj3UYWSRCS+jkBGB95oxASulgS5HezhcVxht4k06wzf1MgUplBLOkKjvKn2nJJ+yhhumOkokfLBXJ95p6aVYAB5TzUYxWyziONlX4pmPytjit9GWXw3KOPi4B66sYpvSSqRiKLfm4x+FKCNpDM85I8dArG1ZGesvnkgrhB0Q39qGdEVovq1AHu879UzzBpUkcuNINyueQGaGGKfuL3QHMoKoIf+2O+NVpjzUfrRNBdHAWW1Q89zSi0iAAG49dK0AMhfAefPnEDmqGUFBh4h/LdWRHnEaMw3WM9atFI/2/71KwmYAAtt/tVxaZO+JXP9PFMMpQwrdhgWuocchFt+NC7zqdriEfSQ/rS9U+Mm2OPoUotLqy8UuPDsiqGEoqDSMcrcQq3MAUzXdad7u3z4ZWodeonV0wx37LW64Sew+du4gb0tEmUiW8Jw3EbAjlpINDLeNHs3EYUPLRmpWDqNQXO/forusyjAMETctSHNMIJKOvRv8AKmRz84Q0vpUkP8VGfLoaxr11A1whD5A1vwgpHZZw3klUPgpAZFL9gq3kYsCqI7aHQSQmfEdFSmug4Gu4uFz81a4XNmmzXE5z35zU0ykaLS3UFzb5HNYTv99CQV/c2mT7Q0/nXLPw8DPWJM+0TWE8OA1NIG9TWYI4aWf421VSfEOv61khtR2WjQ+v9qSWtNXYZST3aQK0PAo1dM4bkAorUFIXScPQ40RDPedLUSvYggq8R8sNSRdQscNLMfrACjDQgakUsT86SpoZHE2TnSkUJPqd/trdAAx0VkPpPU0V2gYhIYSw8CxNPW6lz+6tx6JmiCk0wysvZWwGPU0AIQ46aAN4hYjiuku5R8lSrezHXR3Vyckyzj0jFaVJlsNJLk7pNBgd2Iv1prPfkdueEryVP0FSSPK7fvrkDyX+1CXwAGluC3rvTaVxWROd2vgo7sdGcffSiVbYXieqpio5YYJN2eY/SBNCVihHyQV+himwLi54YF3ee4Y47wv96S0FkxHSSXLeZj7vspKGF275FAHdnAp4nj046zJjkGqiCWQpGsQAOlmfHhoJ/OpeiickqjMOTL/eqheRQg6Olf0GfyrjeyMmVWVQeS4NCFiLZoNwkUikHcZx91UuHyMWxC+PbLH7KSLzKnpAFfuBkbFCLoZAAUjxKEmqMlI5lYKXS3iCDvLsUP2UjrepwkRiJG5yO708TRi3jlOvTK/qKdFbhXz1dl8yRTgMgR9JpJ6dB45EZ2rAWaQdHNcSk95TSoH3V1x22CiKH68mfuoelCZU3cSHuwgzihIZHSDo0IkaWQH/AHCxH2VipCoz1XY+L0rRAcB7ieUnwXu+6nQJEpJSzlJH8zH9agEveW8TYjdEYeCR6iKZHbyP2j1mYNvpxppuqcnIiihXzb7zikvcvnBvoo9/5BnP21fwTnt7lJC6WSIMdztmkLHeyOXDiJeahaK4uEPZaeeU+IVMZrrdjowttOxPdqkwKk2UHdHHI4WadmYd5IwDXT9CoEaKpjz4HJJpxhk05a2hT1JOKmZ9MoxOpYdyoAfwpTkvg8cPvCx08QiReTA0aW97EMdct2H0WNZm2LZMVwT4Z8K5xag4cSjy1GqQg5o7lv8Ay4R9U/rSwLgZHXYxjvzn86BoOGlslZM/SNabWxI1MHIA8WO1UIsjAZ03a/GPKMYrncSKdfEQi+SjNTdHYnYROc880LRWDAhocnlqalJA2yrXbqMDiMxOO8AUvrkcZ7N5cuOfRikpb2OcCF/+zUaw2oIAinHlvVglJj8TfOBeTBfNR+tKF80p/i/t2zVSrbITiK49fCs027HLRTMfDamUTTJzMjkl7mJjyJY00XscOALi3H2/pR5hGcQzjyAoca8abaY+pAplMsofFxcsuFu4fcCab8I577gu3NVxUygAH9ll9Cwrhbhj/BbnxJrEIclC8S15BknJ81pXwq2o6emz7KUHU+/9jUfXpa25jcMLOAAc2NKVIZKxxFyucSg5/mT+9YeIAturnn8X/egDysNo7dfcawmZv822T0FEIcmvfByNEZI81H5A/jRdZlC4SEN6qf0odbqMG+jU+GlaEiVhk8RcjyAqhEGXvH3S2J9FH5msYXqjPVIznv1aRihCltnvJAOeRWP1fuN45I5sBUiYYknUANZJ9UrWNcXQOFijjHtFRSg1sm/Ws+Wc0L3tuv8AmuT5CkIK0nu8YIT6q5rme5cbPKn0Y8VKl1buMO82/KsaSyTvWfH0qhHmG4zqa6nA8zigkWUje7THgMmkL1OVuys5+vTQLZGHxcvqWNMwUCiso/zo8eZaijmMbZ1wMfRqNgJf3URPq9Z0Vx3Rxj0LVpNGGhguZ2B0ojegeuee6JwbON/XNAIL5V/cxD31q9ZTv0Yx50MUAHudWOqKp5Kpp2m5YdpejB/mLAUppZXGdCYHiWol6yxGkQ482oYoHoJlYs0uUPeBIaXjpJNKMGPm7GqWhvSQFEQ5kSUEjXMeNZB+i1SkAurXUjYAhCczESfvNM6tMCB1gIfKMZNTxTwE7o5b6Zp+YQ2Xidj4ZztQ5NJGtOIWCvdlT5IBSJeryA6pZ5j80N3+4Ux5okPZhIP0M/jWxz3I7oZGHhhQKI5IC2t3UZj4cDjxb+4qhIrgkGO1ij56iAPuoWW/kOEjxn5zAYrVs7hDh7gRZ7wHJqZJBtHfZwJrZB5ZY/ZS5EhP8TxBmI3wm34VxjiBOuTX7RJpMr2i/JkjB9ld6MkO6xw9gRCHlPI5OfuoS8ZwgsJcnnsD76T13o0ODIwHzdjXRXj3G6sFHNyabSHJFchto1VOTOWxT1huM56UqOSYA9aR0DT/ALy+CryQYoHisI1w81xMe7Go1kRlwLSP99chvJnJ+6p/iWbMEEz8yh0iqImto4/ibLUOZH60Bvb6UFIljhXywTSkybKDJGhzJeSf/wBRSzd2LAq1xLv5ih6wFGUsMEd3Y/WjileQ5NppbzxmqGQPT2EeAJpz5Det12cmNNrdSeeMU8xyOQejjHqf0oSJh/l24A8mNEjACIu5SxugB4lwv4muAlzlLSVc/wAzyA0eqcrjpI1HsxmjVHHfcy78hj8qJIXoum26JQBzf+1dpudWD0AHnIdvuo2hhPe7u3mxoFhhXOnI9SahNMM4GVlgbmMmldFKDkTR5PtGj6FB2mjjPmc00QhgM20ZH0hVJImIugdpoPe5pbR3Gxa5tx5gk1S0EZORaQKKBbdW+TDAPdVcEClikwSt3ERQkyKNr2DPpVwtyowIbcD6IreqBRkCFT5IKLhtPOZ7g/Kvl9yiiRFkwGuXP1sflVRt3Q5SRB4k6Rmmr0mnBuQT9BabitEC3gICmRj7XTH/APzRdTssdqRifpt+tMYEkDplJHsisaJnI0T6fRBRPZQhMlrYJuY2J8p8UgwWTtgWcr5/3z+lWdWkzvcE+4Cs6q2d7mZfotSquwjonFraAFPgt2HPpDW/BtsG24bjPOWntCEGk3lyD9KhWNFyTeXJ9XpuexgWLOJCFXhqevS/2oxEIshbGPz+N/tWrFG5Oq5uB9auNvbDY3NxjmWouZQJaKSbdLK3P0n/ALVoiuwvZtYAeWvA/Cm9HaxjMc8u3hrrAtqWyZ7gH6ZpkIMjjvd9SRJ6Sf2pnQTuN2VPPpBSJJbb5JeR/VjQHqenxcebmkB5s2B7V1Ih5oy0o2qg/wAfcsPHL4oB1E5PRI31jWrJaKpxBGRyJNWSwBJDaoe1dykcjP3Upm4So/i3LeTE00XFmdlsEB5hc0zrMeOxaj101pJoH0SdJw8kdpznxwf0phewAw0MrZ7sI1NN3pH8O2fSh+EWP+W5PLSacsMHYtQuVtpcebY/Olt0KbxxoDyaQbUXWixz0GfqVoeRvk24H1QKvhQdHLMGBWGOTyEgp4uZsYFggPm4oAb5j2AsQ+iKDq/EHPauitGGPwYXuJRnTFEfMlvwFattcMR+2Sg8kixn3mhSzvWHbvMiubh5x253fy1UqFyZMboYzkyXjuO86gKS62DHMnSueRfP4UXUAG7MCMObKSaZHb3GTgpF5BacFJOEtwPirWUj0x+NOiYKO0kajk0m9c1nO27Oz+p2rOoQg9qOIHx8aMEjHuoS3xbEtyQFqIC8KgiJzy7Iz+NEWjiTQiADH8qkVKw196OoHj3GpCUP043uCFbGwZwKA3MCJnpEPNE3P21MWgwcwgn2qEyq2BEjL7QArSUmZKesyzbRQiID+Z9z7h4UWsqD082s+GwFSDrWDg7Z7z30XVnlYGR2I9O6mEUtnsvbzHcl/wDvQLHNq0hm/wC1XSDAqeMfG15kzpAQhlA3d/ca4JIW3eXHkRVmkb+o/ClBF1GlsBABBPxkn2im7BFJdvea7QuW2p+hejTYVISKSZQThmz6f2qVrqTJClvftV0oAZtqiPy39a1gMmNNctp2XfmTTcXBX+ShbuT1qpQMVSKRLouWU5cL6CshglZu1I32VTgYNdbDLn1rLZNASW0gOzn3iha3lAPxg7uVWzDelyKMH0rF2RjBELY5xqBphtPi86seYFMAGafpHRe+tXMYIhYqCCHbPpR9VOr94/3VRjeiA7QouZmETG0JG8h+ysFsc4Ehx5ircdn30MY7RquYwQG1yxy6n3UJtASMNirHA1NtQaRkbVu5wZErZq3iv21otY0OMofWqY0XfYUWhc9wqdQErWyAbqvuregTGNMeKolRcd1CUXfasyaExxRg9wPlWgRgEBVx6UxI11d1YqLg7eNSZAAJjARe/lQMVwR0YPup4QcvGsZRpNUgLt2GP3QprE79lRW2iKe8U9okBPZHdS2aPLlmYA5+4VAl0NZz+FetMigNsK8hPlnYd9aTBj0nXVkB8+VME7E5CP7wKWh7VNWlkOWZiMFa5gGPbA9M0yIAgbUxgM91YTBonVIwfkLjyNGnRrnTG3308AZO1MjAxU6ighcuxOjUvnmujgZz8mQ+ZarGAydq2BRq7vCtKozBO1tIE3J8smltHoOWI9wr0J1ATuqaQDPcKpEgmO2UVs881KIZJSS7EY5V6E20dR52NV2igX1eIsdWSfM01FjjXYbetThjqNMJOiltwRRqQ/ymg1DVsT9tCh7JpS/vBWRk/9k=';
+ function use(url){
+   document.documentElement.style.setProperty('--comic-rail-grain-v1243','url("'+url+'")');
+ }
+ use(fallback);
+ const img=new Image();
+ img.onload=()=>{
+   try{
+     const scale=img.naturalWidth/2048;
+     const cv=document.createElement('canvas');cv.width=sw;cv.height=sh;
+     const ctx=cv.getContext('2d',{willReadFrequently:false});
+     if(!ctx)return;
+     const x=Math.round(sx*scale),y=Math.round(sy*scale);
+     const w=Math.round(sw*scale),h=Math.round(sh*scale);
+     ctx.drawImage(img,x,y,w,h,0,0,sw,sh);
+     // 타일의 밑부분에 시작 부분을 교차 합성해 세로 반복시 선을 줄인다.
+     for(let k=0;k<blend;k++){
+       ctx.globalAlpha=(k+1)/blend;
+       ctx.drawImage(img,x,y,w,Math.max(1,Math.round(scale)),0,sh-blend+k,sw,1);
+     }
+     ctx.globalAlpha=1;
+     use(cv.toDataURL('image/jpeg',.84));
+   }catch(_){ /* 파일 프로토콜의 캔버스 보안 제한: 내장 타일 계속 사용 */ }
+ };
+ img.onerror=()=>{};
+ img.src='Actors/thema1.jpg';
+})();
+</script>
+
+
+<!-- v1244: 사이드 레일 공통 버튼 타이포그래피 연동. 옵션(O) > 만화 > 공통·화면 설정을 재사용. -->
+<style id="viewerUnifiedRailTypeV1244">
+/* Sidebar text participates in the EXISTING typography + color controls; no new settings/storage.
+   Do not change dimensions, checked-state logic, scrolling, or checkbox appearance. */
+html :is(#wtTagRail,#muArtistRailV971){
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  color:var(--viewer-common-font-color-v1162,#fff)!important;
+}
+html :is(#wtTagRail,#muArtistRailV971) :is(
+  button,a,label,span,small,strong,select,
+  input:not([type="checkbox"]):not([type="radio"]),
+  .wtTagRailRow,.wtTagItem,.wtRailHeader,.comicFirstFolderRowV1132,
+  .comicFirstFolderCheckRowV1163,.videoActressInfo,.videoActressName,
+  .videoActressCount,.comicCreatorCountV1164,.comicFirstFolderCountV1132,
+  [role="button"]
+){
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  color:var(--viewer-common-font-color-v1162,#fff)!important;
+}
+/* All badges/counters/creator labels must not retain their earlier pale blue, pink, grey, or orange colors. */
+html #wtTagRail .wtTagRailRow.is-fav .wtTagRailTxt,
+html #wtTagRail .comicFirstFolderCheckRowV1163.is-fav .wtTagRailTxt,
+html #wtTagRail :is(.comicCreatorCountV1164,.comicFirstFolderCountV1132,.videoActressCount,.videoActressName,.wtTagRailTxt),
+html #wtTagRail .wtTagRailRow.is-video-actress.is-fav .videoActressName,
+html #wtTagRail .wtTagRailRow.is-video-actress.is-fav .videoActressCount{
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  color:var(--viewer-common-font-color-v1162,#fff)!important;
+  filter:none!important;
+  opacity:1!important;
+}
+/* Original favorite highlight used brightness(1.4), causing visually gray/orange text. */
+html #wtTagRail .wtTagRailRow.is-fav .wtTagRailTxt,
+html #wtTagRail .comicFirstFolderCheckRowV1163.is-fav .wtTagRailTxt{
+  filter:none!important;
+  opacity:1!important;
+  text-decoration:none!important;
+}
+/* Focused/active controls use exactly the same active-color token as the common buttons.
+   Underline/bookmark semantics are preserved without inventing a new favorite text color. */
+html #wtTagRail button:is(.active,.selected,.on,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]),
+html #wtTagRail .wtTagRailRow:is(.active,.selected,[aria-selected="true"]) .wtTagRailTxt,
+html #muArtistRailV971 button:is(.active,.selected,[aria-pressed="true"]){
+  color:var(--viewer-common-font-active-color-v1162,#fff)!important;
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+}
+html #wtTagRail :is(input[type="search"],input[type="text"])::placeholder,
+html #muArtistRailV971 :is(input[type="search"],input[type="text"])::placeholder{
+  color:var(--viewer-common-font-color-v1162,#fff)!important;
+  opacity:.85;
+}
+/* Apply the existing common-background palette to neutral sidebar toolbar buttons,
+   not to artist list rows or search fields. Book-mode transparent background wins below. */
+html #wtTagRail :is(.comicCreatorTabV1033,.comicRailSectionBtnV1090,
+ .comicRailInitialBtnV1104,.videoMainTabV1052,.wtRailCommonWidthArrowV1054):not(.active):not([aria-selected="true"]):not([aria-pressed="true"]){
+  background-color:var(--viewer-common-button-bg-v1159,#444)!important;
+}
+/* User's prior request: wooden side rail button surfaces remain transparent. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail button{
+  background:transparent!important;
+  background-image:none!important;
+}
+/* No forced orange typography in the outer header while bookshelf mode is enabled.
+   The border itself stays #ffb347. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead
+ :is(button.zoomBtn,[data-viewer-build-label]){
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  color:var(--viewer-common-font-color-v1162,#fff)!important;
+}
+</style>
+
+
+<!-- v1245: 책장 전용 어두운 오크 외곽/상단. v1243의 thema1 중앙 크롭 텍스처를 재사용하므로 별도 이미지 파일이 필요하지 않음. -->
+<style id="comicShelfOuterWoodCssV1245">
+/* 별도의 나무 이미지를 늘리지 않고 400x300 원본 크롭 타일을 반복한다.
+   사이드 레일의 원본 나뭇결보다 검정 음영을 약 25% 덧씌운 디자인.
+   기본/영상/음악/게임/책장 전체보기에서는 원래 배경 보존. */
+html:not(.comicShelfImmersiveV1225)
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanel{
+  background-color:#6d4827!important;
+  background-image:linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.25)),var(--comic-rail-grain-v1243,none)!important;
+  background-repeat:repeat,repeat!important;
+  background-size:auto,400px 300px!important;
+  background-position:left top,left top!important;
+  border-color:#ffb347!important;
+  /* v1243의 바깥 테두리 발광 및 기존 크기/배치 보존 */
+}
+/* 최상단 공통 버튼줄: 사이드와 동일한 나뭇결 + 25% 음영 */
+html:not(.comicShelfImmersiveV1225)
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead{
+  background-color:#6d4827!important;
+  background-image:linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.25)),var(--comic-rail-grain-v1243,none)!important;
+  background-repeat:repeat,repeat!important;
+  background-size:auto,400px 300px!important;
+  background-position:left top,left top!important;
+  border-bottom:1px solid #ffb347!important;
+}
+/* #wtBox의 반투명 검은 배경이 패널의 나뭇결을 다시 덮지 않도록 한다.
+   작품 배경(#wtList/thema1)과 메뉴 배경(.wt-head/thema2)은 그대로 유지. */
+html:not(.comicShelfImmersiveV1225)
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanelBody > #wtBox{
+  background:transparent!important;
+}
+/* 상단 글꼴/글자색과 사이드 레일 버튼/목록은 v1244 공통 설정을 그대로 상속한다. */
+</style>
+
+<!-- v1246: bookshelf-only readable oak palette, no orange seam. -->
+<style id="comicShelfOakSeamlessV1246">
+/* Keep the same panel dimensions, but make the border itself transparent.
+   Remove the 1242 orange halo, the 1243 inset outline, and the rail separator.
+   The existing oak image underneath then remains visible in every padding/gap. */
+html:not(.comicShelfImmersiveV1225) #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanel {
+  background-color:#9c622f!important;
+  background-image:var(--comic-rail-grain-v1243,none)!important;
+  background-repeat:repeat!important;
+  background-position:left top!important;
+  background-size:400px 300px!important;
+  border-color:transparent!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.55)!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanelBody > #wtBox {
+  background:transparent!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail {
+  border-right:1px solid transparent!important; /* preserve 1px geometry */
+  box-shadow:none!important;
+}
+/* The topmost oak bar stays 25% darker, but the orange separator is removed. */
+html:not(.comicShelfImmersiveV1225) #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead {
+  border-bottom:1px solid transparent!important;
+}
+/* Sidebar and top UI text take precisely the local comic caption orange.
+   Preserve the user-selected shared font family, size, and weight (v1244).
+   Don't override cover cards, page counters or the semantic path colors. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead :is(button,a,span,label,[data-viewer-build-label]),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(button,label,span,small,strong,a,select,input:not([type="checkbox"]):not([type="radio"]),.wtTagRailTxt,.wtTagRailRow,.wtTagItem,.wtRailHeader,.comicFirstFolderCountV1132,.comicCreatorCountV1164,.videoActressCount,.videoActressName),
+html #wtBox:has(> #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) > .wt-head,
+html #wtBox:has(> #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) > .wt-head :is(button,a,span,label,select,input:not([type="checkbox"]):not([type="radio"])) {
+  color:#ffb347!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(input[type="search"],input[type="text"])::placeholder,
+html #wtBox:has(> #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) > .wt-head :is(input[type="search"],input[type="text"])::placeholder {
+  color:#ffb347!important;
+  opacity:.72;
+}
+/* Keep labels readable without drawing backplates or restoring a separator. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(.wtTagRailTxt,.comicFirstFolderCountV1132,.wtRailHeader) {
+  text-shadow:0 1px 2px rgba(35,17,3,.8)!important;
+}
+</style>
+
+
+<!-- v1247: book mode only — make the shared common typography palette orange all the way down. -->
+<style id="comicShelfOrangeCommonTextV1247">
+/* v1244 still uses shared font controls. v1246 did not win against v1162/v1244
+   higher-specificity active/special/zoomBtn white rules. Override shared COLOR
+   tokens in the bookshelf subtree, rather than decoupling font controls. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active){
+  --viewer-common-font-color-v1162:#ffb347;
+  --viewer-common-font-active-color-v1162:#ffb347;
+  --viewer-common-font-special-color-v1162:#ffb347;
+}
+/* Residual hard-coded white text in header rows, select controls, and counters.
+   Only the panel chrome and rail are affected: comic cover captions, images,
+   status/path colors, popups and other tabs keep their existing style. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) .wtLayerHead :is(button,a,select,span,label,small,strong,b,[data-viewer-build-label]),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtBox > .wt-head :is(button,a,select,span,label,small,strong,b),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail :is(button,a,select,span,label,small,strong,b,.wtTagRailTxt,.wtTagRailRow,.wtTagItem){
+  color:#ffb347!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) :is(.wtLayerHead,#wtBox > .wt-head,#wtTagRail) :is(input[type="search"],input[type="text"],input[type="number"]){
+  color:#ffb347!important;
+  caret-color:#ffb347!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) :is(.wtLayerHead,#wtBox > .wt-head,#wtTagRail) :is(input[type="search"],input[type="text"],input[type="number"])::placeholder{
+  color:#ffb347!important;
+}
+/* Explicit active-state guard for legacy styles with literal white colors. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) :is(.wtLayerHead,#wtBox > .wt-head,#wtTagRail) :is(button,a,select).zoomBtn:is(.active,[aria-pressed="true"],[aria-selected="true"]),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail button:is(.active,.selected,.on,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]){
+  color:#ffb347!important;
+}
+</style>
+
+
+<!-- v1248: 포스터 캡션이 책장모드에서 사용하는 두 겹 그림자를 책장 공통 UI와 동일하게 적용. -->
+<style id="comicShelfUnifiedCaptionShadowV1248">
+/* The bookshelf poster caption already uses:
+   #wtList.wtShelfThemeOnV1217 .wtThumbCap { text-shadow:0 1px 3px #211004,0 0 3px #211004; }
+   Preserve that exact effect; do not override typography variables, colors or the poster itself.
+   Scope this to the comic shelf rail/header only so non-bookshelf/video/music/game modes stay untouched. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtBox > .wt-head,#wtTagRail),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtBox > .wt-head,#wtTagRail)
+  :is(button,a,span,label,small,strong,b,select,input:not([type="checkbox"]):not([type="radio"]),
+      .wtTagRailTxt,.wtTagRailRow,.wtTagItem,.wtRailHeader,
+      .comicFirstFolderCountV1132,.comicCreatorCountV1164,
+      .videoActressCount,.videoActressName,[data-viewer-build-label]) {
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  :is(.wtLayerHead,#wtBox > .wt-head,#wtTagRail)
+  :is(input[type="search"],input[type="text"],input[type="number"])::placeholder {
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+}
+</style>
+
+
+<!-- v1249: 책장 사이드 접합선 제거, 권한 정상 상태의 활성 블루 색상 재사용. -->
+<style id="comicShelfSeamAndActiveBlueV1249">
+/* 책장 모드 레일 오른쪽의 투명 1px 보더도 실제로 삭제한다.
+   1246의 투명색 테두리는 1px 폭을 차지하고 원본 나무와 다른 색으로 안티앨리어싱될 수 있었다.
+   바깥 나뭇결의 배경은 그대로 두고 치수/포스터 행 높이는 변경하지 않는다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanelBody > #wtTagRail {
+  border:0!important;
+  border-right:0!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtPanelBody > #wtBox {
+  border-left:0!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+/* 권한 버튼의 granted 파랑과 동일한 공유 팔레트. */
+#wtLayer {
+  --viewer-selected-blue-v1249:#2466b9;
+  --viewer-selected-border-v1249:#8cbaff;
+}
+/* 공통 헤더에서 실제로 선택/켜짐인 버튼만 변경한다.
+   권한/이미지폴더는 granted/needed/denied 상태 색을 기존 JS가 계속 관리한다. */
+#wtLayer :is(.wtLayerHead,#wtBox > .wt-head)
+  :is(button,a).zoomBtn:is(.active,.selected,.on,.is-active,[aria-pressed="true"],[aria-selected="true"]):not(#muPermFixWt):not(#videoImageFolderConnectV953),
+#wtLayer .wt-content-switch :is(button,a).active,
+#wtLayer #muArtistRailV971 button:is(.active,.selected,[aria-pressed="true"]) {
+  background-color:var(--viewer-selected-blue-v1249)!important;
+  border-color:var(--viewer-selected-border-v1249)!important;
+  box-shadow:inset 0 0 0 1px var(--viewer-selected-border-v1249)!important;
+}
+/* 레일의 작가/그룹/태그/필터/초성/활성행: 같은 파란 배경.
+   일반 버튼의 나무 투명 배경은 유지하고, 선택된 것만 강조. */
+#wtLayer #wtTagRail :is(button,.wtTagRailRow,.comicFirstFolderRowV1132,.comicFirstFolderCheckRowV1163):is(.active,.selected,.on,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]) {
+  background-color:var(--viewer-selected-blue-v1249)!important;
+  border-color:var(--viewer-selected-border-v1249)!important;
+  box-shadow:inset 0 0 0 1px var(--viewer-selected-border-v1249)!important;
+}
+/* 1243의 높은 우선순위 '책장 모든 레일 버튼 배경 투명'을 활성 상태에 한해서 덮는다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail
+  :is(button,.wtTagRailRow,.comicFirstFolderRowV1132,.comicFirstFolderCheckRowV1163):is(.active,.selected,.on,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]) {
+  background-color:#2466b9!important;
+  border-color:#8cbaff!important;
+  box-shadow:inset 0 0 0 1px #8cbaff!important;
+}
+/* 책장 버튼에만 남아 있던 갈색 활성 표시 역시 동일한 파랑으로 바꾼다. */
+html #wtLayer #wtShelfThemeToggleV1217[aria-pressed="true"] {
+  background-color:#2466b9!important;
+  border-color:#8cbaff!important;
+  box-shadow:inset 0 0 0 1px #8cbaff!important;
+}
+/* 글자색은 종전 규칙 유지: 책장모드 #ffb347, 그 외 공통 설정.
+   상태표시색(주황/빨강), 경고/삭제, 포스터와 목록 렌더링에는 영향을 주지 않는다. */
+</style>
+
+<!-- v1250: 상단 무테 / 나머지 책장 활성 상태는 기존 오크 팔레트 / 재스캔은 항상 무배경. -->
+<style id="comicShelfButtonsOakV1250">
+/* A. 최상단의 버전·복원·레일·권한 등이 있는 한 줄은 외곽선과 inset 윤곽선만 제거한다.
+   기존 버튼별 활성 배경/권한 정상·주의·오류 상태색은 보존한다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  .wtLayerHead :is(button.zoomBtn,a.zoomBtn) {
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+/* 키보드 조작 시 위치는 글자 밑줄로 알리되 테두리는 표시하지 않는다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  .wtLayerHead :is(button.zoomBtn,a.zoomBtn):focus-visible {
+  text-decoration:underline!important;
+  text-underline-offset:2px;
+}
+/* B. 책장 안쪽의 버튼은 원래 책장 버튼과 동일한 형태.
+   기존 투명 버튼/검색/선택상자/개별 레일 폭 조절 버튼은 유지한다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  #wtBox > .wt-head :is(button.zoomBtn,a.zoomBtn):not(.wtFolderScanV1091),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  #wtTagRail button:not(.wtRailCommonWidthArrowV1054),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  #wtGroupBar button.wtGroupBtn {
+  border:0!important;
+  border-radius:4px!important;
+  padding:1px 3px!important;
+}
+/* C. 선택된 책장 메뉴·그림 버튼·사이드 탭/필터/행은 1248 책장 활성 스타일을 사용한다.
+   #815018 배경, #ffb347 활성 글자, 실물 border 없음, #d59b4b inset 1px,
+   4px 모서리와 1px 3px 여백. 1249 활성 파란색의 우선순위를 덮는다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  #wtBox > .wt-head :is(button.zoomBtn,a.zoomBtn):is(.active,.selected,.on,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]):not(.wtFolderScanV1091),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  #wtTagRail :is(button,.wtTagRailRow,.comicFirstFolderRowV1132,.comicFirstFolderCheckRowV1163):is(.active,.selected,.on,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+  #wtBox > .wt-head #wtGroupBar button.wtGroupBtn:is(.active,.selected,.on,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]) {
+  background:#815018!important;
+  background-image:none!important;
+  color:#ffb347!important;
+  border:0!important;
+  border-color:#e3b978!important;
+  border-radius:4px!important;
+  box-shadow:inset 0 0 0 1px #d59b4b!important;
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+}
+/* 선택행은 기존 가상 레일 행높이와 패딩을 유지한다. */
+/* D. 폴더명 옆 ↻ 는 책장/일반 모드 공통으로 언제나 바탕/테두리를 제거한다.
+   hover, focus, disabled에도 나무 배경이 보이고 클릭 영역과 재스캔 기능은 유지된다. */
+html #wtGroupBar button.wtFolderScanV1091,
+html #wtGroupBar button.wtFolderScanV1091:hover,
+html #wtGroupBar button.wtFolderScanV1091:focus-visible,
+html #wtGroupBar button.wtFolderScanV1091:disabled {
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-color:transparent!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+html #wtGroupBar button.wtFolderScanV1091:focus-visible {
+  text-decoration:underline!important;
+}
+</style>
+
+<!-- v1251: 책장 활성 밑줄 제거 / 포스터 H·K와 제목 동일 스타일 / 회차보기 오크 버튼 -->
+<style id="comicShelfVisualDetailsV1251">
+/* 1243에서 남은 active underline. 버튼/선택행 및 내용에 밑줄이 다시 나타나지 않게 한다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+ #wtTagRail :is(button,.wtTagRailRow,.comicFirstFolderRowV1132,.comicFirstFolderCheckRowV1163),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+ #wtTagRail :is(button,.wtTagRailRow,.comicFirstFolderRowV1132,.comicFirstFolderCheckRowV1163) *{
+ text-decoration:none!important;
+ text-decoration-line:none!important;
+}
+/* H, K 링크는 제목과 동일하게 캡션에서 색·글꼴·그림자를 상속한다.
+   기존 외부 링크/클릭 및 hover 이벤트는 그대로 둔다. */
+html #wtList.wtShelfThemeOnV1217 .wtThumbCap .wtComicMetaV1094 :is(.wtHitomiLink,.wtKoneLink){
+ color:inherit!important;
+ font-family:inherit!important;
+ font-size:inherit!important;
+ font-style:inherit!important;
+ font-weight:inherit!important;
+ line-height:inherit!important;
+ text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+ text-decoration:none!important;
+ opacity:1!important;
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ transform:none!important;
+ filter:none!important;
+ transition:none!important;
+}
+/* 회차보기: 이전 책장 활성 버튼 색과 윤곽선을 책장모드에서만 적용한다.
+   책장 글자색/그림자, 0px 실제 border + 1px inset, 4px 라운딩. */
+html #wtList.wtShelfThemeOnV1217 .wtThumbCap .wtComicMetaV1094 .comicChapterJumpV1214,
+html #wtList.wtShelfThemeOnV1217 .wtThumbCap .wtComicMetaV1094 .comicChapterJumpV1214:is(:hover,:focus-visible){
+ box-sizing:border-box!important;
+ background:#815018!important;
+ background-image:none!important;
+ color:#ffb347!important;
+ border:0!important;
+ border-radius:4px!important;
+ box-shadow:inset 0 0 0 1px #d59b4b!important;
+ padding:1px 3px!important;
+ text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+ font-family:inherit!important;
+ font-weight:600!important;
+ cursor:pointer;
+}
+</style>
+
+
+<!-- v1251: 책장전체 = V 전체화면에서 헤더·레일 등 UI를 숨기지 않는 화면 가득 채움. -->
+<style id="comicShelfFullAllCssV1251">
+html.comicShelfFullAllV1251,
+html.comicShelfFullAllV1251 body{overflow:hidden!important;}
+html.comicShelfFullAllV1251 #wtLayer{
+ display:block!important;inset:0!important;pointer-events:auto!important;
+}
+html.comicShelfFullAllV1251 #wtLayer #wtPanel{
+ position:absolute!important;
+ inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;
+ transform:none!important;box-sizing:border-box!important;
+ width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ max-width:none!important;max-height:none!important;
+ margin:0!important;padding:4px!important;
+ border-radius:0!important;
+ overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;
+}
+html.comicShelfFullAllV1251 #wtLayer #wtPanelBody{
+ display:flex!important;flex:1 1 auto!important;min-width:0!important;min-height:0!important;
+ width:100%!important;gap:0!important;
+}
+html.comicShelfFullAllV1251 #wtLayer #wtPanelBody > #wtBox{
+ display:flex!important;flex-direction:column!important;
+ flex:1 1 auto!important;width:auto!important;
+ min-width:0!important;min-height:0!important;
+ max-width:none!important;
+}
+html.comicShelfFullAllV1251 #wtLayer #wtList{
+ flex:1 1 auto!important;min-height:0!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+}
+/* display:none 규칙은 사용하지 않음: 최상단/책장 상단/레일/기타 메뉴 그대로 표시. */
+</style>
+
+
+<!-- v1252: 포스터별 ↻ 단독 재스캔 버튼은 테두리/배경 없는 문자만 표시 (책장/일반 공통). -->
+<style id="comicPosterRescanNoFrameV1252">
+html #wtList .wtSingleRescanV1085,
+html #wtList .wtSingleRescanV1085:is(:hover,:active,:focus,:focus-visible,:disabled) {
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-color:transparent!important;
+  outline:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  /* 원래 19px 클릭 면적/위치/호버 때 보이기/버튼 이벤트는 유지 */
+}
+</style>
+
+<!-- v1252: 줄이 좁아질 때 헤더의 오른쪽 버튼만 부분 줄바꿈되는 문제 해결.
+     예전 .wt-actions 는 flex-wrap:wrap + justify-content:flex-end 이므로 버튼 일부가
+     두 번째 줄 오른쪽 끝으로 떨어짐. 제목/힌트를 우선 줄이고, 버튼은 한 줄 유지. -->
+<style id="comicHeaderNoStrayWrapV1252">
+#wtBox .wt-head-top {
+  min-width:0;
+  flex-wrap:nowrap;
+}
+#wtBox .wt-head-top > .wt-head-left {
+  flex:1 1 auto;
+  min-width:0!important;
+  overflow:hidden;
+}
+#wtBox .wt-head-top .wt-content-switch {
+  flex:0 0 auto;
+}
+#wtBox .wt-head-top .wt-list-title-v1037 {
+  flex:1 1 auto;
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+}
+#wtBox .wt-head-top .wt-list-title-v1037 #wtHint {
+  display:block!important;
+  min-width:0;
+  overflow:hidden;
+  white-space:nowrap!important;
+  text-overflow:ellipsis;
+}
+#wtBox .wt-head-top > .wt-actions {
+  display:flex;
+  flex:0 1 auto;
+  min-width:0;
+  max-width:calc(100% - 185px);
+  margin-left:auto;
+  flex-wrap:nowrap!important;
+  align-items:center;
+  justify-content:flex-start;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+}
+#wtBox .wt-head-top > .wt-actions > * {
+  flex-shrink:0;
+}
+#wtBox .wt-head-top > .wt-actions::-webkit-scrollbar {height:3px;}
+#wtBox .wt-head-top > .wt-actions::-webkit-scrollbar-thumb {background:rgba(156,139,106,.55);border-radius:3px;}
+</style>
+
+
+<!-- v1253: 상단 버튼은 한 줄 가로 스크롤을 유지하되 스크롤바는 노출하지 않는다. -->
+<style id="comicHeaderHiddenScrollbarV1253">
+#wtBox .wt-head-top > .wt-actions {
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;       /* Firefox */
+  -ms-overflow-style:none!important;    /* legacy Edge */
+}
+#wtBox .wt-head-top > .wt-actions::-webkit-scrollbar,
+#wtBox .wt-head-top > .wt-actions::-webkit-scrollbar:horizontal {
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  background:transparent!important;
+}
+</style>
+<script id="comicHeaderWheelScrollV1253">
+(()=>{'use strict';
+  // 세로 마우스 휠로 숨겨진 가로 버튼 목록을 움직일 수 있도록 한다.
+  // 공간이 충분하거나 스크롤 한계에 닿으면 기존 페이지 휠 기능을 막지 않는다.
+  function onWheel(event){
+    const bar=event.target?.closest?.('#wtBox .wt-head-top > .wt-actions');
+    if(!bar || event.ctrlKey || event.altKey || event.shiftKey) return;
+    if(event.target.closest('select,input,textarea,[role="combobox"]'))return;
+    const max=bar.scrollWidth-bar.clientWidth;
+    if(max<=1 || Math.abs(event.deltaY)<=Math.abs(event.deltaX))return;
+    let delta=event.deltaY;
+    if(event.deltaMode===1)delta*=16;
+    else if(event.deltaMode===2)delta*=Math.max(160,bar.clientWidth);
+    const next=Math.max(0,Math.min(max,bar.scrollLeft+delta));
+    if(Math.abs(next-bar.scrollLeft)<.2)return;
+    if(event.cancelable)event.preventDefault();
+    bar.scrollLeft=next;
+  }
+  document.addEventListener('wheel',onWheel,{passive:false});
+})();
+</script>
+<!-- v1253: 책장 모드의 회차 안내문·회차명·장수 배지를 사이드/상단 공통 글자 스타일로 통일. -->
+<style id="comicShelfChapterTypographyV1253">
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+ #wtList.wtShelfThemeOnV1217:is(.zipInnerChaptersV1202,.fsChaptersV1204)
+ :is(.zipInnerNoticeV1202,.fsChapterHintV1204,
+     .zipInnerTitleV1202,.fsChapterLabelV1204,
+     .zipInnerCountV1202,.fsChapterBadgeV1204) {
+  color:var(--viewer-common-font-color-v1162,#ffb347)!important;
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+  filter:none!important;
+  opacity:1!important;
+}
+/* 카드 본문에 따로 지정된 흰색이 자식으로 흘러가지 않도록 부모도 통일. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
+ #wtList.wtShelfThemeOnV1217:is(.zipInnerChaptersV1202,.fsChaptersV1204)
+ :is(.zipInnerCardV1202,.fsChapterCardV1204){
+  color:var(--viewer-common-font-color-v1162,#ffb347)!important;
+  font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
+  font-size:var(--viewer-common-font-size-v1162,12px)!important;
+  font-weight:var(--viewer-common-font-weight-v1162,600)!important;
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+}
+</style>
+
+<!-- v1255: 회차 외곽선/책 효과 범위와 책장 페이지 배지 스타일 수정 -->
+<style id="comicChapterCoverOnlyCssV1255">
+/* ZIP과 이미지폴더 회차 카드의 마우스 hover 청색 outline만 제거.
+   키보드 포커스 접근성은 :focus-visible에서 브라우저 기본 표시를 유지한다. */
+#wtList.zipInnerChaptersV1202 .zipInnerCardV1202:hover,
+#wtList.fsChaptersV1204 .fsChapterCardV1204:hover{
+  outline:none!important;
+}
+/* 책장 모드: 전체 회차 카드가 아니라 실제 표지에만 책 두께와 그림자를 준다.
+   원래 1px border는 투명하게 남겨 레이아웃/책장 행 간격이 바뀌지 않게 한다. */
+#wtList.wtShelfThemeOnV1217.zipInnerChaptersV1202 .zipInnerCardV1202,
+#wtList.wtShelfThemeOnV1217.fsChaptersV1204 .fsChapterCardV1204,
+#wtList.wtShelfThemeOnV1217.zipInnerChaptersV1202 .zipInnerCardV1202:hover,
+#wtList.wtShelfThemeOnV1217.fsChaptersV1204 .fsChapterCardV1204:hover{
+  background:transparent!important;
+  border-color:transparent!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+  overflow:visible!important;
+  filter:none!important;
+}
+/* 회차 제목은 바깥 판/테두리 없이 독립적인 텍스트 영역으로 표시한다. */
+#wtList.wtShelfThemeOnV1217.zipInnerChaptersV1202 .zipInnerTitleV1202,
+#wtList.wtShelfThemeOnV1217.fsChaptersV1204 .fsChapterLabelV1204{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+/* 기존 v1222 책등/입체감은 이 두 표지 래퍼에만 적용되어 그대로 유지. */
+/* 책장 모드 표지의 총 페이지수/회차수와 마지막 읽음 위치, 내부 회차 장수 배지. */
+#wtList.wtShelfThemeOnV1217 .wtThumbImgWrap :is(.wtThumbBadgeTotal,.wtThumbBadgeEp,.comicReadProgressV1090),
+#wtList.wtShelfThemeOnV1217 :is(.zipInnerCoverV1202 .zipInnerCountV1202,.fsChapterCoverV1204 .fsChapterBadgeV1204){
+  color:#ffb347!important;
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+  opacity:1!important;
+}
+</style>
+
+
+<!-- v1257: independent scan glyph palette and fail-safe bookshelf-top image. -->
+<style id="comicShelfTopFallbackAndScanColorV1257">
+/* Shelf header starts with the same cropped, repeating center timber grain as #wtTagRail.
+   When Actors/thema1_top.jpg is confirmed loaded it is used at full header size. */
+html.comicShelfTopReadyV1257 #wtBox:has(> #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) > .wt-head{
+  background-image:url("Actors/thema1_top.jpg")!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-size:100% 100%!important;
+}
+/* Give per-poster ↻ exactly the color of the folder-level ↻, preserving the existing
+   invisible background/border, hover availability, element positioning and click handling. */
+html #wtList .wtSingleRescanV1085,
+html #wtList .wtSingleRescanV1085:is(:hover,:active,:focus,:focus-visible,:disabled) {
+  color:#b9defe!important; /* #wtGroupBar .wtFolderScanV1091 in ordinary mode */
+}
+/* Folder-level ↻ changes its glyph to white on hover in ordinary mode. */
+html #wtList:not(.wtShelfThemeOnV1217) .wtSingleRescanV1085:hover {
+  color:#fff!important;
+}
+/* Under the bookshelf theme, the folder arrow inherits the oak #ffb347 UI palette. */
+html #wtList.wtShelfThemeOnV1217 .wtSingleRescanV1085,
+html #wtList.wtShelfThemeOnV1217 .wtSingleRescanV1085:is(:hover,:active,:focus,:focus-visible,:disabled) {
+  color:#ffb347!important;
+  text-shadow:0 1px 3px #211004,0 0 3px #211004!important;
+}
+</style>
+<script id="comicShelfTopFallbackLoaderV1257">
+(()=>{
+  'use strict';
+  /* The original wood tile is already loaded, or inlined as a backup, by v1243.
+     No external fetch, extra file permission or new IndexedDB entry is required. */
+  const image=new Image();
+  image.onload=()=>{
+    if(image.naturalWidth>0&&image.naturalHeight>0){
+      document.documentElement.classList.add('comicShelfTopReadyV1257');
+    }
+  };
+  image.onerror=()=>document.documentElement.classList.remove('comicShelfTopReadyV1257');
+  image.src='Actors/thema1_top.jpg';
+})();
+</script>
 
 </body>
 
