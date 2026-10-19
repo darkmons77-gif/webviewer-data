@@ -1,3 +1,4 @@
+<!-- v1263: 기존 회색 버튼 배경 저장값을 최초 실행 시 투명(없음)으로 자동 이전; 사용자 지정 다른 색·굵기 보존. 업데이트 공지 추가 없음. -->
 <!-- v1261: 1216~1260 업데이트 공지 한 페이지 통합. 책장 테마 최상위 강조, 두 장 펼침/넘김 두 번째 강조. 기존 공지 기록 1199~1215 유지. -->
 <!-- v1260: 1259 폐기 / 1258 기준. 시작용 가상 책·가로 한 장 3D 삭제, 원본 StPageFlip 중앙 가장자리 드래그만 추가. -->
 <!-- v1258: 펼침에서 책 안에서 시작한 드래그를 바깥에서 놓아도 닫히지 않게 수정; 가로 한 장 보기에서 실제 이미지 영역만 3D 종이 넘김(440ms). -->
@@ -162745,7 +162746,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1262;
+  const VIEWER_BUILD_V789 = 1263;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -176865,8 +176866,21 @@ html :is(button.zoomBtn,a.zoomBtn):not([style*="background"]):not(.active):not(.
     {key:'v7',name:'선명한 자홍',value:'#c02c90'}
   ];
   const byKey=new Map(COLORS.map(c=>[c.key,c]));
+  // v1263: Migrate the legacy saved gray background to transparent for existing users.
+  // This is a one-time migration: a later intentional palette change is preserved.
+  const LEGACY_GRAY_MIGRATION_KEY_V1263='viewer_common_button_gray_to_clear_v1263';
   let selected='background';
-  try{const v=localStorage.getItem(KEY);if(byKey.has(v))selected=v;}catch(_){ }
+  try{
+    const stored=localStorage.getItem(KEY);
+    const pending=localStorage.getItem(LEGACY_GRAY_MIGRATION_KEY_V1263)!=='1';
+    if(pending && stored==='gray'){
+      selected='background';
+      localStorage.setItem(KEY,'background');
+    }else if(byKey.has(stored)){
+      selected=stored;
+    }
+    if(pending)localStorage.setItem(LEGACY_GRAY_MIGRATION_KEY_V1263,'1');
+  }catch(_){ }
   const colorText=(hex)=>{
     const n=parseInt(hex.slice(1),16);
     const vals=[(n>>16)&255,(n>>8)&255,n&255].map(v=>{
