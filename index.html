@@ -169372,7 +169372,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1390;
+  const VIEWER_BUILD_V789 = 1392;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -177482,7 +177482,47 @@ window.comicZipRecordCacheStatsV1362=()=>({
   ...zipPosterRecordsV1362.stats(),...zipRecordDbCountersV1362,
   dbConnected:!!posterDbHandleV1362
 });
-const pageCountJobsV981=new Map(), pageBadgeRefsV981=new Map();
+// v1391: opt-in read-only trace: ZIP page counts, saved-count retrieval, and missing cover rebuilds.
+ // Uses existing Options > Video > Console developer mode; never performs an extra file/IDB read.
+ const zipPageTraceV1391={totals:Object.create(null),events:[],printed:0};
+ function traceZipPageV1391(event,value,detail={},badge=null){
+   if(!window.viewerConsoleDeveloperModeV1101?.isEnabled?.())return;
+   const totals=zipPageTraceV1391.totals;
+   totals[event]=(totals[event]||0)+1;
+   const card=badge?.closest?.('.wtThumbItem');
+   let position=null;
+   if(card?.isConnected){
+     const rect=card.getBoundingClientRect();
+     const list=document.getElementById('wtList');
+     const listRect=list?.getBoundingClientRect();
+     position={left:Math.round(rect.left-(listRect?.left||0)),top:Math.round(rect.top-(listRect?.top||0)),visible:rect.bottom>0&&rect.top<innerHeight};
+   }
+   const item={time:new Date().toLocaleTimeString('ko-KR',{hour12:false}),event,work:String(value||''),...detail};
+   if(position)item.position=position;
+   zipPageTraceV1391.events.push(item);
+   if(zipPageTraceV1391.events.length>600)zipPageTraceV1391.events.shift();
+   // Cap live console output even while sweeping tens of thousands of works.
+   if(zipPageTraceV1391.printed<320){
+     zipPageTraceV1391.printed++;
+     console.info('[만화 ZIP 장수 1391]',item);
+   }else if(zipPageTraceV1391.printed===320){
+     zipPageTraceV1391.printed++;
+     console.info('[만화 ZIP 장수 1391] 콘솔 출력 320건 제한; comicZipPageTraceV1391()에서 최근 600건·합계를 확인하세요.');
+   }
+ }
+ window.comicZipPageTraceV1391=()=>({
+   enabled:!!window.viewerConsoleDeveloperModeV1101?.isEnabled?.(),
+   totals:{...zipPageTraceV1391.totals},
+   lastEvents:zipPageTraceV1391.events.slice(),
+   note:'fresh:archive-by-poster=표지 생성 과정의 ZIP 읽기, fresh:archive-by-count=장수 캐시/저장값 부재로 ZIP 읽기, green-from-memory=이번 실행의 초록 상태 복원'
+ });
+ window.comicZipPageTraceResetV1391=()=>{
+   zipPageTraceV1391.totals=Object.create(null);
+   zipPageTraceV1391.events.length=0;
+   zipPageTraceV1391.printed=0;
+   return 'ZIP 장수 추적기 초기화 완료 (저장된 장수·표지 캐시에는 영향 없음)';
+ };
+ const pageCountJobsV981=new Map(), pageBadgeRefsV981=new Map();
 // v1011: 표지/장수 확인이 동일한 ZIP 중앙 디렉터리를 동시에 읽지 않도록 단일 실행 작업으로 병합.
 const archiveReadJobsV1011=new Map(), posterJobsV1011=new Map();
 // v1012: 이 실행에서 실제로 연 ZIP의 파일 서명만 추적한다. 전체 ZIP 메타데이터를 일괄 조회하지 않는다.
@@ -177736,7 +177776,7 @@ async function syncOpenedZipV1012(value,file,pages){
   if(changed||!hasVerified||Number(saved?.imageCount)!==pages.length){
     try{await posterRecord(value,next);}catch(e){log('ZIP 변경 기록 저장 실패',errText(e));}
   }
-  publishPageCountV981(value,pages.length);
+  publishPageCountV981(value,pages.length,'fresh','archive-by-open');
   // 이미 렌더된 카드 중 이전에 등록 후 참조가 해제된 배지도 실제 장수로 갱신한다.
   // 매 ZIP 장수 조회마다 전체 DOM을 검색하지 않고, 작품을 열 때만 한 번 확인한다.
   document.querySelectorAll('.wtThumbBadgeTotal[data-comic-zip-value]').forEach(badge=>{
@@ -177753,13 +177793,18 @@ async function syncOpenedZipV1012(value,file,pages){
   return {changed,count:pages.length};
 }
 // ZIP 중앙목록의 이미지 수만 캐시한다. 새 폴더/다른 목록으로 이동해도 같은 ZIP을 매번 열지 않는다.
-function publishPageCountV981(value,count,origin='fresh'){
-  count=Number(count)||0;if(count<1)return;
+ function publishPageCountV981(value,count,origin='fresh',reason='unknown'){
+   count=Number(count)||0;if(count<1)return;
   // 단순 저장값 조회는 saved, 실제 중앙디렉터리 검사/재스캔은 fresh.
   // 세션 내 새로 센 숫자는 카드가 새로 만들어져도 출처를 보존한다.
   const previous=zipPageCacheV1288.peek(value);
-  const source=(origin==='fresh'||!previous)?origin:previous.origin;
-  zipPageCacheV1288.set(value,{count,origin:source});
+   const source=(origin==='fresh'||!previous)?origin:previous.origin;
+   if(origin==='fresh')traceZipPageV1391('green-from-archive',value,{
+     cause:reason,count,previousCount:previous?.count??null,previousOrigin:previous?.origin??null,
+     switchedSavedToFresh:previous?.origin==='saved',sameNumberAsMemory:previous?.count===count
+   },pageBadgeRefsV981.get(value)?.values()?.next()?.value);
+   else if(!previous)traceZipPageV1391('blue-from-saved-record',value,{cause:reason,count});
+   zipPageCacheV1288.set(value,{count,origin:source});
   window.ComicLocalPageSortV1186?.noteZip(value,count);
   const refs=pageBadgeRefsV981.get(value);if(!refs)return;
   for(const badge of refs){
@@ -177778,21 +177823,30 @@ async function storePageCountV981(value,count,file){
     if(file && !zipIsCurrentV1012(value,file))return;
     const saved=(await posterRecord(value))||{};
     if(file && !zipIsCurrentV1012(value,file))return;
-    // 기존 썸네일 filename과 '열었을 때 검사한 서명'은 보존한다.
-    await posterRecord(value,{...saved,imageCount:count,
+    // v1392: same count and same source signature need no IDB transaction.
+    if(Number(saved.imageCount)===count && (!file || (
+      saved.sourceSize===file.size && saved.sourceModified===file.lastModified)))return;
+     // Existing stored image count may already match; measure writes without extra IO.
+     traceZipPageV1391('count-record-write',value,{
+       count,previousStoredCount:Number(saved?.imageCount)||null,sameNumber:Number(saved?.imageCount)===count
+     });
+     // 기존 썸네일 filename과 '열었을 때 검사한 서명'은 보존한다.
+     await posterRecord(value,{...saved,imageCount:count,
       sourceSize:file?.size??saved.sourceSize,
       sourceModified:file?.lastModified??saved.sourceModified});
   }catch(e){console.warn('[comic ZIP v1187] 이미지 장수 저장 실패',value,errText(e));}
 }
 // v1011: 화면에 보이는 카드가 많아도 조회 요청 자체를 즉시 실행하지 않고 공통 큐에 보관한다.
 // 표지 요청과 동시에 중앙 디렉터리를 읽게 된 경우 ZIP 하나당 한 번만 열도록 공유한다.
-async function archiveInfoV1011(value){
-  if(archiveReadJobsV1011.has(value))return archiveReadJobsV1011.get(value);
-  const task=(async()=>{
-    const {handle}=await findFile(value);
-    const file=await handle.getFile();
-    return {file,pages:await central(file)};
-  })().finally(()=>archiveReadJobsV1011.delete(value));
+ async function archiveInfoV1011(value,purpose='unknown'){
+   if(archiveReadJobsV1011.has(value))return archiveReadJobsV1011.get(value);
+   const task=(async()=>{
+     const {handle}=await findFile(value);
+     const file=await handle.getFile();
+     const pages=await central(file);
+     traceZipPageV1391('zip-central-directory-read',value,{requestedBy:purpose,count:pages.length});
+     return {file,pages};
+   })().finally(()=>archiveReadJobsV1011.delete(value));
   archiveReadJobsV1011.set(value,task);
   return task;
 }
@@ -177803,13 +177857,16 @@ function getImageCountV981(value){
   const task=enqueue(async()=>{
     if(zipPageCacheV1288.has(value))return zipPageCacheV1288.get(value).count;
     const saved=await posterRecord(value).catch(()=>null);
-    if(Number(saved?.imageCount)>0){
-      const n=Number(saved.imageCount);publishPageCountV981(value,n,'saved');return n;
-    }
-    const {file,pages}=await archiveInfoV1011(value);
+     if(Number(saved?.imageCount)>0){
+       const n=Number(saved.imageCount);
+       traceZipPageV1391('count-restored-from-indexeddb',value,{count:n});
+       publishPageCountV981(value,n,'saved','saved-record');return n;
+     }
+     traceZipPageV1391('count-missing-from-indexeddb',value,{recordPresent:!!saved});
+     const {file,pages}=await archiveInfoV1011(value,'count');
     if(!zipIsCurrentV1012(value,file))return zipPageCacheV1288.peek(value)?.count||0;
     const n=pages.length;
-    if(n){publishPageCountV981(value,n);await storePageCountV981(value,n,file);}
+     if(n){publishPageCountV981(value,n,'fresh','archive-by-count');await storePageCountV981(value,n,file);}
     return n;
   },false,'count').finally(()=>pageCountJobsV981.delete(value));
   pageCountJobsV981.set(value,task);return task;
@@ -177822,8 +177879,11 @@ function mountPageCountV981(value,badge,wrap){
   if(zipPageCacheV1288.has(value)){
     const record=zipPageCacheV1288.get(value);
     badge.textContent=String(record.count);
-    window.ComicPageCountSourceV1276?.mark(badge,record.origin||'saved',`압축파일 내부 이미지 ${record.count}장`);
-    return;
+     window.ComicPageCountSourceV1276?.mark(badge,record.origin||'saved',`압축파일 내부 이미지 ${record.count}장`);
+     if(record.origin==='fresh')traceZipPageV1391('green-restored-from-memory',value,{
+       count:record.count,notNewZipRead:true
+     },badge);
+     return;
   }
   if(!pageBadgeRefsV981.has(value))pageBadgeRefsV981.set(value,new Set());
   pageBadgeRefsV981.get(value).add(badge);
@@ -177843,11 +177903,59 @@ async function deletePosterRecord(value){
   zipPosterRecordsV1362.delete(value);
   return true;
 }
+// v1392: IndexedDB deserializes FileSystemDirectoryHandle into a NEW JS wrapper
+// even when it represents the SAME physical folder. Re-reading it for every
+// cover made v1360's === identity guard invalidate all folder/permission caches.
+// Keep one root wrapper in RAM, coalesce concurrent fallback reads, and respect
+// explicit folder changes. The existing v872 RAM handle always takes priority.
+let posterRootFallbackV1392=null;
+let posterRootPendingV1392=null;
+let posterRootEpochV1392=0;
+const posterRootStatsV1392={idbReads:0,reused:0,pendingReused:0,resets:0};
+function clearPosterRootFallbackV1392(){
+  posterRootEpochV1392++;
+  posterRootFallbackV1392=null;
+  posterRootPendingV1392=null;
+  posterRootStatsV1392.resets++;
+}
+window.addEventListener('webviewer-image-folder-changed-v1056',clearPosterRootFallbackV1392);
+window.addEventListener('video-folder-permissions-restored-v998',clearPosterRootFallbackV1392);
+window.comicZipPosterRootCacheStatusV1392=()=>({...posterRootStatsV1392,
+  cached:!!posterRootFallbackV1392,pending:!!posterRootPendingV1392});
 async function posterFolderRootV981(){
-  let root=null;
-  try{root=typeof getVideoPosterRootHandleCachedV872==='function'?getVideoPosterRootHandleCachedV872():null;}catch(_){}
-  if(!root)try{root=await idbGetComic('video_poster_root_handle_v1');}catch(_){}
-  return root;
+  let live=null;
+  try{live=typeof getVideoPosterRootHandleCachedV872==='function'?getVideoPosterRootHandleCachedV872():null;}catch(_){}
+  if(live){
+    if(posterRootFallbackV1392!==live){
+      posterRootEpochV1392++;
+      posterRootFallbackV1392=live;
+      posterRootPendingV1392=null;
+    }
+    return live;
+  }
+  if(posterRootFallbackV1392){
+    posterRootStatsV1392.reused++;
+    return posterRootFallbackV1392;
+  }
+  if(posterRootPendingV1392){
+    posterRootStatsV1392.pendingReused++;
+    return await posterRootPendingV1392;
+  }
+  const epoch=posterRootEpochV1392;
+  posterRootStatsV1392.idbReads++;
+  const pending=Promise.resolve()
+    .then(()=>idbGetComic('video_poster_root_handle_v1'))
+    .catch(()=>null)
+    .then(root=>{
+      if(epoch!==posterRootEpochV1392)return null;
+      posterRootFallbackV1392=root||null;
+      return posterRootFallbackV1392;
+    })
+    .finally(()=>{
+      if(posterRootPendingV1392===pending)posterRootPendingV1392=null;
+    });
+  posterRootPendingV1392=pending;
+  return await pending;
 }
 function folderDisplayPathV981(root){
   if(!root)return '미연결';
@@ -177866,11 +177974,23 @@ async function coverFileName(value){
   let h=2166136261;for(const b of data)h=Math.imul(h^b,16777619);
   return (h>>>0).toString(16).padStart(8,'0')+'.webp';
 }
-async function readCached(value){
-  const rec=await posterRecord(value);if(!rec?.filename)return null;
-  const folder=await posterFolder(false);if(!folder)return null;
-  return await window.ComicPosterDirectoryHandlesV1360.readFile(folder,rec.filename,()=>posterFolder(false));
-}
+ async function readCached(value){
+   const rec=await posterRecord(value);
+   if(!rec?.filename){
+     traceZipPageV1391('poster-cache-miss',value,{
+       reason:rec?'record-without-cover-filename':'no-cover-record',savedCount:rec?.imageCount||null
+     });
+     return null;
+   }
+   const folder=await posterFolder(false);
+   if(!folder){
+     traceZipPageV1391('poster-cache-miss',value,{reason:'cover-folder-unavailable',filename:rec.filename,savedCount:rec.imageCount||null});
+     return null;
+   }
+   const blob=await window.ComicPosterDirectoryHandlesV1360.readFile(folder,rec.filename,()=>posterFolder(false));
+   if(!blob)traceZipPageV1391('poster-cache-miss',value,{reason:'cover-file-missing',filename:rec.filename,savedCount:rec.imageCount||null});
+   return blob;
+ }
 async function resize(blob){
   const url=URL.createObjectURL(blob);let bitmap=null, image=null;
   try{
@@ -177888,11 +178008,23 @@ async function resize(blob){
 }
 async function posterFor(value){
   const cached=await readCached(value);if(cached)return cached;
-  const {file,pages}=await archiveInfoV1011(value);
-  if(!zipIsCurrentV1012(value,file))throw Error('ZIP 변경으로 이전 표지 생성 작업 취소');
-  if(!pages.length)throw Error('ZIP에 이미지가 없습니다.');
-  publishPageCountV981(value,pages.length);
-  await storePageCountV981(value,pages.length,file);
+   const {file,pages}=await archiveInfoV1011(value,'poster');
+   if(!zipIsCurrentV1012(value,file))throw Error('ZIP 변경으로 이전 표지 생성 작업 취소');
+   if(!pages.length)throw Error('ZIP에 이미지가 없습니다.');
+   // v1392: Missing saved WebP is a COVER problem, not a reason to turn an
+   // already-known page count green or to rewrite the same IDB record.
+   // Still refresh the page count if the ZIP signature/count has changed.
+   const countRecordV1392=await posterRecord(value).catch(()=>null);
+   const oldSizeV1392=Number.isFinite(countRecordV1392?.openedSizeV1012)
+     ? countRecordV1392.openedSizeV1012:countRecordV1392?.sourceSize;
+   const oldModifiedV1392=Number.isFinite(countRecordV1392?.openedModifiedV1012)
+     ? countRecordV1392.openedModifiedV1012:countRecordV1392?.sourceModified;
+   const changedSourceV1392=Number.isFinite(oldSizeV1392)&&Number.isFinite(oldModifiedV1392)
+     &&(oldSizeV1392!==file.size||oldModifiedV1392!==file.lastModified);
+   const knownCountV1392=Number(countRecordV1392?.imageCount)===pages.length && !changedSourceV1392;
+   publishPageCountV981(value,pages.length,knownCountV1392?'saved':'fresh',
+     knownCountV1392?'archive-by-poster-known':'archive-by-poster');
+   if(!knownCountV1392)await storePageCountV981(value,pages.length,file);
   let last;
   for(const p of pages.slice(0,4)){
     try{const raw=await extract(file,p);const out=await resize(raw);
@@ -180368,8 +180500,8 @@ async function restoreCoverV982(value){
       const out=await resize(await extract(file,page));
       const result=await writePosterV982(value,out,{manual:false,coverPage:page.name,
         imageCount:pages.length,sourceSize:file.size,sourceModified:file.lastModified});
-      publishPageCountV981(value,pages.length);
-      return result;
+       publishPageCountV981(value,pages.length,'fresh','manual-poster-restore');
+       return result;
     }catch(e){lastError=e;if(/쓰기 권한|저장 후/.test(errText(e)))break;}
   }
   throw lastError||Error('ZIP의 첫 이미지로 표지를 복원하지 못했습니다.');
@@ -180542,9 +180674,9 @@ async function rescanExactV1085(value){
   // 변경된 자동 표지만 무효화하고 수동 표지·제목·태그는 유지.
   const result=await syncOpenedZipV1012(value,file,pages);
   void window.ComicZipInnerChaptersV1202?.register(value,file,pages,{force:true});
-  publishPageCountV981(value,pages.length);
-  await storePageCountV981(value,pages.length,file);
-  return {type:'zip',count:pages.length,changed:result.changed};
+   publishPageCountV981(value,pages.length,'fresh','manual-rescan');
+   await storePageCountV981(value,pages.length,file);
+   return {type:'zip',count:pages.length,changed:result.changed};
 }
 function forgetCachedV1205(match){
   // v1362: purge the same ZIP keys from derived RAM metadata as from IDB.
