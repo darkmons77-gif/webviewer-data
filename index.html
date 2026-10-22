@@ -264,7 +264,7 @@
 <!-- v1048: 로컬 무규칙 vs 경로 직접 입력 숫자 파일명 1~6자리·[그룹(작가)][태그]제목 표기 안내, 새로운 3회 표시 -->
 <!-- v1047: 로컬 만화 통합 안내 재구성(규칙 불필요·이미지 지원 확장자), 건의하기 별도 강조색, BMP 비압축 지원, 새 3회 표시 -->
 <!-- v1046: 만화 작품목록 경로설명 및 레일 작가·그룹·태그 탭 글자크기를 공통 UI로 통일, 로컬 비압축만화 안내 추가, 알림 3회 재시작 -->
-<!-- v1045: 이미지폴더 표지 저장을 Posters/ComicsFolders 실제 WebP 파일로 통일; 기존 IDB Blob은 읽기 전용 이관 후 개별 제거, 기존 Comics/Folders는 호환 이관 -->
+<!-- v1402: legacy IDB/LS cleanup completion markers, canonical fsdir work paths only; no changes to current user metadata -->
 <!-- v1043: ZIP 첫 발견 후 상단 스캔안내 즉시 표시 · 이미지폴더 표지 WebP 캐시(IDB) 추가(세로형 가로 360 기준 / 가로형 가로 520 기준, 높이는 비율 유지), 보이는 카드부터 저장 -->
 <!-- v1039: 만화 텍스트/썸네일 목록의 zipcomic: 로컬 ZIP/CBZ 경로를 fsdir:와 동일한 주황색으로 표시, 작품목록 경로 범례 갱신. -->
 <!-- v1038: ZIP 작품 편집 창에서 URL 인코딩된 파일명 한글 표시, 저장시 기존 ZIP 값 보존/신규 수정값 재인코딩, 툴팁과 검색 경로 한글표시. -->
@@ -299,6 +299,13 @@
 <!-- v1001: 이미지폴더로 직접 추가한 fsdir 작품의 표지/장수 미표시 수정: 초기 렌더 전 핸들 미복원 시 저장 루트에서 작품 폴더만 경량 조회, 실패한 가시카드 이벤트 재시도. ZIP 대량 재스캔 방지. -->
 <!-- v1000: 만화 검색/정렬 결과를 원본 데이터·조건별 메모리 캐시로 재사용, 정렬값은 작품당 1회만 계산. 목록/평점/북마크/AI평점/페이지구성 변경 시 캐시 무효화. v997 화면복원·v999 레일 캐시 유지. -->
 <!-- v1007: ZIP 안내창 수동 닫기 버튼, 닫기 시에만 최대 3회 집계. v1006 안내 횟수는 별도 키로 초기화. -->
+<!-- v1411: shelf vs normal independent virtual-DOM timing counters; read via ComicVirtual150V1295.stats().byMode. -->
+<!-- v1410: share cheaper normal/shelf virtual DOM maintenance; skip unchanged count UI, record incremental creation/timing stats. -->
+<!-- v1409: coalesce near-simultaneous ZIP cover metadata reads with bounded 5ms wait; urgent 24+ key flush, writes unchanged. -->
+<!-- v1408: reuse fsdir root read-permission checks and shared path-prefix handles during single-work recovery; invalidate on root/permission changes; RAM only. -->
+<!-- v1407: ordinary comic virtual grid reuses measured row geometry like the bookshelf;
+     scroll only checks logical row boundaries, fullscreen/rail/ratio keep existing corrections. -->
+<!-- v1406 active-title RAM cache -->
 <html lang="ko" class="wv1110-light-starting wv1111-light-only wv1333-boot">
 <head>
 <style id="comicRailPinnedChecksV1363">
@@ -721,8 +728,12 @@ html.wv1111-light-only #miniToolbar {
   // Dynamic fallback is deliberately narrow; large data/history keys are not caught.
   const extraPreferencePattern = /^(?:comic_(?:book_|shelf_|reader_|local_(?:auto_scroll|horizontal_auto)|creator_rail_mode|zip_page_overlay_mode)|video_(?:poster_(?:render_style|text_mode|view|entrance_effect|horizontal_ratio)|cols_|sort_|card_|actress_(?:name_lang|sort_|selected_sort_|poster_wall_|match_mode|avwiki_only_identity)|main_rail_tab|menu_rail_|rail_menu_mode|preview_(?:mode|subtitle_enabled)|scene_panel_open|toolbar_folded|work_title_mode|bookmark_only)|viewer_common_button_(?:palette|typography)|wt_(?:cols_|ratio_|content_mode|last_selected_tab)|webtoon_(?:view_mode|page_size|last_normal_view)|lb_(?:topbar_pos|max_width_percent|max_height_percent|author_cols))/;
   const extraPreference = (key) => extraPreferencePattern.test(key);
-  const shouldCache = (key) => !protectedKey(key) &&
-    (preferenceKeys.has(key) || extraPreference(key));
+  // v1406: active title is an identity record, not a deferred UI preference.
+  // Read-through caches it in RAM, while changes must be synchronously persisted
+  // before work switching and location.reload().
+  const immediateIdentityKeyV1406 = key => key.startsWith('webtoon_active_title:');
+  const shouldCache = (key) => immediateIdentityKeyV1406(key) ||
+    (!protectedKey(key) && (preferenceKeys.has(key) || extraPreference(key)));
 
   const prefMemory = new Map();
   const dirty = new Set();
@@ -734,7 +745,7 @@ html.wv1111-light-only #miniToolbar {
   let traceEnd = 0;
   let traceRows = new Map();
   let traceOtherKeys = 0;
-  const TRACE_LIMIT = 400;
+  const TRACE_LIMIT = 8000; // v1397: diagnostic-only key cap; retain total counts beyond this cap
   const TRACE_FIELDS = ['ramHits','coldReads','nativeReads','deferredWrites',
     'nativeWrites','flushWrites','deferredRemoves','nativeRemoves',
     'oversizeReads','oversizeWrites','unchangedWrites'];
@@ -766,7 +777,7 @@ html.wv1111-light-only #miniToolbar {
       active:traceOn,elapsedSeconds:traceStart ? Math.round(((traceOn?Date.now():traceEnd)-traceStart)/1000) : 0,
       memoryKeys:prefMemory.size,dirtyKeys:dirty.size,knownSettingKeys:preferenceKeys.size,
       totals:{...traceSum},enumeration:{...traceEnumeration},overflowKeys:traceOtherKeys,
-      possibleMissed:possibleMissed.slice(0,limit),top:rows.slice(0,limit),uniqueKeys:rows.length
+      possibleMissed:possibleMissed.slice(0,limit),top:rows.slice(0,limit),uniqueKeys:rows.length,traceLimit:TRACE_LIMIT
     };
   }
   const diagnostics=Object.freeze({
@@ -805,6 +816,13 @@ html.wv1111-light-only #miniToolbar {
     setItem(k,v) {
       const key=toKey(k), value=toValue(v);
       if (blockedByReset(key)) return;
+      if (immediateIdentityKeyV1406(key)) {
+        // Preserve crash/reload correctness: do NOT stage active identity in dirty.
+        // Update RAM only after synchronous LocalStorage write succeeds.
+        native().setItem(key,value); numbers.nativeWrites++;
+        prefMemory.set(key,value); dirty.delete(key);
+        traceEvent('nativeWrites',key);return;
+      }
       if (!shouldCache(key) || value.length>MAX_SETTING_CHARS) {
         prefMemory.delete(key); dirty.delete(key);
         native().setItem(key,value); numbers.nativeWrites++;
@@ -819,6 +837,11 @@ html.wv1111-light-only #miniToolbar {
     removeItem(k) {
       const key=toKey(k);
       if (blockedByReset(key)) return;
+      if (immediateIdentityKeyV1406(key)) {
+        native().removeItem(key); numbers.nativeWrites++;
+        prefMemory.set(key,null); dirty.delete(key);
+        traceEvent('nativeRemoves',key);return;
+      }
       if (!shouldCache(key)) {
         native().removeItem(key); numbers.nativeWrites++;
         traceEvent('nativeRemoves',key);return;
@@ -1281,6 +1304,22 @@ html.wv1111-light-only #miniToolbar {
   });
   window.ViewerCacheManager=manager;
   window.ViewerCacheManagerV1281=manager;
+  // v1406: storage events fire only in other tabs. Invalidate just the active
+  // title memory; leave pending unrelated user settings untouched.
+  window.addEventListener('storage',event=>{
+    const key=event?.key;
+    if(key===null){
+      for(const savedKey of prefMemory.keys())
+        if(immediateIdentityKeyV1406(savedKey))prefMemory.delete(savedKey);
+    }else if(typeof key==='string' && immediateIdentityKeyV1406(key)){
+      prefMemory.delete(key);
+    }
+  });
+  window.comicActiveTitleCacheStatusV1406=()=>({
+    activeKeyCount:[...prefMemory.keys()].filter(immediateIdentityKeyV1406).length,
+    activeKeysDirty:[...dirty].filter(immediateIdentityKeyV1406).length,
+    persistence:'immediate',readPolicy:'RAM after first read'
+  });
   setInterval(flush,FLUSH_MS);
   window.addEventListener('pagehide',flush,{capture:true});
 })();
@@ -1332,6 +1371,251 @@ function invalidateVideoActressSourceIndexV1291(source) {
       window.dispatchEvent(new Event('viewer-console-mode-changed-v1101'));
     }
   });
+})();
+</script>
+<script id="viewerPerformanceDiagnosticsV1394">
+// v1394: Developer-only, bounded diagnostics for IDB, folder handles, localStorage and RAM caches.
+// Original IndexedDB, File System Access and Storage API calls are not changed in meaning.
+(() => {
+'use strict';
+if (window.viewerPerfDiagnosticsV1394) return;
+const MAX_EVENTS=350, MAX_WARNINGS=120, WINDOW_MS=60000, WARN_COOLDOWN_MS=30000;
+const CACHE_WARN_RATE=80, MIN_CACHE_SAMPLES=20, CACHE_STARTUP_WARMUP_MS=45000;
+const THRESHOLD={idbOpens:30,idbTx:180,idbStoreWrites:75,idbSameKeyWrites:6,
+  folderSamePath:25,permissionSameHandle:30,lsSameKeyWrites:12,lsSameKeyReads:180};
+const empty=()=>Object.create(null);
+const keySizes=new WeakMap(), MAX_TRACKED_KEYS=2500;
+const state={since:Date.now(), idb:{opens:0,transactions:0,reads:0,writes:0,cursors:0,
+  indexReads:0,cursorMoves:0,byDb:empty(),byStore:empty(),byWriteKey:empty()},
+  fs:{directories:0,fileHandles:0,fileReads:0,permissionQueries:0,permissionRequests:0,
+    byPath:empty(),byPermission:empty()},
+  ls:{reads:0,writes:0,removes:0,clears:0,keys:0,byKey:empty()},
+  recent:[],warnings:[],hot:new Map(),warnedAt:new Map(),lastCacheCheckAt:0,cacheBaseline:empty(),cacheReady:false,cacheArmedAt:0};
+const modeOn=()=>{try{return window.viewerConsoleDeveloperModeV1101?.isEnabled?.()===true;}catch(_){return false;}};
+const now=()=>Date.now();
+function hit(obj,key){let k=String(key||'(unknown)');if(obj[k]===undefined){const size=keySizes.get(obj)||0;if(size>=MAX_TRACKED_KEYS)k='(기타 키 합계)';else keySizes.set(obj,size+1);}obj[k]=(obj[k]||0)+1;}
+function short(v,max=120){try{let t=String(v??'');return t.length>max?t.slice(0,max)+'…':t;}catch(_){return '?';}}
+function log(kind,data){if(!modeOn())return;state.recent.push({time:new Date().toLocaleTimeString(),kind,...data});if(state.recent.length>MAX_EVENTS)state.recent.shift();}
+function pct(hit,miss){const n=(hit||0)+(miss||0);return n?Math.round((hit||0)/n*10000)/100:null;}
+function top(obj,n=12){return Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([item,calls])=>({item,calls}));}
+function pushWarning(code,title,detail,level='warning',value=null,limit=null){
+  if(!modeOn())return;
+  const t=now(),last=state.warnedAt.get(code)||0;
+  if(t-last<WARN_COOLDOWN_MS)return;
+  state.warnedAt.set(code,t);
+  const item={time:new Date(t).toLocaleTimeString(),level,code,title,detail,value,limit};
+  state.warnings.push(item);if(state.warnings.length>MAX_WARNINGS)state.warnings.shift();
+  // Warn only on anomaly, never log every normal operation.
+  try{console.warn('[웹뷰어 진단 1394]',title,detail);}catch(_){}
+}
+// Rolling 60s detector: only hot keys stay in memory; pruning bounds the scan.
+let sampleNo=0;
+function observe(kind,key,threshold,title){
+  if(!modeOn())return;
+  const id=kind+'|'+key,t=now();
+  let entry=state.hot.get(id);
+  if(!entry || t-entry.start>=WINDOW_MS){entry={start:t,count:0};state.hot.set(id,entry);}
+  entry.count++;
+  if(entry.count===threshold+1 || (entry.count>threshold && entry.count%threshold===0))
+    pushWarning(id,title,`최근 60초 동안 ${entry.count}회 (기준 ${threshold}회), 대상: ${short(key,100)}`,'warning',entry.count,threshold);
+  if(++sampleNo%400===0){for(const [k,e] of state.hot)if(t-e.start>=WINDOW_MS)state.hot.delete(k);
+    if(state.hot.size>2500){const keys=state.hot.keys();while(state.hot.size>2200)state.hot.delete(keys.next().value);}}
+}
+function storeRow(name){return state.idb.byStore[name]||(state.idb.byStore[name]={reads:0,writes:0,cursors:0,indexReads:0,byOp:empty()});}
+function keyLabel(store,op,args){
+  if(!args?.length)return '(no-key)';
+  if(op==='clear')return '(all)';
+  if(op==='delete'||op==='get'||op==='getKey'||op==='count')return short(args[0],100);
+  if(op==='put'||op==='add'){
+    if(args.length>1&&args[1]!==undefined)return short(args[1],100);
+    // Key-path lookup ONLY when in dev mode, never stringify stored values.
+    try {const kp=store.keyPath,v=args[0];if(typeof kp==='string'&&kp&&v&&typeof v==='object'&&v[kp]!==undefined)return short(v[kp],100);}catch(_){}
+    return '(inline/auto-key)';
+  }
+  return short(args[0],100);
+}
+function wrap(proto,name,handler){
+  try{if(!proto||typeof proto[name]!=='function')return false;
+    const original=proto[name];
+    Object.defineProperty(proto,name,{configurable:true,writable:true,value:function(...args){
+      if(modeOn())try{handler.call(this,args);}catch(_){}
+      return Reflect.apply(original,this,args);
+    }});return true;
+  }catch(_){return false;}
+}
+const storesOps={get:'read',getKey:'read',getAll:'read',getAllKeys:'read',count:'read',
+  openCursor:'cursor',openKeyCursor:'cursor',put:'write',add:'write',delete:'write',clear:'write'};
+function trackStore(storeName,op,kind,args,owner,isIndex=false){
+  const row=storeRow(storeName);
+  hit(row.byOp,op);
+  if(kind==='read'){state.idb.reads++;row.reads++;if(isIndex){state.idb.indexReads++;row.indexReads++;}}
+  if(kind==='write'){
+    state.idb.writes++;row.writes++;observe('idb-store',storeName,THRESHOLD.idbStoreWrites,'IndexedDB 쓰기 집중');
+    const key=keyLabel(owner,op,args),id=storeName+' / '+key;
+    // Explicit or resolvable keys only; unknown auto-generated keys aren't marked as repeated.
+    if(key!=='(inline/auto-key)'&&key!=='(no-key)'&&key!=='(all)'){
+      hit(state.idb.byWriteKey,id);
+      observe('idb-key',id,THRESHOLD.idbSameKeyWrites,'동일 IndexedDB 키 반복 쓰기');
+    }
+    log('IDB 쓰기',{store:short(storeName),operation:op,key});
+  }
+  if(kind==='cursor'){state.idb.cursors++;row.cursors++;}
+}
+try{
+  if(window.indexedDB){
+    wrap(Object.getPrototypeOf(window.indexedDB),'open',function(args){state.idb.opens++;const db=short(args[0]);hit(state.idb.byDb,db);observe('idb-open',db,THRESHOLD.idbOpens,'IndexedDB 반복 연결');});
+    wrap(Object.getPrototypeOf(window.indexedDB),'deleteDatabase',function(args){log('IDB 데이터베이스 삭제',{name:short(args[0])});});
+  }
+  if(typeof IDBDatabase!=='undefined')wrap(IDBDatabase.prototype,'transaction',function(args){
+    state.idb.transactions++;const db=short(this.name),list=typeof args[0]==='string'?[args[0]]:Array.from(args[0]||[]);
+    hit(state.idb.byDb,db);observe('idb-tx',db,THRESHOLD.idbTx,'IndexedDB 트랜잭션 집중');
+    log('IDB 트랜잭션',{database:db,stores:list.slice(0,4).map(x=>short(x,50)),mode:args[1]||'readonly'});
+  });
+  if(typeof IDBObjectStore!=='undefined')for(const [op,kind] of Object.entries(storesOps))
+    wrap(IDBObjectStore.prototype,op,function(args){trackStore(short(this.name),op,kind,args,this);});
+  if(typeof IDBIndex!=='undefined')for(const [op,kind] of Object.entries(storesOps)){
+    if(kind==='write')continue;
+    wrap(IDBIndex.prototype,op,function(args){trackStore(short(this.objectStore?.name)+' [index:'+short(this.name)+']',op,kind,args,this,true);});
+  }
+  if(typeof IDBCursor!=='undefined'){
+    for(const op of ['continue','advance','continuePrimaryKey'])wrap(IDBCursor.prototype,op,function(){state.idb.cursorMoves++;});
+    for(const op of ['update','delete'])wrap(IDBCursor.prototype,op,function(args){
+      const store=short(this.source?.objectStore?.name||this.source?.name||'cursor'),key=short(this.primaryKey);
+      trackStore(store,op,'write',[key],{keyPath:null});
+    });
+  }
+}catch(_){}
+try{
+  if(typeof FileSystemDirectoryHandle!=='undefined'){
+    wrap(FileSystemDirectoryHandle.prototype,'getDirectoryHandle',function(args){
+      state.fs.directories++;const p=short(this.name+'/'+short(args[0]),120);hit(state.fs.byPath,'DIR '+p);
+      observe('dir',p,THRESHOLD.folderSamePath,'동일 폴더 반복 탐색');
+    });
+    wrap(FileSystemDirectoryHandle.prototype,'getFileHandle',function(args){
+      state.fs.fileHandles++;const p=short(this.name+'/'+short(args[0]),120);hit(state.fs.byPath,'FILE '+p);
+      // File handles are naturally requested for different items; warn only per same file.
+      observe('file',p,THRESHOLD.folderSamePath,'동일 파일 핸들 반복 조회');
+    });
+  }
+  if(typeof FileSystemFileHandle!=='undefined')wrap(FileSystemFileHandle.prototype,'getFile',function(){state.fs.fileReads++;});
+  if(typeof FileSystemHandle!=='undefined')for(const op of ['queryPermission','requestPermission'])
+    wrap(FileSystemHandle.prototype,op,function(){
+      const p=short(this.kind+':'+this.name,120);hit(state.fs.byPermission,op+':'+p);
+      if(op==='queryPermission')state.fs.permissionQueries++;else state.fs.permissionRequests++;
+      observe('permission',op+':'+p,THRESHOLD.permissionSameHandle,'권한 반복 확인');
+    });
+}catch(_){}
+try{
+  if(typeof Storage!=='undefined'){
+    wrap(Storage.prototype,'getItem',function(args){const key=short(args[0],110);state.ls.reads++;const row=state.ls.byKey[key]||(state.ls.byKey[key]={reads:0,writes:0,removes:0});row.reads++;
+      observe('ls-read',key,THRESHOLD.lsSameKeyReads,'LocalStorage 동일 키 반복 읽기');});
+    wrap(Storage.prototype,'setItem',function(args){const key=short(args[0],110);state.ls.writes++;const row=state.ls.byKey[key]||(state.ls.byKey[key]={reads:0,writes:0,removes:0});row.writes++;
+      observe('ls-write',key,THRESHOLD.lsSameKeyWrites,'LocalStorage 동일 키 반복 저장');log('LocalStorage 쓰기',{key});});
+    wrap(Storage.prototype,'removeItem',function(args){const key=short(args[0],110);state.ls.removes++;const row=state.ls.byKey[key]||(state.ls.byKey[key]={reads:0,writes:0,removes:0});row.removes++;log('LocalStorage 삭제',{key});});
+    wrap(Storage.prototype,'clear',function(){state.ls.clears++;log('LocalStorage 전체 삭제',{});});
+    wrap(Storage.prototype,'key',function(){state.ls.keys++;});
+  }
+}catch(_){}
+function cacheResults(raw=false){
+ const items=[];const add=(name,h,m,details)=>{
+   const initialHits=Number(h)||0,initialMisses=Number(m)||0;
+   // A namespace created after warmup starts with its own baseline, not an immediate 0% warning.
+   if(!raw && state.cacheReady && !state.cacheBaseline[name])
+     state.cacheBaseline[name]={hits:initialHits,misses:initialMisses};
+   const base=raw||!state.cacheReady?null:state.cacheBaseline[name];
+   const hits=base?(initialHits>=base.hits?initialHits-base.hits:initialHits):initialHits;
+   const misses=base?(initialMisses>=base.misses?initialMisses-base.misses:initialMisses):initialMisses;
+   const rate=pct(hits,misses),lifetimePct=pct(initialHits,initialMisses);
+   const status=!raw&&!state.cacheReady?'초기 로딩 (경고 제외)':rate===null?'표본 없음':
+     hits+misses<MIN_CACHE_SAMPLES?'측정 중':rate<=CACHE_WARN_RATE?'경고':'정상';
+   items.push({name,hits,misses,ratePct:rate,lifetimePct,totalHits:initialHits,totalMisses:initialMisses,
+     status,measurement:!raw&&!state.cacheReady?'startup':'post-warmup',...details});
+ };
+ try{const a=window.ViewerCacheManager?.namespaceStats?.()||{};
+   for(const [name,x] of Object.entries(a))if(name.startsWith('comic.')||name.startsWith('video.')){
+     if(typeof x?.hits==='number'&&typeof x?.misses==='number')add(name,x.hits,x.misses,{size:x.size,evictions:x.evictions});
+   }
+ }catch(_){}
+ try{const x=window.comicPosterDirectoryCacheStatusV1360?.();if(x)add('만화 표지 폴더',x.hits,x.misses,{size:x.entries});}catch(_){}
+ try{const x=window.videoQueryCacheStatsV1324?.();if(x){add('영상 필터',x.filterHits,x.filterMisses);add('영상 정렬',x.sortHits,x.sortMisses);}}catch(_){}
+ try{const x=window.getComicListQueryCacheStatsV1000?.();if(x)add('만화 목록 쿼리',x.hits,x.misses);}catch(_){}
+ return items.sort((a,b)=>(a.ratePct??101)-(b.ratePct??101));
+}
+function armCacheMonitoring(){
+ if(state.cacheReady || now()-state.since<CACHE_STARTUP_WARMUP_MS)return;
+ const baseline=empty();
+ for(const c of cacheResults(true))baseline[c.name]={hits:c.hits,misses:c.misses};
+ state.cacheBaseline=baseline;
+ state.cacheReady=true;state.cacheArmedAt=now();
+}
+function checkCaches(){
+ if(!modeOn())return;
+ armCacheMonitoring();
+ for(const c of cacheResults())if(c.status==='경고')pushWarning('cache:'+c.name,
+   '캐시 적중률 80% 이하',`${c.name}: 초기 로딩 제외 ${c.ratePct}% (적중 ${c.hits}, 실패 ${c.misses}; 누적 ${c.lifetimePct}%, 기준 80% 이하)`,'warning',c.ratePct,80);
+ state.lastCacheCheckAt=now();
+}
+function check(){if(!modeOn())return [];checkCaches();return state.warnings.slice();}
+function snapshot(){if(modeOn())checkCaches();
+ const durationMs=now()-state.since,idb=state.idb,fs=state.fs,ls=state.ls;
+ const sortedStore=Object.entries(idb.byStore).map(([name,data])=>({name,reads:data.reads,writes:data.writes,cursors:data.cursors,indexReads:data.indexReads,operations:data.byOp})).sort((a,b)=>b.reads+b.writes+b.cursors-a.reads-a.writes-a.cursors).slice(0,20);
+ const lsSorted=Object.entries(ls.byKey).map(([key,d])=>({key,...d,total:d.reads+d.writes+d.removes})).sort((a,b)=>b.total-a.total).slice(0,20);
+ const caches=cacheResults();
+ return {version:1395,enabled:modeOn(),since:new Date(state.since).toLocaleString(),durationSeconds:Math.round(durationMs/1000),
+   cacheMonitoring:{phase:state.cacheReady?'재사용 측정':'초기 로딩',warmingUp:!state.cacheReady,
+     startupGraceSeconds:CACHE_STARTUP_WARMUP_MS/1000,
+     secondsUntilActive:state.cacheReady?0:Math.ceil(Math.max(0,CACHE_STARTUP_WARMUP_MS-durationMs)/1000),
+     armedAt:state.cacheArmedAt?new Date(state.cacheArmedAt).toLocaleTimeString():null},
+   thresholds:{periodSeconds:60,cacheMinimumPercent:CACHE_WARN_RATE,cacheMinimumSamples:MIN_CACHE_SAMPLES,...THRESHOLD},
+   priority:{
+     indexedDB:{opens:idb.opens,transactions:idb.transactions,reads:idb.reads,indexReads:idb.indexReads,writes:idb.writes,cursorStarts:idb.cursors,cursorMoves:idb.cursorMoves,byDatabase:top(idb.byDb),topStores:sortedStore,repeatWriteCandidates:top(idb.byWriteKey,15)},
+     folders:{directoryHandles:fs.directories,fileHandles:fs.fileHandles,fileReads:fs.fileReads,permissionQueries:fs.permissionQueries,permissionRequests:fs.permissionRequests,topPaths:top(fs.byPath),topPermissions:top(fs.byPermission)},
+     caches:{thresholdPct:CACHE_WARN_RATE,items:caches,below80:caches.filter(x=>x.status==='경고')},
+     localStorage:{getItem:ls.reads,setItem:ls.writes,removeItem:ls.removes,clear:ls.clears,keyCalls:ls.keys,topKeys:lsSorted}
+   },warnings:state.warnings.slice(),recent:state.recent.slice(-80),
+   interpretation:'반복 쓰기는 동일 키 접근 후보이며 값이 동일한 쓰기인지 확정하지 않습니다. 폴더 탐색은 API 호출 횟수입니다. 캐시는 시작 45초 동안 누적 적중률을 보여주되 경고하지 않고, 그 뒤 새로 발생한 조회가 20회 이상일 때 80% 이하 경고합니다. 개발자모드 활성 중의 활동만 계측합니다.'};
+}
+function report(){const s=snapshot();if(!s.enabled)return '콘솔 개발모드를 켠 뒤 측정하세요: viewerConsoleDeveloperModeV1101.setEnabled(true)';
+ const p=s.priority;
+ const out=['=== 웹뷰어 통합 성능 진단 1395 ===',`측정시간 ${s.durationSeconds}초 | 경고 ${s.warnings.length}건 | 캐시 ${s.cacheMonitoring.phase}${s.cacheMonitoring.warmingUp?' (남은 유예 '+s.cacheMonitoring.secondsUntilActive+'초)':''}`,
+  `① IndexedDB: 연결 ${p.indexedDB.opens}, 트랜잭션 ${p.indexedDB.transactions}, 읽기 ${p.indexedDB.reads} (인덱스 ${p.indexedDB.indexReads}), 쓰기 ${p.indexedDB.writes}, 커서 시작 ${p.indexedDB.cursorStarts}`,
+  `② 폴더: 디렉터리 ${p.folders.directoryHandles}, 파일핸들 ${p.folders.fileHandles}, 파일읽기 ${p.folders.fileReads}, 권한확인 ${p.folders.permissionQueries}, 권한요청 ${p.folders.permissionRequests}`,
+  `③ 캐시: ${p.caches.items.map(c=>c.name+' '+(c.ratePct===null?'측정 전':c.ratePct+'%')+' ['+c.status+']'+(s.cacheMonitoring.warmingUp?'':` (누적 ${c.lifetimePct??'N/A'}%)`)).join(' / ')}`,
+  `④ LocalStorage: 읽기 ${p.localStorage.getItem}, 쓰기 ${p.localStorage.setItem}, 삭제 ${p.localStorage.removeItem}, 전체삭제 ${p.localStorage.clear}`,
+  '--- 이상징후 ---',
+  ...(s.warnings.length?s.warnings.map(w=>`[${w.time}] ${w.title}: ${w.detail}`):['현재까지 자동경고 없음']),
+  '--- 상위 IndexedDB 저장소 ---',
+  ...p.indexedDB.topStores.slice(0,10).map(x=>`${x.name}: 읽기 ${x.reads}, 쓰기 ${x.writes}, 커서 ${x.cursors}`),
+  '--- 상위 폴더 경로 ---',...p.folders.topPaths.slice(0,10).map(x=>`${x.calls}회 ${x.item}`),
+  '--- 상위 LocalStorage 키 ---',...p.localStorage.topKeys.slice(0,10).map(x=>`${x.key}: 읽기 ${x.reads}, 쓰기 ${x.writes}`)];
+ const result=out.join('\n');try{console.log(result);}catch(_){}return result;
+}
+function reset(){state.cacheBaseline=empty();for(const c of cacheResults(true))state.cacheBaseline[c.name]={hits:c.hits,misses:c.misses};
+ state.cacheReady=true;state.cacheArmedAt=now();
+ state.since=now();state.idb={opens:0,transactions:0,reads:0,writes:0,cursors:0,indexReads:0,cursorMoves:0,byDb:empty(),byStore:empty(),byWriteKey:empty()};
+ state.fs={directories:0,fileHandles:0,fileReads:0,permissionQueries:0,permissionRequests:0,byPath:empty(),byPermission:empty()};
+ state.ls={reads:0,writes:0,removes:0,clears:0,keys:0,byKey:empty()};state.recent.length=0;state.warnings.length=0;state.hot.clear();state.warnedAt.clear();state.lastCacheCheckAt=0;
+ return snapshot();}
+const api=Object.freeze({snapshot,report,reset,check,cacheResults,warnings:()=>state.warnings.slice(),
+ copyReport:async()=>{const text=report();try{await navigator.clipboard.writeText(text);return '진단 보고서 복사 완료';}catch(_){return text;}}});
+window.viewerPerfDiagnosticsV1394=api;
+window.viewerPerfDiagnosticsV1395=api;
+window.viewerPerfDiagnosticsV1393=snapshot;
+window.viewerPerfDiagnosticsIdbV1393=()=>snapshot().priority.indexedDB;
+window.viewerPerfDiagnosticsFsV1393=()=>snapshot().priority.folders;
+window.viewerPerfDiagnosticsCacheV1393=()=>snapshot().priority.caches;
+window.viewerPerfDiagnosticsResetV1393=reset;
+window.viewerPerfReportV1394=report;
+window.viewerPerfReportV1395=report;
+window.viewerPerfWarningsV1394=api.warnings;
+window.viewerPerfWarningsV1395=api.warnings;
+window.viewerPerfCopyReportV1394=api.copyReport;
+window.viewerPerfCopyReportV1395=api.copyReport;
+window.viewerPerfResetV1394=reset;
+window.viewerPerfResetV1395=reset;
+window.addEventListener('viewer-console-mode-changed-v1101',()=>{if(modeOn())reset();});
+// Each 10 seconds, re-evaluate cache warnings only; no cache reads/writes to persisted storage.
+setInterval(()=>{if(modeOn())checkCaches();},10000);
 })();
 </script>
 <!-- v1152: 공유 기능 전체 임시 차단. 클라이언트 잠금이며 서버 권한 검증을 대체하지 않는다. -->
@@ -13079,7 +13363,7 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
       const t=r.totals;
       const lines=[
         '설정 RAM 캐시 진단 v1283 (값과 파일 경로 미수집)',
-        '기간: '+r.elapsedSeconds+'초 · '+(r.active?'추적 중':'중지')+' · 처리 키 '+r.uniqueKeys+'개',
+        '기간: '+r.elapsedSeconds+'초 · '+(r.active?'추적 중':'중지')+' · 처리 키 '+r.uniqueKeys+'개 / 최대 '+r.traceLimit+'개',
         'RAM 적중: '+t.ramHits+'회 / RAM 최초 디스크 읽기: '+t.coldReads+'회',
         '캐시 미사용 디스크 읽기: '+t.nativeReads+'회 / 큰 값 읽기: '+t.oversizeReads+'회',
         'RAM 지연 쓰기: '+t.deferredWrites+'회 / RAM 지연 삭제: '+t.deferredRemoves+'회',
@@ -18930,7 +19214,8 @@ const webtoonImageConfigStats = {
   verifyFailed: 0,
   ramRecords: 0,
   fallbackReads: 0,
-  fallbackWrites: 0
+  fallbackWrites: 0,
+  skippedLegacyMissReads: 0 // v1398: IDB 프리로드 후 RAM 누락 키의 불필요한 LS 조회 생략
 };
 
 function makeWebtoonImageConfigStorageKey(value) {
@@ -19154,6 +19439,13 @@ function getWebtoonImageConfigMapForStorageKeyCached(storageKey, fallback = null
   if (!isWebtoonImageConfigStorageKey(key)) return fallback;
   if (WTLS.cfgByKey.has(key)) return WTLS.cfgByKey.get(key);
 
+  // v1398: IDB 프리로드 + 구 LocalStorage 키 전수 확인이 완료된 뒤에는
+  // RAM에 없는 작품을 매번 구 LS에서 재조회하지 않는다. (ZIP 수만 권 스크롤 시 중복 조회 방지)
+  // IDB 실패 전환 시에는 기존 안전한 LocalStorage fallback을 그대로 허용한다.
+  if (_webtoonImageConfigLoaded && _webtoonImageConfigIdbAvailable) {
+    webtoonImageConfigStats.skippedLegacyMissReads++;
+    return fallback;
+  }
   // preload보다 아주 이른 호출에 한해서만 기존 LS를 임시 fallback으로 사용.
   try {
     const raw = ViewerCacheManager.storage.getItem(key);
@@ -19992,6 +20284,7 @@ function invalidateAllCaches() {
   // v280: image_config_map은 IDB preload RAM이 원본이므로 여기서 전체 clear하면
   // 동기식 getter가 다시 IDB를 읽을 수 없다. 작품 설정 캐시는 유지한다.
   WTLS.favByKey.clear();
+  comicFavPreloadedV1404=false;  // 다음 즐겨찾기 조회 때 변경된 스토리지 내용을 다시 1회 복원
   WTLS.cfgMap = null;
   // ✅ fav 저장 상태 초기화
   WTLS.favDirty = Object.create(null);
@@ -20097,8 +20390,13 @@ async function writeWebtoonAutoThumbCacheRecordToIdb(data) {
   }
 }
 
+const AUTO_THUMB_LEGACY_DONE_V1402 = 'viewer_legacy_auto_thumb_migrated_v1402';
 function readLegacyAutoThumbCache() {
   try {
+    // Skip this obsolete migration after its first successful run.
+    // Preserve live LS fallback only when IndexedDB actually failed.
+    if (localStorage.getItem(AUTO_THUMB_LEGACY_DONE_V1402)==='1' &&
+        _autoThumbCacheIdbAvailable !== false) return null;
     const raw = ViewerCacheManager.storage.getItem(STORE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
@@ -20163,6 +20461,7 @@ async function preloadWebtoonAutoThumbCacheFromIndexedDb() {
           webtoonAutoThumbStats.idbWrites++;
           webtoonAutoThumbStats.idbMigrations++;
           try { ViewerCacheManager.storage.removeItem(STORE_KEY); } catch (_) {}
+          try { localStorage.setItem(AUTO_THUMB_LEGACY_DONE_V1402,'1'); } catch (_) {}
         } catch (error) {
           _autoThumbCacheIdbAvailable = false;
           writeLegacyAutoThumbCache(peekAutoThumbV1288());
@@ -20178,6 +20477,10 @@ async function preloadWebtoonAutoThumbCacheFromIndexedDb() {
     }
 
     // v285: 완전 초기화/새 환경에서는 빈 레코드를 굳이 만들지 않는다.
+    // No legacy payload: the one-time migration inspection is complete.
+    if (_autoThumbCacheIdbAvailable && !legacy) {
+      try { localStorage.setItem(AUTO_THUMB_LEGACY_DONE_V1402,'1'); } catch (_) {}
+    }
 
     _autoThumbCacheLoaded = true;
     return peekAutoThumbV1288();
@@ -20572,26 +20875,93 @@ function makeFavKey(value){
   return v ? `[${v}]:fav_v2` : '';
 }
 
-// ✅ per-value fav 리스트 캐시 로드
-function getFavListCached(value) {
-  const k = makeFavKey(value);
-  if (!k) return null;
-
-  if (WTLS.favByKey.has(k)) return WTLS.favByKey.get(k);
-
-  let list = null;
-  try {
-    const raw = ViewerCacheManager.storage.getItem(k);
-    const parsed = raw ? JSON.parse(raw) : null;
-    list = Array.isArray(parsed) ? parsed : null;
-  } catch (e) {
-    list = null;
+// v1404: 전체 즐겨찾기는 단 한 번만 LocalStorage에서 RAM으로 읽는다.
+// LocalStorage에는 즐겨찾기가 *없는* 작품의 키가 대부분 없으므로,
+// 기존처럼 카드를 그릴 때마다 [작품]:fav_v2 를 조회하지 않는다.
+// 사용자 데이터는 원본 LocalStorage에 유지하고, 수정된 작품만 dirty flush한다.
+let comicFavPreloadedV1404 = false;
+const comicFavPreloadStatsV1404 = {
+  preloadRuns:0, examinedKeys:0, storedFavoriteKeys:0, loadedLists:0,
+  malformedLists:0, preloadErrors:0, missingCacheLookups:0, fallbackReads:0
+};
+const comicFavKeyReV1404 = /^\[[\s\S]+\]:fav_v2$/;
+function preloadComicFavoritesV1404(){
+  if(comicFavPreloadedV1404)return true;
+  const staged=[];
+  try{
+    const store=ViewerCacheManager.storage;
+    const length=store.length;
+    if(!Number.isSafeInteger(length)||length<0)throw new Error('LocalStorage 키 개수를 가져올 수 없습니다');
+    for(let i=0;i<length;i++){
+      const key=store.key(i);
+      if(!comicFavKeyReV1404.test(String(key||'')))continue;
+      // 현재 RAM의 미저장 편집이 있으면 디스크 값으로 덮지 않는다.
+      if(WTLS.favDirty[key])continue;
+      const raw=store.getItem(key);
+      if(raw===null)continue;
+      let list=null;
+      try{const data=JSON.parse(raw);if(Array.isArray(data))list=data;}
+      catch(_){comicFavPreloadStatsV1404.malformedLists++;}
+      if(list)staged.push([key,list]);
+      comicFavPreloadStatsV1404.storedFavoriteKeys++;
+    }
+    for(const [key,list] of staged){
+      // 이전에 단일 조회가 실패해 null로 남았더라도 저장된 목록은 복구한다.
+      if(!WTLS.favByKey.has(key)||WTLS.favByKey.peek(key)==null)WTLS.favByKey.set(key,list);
+    }
+    comicFavPreloadedV1404=true;
+    comicFavPreloadStatsV1404.preloadRuns++;
+    comicFavPreloadStatsV1404.examinedKeys+=length;
+    comicFavPreloadStatsV1404.loadedLists+=staged.length;
+    return true;
+  }catch(e){
+    // 스토리지 접근 실패 시 기존의 작품별 단일 조회를 허용해 데이터 누락을 방지.
+    comicFavPreloadStatsV1404.preloadErrors++;
+    if(comicFavPreloadStatsV1404.preloadErrors===1)
+      console.warn('[comic favorites v1404] 전체 프리로드 실패, 작품별 읽기로 복구합니다',e);
+    return false;
   }
+}
+window.comicFavoriteCacheStatusV1404=()=>({
+  preloaded:comicFavPreloadedV1404, ramEntries:WTLS.favByKey.size,
+  ...comicFavPreloadStatsV1404
+});
 
-  // ⚠️ 참조 그대로 캐시(이후 수정은 이 배열을 직접 수정)
-  WTLS.favByKey.set(k, list);
+// ✅ 즐겨찾기 조회: 정상 프리로드가 끝나면 RAM 전용, 키가 없으면 즐겨찾기 없음.
+function getFavListCached(value) {
+  const k=makeFavKey(value);
+  if(!k)return null;
+  if(WTLS.favByKey.has(k))return WTLS.favByKey.get(k);
+  if(preloadComicFavoritesV1404()){
+    if(WTLS.favByKey.has(k))return WTLS.favByKey.get(k);
+    comicFavPreloadStatsV1404.missingCacheLookups++;
+    return null;  // LocalStorage로 재조회하지 않는다.
+  }
+  // 프리로드 실패에만 이전 안전 경로 허용 (즐겨찾기 손실 방지).
+  comicFavPreloadStatsV1404.fallbackReads++;
+  let list=null;
+  try{
+    const raw=ViewerCacheManager.storage.getItem(k);
+    const parsed=raw?JSON.parse(raw):null;
+    list=Array.isArray(parsed)?parsed:null;
+  }catch(_){}
+  WTLS.favByKey.set(k,list);
   return list;
 }
+// 1404 이전과 달리 최초 1회 프리로드 후 카드별로 LocalStorage를 조회하지 않는다.
+preloadComicFavoritesV1404();
+
+// 다른 탭에서 fav_v2가 변경되었을 때 다음 조회에서 원본을 다시 프리로드한다.
+window.addEventListener('storage',event=>{
+  const key=event?.key;
+  if(key!==null && !comicFavKeyReV1404.test(String(key||'')))return;
+  if(key===null){
+    // 다른 탭에서 전체 삭제: 현재 탭의 미저장 편집만 유지한다.
+    for(const [storedKey] of WTLS.favByKey.entries())
+      if(!WTLS.favDirty[storedKey])WTLS.favByKey.delete(storedKey);
+  }else if(!WTLS.favDirty[key])WTLS.favByKey.delete(key);
+  comicFavPreloadedV1404=false;
+});
 
 // ✅ fav 캐시를 새 리스트로 세팅
 function setFavListCached(value, list) {
@@ -20664,10 +21034,8 @@ function invalidateValueCaches(value) {
   // v280: cfg는 IDB preload RAM 원본이라 일반 UI 무효화에서 지우지 않는다.
   // 실제 image_config 삭제는 deleteImageConfigMapForValue()가 담당한다.
 
-  // fav (stored as fav_v2)
-  const fk = `[${v}]:fav_v2`;
-  WTLS.favByKey.delete(fk);
-  if (WTLS.favDirty) delete WTLS.favDirty[fk];
+  // v1404: 이 함수는 북마크/이미지 설정 갱신에서도 호출된다.
+  // 그 변경은 즐겨찾기 데이터에 영향이 없으므로, 즐겨찾기 RAM과 미저장 수정은 보존한다.
 }
 
 // ==============================
@@ -26312,18 +26680,18 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
     // ★ 추가: FS 모드면 자동탐지 스킵 대신 즉시 FS 작품 열기
     try {
       const active = (ViewerCacheManager.storage.getItem(ACTIVE_TITLE_KEY) || '').trim();
-      const m = /^fsdir:(.+)$/i.exec(active);
+      const m = /^fsdir:(@[^/]+\/.+)$/i.exec(active);
       if (window.__fsActiveHandle || m) {
-        const name = m ? m[1] : (window.__fsActiveTitle || '');
-        // 이미 직접 열어 둔 FS 작품도 자동 재오픈하지 않는다. 실제 페이지가 로딩된 경우만 생략.
-        const fsAlreadyOpenV1002 = !!(name && window.__fsActiveTitle === name &&
-          window.__fsActiveHandle && Array.isArray(window.__fsFiles) && window.__fsFiles.length);
+        const name = m ? 'fsdir:'+m[1] : '';
+        // Re-open canonical ID only; existing live direct handles need no name-based recovery.
+        const fsAlreadyOpenV1002 = !!(window.__fsActiveHandle && Array.isArray(window.__fsFiles) && window.__fsFiles.length &&
+          (!m || window.__fsActiveWorkIdV1402 === active));
         if (fsAlreadyOpenV1002) {
           markAutoSucceededV1002();
           _running = false;
           return;
         }
-        if (name && typeof openFsComicByName === 'function') {
+        if (name && parseComicFsdirValueV1174(name) && typeof openFsComicByName === 'function') {
           // (선택) 임시 제목 표시
           try {
             document.title = name;
@@ -26332,7 +26700,7 @@ async function sanityCheckConfig(rootEnc, cfg, timeoutMs = 2500) {
           } catch(_){}
 
           await openFsComicByName(name);
-          if (window.__fsActiveTitle === name && window.__fsActiveHandle &&
+          if (window.__fsActiveWorkIdV1402 === name && window.__fsActiveHandle &&
               Array.isArray(window.__fsFiles) && window.__fsFiles.length) {
             markAutoSucceededV1002();
           }
@@ -26845,6 +27213,7 @@ if (btnCleanup) btnCleanup.addEventListener('click', cleanupOrphanComicKeys);
     if (!confirm('정말 로컬스토리지를 모두 삭제할까요? 이 동작은 되돌릴 수 없습니다.')) return;
     try {
       ViewerCacheManager.storage.clear();
+      try { invalidateAllCaches(); } catch (_) {} // v1404: 삭제된 즐겨찾기가 RAM에 남지 않게 처리
       try { window.ViewerCacheManager.videoStorage?.invalidateAll?.(); } catch {}
       try { window.invalidateVideoRamIndex?.('localstorage-clear'); } catch {}
       renderLS();
@@ -27274,6 +27643,9 @@ async function cleanupOrphanComicKeys() {
         try { ViewerCacheManager.storage.removeItem(t.key); } catch (_) {}
       } else {
         ViewerCacheManager.storage.removeItem(t.key);
+        // v1404: 실제 fav_v2 삭제 후 RAM 프리로드 상태도 정확히 반영
+        WTLS.favByKey.delete(t.key);
+        if(WTLS.favDirty)delete WTLS.favDirty[t.key];
       }
       removed++;
     } catch (e) {}
@@ -28196,11 +28568,10 @@ function makeWebtoonOpenHandler(value) {
       await window.ComicZipV979.open(value);
       return;
     }
-    if (/^fsdir:/i.test(value)) {
-      const name = value.replace(/^fsdir:/i, '');
+    if (parseComicFsdirValueV1174(value)) {
       try {
-        try { ViewerCacheManager.storage.setItem(ACTIVE_TITLE_KEY, `fsdir:${name}`); } catch(e){}
-        await openFsComicByName(name);
+        try { ViewerCacheManager.storage.setItem(ACTIVE_TITLE_KEY, value); } catch(e){}
+        await openFsComicByName(value);
       } catch (e) {
         console.warn('[FS open] failed:', e);
       }
@@ -28212,7 +28583,12 @@ function makeWebtoonOpenHandler(value) {
           const roots=await getComicRootsV978();
           const root=roots.find(r=>r?.id===alias.rootId);
           if(root?.handle && await ensureReadPermission(root.handle,false)){
-            await openFsComicByName(alias.name);
+            // Preserve absolute-path converted work opening using its unique registered root ID.
+            const matches=(Array.isArray(window.comicFsTitles)?window.comicFsTitles:[])
+              .filter(r=>r && String(r.rootId)===String(alias.rootId) && r.name===alias.name && r.rel);
+            const canonical=matches.length===1?comicFsdirValueV1174(matches[0])
+              :'fsdir:@'+alias.rootId+'/'+encodeURIComponent(alias.name);
+            await openFsComicByName(canonical);
             handled=true;
           }
         }
@@ -28365,10 +28741,19 @@ function updateWtCountUI() {
       : null;
     const visibleTotal = groupedUniqueList ? groupedUniqueList.length : total;
 
-    el.textContent = `(${visibleTotal})`;
-    el.title = visibleTotal
-      ? `현재 영상 목록 ${visibleTotal}개`
-      : '필터 후 영상이 없습니다.';
+    // v1397: 영상 기본 목록도 만화처럼 지금까지 로딩된 개수 / 필터 결과 전체를 표시.
+    // 가상 스크롤은 DOM을 최대 150개 재사용하므로 DOM 수가 아니라 누적 도달 수를 사용한다.
+    // 배우 그룹 중복 복제의 총합은 고유 작품 수와 다르므로 그룹 전용 표시를 유지한다.
+    if (groupedUniqueList && groupedUniqueList.length !== total) {
+      el.textContent = `(${visibleTotal.toLocaleString()})`;
+      el.title = visibleTotal
+        ? `현재 영상 목록 ${visibleTotal.toLocaleString()}개 (배우 그룹 중복 제외)`
+        : '필터 후 영상이 없습니다.';
+    } else {
+      const reached = Math.min(visibleTotal, Math.max(0, Number(wtListRenderedCount) || 0));
+      el.textContent = `(${reached.toLocaleString()} / ${visibleTotal.toLocaleString()})`;
+      el.title = `현재까지 로딩된 영상 ${reached.toLocaleString()}개 / 전체 ${visibleTotal.toLocaleString()}개 · 가상 스크롤은 화면 밖 카드 DOM을 재사용합니다.`;
+    }
 
     // 배우 대표그룹에서는 같은 영상이 배우 수만큼 가상 복제되므로
     // 총용량은 실제 고유 영상 목록으로만 계산한다.
@@ -28392,8 +28777,10 @@ function updateWtCountUI() {
     const state=comicVirtualStateV1295;
     const total=state.entries.length;
     const reached=Math.min(total,Math.max(0,state.maxReached||state.end||0));
-    el.textContent = `(${reached.toLocaleString()} / ${total.toLocaleString()})`;
-    el.title = `스크롤로 도달한 작품 ${reached.toLocaleString()} / 전체 ${total.toLocaleString()} · 현재 화면 DOM ${state.rendered||0}개 (최대 150개)`;
+    const label=`(${reached.toLocaleString()} / ${total.toLocaleString()})`;
+    const tooltip=`스크롤로 도달한 작품 ${reached.toLocaleString()} / 전체 ${total.toLocaleString()} · 현재 화면 DOM ${state.rendered||0}개 (최대 150개)`;
+    if(el.textContent!==label)el.textContent=label;
+    if(el.title!==tooltip)el.title=tooltip;
     return;
   }
   // 만화 모드는 기존 표시 유지
@@ -30140,7 +30527,11 @@ async function quickFindLastIndexForThumb(root, ext, pad, startNum, opts = {}) {
 let isLoadingMore = false;
 
 function maybeAppendMoreWebtoons() {
-  if (comicVirtualActiveV1295()) {comicVirtualScheduleV1295();return;}
+  if (comicVirtualActiveV1295()) {
+    const state=comicVirtualStateV1295;
+    if(comicVirtualNeedsWindowV1407(state))comicVirtualScheduleV1295();
+    return;
+  }
   if (ViewerCacheManager.storage.getItem('wt_content_mode_v1') !== 'video' && wtViewMode === 'pixi' && wtPixiStateV1080 && !comicScanPreviewV1023?.active) {
     wtPixiScrollMoreV1080();
     return;
@@ -31409,7 +31800,9 @@ function comicVirtualFirstRowsV1297(box,cols,estimatedPitch) {
 function comicVirtualScrollRowsV1297(state) {
   const cols=Math.max(1,Math.min(20,state.cols||8));
   const cap=Math.max(1,Math.floor(COMIC_VIRTUAL_LIMIT_V1295/cols));
-  const visible=Math.max(1,Math.ceil(state.box.clientHeight/Math.max(1,state.pitch)));
+  const viewportHeight=state.box.clientHeight;
+  state.viewportHeightV1407=viewportHeight;
+  const visible=Math.max(1,Math.ceil(viewportHeight/Math.max(1,state.pitch)));
   const buffer=Math.max(2,Math.min(4,Math.ceil(visible/2)));
   return Math.min(cap,Math.max(visible+2*buffer,
     Math.ceil(Math.min(32,getWebtoonPageSize())/cols)));
@@ -31417,6 +31810,12 @@ function comicVirtualScrollRowsV1297(state) {
 let comicVirtualStateV1295 = null;
 let comicVirtualRenderContextV1295 = null;
 let comicVirtualFrameV1295 = 0;
+// v1410: lightweight counters; no file paths, poster data or IDB operations.
+const comicVirtualReuseStatsV1410={incrementalUpdates:0,createdCards:0,
+  removedCards:0,overlapCards:0,countUiSkips:0,countUiUpdates:0,
+  incrementalMs:0,slowestIncrementalMs:0};
+const comicVirtualByModeV1411={shelf:{updates:0,added:0,removed:0,elapsedMs:0,maxMs:0},
+  normal:{updates:0,added:0,removed:0,elapsedMs:0,maxMs:0}};
 // v1296: `contentMode` belongs to a later, separate video-view IIFE.
 // Never read it directly from the outer comic renderer. Reuse the existing
 // public mode bridge, then fall back to the saved mode before that IIFE starts.
@@ -31478,22 +31877,71 @@ function comicVirtualSpacerV1295(kind) {
   element.style.cssText = 'flex:0 0 100%;width:100%;height:0;min-height:0;max-height:none;margin:0;padding:0;border:0;pointer-events:none;';
   return element;
 }
-function comicVirtualMeasureV1295(state) {
-  const cards = state.box.querySelectorAll(':scope > .wtThumbItem');
-  if (!cards.length) return;
-  const first = cards[0].getBoundingClientRect();
-  const firstY = first.top;
-  let nextRow = 0;
-  for (let i = 1; i < cards.length; i++) {
-    if (cards[i].getBoundingClientRect().top > firstY + 1.5) {nextRow = i; break;}
+// v1407: This signature describes physical row geometry, never scroll position,
+// card identity, virtual window start/end or reached count. A change of browser
+// width, V/fullscreen columns, poster ratio/size or shelf mode invalidates it.
+const comicVirtualGeometryStatsV1407={measures:0,reuses:0,rectReads:0,
+  scrollChecks:0,scrollSkips:0};
+function comicVirtualGeometryKeyV1407(state){
+  const box=state.box;
+  const inLayer=!!document.getElementById('wtLayer')?.contains(box);
+  const selectedCols=inLayer ? (wtColsLayer??wtColsNormal??wtThumbCols??8) :
+    (wtColsNormal??wtColsLayer??wtThumbCols??8);
+  return [box.clientWidth,selectedCols,wtThumbRatio,
+    box.classList.contains('wtShelfThemeOnV1217')?'shelf':'normal',
+    box.classList.contains('comicRailAutoSizeV1051')?'auto':'manual',
+    box.style.getPropertyValue('--comic-thumb-width-v1051'),
+    box.style.getPropertyValue('--comic-thumb-height-v1051')].join('|');
+}
+function comicVirtualMeasureV1295(state,force=false,knownKey=null) {
+  const key=knownKey??comicVirtualGeometryKeyV1407(state);
+  if(!force && state.geometryKeyV1407===key){
+    comicVirtualGeometryStatsV1407.reuses++;
+    return false;
   }
-  if (nextRow >= 1 && nextRow <= 20) state.cols = nextRow;
-  const rowGap = parseFloat(getComputedStyle(state.box).rowGap) || 0;
-  state.cardHeight = Math.max(1, first.height);
-  const measuredPitch = nextRow ? cards[nextRow].getBoundingClientRect().top - firstY : state.cardHeight + rowGap;
-  if (Number.isFinite(measuredPitch) && measuredPitch > 1) state.pitch = measuredPitch;
-  state.rowGap = rowGap;
-  state.paddingTop = parseFloat(getComputedStyle(state.box).paddingTop) || 0;
+  const cards=state.box.querySelectorAll(':scope > .wtThumbItem');
+  if(!cards.length)return false;
+  // Only the first physical row + the first card of row two can contribute to
+  // the measurement. Never iterate over the full 150-card virtual DOM.
+  const first=cards[0].getBoundingClientRect();
+  comicVirtualGeometryStatsV1407.rectReads++;
+  const firstY=first.top;
+  let nextRow=0,nextTop=0;
+  for(let i=1;i<Math.min(cards.length,21);i++){
+    const top=cards[i].getBoundingClientRect().top;
+    comicVirtualGeometryStatsV1407.rectReads++;
+    if(top>firstY+1.5){nextRow=i;nextTop=top;break;}
+  }
+  if(nextRow>=1&&nextRow<=20)state.cols=nextRow;
+  const style=getComputedStyle(state.box);
+  const rowGap=parseFloat(style.rowGap)||0;
+  state.cardHeight=Math.max(1,first.height);
+  const pitch=nextRow?nextTop-firstY:state.cardHeight+rowGap;
+  if(Number.isFinite(pitch)&&pitch>1)state.pitch=pitch;
+  state.rowGap=rowGap;
+  state.paddingTop=parseFloat(style.paddingTop)||0;
+  state.geometryKeyV1407=key;
+  comicVirtualGeometryStatsV1407.measures++;
+  return true;
+}
+// Cheap arithmetic gate: do not schedule a frame for every wheel/pixel scroll.
+// A frame is only needed when the visible logical rows approach a window edge.
+function comicVirtualNeedsWindowV1407(state){
+  comicVirtualGeometryStatsV1407.scrollChecks++;
+  if(state.needsReflow || !state.geometryKeyV1407)return true;
+  // ResizeObserver/fullscreen handlers update this cached viewport height.
+  // Never query clientWidth/Height in the hot wheel-scroll event path.
+  const pitch=Math.max(1,state.pitch);
+  const currentRow=Math.max(0,Math.floor(Math.max(0,state.box.scrollTop-state.paddingTop)/pitch));
+  const startRow=Math.floor(state.start/Math.max(1,state.cols));
+  const endRow=Math.ceil(state.end/Math.max(1,state.cols));
+  const viewRows=Math.max(1,Math.ceil((state.viewportHeightV1407||state.box.clientHeight)/pitch));
+  const boundary=Math.max(2,Math.min(4,Math.floor(state.windowRows/4)));
+  const inside=(startRow===0||currentRow>=startRow+boundary) &&
+    (state.end===state.entries.length || currentRow+viewRows<=endRow-boundary) &&
+    currentRow+viewRows<=endRow;
+  if(inside)comicVirtualGeometryStatsV1407.scrollSkips++;
+  return !inside;
 }
 function comicVirtualDrawV1295(state, requestedRow, restoreScroll=null) {
   if (!comicVirtualActiveV1295(state.box) || state.drawing) return false;
@@ -31509,6 +31957,9 @@ function comicVirtualDrawV1295(state, requestedRow, restoreScroll=null) {
     const start = startRow * cols;
     const count = Math.min(windowRows * cols, total-start);
     const oldScroll = restoreScroll === null ? box.scrollTop : restoreScroll;
+    // Capture the signature before DOM mutations, so reusing the cached pitch
+    // cannot accidentally force layout after 150 cards were inserted.
+    const geometryKeyV1407=comicVirtualGeometryKeyV1407(state);
     const top = comicVirtualSpacerV1295('top');
     const bottom = comicVirtualSpacerV1295('bottom');
     if (start > 0) {
@@ -31518,9 +31969,9 @@ function comicVirtualDrawV1295(state, requestedRow, restoreScroll=null) {
     comicVirtualRenderContextV1295 = {entries:state.entries,start,count,rendered:0};
     try { appendWebtoonListChunk(); }
     finally {comicVirtualRenderContextV1295 = null;}
-    // During card creation their height and row count are known; measure them
-    // before adding the bottom spacer so row detection excludes spacers.
-    comicVirtualMeasureV1295(state);
+    // Measure only on the first render or when actual geometry changed.
+    // In ordinary scrolling, reuse the same row pitch and column count.
+    comicVirtualMeasureV1295(state,false,geometryKeyV1407);
     const measuredCols = Math.max(1, Math.min(20,state.cols||cols));
     if (measuredCols !== cols) {
       // Column changes are corrected on a scheduled follow-up; never recursively
@@ -31565,9 +32016,14 @@ function comicVirtualIncrementalV1295(state, requestedRow) {
   const oldScroll=box.scrollTop;
   const existing=Array.from(box.querySelectorAll(':scope > .wtThumbItem'));
   if (existing.length!==state.end-state.start) return false;
+  const startMsV1410=performance.now();
+  const modeStatsV1411=comicVirtualByModeV1411[
+    box.classList.contains('wtShelfThemeOnV1217')?'shelf':'normal'];
   state.drawing=true;
   try {
     const oldStart=state.start,oldEnd=state.end;
+    const prevReachedV1410=state.maxReached||0;
+    const prevRenderedV1410=state.rendered||0;
     const cutBefore=Math.max(0,Math.min(existing.length,start-oldStart));
     const cutAfter=Math.max(0,Math.min(existing.length,oldEnd-end));
     for(let i=0;i<cutBefore;i++)existing[i].remove();
@@ -31586,8 +32042,12 @@ function comicVirtualIncrementalV1295(state, requestedRow) {
     if (addAfter) addCards(oldEnd,addAfter,state.bottom?.isConnected?state.bottom:null);
     state.start=start;state.end=end;
     // Maintain stable layout height with an actual full-row spacer on each side.
-    let top=box.querySelector(':scope > .comicVirtualSpacerV1295[data-virtual-spacer="top"]');
-    let bottom=box.querySelector(':scope > .comicVirtualSpacerV1295[data-virtual-spacer="bottom"]');
+    // The same spacer nodes survive incremental scrolls. Query only if another
+    // renderer unexpectedly detached the recorded reference.
+    let top=state.top?.isConnected?state.top:
+      box.querySelector(':scope > .comicVirtualSpacerV1295[data-virtual-spacer="top"]');
+    let bottom=state.bottom?.isConnected?state.bottom:
+      box.querySelector(':scope > .comicVirtualSpacerV1295[data-virtual-spacer="bottom"]');
     if (start > 0) {
       if(!top){top=comicVirtualSpacerV1295('top');box.prepend(top);}
       top.style.height=Math.max(0,startRow*state.pitch-state.rowGap)+'px';
@@ -31599,13 +32059,31 @@ function comicVirtualIncrementalV1295(state, requestedRow) {
     } else if(bottom){bottom.remove();bottom=null;}
     state.top=top;state.bottom=bottom;
     state.windowRows=rows;state.rowTotal=Math.ceil(total/cols);
-    state.rendered=box.querySelectorAll(':scope > .wtThumbItem').length;
+    // Existing DOM count was validated before mutation, and this update only
+    // adds/removes known slots. Avoid an extra 150-card DOM query every shift.
+    state.rendered=existing.length-cutBefore-cutAfter+addBefore+addAfter;
     state.maxReached=Math.max(state.maxReached||0,state.end);
     box.scrollTop=oldScroll;
     wtListRenderedCount=wtListCache.length;
-    updateWtCountUI();
+    if(state.maxReached!==prevReachedV1410||state.rendered!==prevRenderedV1410){
+      updateWtCountUI();comicVirtualReuseStatsV1410.countUiUpdates++;
+    }else comicVirtualReuseStatsV1410.countUiSkips++;
+    comicVirtualReuseStatsV1410.incrementalUpdates++;
+    comicVirtualReuseStatsV1410.createdCards+=addBefore+addAfter;
+    comicVirtualReuseStatsV1410.removedCards+=cutBefore+cutAfter;
+    comicVirtualReuseStatsV1410.overlapCards+=Math.max(0,existing.length-cutBefore-cutAfter);
+    modeStatsV1411.updates++;
+    modeStatsV1411.added+=addBefore+addAfter;
+    modeStatsV1411.removed+=cutBefore+cutAfter;
     return true;
-  } finally {state.drawing=false;}
+  } finally {
+    const elapsed=performance.now()-startMsV1410;
+    comicVirtualReuseStatsV1410.incrementalMs+=elapsed;
+    comicVirtualReuseStatsV1410.slowestIncrementalMs=Math.max(comicVirtualReuseStatsV1410.slowestIncrementalMs,elapsed);
+    modeStatsV1411.elapsedMs+=elapsed;
+    modeStatsV1411.maxMs=Math.max(modeStatsV1411.maxMs,elapsed);
+    state.drawing=false;
+  }
 }
 // v1328: The shelf background responds to width independently of the virtual
 // spacers. Preserve the *logical book row* before CSS changes a mounted card's
@@ -31646,7 +32124,7 @@ function comicVirtualRestoreShelfResizeV1328(anchor) {
     if (ticket!==state.resizeTicketV1328 || state!==comicVirtualStateV1295 ||
         !comicVirtualActiveV1295(box)) return;
     try {
-      comicVirtualMeasureV1295(state);
+      comicVirtualMeasureV1295(state,true);
       const cols=Math.max(1,Math.min(20,state.cols||8));
       const newRow=Math.floor(anchor.entryIndex/cols);
       const newScroll=Math.max(0,(state.paddingTop||0)+
@@ -31731,7 +32209,7 @@ function comicVirtualNormalResizeV1361(reason='geometry') {
       const anchor=state.normalResizeAnchorV1361;
       if(!anchor)return;
       const previousCols=Math.max(1,state.cols||8);
-      comicVirtualMeasureV1295(state);
+      comicVirtualMeasureV1295(state,true);
       const cols=Math.max(1,Math.min(20,state.cols||previousCols));
       const pitch=Math.max(1,state.pitch);
       const scroll=Math.max(0,(state.paddingTop||0)+
@@ -31807,18 +32285,13 @@ function comicVirtualRefreshV1295(force=false) {
   const resized=Math.abs((state.width||0)-box.clientWidth)>1 || state.needsReflow;
   const viewportY=Math.max(0,box.scrollTop-state.paddingTop);
   const currentRow=Math.max(0,Math.floor(viewportY/Math.max(1,state.pitch)));
-  const cols=Math.max(1,state.cols||8);
-  const startRow=Math.floor(state.start/cols);
-  const endRow=Math.ceil(state.end/cols);
-  const viewRows=Math.max(1,Math.ceil(box.clientHeight/Math.max(1,state.pitch)));
-  const boundary=Math.max(2,Math.min(4,Math.floor(state.windowRows/4)));
-  if (!force && !resized && currentRow >= startRow+boundary &&
-      currentRow+viewRows <= endRow-boundary) return false;
-  if (!force && !resized && state.start===0 && currentRow<startRow+boundary &&
-      currentRow+viewRows <= endRow-boundary) return false;
+  if(!force && !resized && !comicVirtualNeedsWindowV1407(state))return false;
   const target=Math.max(0,currentRow-Math.floor(state.windowRows/3));
   state.needsReflow=false;
   if (!resized && comicVirtualIncrementalV1295(state,target)) return true;
+  // Explicit invalidation without a changed size can still mean a new CSS
+  // layout; clear only the measured geometry, not covers or source caches.
+  if(resized)state.geometryKeyV1407=null;
   return comicVirtualDrawV1295(state,target,box.scrollTop);
 }
 function comicVirtualScheduleV1295(force=false) {
@@ -31846,7 +32319,7 @@ function comicVirtualInitV1295(box) {
   const estimatePitch=Math.max(50,box.clientWidth/Math.max(1,fallbackCols)*Math.max(1,wtThumbRatio));
   const firstRows=comicVirtualFirstRowsV1297(box,fallbackCols,estimatePitch);
   const state={box,cache:wtListCache,entries,cols:fallbackCols,
-    pitch:estimatePitch,rowGap:8,paddingTop:0,start:0,end:0,
+    pitch:estimatePitch,rowGap:8,paddingTop:0,viewportHeightV1407:box.clientHeight,start:0,end:0,
     targetRows:firstRows,windowRows:firstRows,
     rendered:0,maxReached:0,drawing:false,needsReflow:false,width:box.clientWidth,
     filterMs,initialRenderMs:0,initialCards:0};
@@ -31888,7 +32361,15 @@ function comicVirtualInitV1295(box) {
   // ordinary initialization must not immediately rebuild all 150 cards.
   requestAnimationFrame(()=>{
     if (comicVirtualActiveV1295(box)) {
-      comicVirtualMeasureV1295(state);
+      const oldPitch=state.pitch,oldCols=state.cols,oldGap=state.rowGap;
+      const measured=comicVirtualMeasureV1295(state);
+      // v1051 may finish setting cover CSS after the first card render.
+      // If that first settled measurement changes the pitch, correct both
+      // spacers immediately; do not wait for the user's first wheel event.
+      if(measured && (Math.abs(state.pitch-oldPitch)>.25 ||
+          state.cols!==oldCols || Math.abs(state.rowGap-oldGap)>.25)){
+        state.needsReflow=true;
+      }
       const viewportRows=Math.max(1,Math.ceil(box.clientHeight/Math.max(1,state.pitch)));
       if(state.needsReflow || viewportRows>state.windowRows) {
         comicVirtualScheduleV1295(state.needsReflow);
@@ -31906,7 +32387,27 @@ window.ComicVirtual150V1295={stats(){const s=comicVirtualStateV1295;
     initialCards:s?.initialCards||0,initialRenderMs:Math.round((s?.initialRenderMs||0)*10)/10,
     filterMs:Math.round((s?.filterMs||0)*10)/10,
     targetRows:s?.targetRows||0,
-    rowHeight:s?.pitch||0,columns:s?.cols||0};}};
+    rowHeight:s?.pitch||0,columns:s?.cols||0,
+    geometryMeasures:comicVirtualGeometryStatsV1407.measures,
+    geometryReuses:comicVirtualGeometryStatsV1407.reuses,
+    geometryRectReads:comicVirtualGeometryStatsV1407.rectReads,
+    scrollChecks:comicVirtualGeometryStatsV1407.scrollChecks,
+    scrollFrameSkips:comicVirtualGeometryStatsV1407.scrollSkips,
+    incrementalUpdates:comicVirtualReuseStatsV1410.incrementalUpdates,
+    createdCards:comicVirtualReuseStatsV1410.createdCards,
+    removedCards:comicVirtualReuseStatsV1410.removedCards,
+    overlapCards:comicVirtualReuseStatsV1410.overlapCards,
+    countUiSkips:comicVirtualReuseStatsV1410.countUiSkips,
+    countUiUpdates:comicVirtualReuseStatsV1410.countUiUpdates,
+    incrementalMs:Math.round(comicVirtualReuseStatsV1410.incrementalMs*10)/10,
+    slowestIncrementalMs:Math.round(comicVirtualReuseStatsV1410.slowestIncrementalMs*10)/10,
+    // Independent counters make bookshelf vs normal comparisons possible even
+    // when switching modes in the same session.
+    byMode:Object.fromEntries(Object.entries(comicVirtualByModeV1411).map(([key,value])=>
+      [key,{updates:value.updates,added:value.added,removed:value.removed,
+        elapsedMs:Math.round(value.elapsedMs*10)/10,
+        avgMs:value.updates?Math.round(value.elapsedMs/value.updates*100)/100:0,
+        maxMs:Math.round(value.maxMs*10)/10}]))};}};
 window.addEventListener('resize',()=>{
   const box=document.getElementById('wtList');
   const state=comicVirtualStateV1295;
@@ -32208,6 +32709,8 @@ function comicCoverPathInvalidateV1320(value){
   if(key && comicCoverPathSpaceV1320.delete(key))comicCoverPathMetricsV1320.invalidations++;
 }
 function comicCoverPathAbsMapChangedV1320(){
+  // v1398: 다른 탭 또는 현재 탭의 변환/복원/중복정리 즉시 반영.
+  invalidateComicAbsMapRamV1398();
   comicCoverAbsMapRevisionV1320++;
   comicCoverPathSpaceV1320.clear();
   comicCoverPathMetricsV1320.invalidations++;
@@ -32513,13 +33016,20 @@ function safeToast(msg){
 async function openFsComicByName(name){
   window.__pendingFsMode = true;
   try {
+    // v1402: require canonical fsdir:@rootId/path, or a currently registered absolute mapping.
+    let workId = parseComicFsdirValueV1174(name) ? name : '';
+    if(!workId && name && Array.isArray(window.comicFsTitles)){
+      const matches=window.comicFsTitles.filter(r=>r?.name===name && r.rootId && r.rel);
+      if(matches.length===1)workId=comicFsdirValueV1174(matches[0]);
+    }
+    if(!workId){safeToast('고유 루트 ID가 없는 구형 이미지폴더 경로입니다. 만화 폴더를 다시 스캔해 주세요.');return;}
     // v1010: 이미 등록된 작품은 부모 루트 핸들에서 정확한 하위폴더만 찾는다.
     // 재실행 또는 작품 클릭 때 등록 루트의 전체 entries()를 호출하지 않는다.
     // v1001의 경량 이미지폴더 핸들 복구 함수를 재사용한다.
     // v1013: 표지/장수 조회와 같은 인덱스를 공유하고 전체 배열 .find()는 사용하지 않는다.
-    let rec = window.ComicFsLocalV990?.findRecord?.('fsdir:' + name) || null;
+    let rec = window.ComicFsLocalV990?.findRecord?.(workId) || null;
     if (!rec) {
-      try { rec = await window.ComicFsLocalV990?.resolveRecord?.('fsdir:' + name); }
+      try { rec = await window.ComicFsLocalV990?.resolveRecord?.(workId); }
       catch (e) { console.warn('[comic FS v1010] 개별 폴더 핸들 복원 실패', name, e); }
     }
     if (!rec?.handle) {
@@ -32529,7 +33039,7 @@ async function openFsComicByName(name){
 
     // 3) 활성 작품 저장(기존 active 키 체계 유지)
     try {
-      ViewerCacheManager.storage.setItem(ACTIVE_TITLE_KEY, 'fsdir:' + rec.name);
+      ViewerCacheManager.storage.setItem(ACTIVE_TITLE_KEY, workId);
     } catch(e){}
 
     // ▶ FS로 전환할 때 가로모드가 켜져 있으면 즉시 세로모드로 복귀
@@ -32574,6 +33084,7 @@ async function openFsComicByName(name){
       if (h) h.textContent = rec.name;
       document.title = rec.name;
       window.__fsActiveTitle  = rec.name;    // FS 활성 제목 저장
+      window.__fsActiveWorkIdV1402 = workId; // Canonical identity for auto-reopen checks
       window.__fsActiveHandle = rec.handle;  // FS 활성 핸들 저장
       applyEffectiveTitle?.();
     } catch(e){}
@@ -32583,8 +33094,7 @@ async function openFsComicByName(name){
 
     // 7) 마지막 읽은 페이지 재개 (DOM 붙은 뒤에만 시도)
     try {
-      const id = `fsdir:${rec.name}`;
-      const resume = getLastReadFor(id);
+      const resume = getLastReadFor(workId);
       if (Number.isFinite(resume) && resume > 1) {
         // 레이아웃/리플로우가 끝난 다음 보장
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -35605,7 +36115,7 @@ window.getComicZipAuthorRootModeV1171=(rootId)=>comicAuthorFolderModesV1171[Stri
 function comicFsdirValueV1174(item){
   if(item?.value && /^fsdir:@[^/]+\//i.test(String(item.value)))return String(item.value);
   const id=String(item?.rootId||''),rel=String(item?.rel||'.').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'')||'.';
-  return id?'fsdir:@'+id+'/'+encodeURIComponent(rel):'fsdir:'+String(item?.name||'');
+  return id?'fsdir:@'+id+'/'+encodeURIComponent(rel):'';
 }
 function parseComicFsdirValueV1174(value){
   const m=/^fsdir:@([^/]+)\/(.+)$/i.exec(String(value||''));
@@ -35683,9 +36193,28 @@ async function registerComicRootV978(handle, authorFoldersOptionV1171 = null){
 }
 const COMIC_ABS_MAP_KEY_V978='comic_selected_abs_map_v978';
 const COMIC_PATH_BACKUP_KEY_V978='comic_path_backup_v978';
-function getComicAbsMapV978(){
-  try {const x=JSON.parse(ViewerCacheManager.storage.getItem(COMIC_ABS_MAP_KEY_V978)||'{}');return x&&typeof x==='object'&&!Array.isArray(x)?x:{};}catch(_){return {};}
+// v1398: 보호 설정의 즉시 저장 정책은 보존하고, 읽기/JSON.parse 결과만 RAM 재사용.
+// 실제 변환·복원·중복정리 쓰기와 다른 탭의 storage 이벤트에서만 무효화한다.
+let comicAbsMapRamV1398 = null;
+const comicAbsMapReadCountersV1398 = { nativeReads:0, reused:0, invalidations:0 };
+function invalidateComicAbsMapRamV1398(){
+  comicAbsMapRamV1398=null;
+  comicAbsMapReadCountersV1398.invalidations++;
 }
+function getComicAbsMapV978(){
+  if (comicAbsMapRamV1398 !== null) {
+    comicAbsMapReadCountersV1398.reused++;
+    return comicAbsMapRamV1398;
+  }
+  comicAbsMapReadCountersV1398.nativeReads++;
+  try {
+    const x=JSON.parse(ViewerCacheManager.storage.getItem(COMIC_ABS_MAP_KEY_V978)||'{}');
+    comicAbsMapRamV1398 = x&&typeof x==='object'&&!Array.isArray(x)?x:{};
+  }catch(_){comicAbsMapRamV1398={};}
+  return comicAbsMapRamV1398;
+}
+window.comicAbsMapReadStatsV1398=()=>({...comicAbsMapReadCountersV1398,
+  loaded:comicAbsMapRamV1398!==null});
 function findConvertedComicV978(value){
   const wanted=String(value||'').replace(/\\/g,'/').replace(/\/+$/,'').toLowerCase();
   for(const [rootId, group] of Object.entries(getComicAbsMapV978())){
@@ -41494,80 +42023,9 @@ function setupLightboxFavAddInteractions() {
 }
 setupLightboxFavAddInteractions();
 
-// v1037: 이미지 폴더 만화의 기존 ID(fsdir:작품명)를 그대로 유지하면서
-// 루트 폴더 이름(manatoki 등)만 별도 IndexedDB에 저장해 폴더별 분류에 사용한다.
-// ZIP / 절대경로 값은 기존 분류 방식 그대로 둔다.
-const wtComicFsdirRootByTitleV1037 = new Map();
-const WT_COMIC_FSDIR_GROUP_PREFIX_V1037 = 'comic_fsdir_group_root_v1037:';
-let wtComicFsdirGroupsLoadingV1037 = null;
-
-async function wtLoadFsdirGroupNamesV1037() {
-  if (wtComicFsdirGroupsLoadingV1037) return wtComicFsdirGroupsLoadingV1037;
-  wtComicFsdirGroupsLoadingV1037 = (async () => {
-    if (typeof getComicRootsV978 !== 'function' || typeof idbGetComic !== 'function') return;
-    const roots = await getComicRootsV978();
-    let changed = false;
-    for (const root of roots) {
-      if (!root?.id) continue;
-      let saved = null;
-      try { saved = await idbGetComic(WT_COMIC_FSDIR_GROUP_PREFIX_V1037 + root.id); }
-      catch (e) { console.warn('[comic group v1037] read', e); }
-      if (!saved || !Array.isArray(saved.titles)) continue;
-      const rootName = String(root.name || saved.rootName || '').trim();
-      if (!rootName) continue;
-      for (const title of saved.titles) {
-        if (typeof title !== 'string' || !title.trim()) continue;
-        if (wtComicFsdirRootByTitleV1037.get(title) !== rootName) {
-          wtComicFsdirRootByTitleV1037.set(title, rootName);
-          changed = true;
-        }
-      }
-    }
-    if (changed) {
-      try { invalidateComicRailCacheV999(); } catch (_) {}
-      try { buildWtGroupButtons(); } catch (_) {}
-      try { renderWtTagRail(); } catch (_) {}
-    }
-  })().catch(e => console.warn('[comic group v1037] restore',e))
-    .finally(() => { wtComicFsdirGroupsLoadingV1037 = null; });
-  return wtComicFsdirGroupsLoadingV1037;
-}
-
-async function wtRememberScannedFsdirGroupsV1037(handle, found) {
-  const names = [...new Set((Array.isArray(found) ? found : [])
-    .filter(item => item && !item.zipComic && item.name)
-    .map(item => String(item.name).trim()).filter(Boolean))];
-  if (!handle || !names.length) return;
-  const rootName = String(handle.name || '').trim();
-  if (!rootName) return;
-  // 폴더 탐색 완료 직후에는 목록 그룹을 바로 갱신한다.
-  let rootMapChangedV1077 = false;
-  for (const name of names) {
-    if (wtComicFsdirRootByTitleV1037.get(name) !== rootName) rootMapChangedV1077 = true;
-    wtComicFsdirRootByTitleV1037.set(name, rootName);
-  }
-  if (rootMapChangedV1077) {
-    try { invalidateComicRailCacheV999(); } catch (_) {}
-  }
-  try {
-    const roots = await getComicRootsV978();
-    let root = null;
-    for (const candidate of roots) {
-      if (candidate?.handle && await sameComicDirV978(candidate.handle, handle)) {
-        root = candidate; break;
-      }
-    }
-    if (root?.id) {
-      await idbPutComic(WT_COMIC_FSDIR_GROUP_PREFIX_V1037 + root.id,
-        { rootName, titles: names, updatedAt: Date.now() });
-    }
-  } catch (e) { console.warn('[comic group v1037] save',e); }
-}
-
-window.wtRememberScannedFsdirGroupsV1037 = wtRememberScannedFsdirGroupsV1037;
-document.addEventListener('DOMContentLoaded', () => { void wtLoadFsdirGroupNamesV1037(); });
-document.addEventListener('fs:roots:restored-v1010', () => { void wtLoadFsdirGroupNamesV1037(); });
-
+// v1402: no legacy fsdir:작품명 group/root-name database lookups or writes.
+// Modern fsdir:@rootId/relativePath derives its group directly from the registered root ID.
+const WT_COMIC_FSDIR_GROUP_PREFIX_V1037 = 'comic_fsdir_group_root_v1037:'; // Only for safe root-unlink cleanup of old records.
 function wtGetGroupKeyFromValue(v) {
   v = String(v || '').trim();
   if (!v) return '';
@@ -41593,12 +42051,8 @@ function wtGetGroupKeyFromValue(v) {
   }
   const fsUniqueV1174=parseComicFsdirValueV1174(v);
   if(fsUniqueV1174)return 'zipcomic:@'+fsUniqueV1174.rootId;
-  // v1037: 기존 이미지폴더 작품은 fsdir:작품명만 저장돼 원래 루트가 소실됐었다.
-  // 별도로 기록한 스캔 루트 이름을 우선 사용한다. 이름/원본 값은 절대 변경하지 않는다.
-  const fsdirTitleV1037 = /^fsdir:([^/\\]+)$/i.exec(v);
-  if (fsdirTitleV1037) {
-    return wtComicFsdirRootByTitleV1037.get(fsdirTitleV1037[1]) || '기타';
-  }
+  // No name-only image-folder fallback; only fsdir:@rootId/... is supported.
+  if (/^fsdir:[^/\\]+$/i.test(v)) return '기타';
   // fsdir: 상대경로
   if (/^fsdir:/i.test(v)) v = v.replace(/^fsdir:/i, '');
 
@@ -41724,14 +42178,7 @@ window.ComicMissingV1092={ready:comicMissingReadyV1092,
           // 새 ID는 루트별 소속과 상대경로를 검증한다.
           const saved=foundFolder.get('__root:'+fs.rootId);
           seen=saved?.has(v)||false;
-        }else{
-        // fsdir:작품명은 물리적으로 고유하지 않다. 루트 이름 매핑이 있는 경우만 검증.
-        const n=/^fsdir:([^/\\]+)$/i.exec(v);
-        if(!n)continue;
-        const group=wtComicFsdirRootByTitleV1037.get(n[1]);
-        if(!group||!completeFolderNames.has(group))continue;
-        rootName=group;seen=foundFolder.get(group)?.has(n[1])||false;
-        }
+        }else continue; // No name-only legacy identity checks.
       }else continue; // 온라인/절대경로는 로컬 디렉터리 스캔으로 검사할 수 없다.
       checked++;
       if(seen)comicMissingEntriesV1092.delete(v);
@@ -41819,16 +42266,8 @@ async function comicBuildRootRemovalPlanV1172(rootId){
     if(id===String(root.id))continue;
     for(const value of Object.values(record?.titles||{}))foreignAbs.add(String(value));
   }
+  // Historical name-based ownership is no longer consulted (v1402).
   const titleOwners=new Map();
-  for(const candidate of roots){
-    const record=await idbGetComic(WT_COMIC_FSDIR_GROUP_PREFIX_V1037+candidate.id).catch(()=>null);
-    if(!Array.isArray(record?.titles))continue;
-    for(const title of record.titles){
-      const k=String(title);
-      if(!titleOwners.has(k))titleOwners.set(k,new Set());
-      titleOwners.get(k).add(String(candidate.id));
-    }
-  }
   const matched=[], retained=[], forcedLegacy=[];
   for(let i=0;i<lines.length;i++){
     const line=lines[i];
@@ -41939,7 +42378,7 @@ async function removeComicRegisteredRootV1172(rootId,button=null){
     }catch(e){chapterCleanupWarningV1205=' · 회차 데이터 정리 실패: '+String(e?.message||e);console.warn('[comic cleanup v1205]',e);}
     try{if(String(wtGroupFilter||'')==='zipcomic:@'+root.id||String(wtGroupFilter||'')===root.name)setWtGroupFilter('');}catch(_){}
     try{clearComicFolderRailSelectionsV1077();}catch(_){}
-    try{wtComicFsdirRootByTitleV1037.clear();await wtLoadFsdirGroupNamesV1037();}catch(_){}
+    // v1402: legacy per-title root map has been removed.
     try{invalidateComicAuthorRootViewV1171();}catch(_){}
     try{if(typeof buildWtGroupButtons==='function')buildWtGroupButtons();}catch(_){}
     try{if(typeof renderWtTagRail==='function')renderWtTagRail();}catch(_){}
@@ -45937,7 +46376,7 @@ function comicRailRestoreAnchorV1316(anchor){
     // the live cards once, update BOTH virtual spacers, then restore the same
     // entry and fractional position in its row.
     const priorCols=state.cols;
-    comicVirtualMeasureV1295(state);
+    comicVirtualMeasureV1295(state,true);
     const cols=Math.max(1,state.cols||priorCols||8);
     const pitch=Math.max(1,state.pitch);
     const targetRow=Math.floor(anchor.entryIndex/cols);
@@ -64811,21 +65250,21 @@ preloadVideoActressAliasCacheFromIndexedDb();
 // video_actress_alias_v1 / block / 최종 alias-cache를 비우고 배우 RAM 인덱스를 재생성한다.
 const VIDEO_ACTRESS_AVWIKI_ONLY_MIGRATION_V899 = 'video_actress_avwiki_only_identity_v899';
 async function deleteVideoActressAliasCacheRecordV899() {
+  const db = await openVideoActressAliasCacheDb();
   try {
-    const db = await openVideoActressAliasCacheDb();
-    try {
-      await new Promise((resolve, reject) => {
-        const tx = db.transaction(VIDEO_ACTRESS_ALIAS_CACHE_DB_STORE, 'readwrite');
-        tx.objectStore(VIDEO_ACTRESS_ALIAS_CACHE_DB_STORE).delete(VIDEO_ACTRESS_ALIAS_CACHE_KEY);
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error || new Error('구형 배우 별칭 캐시 삭제 실패'));
-        tx.onabort = () => reject(tx.error || new Error('구형 배우 별칭 캐시 삭제 중단'));
-      });
-    } finally { try { db.close(); } catch (_) {} }
-  } catch (_) {}
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(VIDEO_ACTRESS_ALIAS_CACHE_DB_STORE, 'readwrite');
+      tx.objectStore(VIDEO_ACTRESS_ALIAS_CACHE_DB_STORE).delete(VIDEO_ACTRESS_ALIAS_CACHE_KEY);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error || new Error('구형 배우 별칭 캐시 삭제 실패'));
+      tx.onabort = () => reject(tx.error || new Error('구형 배우 별칭 캐시 삭제 중단'));
+    });
+  } finally { try { db.close(); } catch (_) {} }
 }
 
 async function migrateVideoActressIdentityToAvwikiOnlyV899() {
+  // v1402: completed one-time cleanup must not even preload old alias data again.
+  try {if(localStorage.getItem(VIDEO_ACTRESS_AVWIKI_ONLY_MIGRATION_V899)==='1')return false;}catch(_){}
   try {
     await preloadVideoActressDataFromIndexedDb();
     await preloadVideoActressAliasCacheFromIndexedDb();
@@ -64842,8 +65281,8 @@ async function migrateVideoActressIdentityToAvwikiOnlyV899() {
 
     setVideoActressDataJson(VIDEO_ACTRESS_ALIAS_KEY, [], { deferWrite: true });
     setVideoActressDataJson(VIDEO_ACTRESS_ALIAS_BLOCK_KEY, [], { deferWrite: true });
-    await flushVideoActressDataKey(VIDEO_ACTRESS_ALIAS_KEY).catch(() => {});
-    await flushVideoActressDataKey(VIDEO_ACTRESS_ALIAS_BLOCK_KEY).catch(() => {});
+    await flushVideoActressDataKey(VIDEO_ACTRESS_ALIAS_KEY);
+    await flushVideoActressDataKey(VIDEO_ACTRESS_ALIAS_BLOCK_KEY);
     await deleteVideoActressAliasCacheRecordV899();
 
     putVideoActressAliasDerivedV1290(null);
@@ -67097,7 +67536,9 @@ async function putVideoActressJsonDataset(record) {
 
 // v1106: 이전에 설치한 DMM 배우 얼굴 JSON 인덱스만 삭제한다.
 // video_actress_json_db_v1/datasets 은 AVWikiDB/JavBus/AVDBS와 공유하므로 DB 전체는 절대로 삭제하지 않는다.
+const DMM_ACTRESS_DATASET_CLEANED_V1402 = 'viewer_legacy_dmm_actress_dataset_cleaned_v1402';
 async function cleanupLegacyDmmActressDatasetV1106() {
+  if (localStorage.getItem(DMM_ACTRESS_DATASET_CLEANED_V1402) === '1') return;
   if (!('indexedDB' in window)) return;
   const db = await openVideoActressJsonDb();
   try {
@@ -67111,6 +67552,8 @@ async function cleanupLegacyDmmActressDatasetV1106() {
   } finally {
     db.close();
   }
+  // Only after the IDB transaction completed successfully.
+  try { localStorage.setItem(DMM_ACTRESS_DATASET_CLEANED_V1402, '1'); } catch (_) {}
 }
 document.addEventListener('DOMContentLoaded', () => {
   cleanupLegacyDmmActressDatasetV1106().catch(error => {
@@ -89747,11 +90190,6 @@ function mergeRootVideos(rootName, found) {
     // 스캔 결과 배열에만 메타 플래그를 부착, 항목 자체는 수정하지 않는다.
     found.scanIncompleteV1092=scanIncompleteV1092;
     found.sort((a, b) => a.name.localeCompare(b.name, 'ko', { numeric: true, sensitivity: 'base' }));
-    // v1037: 이미지 작품명에 없는 루트 폴더 정보를 별도로 기억한다.
-    // 이후 스캔을 생략해도 기존 목록의 폴더별 분류를 복원할 수 있다.
-    try { await window.wtRememberScannedFsdirGroupsV1037?.(handle, found); }
-    catch (e) { console.warn('[comic group v1037] index',e); }
-
     if (!Array.isArray(window.comicFsTitles)) window.comicFsTitles = [];
     if (append) {
       const byName = new Map(window.comicFsTitles.map(x => [x.zipComic ? x.value : comicFsdirValueV1174(x), x]));
@@ -126184,7 +126622,10 @@ function videoVirtualDrawV1326(st, start, end) {
   st.end = last;
   videoVirtualSetSpacersV1326(st);
   st.box.scrollTop = oldScroll;
-  wtListRenderedCount = Math.max(wtListRenderedCount || 0, last);
+  const previouslyReachedV1397 = wtListRenderedCount || 0;
+  wtListRenderedCount = Math.max(previouslyReachedV1397, last);
+  // v1397: 누적 로딩 개수가 늘어날 때만 숫자 갱신 (스크롤마다 무조건 갱신하지 않음).
+  if (wtListRenderedCount !== previouslyReachedV1397) updateWtCountUI();
   videoVirtualCountersV1326.windows++;
   // Newly attached recycled cards need their duration observer restored; existing
   // card observers remain attached, and appendVideoCards observes new cards itself.
@@ -159977,6 +160418,7 @@ function installVideoWorldCupUi() {
       }
       WTLS.favDirty = Object.create(null);
       WTLS.favByKey?.clear?.();
+      comicFavPreloadedV1404=false;
     } catch (_) {}
 
     try { WTLS.cfgByKey?.clear?.(); WTLS.cfgMap = null; comicTotalPagesSpaceV1289.clear(); comicRandomRanksSpaceV1289.clear(); comicCoverPathSpaceV1320.clear(); } catch (_) {}
@@ -169372,7 +169814,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1392;
+  const VIEWER_BUILD_V789 = 1411;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -176658,6 +177100,7 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
   'use strict';
   const DB='viewer_comic_last_pages_v1020',STORE='pages';
   const OLD_PREFIX='comic_zip_last_page_';
+  const PURGE_DONE_KEY_V1402='viewer_legacy_last_page_ls_purged_v1402';
   let openPromise=null, warned=false;
   function warn(err){
     if(warned)return;warned=true;
@@ -176683,17 +177126,72 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
     }
     return openPromise;
   }
-  async function get(workId){
-    const db=await open();
-    return new Promise((resolve,reject)=>{
+  // v1405: visible-card progress badges request many unrelated keys at once.
+  // One readonly transaction may issue multiple get(key) requests; do not create
+  // a separate transaction per card. Writes and per-group state retain their
+  // existing commit/serialization semantics.
+  const lastPageReadQueueV1405=new Map();
+  const LAST_PAGE_BATCH_MAX_V1405=160;
+  const lastPageBatchStatsV1405={batchTransactions:0,batchedKeys:0,maxBatch:0,failedBatches:0,duplicateWaits:0};
+  let lastPageFlushTimerV1405=null;
+  window.comicLastPageBatchStatsV1405=()=>({...lastPageBatchStatsV1405,pending:lastPageReadQueueV1405.size});
+  function scheduleLastPageFlushV1405(){
+    if(lastPageFlushTimerV1405!==null)return;
+    lastPageFlushTimerV1405=setTimeout(()=>{
+      lastPageFlushTimerV1405=null;
+      void flushLastPageReadsV1405();
+    },0);
+  }
+  async function flushLastPageReadsV1405(){
+    const batch=[...lastPageReadQueueV1405.values()].filter(row=>!row.started).slice(0,LAST_PAGE_BATCH_MAX_V1405);
+    if(!batch.length)return;
+    for(const row of batch)row.started=true;
+    if([...lastPageReadQueueV1405.values()].some(row=>!row.started))scheduleLastPageFlushV1405();
+    const finish=(error,rows)=>{
+      for(const row of batch){
+        if(lastPageReadQueueV1405.get(row.key)===row)lastPageReadQueueV1405.delete(row.key);
+        if(error)row.reject(error);else row.resolve(rows.get(row.key)??null);
+      }
+    };
+    let db;
+    try{db=await open();}
+    catch(e){lastPageBatchStatsV1405.failedBatches++;finish(e,new Map());return;}
+    const results=new Map();
+    try{
       const tx=db.transaction(STORE,'readonly');
-      const req=tx.objectStore(STORE).get(String(workId));
-      req.onsuccess=()=>{
-        const n=Number(req.result?.page);
-        resolve(Number.isSafeInteger(n)&&n>0?n:null);
+      let settled=false;
+      const fail=(error)=>{
+        if(settled)return;settled=true;
+        lastPageBatchStatsV1405.failedBatches++;
+        finish(error||new Error('마지막 페이지 묶음 조회 실패'),results);
       };
-      req.onerror=()=>reject(req.error||new Error('페이지 조회 실패'));
-    });
+      for(const row of batch){
+        const req=tx.objectStore(STORE).get(row.key);
+        req.onsuccess=()=>{
+          const n=Number(req.result?.page);
+          results.set(row.key,Number.isSafeInteger(n)&&n>0?n:null);
+        };
+      }
+      tx.oncomplete=()=>{
+        if(settled)return;settled=true;
+        lastPageBatchStatsV1405.batchTransactions++;
+        lastPageBatchStatsV1405.batchedKeys+=batch.length;
+        lastPageBatchStatsV1405.maxBatch=Math.max(lastPageBatchStatsV1405.maxBatch,batch.length);
+        finish(null,results);
+      };
+      tx.onerror=()=>fail(tx.error);
+      tx.onabort=()=>fail(tx.error);
+    }catch(e){lastPageBatchStatsV1405.failedBatches++;finish(e,results);}
+  }
+  function get(workId){
+    const key=String(workId);
+    const existing=lastPageReadQueueV1405.get(key);
+    if(existing){lastPageBatchStatsV1405.duplicateWaits++;return existing.promise;}
+    const row={key,started:false,resolve:null,reject:null,promise:null};
+    row.promise=new Promise((resolve,reject)=>{row.resolve=resolve;row.reject=reject;});
+    lastPageReadQueueV1405.set(key,row);
+    scheduleLastPageFlushV1405();
+    return row.promise;
   }
   async function put(workId,page){
     const n=Number(page);
@@ -176711,7 +177209,9 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
   // 키가 수만 개여도 한 번에 삭제하지 않도록 이벤트 루프에 작업을 양보한다.
   let purgeStarted=false;
   function purgeLegacy(){
-    if(purgeStarted)return;purgeStarted=true;
+    if(purgeStarted)return;
+    try {if(localStorage.getItem(PURGE_DONE_KEY_V1402)==='1')return;}catch(_){}
+    purgeStarted=true;
     let index=-1,removed=0;
     const step=()=>{
       try{
@@ -176725,6 +177225,7 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
         }
         if(index>=0){setTimeout(step,0);return;}
         if(removed)console.info('[v1020] 구형 마지막 페이지 로컬스토리지 기록 정리:',removed+'개');
+        try {localStorage.setItem(PURGE_DONE_KEY_V1402,'1');}catch(_){}
       }catch(e){console.warn('[v1020] 구형 기록 정리 실패',e);}
     };
     setTimeout(step,0);
@@ -177321,7 +177822,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   // operations ALWAYS enforce the current browser permission.
   const PERMISSION_TTL_MS = 1200;
   const folderPaths = {
-    zip:['Comics'],fs:['ComicsFolders'],legacy:['Comics','Folders']
+    zip:['Comics'],fs:['ComicsFolders']
   };
   function invalidate(reason='manual') {
     revision++;
@@ -177695,7 +178196,91 @@ function openDb(){
   void opening.catch(()=>{if(posterDbOpeningV1362===opening)posterDbOpeningV1362=null;});
   return opening;
 }
+// v1405: group independent ZIP poster metadata misses in short read transactions.
+// Each key still has a separate Promise; IndexedDB keeps all puts/deletes in
+// their original committed transactions and the shared poster DB connection.
+const zipPosterReadQueueV1405=new Map();
+const ZIP_POSTER_BATCH_MAX_V1405=160;
+// v1409: allow nearby visible-card requests to enter one readonly transaction.
+// This tiny delay is only for uncached ZIP poster metadata; saved-page reads,
+// mutations, viewer opening and actual image/file fetching remain unchanged.
+const ZIP_POSTER_BATCH_WAIT_V1409=5;
+const ZIP_POSTER_FAST_FLUSH_V1409=24;
+const zipPosterBatchStatsV1405={batchTransactions:0,batchedKeys:0,maxBatch:0,failedBatches:0,duplicateWaits:0,
+  singleKeyTransactions:0,fastFlushes:0};
+let zipPosterFlushTimerV1405=null;
+let zipPosterFlushDueV1409=0;
+window.comicZipPosterBatchStatsV1405=()=>({...zipPosterBatchStatsV1405,pending:zipPosterReadQueueV1405.size,
+  batchWaitMs:ZIP_POSTER_BATCH_WAIT_V1409,averageBatch:zipPosterBatchStatsV1405.batchTransactions
+    ?Math.round(zipPosterBatchStatsV1405.batchedKeys/zipPosterBatchStatsV1405.batchTransactions*100)/100:0});
+function scheduleZipPosterReadFlushV1405(){
+  const pending=zipPosterReadQueueV1405.size;
+  const urgent=pending>=ZIP_POSTER_FAST_FLUSH_V1409;
+  if(zipPosterFlushTimerV1405!==null){
+    if(!urgent||zipPosterFlushDueV1409===0)return;
+    clearTimeout(zipPosterFlushTimerV1405);
+    zipPosterFlushTimerV1405=null;
+    zipPosterBatchStatsV1405.fastFlushes++;
+  }
+  const delay=urgent?0:ZIP_POSTER_BATCH_WAIT_V1409;
+  zipPosterFlushDueV1409=delay;
+  zipPosterFlushTimerV1405=setTimeout(()=>{
+    zipPosterFlushTimerV1405=null;zipPosterFlushDueV1409=0;
+    void flushZipPosterReadsV1405();
+  },delay);
+}
+async function flushZipPosterReadsV1405(){
+  const batch=[...zipPosterReadQueueV1405.values()].filter(row=>!row.started).slice(0,ZIP_POSTER_BATCH_MAX_V1405);
+  if(!batch.length)return;
+  for(const row of batch)row.started=true;
+  if([...zipPosterReadQueueV1405.values()].some(row=>!row.started))scheduleZipPosterReadFlushV1405();
+  const finish=(error,results)=>{
+    for(const row of batch){
+      if(zipPosterReadQueueV1405.get(row.key)===row)zipPosterReadQueueV1405.delete(row.key);
+      if(error)row.reject(error);else row.resolve(results.get(row.key)??null);
+    }
+  };
+  let db;
+  try{db=await openDb();}
+  catch(e){zipPosterBatchStatsV1405.failedBatches++;finish(e,new Map());return;}
+  const results=new Map();
+  try{
+    const tx=db.transaction(STORE,'readonly');
+    let settled=false;
+    const fail=(error)=>{
+      if(settled)return;settled=true;
+      zipPosterBatchStatsV1405.failedBatches++;
+      finish(error||new Error('ZIP 표지 묶음 조회 실패'),results);
+    };
+    for(const row of batch){
+      const req=tx.objectStore(STORE).get(row.key);
+      req.onsuccess=()=>results.set(row.key,req.result??null);
+    }
+    tx.oncomplete=()=>{
+      if(settled)return;settled=true;
+      zipPosterBatchStatsV1405.batchTransactions++;
+      if(batch.length===1)zipPosterBatchStatsV1405.singleKeyTransactions++;
+      zipPosterBatchStatsV1405.batchedKeys+=batch.length;
+      zipPosterBatchStatsV1405.maxBatch=Math.max(zipPosterBatchStatsV1405.maxBatch,batch.length);
+      zipRecordDbCountersV1362.reads+=batch.length;
+      finish(null,results);
+    };
+    tx.onerror=()=>fail(tx.error);
+    tx.onabort=()=>fail(tx.error);
+  }catch(e){zipPosterBatchStatsV1405.failedBatches++;finish(e,results);}
+}
+function zipPosterBatchReadV1405(value){
+  const key=String(value);
+  const existing=zipPosterReadQueueV1405.get(key);
+  if(existing){zipPosterBatchStatsV1405.duplicateWaits++;return existing.promise;}
+  const row={key,started:false,resolve:null,reject:null,promise:null};
+  row.promise=new Promise((resolve,reject)=>{row.resolve=resolve;row.reject=reject;});
+  zipPosterReadQueueV1405.set(key,row);
+  scheduleZipPosterReadFlushV1405();
+  return row.promise;
+}
 async function posterRecordTransactionV1362(value,record,kind){
+  if(kind==='get')return zipPosterBatchReadV1405(value);
   const db=await openDb();
   return await new Promise((yes,no)=>{
     let tx,request;
@@ -177731,6 +178316,10 @@ async function posterRecord(value,put){
   }
   // Drop an older cached record before starting a write. On failure the next
   // read goes to IDB; on success keep the complete new object in the same cache.
+  // A same-key queued read must settle before its replacement is committed.
+  // Otherwise its late completion could overwrite the new RAM cache record.
+  const inflightRead=zipPosterReadQueueV1405.get(String(value));
+  if(inflightRead)await inflightRead.promise.catch(()=>{});
   zipPosterRecordsV1362.delete(value);
   const result=await posterRecordTransactionV1362(value,put,'put');
   if(!ViewerCacheManager.resetStatus().active)zipPosterRecordsV1362.set(value,put);
@@ -177903,15 +178492,16 @@ async function deletePosterRecord(value){
   zipPosterRecordsV1362.delete(value);
   return true;
 }
-// v1392: IndexedDB deserializes FileSystemDirectoryHandle into a NEW JS wrapper
-// even when it represents the SAME physical folder. Re-reading it for every
-// cover made v1360's === identity guard invalidate all folder/permission caches.
-// Keep one root wrapper in RAM, coalesce concurrent fallback reads, and respect
-// explicit folder changes. The existing v872 RAM handle always takes priority.
+// v1403: ZIP and image-folder covers share ONE canonical RAM root handle and
+// ONE in-flight recovery. A fresh IndexedDB read returns a different JS wrapper
+// for the same physical directory and would reset v1360's directory cache.
+// The v872 warm-up is reused before any fallback IndexedDB read; file placement
+// remains unchanged (Posters/Comics and Posters/ComicsFolders respectively).
 let posterRootFallbackV1392=null;
 let posterRootPendingV1392=null;
 let posterRootEpochV1392=0;
-const posterRootStatsV1392={idbReads:0,reused:0,pendingReused:0,resets:0};
+const posterRootStatsV1392={idbReads:0,reused:0,pendingReused:0,resets:0,
+  zipRequests:0,fsRequests:0,warmupReused:0,liveHits:0};
 function clearPosterRootFallbackV1392(){
   posterRootEpochV1392++;
   posterRootFallbackV1392=null;
@@ -177922,10 +178512,14 @@ window.addEventListener('webviewer-image-folder-changed-v1056',clearPosterRootFa
 window.addEventListener('video-folder-permissions-restored-v998',clearPosterRootFallbackV1392);
 window.comicZipPosterRootCacheStatusV1392=()=>({...posterRootStatsV1392,
   cached:!!posterRootFallbackV1392,pending:!!posterRootPendingV1392});
-async function posterFolderRootV981(){
+window.comicPosterSharedRootStatusV1403=window.comicZipPosterRootCacheStatusV1392;
+async function posterFolderRootV981(kind='zip'){
+  if(kind==='fs')posterRootStatsV1392.fsRequests++;
+  else posterRootStatsV1392.zipRequests++;
   let live=null;
   try{live=typeof getVideoPosterRootHandleCachedV872==='function'?getVideoPosterRootHandleCachedV872():null;}catch(_){}
   if(live){
+    posterRootStatsV1392.liveHits++;
     if(posterRootFallbackV1392!==live){
       posterRootEpochV1392++;
       posterRootFallbackV1392=live;
@@ -177942,21 +178536,34 @@ async function posterFolderRootV981(){
     return await posterRootPendingV1392;
   }
   const epoch=posterRootEpochV1392;
-  posterRootStatsV1392.idbReads++;
-  const pending=Promise.resolve()
-    .then(()=>idbGetComic('video_poster_root_handle_v1'))
-    .catch(()=>null)
-    .then(root=>{
-      if(epoch!==posterRootEpochV1392)return null;
-      posterRootFallbackV1392=root||null;
-      return posterRootFallbackV1392;
-    })
-    .finally(()=>{
-      if(posterRootPendingV1392===pending)posterRootPendingV1392=null;
-    });
+  const pending=Promise.resolve().then(async()=>{
+    let root=null;
+    // v1403: the already-started v872 warm-up and its RAM wrapper are shared
+    // across BOTH kinds of comic covers, instead of racing a separate IDB read.
+    try{
+      if(typeof warmVideoPosterRootHandleCacheV872==='function'){
+        root=await warmVideoPosterRootHandleCacheV872();
+        if(root)posterRootStatsV1392.warmupReused++;
+      }
+    }catch(_){}
+    if(!root){
+      posterRootStatsV1392.idbReads++;
+      try{root=await idbGetComic('video_poster_root_handle_v1');}catch(_){root=null;}
+    }
+    if(epoch!==posterRootEpochV1392)return null;
+    // A user may select another root while an IDB request is in flight.
+    // In that case the explicitly selected v872 handle always wins.
+    let current=null;
+    try{current=typeof getVideoPosterRootHandleCachedV872==='function'?getVideoPosterRootHandleCachedV872():null;}catch(_){}
+    posterRootFallbackV1392=current||root||null;
+    return posterRootFallbackV1392;
+  }).finally(()=>{
+    if(posterRootPendingV1392===pending)posterRootPendingV1392=null;
+  });
   posterRootPendingV1392=pending;
   return await pending;
 }
+window.ComicPosterSharedRootV1403=Object.freeze({getRoot:posterFolderRootV981,stats:window.comicZipPosterRootCacheStatusV1392});
 function folderDisplayPathV981(root){
   if(!root)return '미연결';
   const n=String(root.name||'선택한 폴더');
@@ -180732,11 +181339,39 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
   const pageMetaReadJobsV1102=new Map(),pageMetaWriteJobsV1102=new Map();
   const freshFsPageKeysV1276=new Set(); // 이번 실행에서 실제로 센 폴더 키
   const pageRootJobsV1102=new WeakMap();
-  function openPageDbV1102(){return new Promise((ok,no)=>{
-    const req=indexedDB.open(PAGE_DB_V1102,1);
-    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(PAGE_STORE_V1102))req.result.createObjectStore(PAGE_STORE_V1102);};
-    req.onsuccess=()=>ok(req.result);req.onerror=()=>no(req.error);
-  });}
+  // v1405: image-folder count reads/writes share one IndexedDB connection.
+  // Never pool a transaction; only the connection is reused. Release it on
+  // versionchange so cache resets and cross-tab upgrades can proceed.
+  let pageDbHandleV1405=null,pageDbOpeningV1405=null;
+  const pageDbStatsV1405={opens:0,reuses:0,failedOpens:0,versionCloses:0};
+  window.comicFsPageDbConnectionStatusV1405=()=>({...pageDbStatsV1405,connected:!!pageDbHandleV1405,opening:!!pageDbOpeningV1405&&!pageDbHandleV1405});
+  function openPageDbV1102(){
+    if(pageDbOpeningV1405){pageDbStatsV1405.reuses++;return pageDbOpeningV1405;}
+    const opening=new Promise((ok,no)=>{
+      let req,abandoned=false;
+      try{req=indexedDB.open(PAGE_DB_V1102,1);}catch(e){no(e);return;}
+      req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(PAGE_STORE_V1102))req.result.createObjectStore(PAGE_STORE_V1102);};
+      req.onsuccess=()=>{
+        const db=req.result;
+        if(abandoned){try{db.close();}catch(_){}return;}
+        pageDbHandleV1405=db;pageDbStatsV1405.opens++;
+        db.onversionchange=()=>{
+          pageDbStatsV1405.versionCloses++;
+          if(pageDbHandleV1405===db){pageDbHandleV1405=null;pageDbOpeningV1405=null;pageMetaCacheV1288.clear();}
+          try{db.close();}catch(_){}
+        };
+        db.onclose=()=>{
+          if(pageDbHandleV1405===db){pageDbHandleV1405=null;pageDbOpeningV1405=null;pageMetaCacheV1288.clear();}
+        };
+        ok(db);
+      };
+      req.onerror=()=>no(req.error||Error('이미지폴더 장수 DB 연결 실패'));
+      req.onblocked=()=>{abandoned=true;no(Error('다른 탭에서 이미지폴더 장수 DB 연결을 차단했습니다'));};
+    });
+    pageDbOpeningV1405=opening;
+    void opening.catch(()=>{pageDbStatsV1405.failedOpens++;if(pageDbOpeningV1405===opening)pageDbOpeningV1405=null;});
+    return opening;
+  }
   async function pageKeyV1102(rec){
     if(!rec?.handle||!rec.name)return null;
     // 같은 이름의 다른 루트 폴더가 서로 장수를 덮어쓰지 않게 한다.
@@ -180925,7 +181560,6 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
         if(!pageMetaCacheV1288.has(key)){pageMetaCacheV1288.set(key,valid);}
         return pageMetaCacheV1288.get(key);
       }catch(e){console.warn('[comicFS v1102] 페이지 장수 읽기 실패',rec.name,e);return null;}
-      finally{try{db?.close();}catch(_){}}
     })().finally(()=>pageMetaReadJobsV1102.delete(key));
     pageMetaReadJobsV1102.set(key,job);return job;
   }
@@ -180955,15 +181589,12 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
     // 같은 작품의 첫 스캔/만화 열기/재스캔 저장은 순서대로 반영한다.
     const previous=pageMetaWriteJobsV1102.get(key)||Promise.resolve();
     const job=previous.catch(()=>{}).then(async()=>{
-      let db=null;
-      try{
-        db=await openPageDbV1102();
-        await new Promise((yes,no)=>{
-          const tx=db.transaction(PAGE_STORE_V1102,'readwrite');
-          tx.objectStore(PAGE_STORE_V1102).put(record,key);
-          tx.oncomplete=()=>yes();tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);
-        });
-      }finally{try{db?.close();}catch(_){}}
+      const db=await openPageDbV1102();
+      await new Promise((yes,no)=>{
+        const tx=db.transaction(PAGE_STORE_V1102,'readwrite');
+        tx.objectStore(PAGE_STORE_V1102).put(record,key);
+        tx.oncomplete=()=>yes();tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);
+      });
     }).then(()=>true,e=>{console.warn('[comicFS v1102] 페이지 장수 저장 실패',rec.name,e);return false;});
     pageMetaWriteJobsV1102.set(key,job);
     void job.finally(()=>{if(pageMetaWriteJobsV1102.get(key)===job)pageMetaWriteJobsV1102.delete(key);});
@@ -181017,8 +181648,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    for(const rec of arr){
      if(!rec || rec.zipComic || rec.handle?.kind!=='directory')continue;
      const name=rec.name;
-     if(typeof name==='string' && !fsNameLookupSpaceV1289.has('name:'+name))fsNameLookupSpaceV1289.set('name:'+name,rec);
-     if(rec.value)fsNameLookupSpaceV1289.set('value:'+String(rec.value),rec);
+     if(rec.value && parseComicFsdirValueV1174(rec.value))fsNameLookupSpaceV1289.set('value:'+String(rec.value),rec);
      else if(rec.rootId&&rec.rel)fsNameLookupSpaceV1289.set('value:'+comicFsdirValueV1174(rec),rec);
    }
    fsNameLookupSpaceV1289.set('__built',true);
@@ -181032,8 +181662,8 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    const key=String(value||'');
    if(!/^fsdir:/i.test(key))return null;
    ensureFolderIndexV1013();
-   if(parseComicFsdirValueV1174(key))return fsNameLookupSpaceV1289.get('value:'+key)||null;
-   return fsNameLookupSpaceV1289.get('name:'+key.slice(6))||null;
+   if(!parseComicFsdirValueV1174(key))return null;
+   return fsNameLookupSpaceV1289.get('value:'+key)||null;
  }
  // v1001: 개별 이미지폴더를 가볍게 복구해 배열에 1건 추가할 때
  // 30,000건 인덱스를 다시 만들지 않고 새 항목만 등록한다.
@@ -181042,8 +181672,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    if(!folderIndexDirtyV1013 && fsNameLookupSpaceV1289.has('__built') && arr===folderIndexArrayV1013 &&
       arr.length===folderIndexLengthV1013+1 &&
       (folderIndexLengthV1013===0 || arr[0]===folderIndexFirstV1013)){
-     if(!fsNameLookupSpaceV1289.has('name:'+rec.name))fsNameLookupSpaceV1289.set('name:'+rec.name,rec);
-     if(rec.value)fsNameLookupSpaceV1289.set('value:'+String(rec.value),rec);
+     if(rec.value && parseComicFsdirValueV1174(rec.value))fsNameLookupSpaceV1289.set('value:'+String(rec.value),rec);
      folderIndexLengthV1013=arr.length;
      folderIndexFirstV1013=arr[0];
      folderIndexLastV1013=arr[arr.length-1];
@@ -181060,6 +181689,72 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
  let rootRecordsJobV1001=null;
  const resolveJobsV1001=new Map();
  const pendingMountsV1001=new Map();
+ // v1408: image-folder lightweight restore is shared by bookshelf/ordinary lists.
+ // Cache only approved read permissions for a short time, and reuse path-prefix
+ // directory handles/pending lookups within the current root generation.
+ // This never stores handles/permissions on disk and never requests a prompt.
+ let fsRootPermissionCacheV1408=new WeakMap();
+ let fsRootPathCacheV1408=new WeakMap();
+ let fsRootRevisionV1408=0;
+ const FS_ROOT_PERMISSION_TTL_V1408=1500;
+ const FS_ROOT_NEGATIVE_TTL_V1408=1000;
+ const FS_ROOT_PATH_CAP_V1408=256;
+ const fsResolveStatsV1408={permissionQueries:0,permissionHits:0,permissionWaits:0,
+   permissionDenied:0,pathLookups:0,pathHits:0,pathWaits:0,pathMisses:0,
+   invalidations:0,recovered:0};
+ window.comicFsResolveStatsV1408=()=>({...fsResolveStatsV1408,
+   pendingResolves:resolveJobsV1001.size,revision:fsRootRevisionV1408,
+   permissionTtlMs:FS_ROOT_PERMISSION_TTL_V1408,pathCapacityPerRoot:FS_ROOT_PATH_CAP_V1408});
+ function resetFsRootLookupV1408(){
+   ++fsRootRevisionV1408;
+   fsRootPermissionCacheV1408=new WeakMap();
+   fsRootPathCacheV1408=new WeakMap();
+   fsResolveStatsV1408.invalidations++;
+ }
+ async function canReadFsRootV1408(parent){
+   if(typeof parent?.queryPermission!=='function')return true; // preserve legacy behavior
+   const cached=fsRootPermissionCacheV1408.get(parent);
+   if(cached?.granted&&cached.until>Date.now()){
+     fsResolveStatsV1408.permissionHits++;return true;
+   }
+   if(cached?.promise){fsResolveStatsV1408.permissionWaits++;return cached.promise;}
+   const generation=fsRootRevisionV1408;
+   fsResolveStatsV1408.permissionQueries++;
+   const promise=Promise.resolve().then(()=>parent.queryPermission({mode:'read'}))
+     .then(result=>result==='granted',()=>false);
+   fsRootPermissionCacheV1408.set(parent,{promise});
+   const granted=await promise;
+   if(generation===fsRootRevisionV1408&&fsRootPermissionCacheV1408.get(parent)?.promise===promise){
+     // Denied/prompt is intentionally NOT retained. Permission changes can recover promptly.
+     if(granted)fsRootPermissionCacheV1408.set(parent,{granted:true,until:Date.now()+FS_ROOT_PERMISSION_TTL_V1408});
+     else{fsRootPermissionCacheV1408.delete(parent);fsResolveStatsV1408.permissionDenied++;}
+   }
+   return granted;
+ }
+ async function fsRootChildV1408(root,parent,part,prefix){
+   let entries=fsRootPathCacheV1408.get(root);
+   if(!entries){entries=new Map();fsRootPathCacheV1408.set(root,entries);}
+   const existing=entries.get(prefix);
+   if(existing){
+     if(existing.handle){fsResolveStatsV1408.pathHits++;return existing.handle;}
+     if(existing.promise){fsResolveStatsV1408.pathWaits++;return existing.promise;}
+     if(existing.missingUntil>Date.now()){fsResolveStatsV1408.pathMisses++;return null;}
+     entries.delete(prefix);
+   }
+   const generation=fsRootRevisionV1408;
+   fsResolveStatsV1408.pathLookups++;
+   const promise=Promise.resolve().then(()=>parent.getDirectoryHandle(part,{create:false}))
+     .catch(()=>null);
+   entries.set(prefix,{promise});
+   while(entries.size>FS_ROOT_PATH_CAP_V1408)entries.delete(entries.keys().next().value);
+   const handle=await promise;
+   if(generation===fsRootRevisionV1408&&entries.get(prefix)?.promise===promise){
+     if(handle?.kind==='directory')entries.set(prefix,{handle});
+     else entries.set(prefix,{missingUntil:Date.now()+FS_ROOT_NEGATIVE_TTL_V1408});
+   }
+   // Invalidation while awaiting a prior root prevents stale handle registration.
+   return generation===fsRootRevisionV1408?handle:null;
+ }
  const getRootsV1001=()=>{
    if(!rootRecordsJobV1001){
      rootRecordsJobV1001=Promise.resolve().then(async()=>{
@@ -181082,40 +181777,33 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    const key=String(value||'');
    if(!/^fsdir:/i.test(key))return null;
    const parsedV1174=parseComicFsdirValueV1174(key);
-   const name=key.slice(6);
-   // 새 고유 ID는 등록된 특정 루트만 검사하고 그 하위 상대경로를 순서대로 연다.
-   // 구형 fsdir:작품명만 직계 폴더명 복원으로 남긴다.
-   if(!parsedV1174 && (!name || name.includes('/') || name.includes('\\')))return null;
+   if(!parsedV1174)return null; // v1402: legacy fsdir:작품명 is no longer resolved.
    if(resolveJobsV1001.has(key))return resolveJobsV1001.get(key);
    const job=(async()=>{
      const roots=await getRootsV1001();
      for(const root of roots){
-       if(parsedV1174 && String(root?.id)!==parsedV1174.rootId)continue;
+       if(String(root?.id)!==parsedV1174.rootId)continue;
        const parent=root?.handle;
        if(parent?.kind!=='directory')continue;
        try{
-         if(typeof parent.queryPermission==='function' &&
-            await parent.queryPermission({mode:'read'})!=='granted')continue;
-         let handle=null;
-         if(parsedV1174){
-           handle=parent;
-           for(const part of parsedV1174.parts){
-             if(typeof handle?.getDirectoryHandle!=='function'){handle=null;break;}
-             handle=await handle.getDirectoryHandle(part,{create:false});
-           }
-         }else if(parent.name===name){handle=parent;}
-         else if(typeof parent.getDirectoryHandle==='function'){
-           // 찾지 못하면 예외만 발생하고 아무 폴더도 생성하지 않는다.
-           try{handle=await parent.getDirectoryHandle(name,{create:false});}catch(_){}
+         if(!await canReadFsRootV1408(parent))continue;
+         let handle=parent;
+         let prefix='';
+         for(const part of parsedV1174.parts){
+           if(typeof handle?.getDirectoryHandle!=='function'){handle=null;break;}
+           prefix=prefix?prefix+'/'+part:part;
+           handle=await fsRootChildV1408(parent,handle,part,prefix);
+           if(!handle)break;
          }
          if(handle?.kind!=='directory')continue;
          const found=recFor(key);
          if(found)return found;
          if(!Array.isArray(window.comicFsTitles))window.comicFsTitles=[];
-         const rec={name:parsedV1174?(parsedV1174.parts.at(-1)||root.name):name,handle,
-           rootId:String(root.id||''),...(parsedV1174?{rel:parsedV1174.rel,value:key}:{})};
+         const rec={name:parsedV1174.parts.at(-1)||root.name,handle,
+           rootId:String(root.id||''),rel:parsedV1174.rel,value:key};
          window.comicFsTitles.push(rec);
          rememberFolderRecordV1013(rec);
+         fsResolveStatsV1408.recovered++;
          // 기존 목록/만화열기 코드의 글로벌 별칭도 동일 배열로 연결한다.
          try{if(typeof comicFsTitles!=='undefined')comicFsTitles=window.comicFsTitles;}catch(_){}
          return rec;
@@ -181140,29 +181828,77 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
  }
  function onRootUpdateV1001(){
    rootRecordsJobV1001=null;
+   resetFsRootLookupV1408();
    retryPendingV1001();
  }
  document.addEventListener('fs:list:changed',onRootUpdateV1001);
+ document.addEventListener('fs:roots:restored-v1010',onRootUpdateV1001);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetFsRootLookupV1408();});
+ window.addEventListener('webviewer-image-folder-changed-v1056',onRootUpdateV1001);
  // v998 '한 번에 허용' 완료 시 등록 작품 카드가 이미 생성되어 있어도 재시도.
  window.addEventListener('video-folder-permissions-restored-v998',onRootUpdateV1001);
  // 별도의 전체 재렌더 없이도 폴더 권한이 활성화될 때 재시도할 수 있게 노출.
  window.retryComicFsLocalCoversV1001=onRootUpdateV1001;
 
- const COVER_DB_V1041='comic_fs_cover_cache_v1041', COVER_STORE_V1041='covers';
- // v1045: 폴더만화의 표지는 Posters/ComicsFolders 실제 WebP 파일 한 벌만 영구 저장한다.
- // ZIP 표지는 기존 Posters/Comics 그대로 둔다. 예전 v1044 Comics/Folders 및
- // v1041 IndexedDB Blob은 읽기 전용으로 복원하고 실제 파일 저장 확인 후에만 정리한다.
+ // v1401: 폴더만화 표지는 Posters/ComicsFolders WebP만 사용한다.
+ // 구형 v1041 IndexedDB Blob과 이전 Comics/Folders 실파일 호환은 모두 사용하지 않는다.
  const COVER_RULE_V1044='width-only-360-520-v1044';
  const coverJobsV1041=new Map(), coverDiskSyncJobsV1044=new Map(), latestCoverSigV1044=new Map();
- function openCoverDbV1041(){return new Promise((yes,no)=>{const req=indexedDB.open(COVER_DB_V1041,1);
-   req.onupgradeneeded=()=>req.result.createObjectStore(COVER_STORE_V1041);
-   req.onsuccess=()=>yes(req.result); req.onerror=()=>no(req.error);
- });}
- // v1045: 구형 Blob은 이전 작업에 한해 읽는다. 새 표지를 IndexedDB에 쓰는 경로는 없다.
- async function coverRecordV1041(key){const db=await openCoverDbV1041();try{return await new Promise((yes,no)=>{
-   const tx=db.transaction(COVER_STORE_V1041, 'readonly'); const os=tx.objectStore(COVER_STORE_V1041);
-   const req=os.get(key);req.onsuccess=()=>yes(req.result);req.onerror=()=>no(req.error);
- });}finally{db.close();}}
+ // v1399: Save only the selected WebP filename alongside the existing FS page-count record.
+ // On subsequent displays we can read Posters/ComicsFolders directly, without opening the
+ // source image or recalculating its size/mtime/hash. Explicit rescan overwrites this pointer.
+ const fsCoverStatsV1399={fastHits:0,fastMisses:0,fastFolderUnavailable:0,
+   coldSourceOpens:0,pointerWrites:0,pointerWriteErrors:0,
+   unchangedPointerSkips:0,fastManualHits:0};
+ window.comicFsPosterFastStatsV1399=()=>({...fsCoverStatsV1399});
+ function validCoverFileNameV1399(name){
+   return typeof name==='string' && /^fs_(?:user_)?[a-f0-9]{8,64}\.webp$/.test(name);
+ }
+ async function readFastDiskCoverV1399(value,name){
+   if(!validCoverFileNameV1399(name))return null;
+   const folder=await coverDiskFolderV1044(false);
+   if(!folder){fsCoverStatsV1399.fastFolderUnavailable++;return null;}
+   const manualName=await manualCoverDiskNameV1215(value);
+   const tryRead=async candidate=>{
+     try{return await window.ComicPosterDirectoryHandlesV1360.readFile(folder,candidate,()=>coverDiskFolderV1044(false));}
+     catch(_){return null;}
+   };
+   let found=await tryRead(manualName);
+   if(found?.size>0){fsCoverStatsV1399.fastManualHits++;return found;}
+   if(name!==manualName)found=await tryRead(name);
+   return found?.size>0?found:null;
+ }
+ // This is a metadata-only one-time write, serialized against existing page-count saves.
+ async function rememberDiskCoverV1399(rec,filename,firstPath,expectedUpdatedAt=null){
+   if(!validCoverFileNameV1399(filename)||!rec)return false;
+   const key=await pageKeyV1102(rec);if(!key)return false;
+   const prior=pageMetaWriteJobsV1102.get(key)||Promise.resolve();
+   const job=prior.catch(()=>{}).then(async()=>{
+     const current=pageMetaCacheV1288.get(key);
+     if(!current||!Number.isSafeInteger(current.total))return false;
+     // Do not attach an obsolete cover after a rescan changed its first image.
+     if(firstPath && current.firstPath && current.firstPath!==firstPath)return false;
+     if(expectedUpdatedAt!=null && current.updatedAt!==expectedUpdatedAt)return false;
+     if(current.coverFileNameV1399===filename){fsCoverStatsV1399.unchangedPointerSkips++;return true;}
+     const updated={...current,coverFileNameV1399:filename};
+     let db=null;
+     try{
+       db=await openPageDbV1102();
+       await new Promise((yes,no)=>{
+         const tx=db.transaction(PAGE_STORE_V1102,'readwrite');
+         tx.objectStore(PAGE_STORE_V1102).put(updated,key);
+         tx.oncomplete=()=>yes();tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);
+       });
+       pageMetaCacheV1288.set(key,updated);
+       fsCoverStatsV1399.pointerWrites++;
+       return true;
+     }catch(_){fsCoverStatsV1399.pointerWriteErrors++;return false;}
+   });
+   pageMetaWriteJobsV1102.set(key,job);
+   void job.finally(()=>{if(pageMetaWriteJobsV1102.get(key)===job)pageMetaWriteJobsV1102.delete(key);});
+   return job;
+ }
+
  function coverSigV1041(file){return String(file?.name||'')+'|'+String(file?.size||0)+'|'+String(file?.lastModified||0);}
  async function coverBlobV1041(file){
    const bitmap=await createImageBitmap(file);
@@ -181184,25 +181920,17 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    }finally{try{bitmap.close?.();}catch(_){ }}
  }
  async function coverDiskBaseV1045(mode='read'){
-   let root=null;
-   try{root=typeof getVideoPosterRootHandleCachedV872==='function'?getVideoPosterRootHandleCachedV872():null;}catch(_){ }
-   if(!root)try{root=await idbGetComic('video_poster_root_handle_v1');}catch(_){ }
-   if(root?.kind!=='directory')return null;
-   // v1360: permission check is shared and briefly cached by the common
-   // directory manager; it never requests permission from the user.
-   return root;
+   // v1403: use exactly the same RAM handle / in-flight lookup as ZIP covers.
+   // Do not deserialize the root separately for every image-folder card.
+   const root=await window.ComicPosterSharedRootV1403.getRoot('fs');
+   return root?.kind==='directory'?root:null;
  }
  async function coverDiskFolderV1044(create=false){
    const root=await coverDiskBaseV1045(create?'readwrite':'read');
    if(!root)return null;
    return await window.ComicPosterDirectoryHandlesV1360.getFolder(root,'fs',create);
  }
- async function legacyCoverDiskFolderV1045(){
-   const root=await coverDiskBaseV1045('read');
-   if(!root)return null;
-   return await window.ComicPosterDirectoryHandlesV1360.getFolder(root,'legacy',false);
- }
- async function coverDiskNameV1044(value,file){
+  async function coverDiskNameV1044(value,file){
    // 원본이 수정되거나 표지 리사이즈 규칙이 달라지면 기존 캐시와 충돌하지 않는다.
    const input=String(value||'')+'\0'+coverSigV1041(file)+'\0'+COVER_RULE_V1044;
    const data=new TextEncoder().encode(input);
@@ -181232,12 +181960,10 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
      if(saved?.size>0)return {blob:saved,name,legacy:false,manual:true};
    }
    const name=await coverDiskNameV1044(value,file);
-   // 실제 저장 위치를 먼저 조회한다. 구형 경로는 이번 표시에서만 호환 읽기.
-   for(const [legacy,loader] of [[false,async()=>selectedFolder],[true,()=>legacyCoverDiskFolderV1045()]]){
-     const folder=await loader();
-     if(!folder)continue;
-     const saved=await window.ComicPosterDirectoryHandlesV1360.readFile(folder,name,loader);
-     if(saved?.size>0)return {blob:saved,name,legacy};
+   const folder = selectedFolder;
+   if(folder){
+     const saved=await window.ComicPosterDirectoryHandlesV1360.readFile(folder,name,()=>coverDiskFolderV1044(false));
+     if(saved?.size>0)return {blob:saved,name,manual:false};
    }
    return null;
  }
@@ -181282,50 +182008,25 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
    });
    return {filename:name,blob:verified,page:pageNumber};
  }
- // v1045: 이전 버전의 IDB Blob은 새로 저장하지 않는다.
- // 실제 파일이 확인된 작품의 해당 과거 레코드만 제거하며 다른 DB/작품 데이터는 건드리지 않는다.
- async function cleanOldIdbCoverV1045(value,file){
-   const key=String(value||'');
-   // 유효한 새 WebP가 이미 실제 파일에 존재함이 확인된 뒤 호출된다.
-   // 예전 1041~1043 규격(서명/규칙이 다른 레코드)도 별도 덮어쓰기 없이 정리한다.
-   const old=await coverRecordV1041(key).catch(()=>null);
-   if(!old?.blob?.size)return;
-   try{
-     const db=await openCoverDbV1041();
-     try{await new Promise((yes,no)=>{
-       const tx=db.transaction(COVER_STORE_V1041,'readwrite');
-       const req=tx.objectStore(COVER_STORE_V1041).delete(key);
-       req.onsuccess=()=>yes();req.onerror=()=>no(req.error);
-     });}finally{db.close();}
-   }catch(e){console.warn('[comic FS v1045] 구형 IDB 표지 정리 보류',key,e);}
- }
- // 선택한 표지의 파일 저장이 확인됐을 때만 구형 IDB Blob 정리.
+ // WebP 파일 저장 완료 후 별도 구형 IndexedDB 정리 작업은 수행하지 않는다.
  function syncDiskCoverV1044(value,file,blob){
    const jobKey=String(value)+'\0'+coverSigV1041(file);
    if(coverDiskSyncJobsV1044.has(jobKey))return coverDiskSyncJobsV1044.get(jobKey);
    const job=(async()=>{
      if(latestCoverSigV1044.get(value)!==coverSigV1041(file))return false;
      const success=await writeDiskCoverV1044(value,file,blob);
-     if(success)await cleanOldIdbCoverV1045(value,file);
      return success;
    })().finally(()=>coverDiskSyncJobsV1044.delete(jobKey));
    coverDiskSyncJobsV1044.set(jobKey,job);
    return job;
  }
- // 이전 1041~1044 버전의 WebP Blob을 재인코딩 없이 한 번만 읽어 옮긴다.
- async function getCachedCoverV1041(value,file){
-   const rec=await coverRecordV1041(String(value||'')).catch(()=>null);
-   if(rec?.blob?.size && file && rec.sig===coverSigV1041(file) && rec.rule===COVER_RULE_V1044)return rec;
-   return null;
- }
+ // 이미 저장된 WebP 우선, 없으면 원본 이미지에서 새 WebP를 생성한다.
+ // 구형 실제 파일 위치와 구형 IndexedDB Blob 호환은 모두 사용하지 않는다.
  async function findCoverV1044(value,file){
    const disk=await readDiskCoverV1044(value,file);
-   if(disk){
-     return {record:{blob:disk.blob,sig:coverSigV1041(file),rule:COVER_RULE_V1044,
-       updatedAt:Date.now(),name:String(file.name||'')},source:disk.legacy?'legacy-disk':'disk'};
-   }
-   const dbRec=await getCachedCoverV1041(value,file);
-   return dbRec ? {record:dbRec,source:'idb'} : null;
+   return disk ? {record:{blob:disk.blob,sig:coverSigV1041(file),rule:COVER_RULE_V1044,
+     updatedAt:Date.now(),name:String(file.name||''),diskNameV1399:disk.name},
+     source:'disk'} : null;
  }
  function cacheCoverLaterV1041(value,file){
    const key=String(value||''),sig=coverSigV1041(file);
@@ -181341,9 +182042,8 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
        current={blob,sig,rule:COVER_RULE_V1044,updatedAt:Date.now(),name:String(file.name||'')};
      }
      if(latestCoverSigV1044.get(key)!==sig)return null;
-     // 기존 IndexedDB 저장을 반복하지 않고, 실제 WebP 파일만 새로 기록한다.
-     if(found?.source!=='disk')await syncDiskCoverV1044(key,file,current.blob);
-     else await cleanOldIdbCoverV1045(key,file);
+     // IndexedDB Blob은 사용하지 않고 실제 WebP 파일만 기록한다.
+     current.persistedOnDiskV1399=found?.source==='disk'||await syncDiskCoverV1044(key,file,current.blob);
      return current;
    })().catch(e=>{console.warn('[comic FS v1045] 표지 캐시 생성 실패',key,e);return null;})
      .finally(()=>coverJobsV1041.delete(jobKey));
@@ -181418,6 +182118,21 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
         const keyV1186=savedPageKeyV1276;
         if(keyV1186)window.ComicLocalPageSortV1186?.noteFs(keyV1186,saved.total);
       }
+      // v1399: if a previously verified WebP filename is saved, load it directly.
+      // Avoid first image FileSystemHandle/getFile and cover signature hashing entirely.
+      if(saved?.coverFileNameV1399 && validCoverFileNameV1399(saved.coverFileNameV1399)){
+        let fastBlob=null;
+        try{fastBlob=await readFastDiskCoverV1399(value,saved.coverFileNameV1399);}catch(_){ }
+        if(!wrap.isConnected)return;
+        if(fastBlob?.size){
+          if(displayCoverBlobV1044(wrap,value,fastBlob)){
+            fsCoverStatsV1399.fastHits++;
+            badge.style.zIndex='3';
+            return;
+          }
+        }
+        fsCoverStatsV1399.fastMisses++;
+      }
       // v1040: 새 폴더는 첫 파일로 포스터를 먼저 표시하며, 저장된 장수가 없으면 후순위로 센다.
       const quickCoverV1040=rec.coverHandleV1040||null;
       let meta=null;
@@ -181452,7 +182167,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
      }
      if(!meta.first)return;
      let firstFile=null;
-     try{firstFile=await meta.first.getFile();}
+     try{fsCoverStatsV1399.coldSourceOpens++;firstFile=await meta.first.getFile();}
      catch(e){console.warn('[comicFS] 표지 파일 읽기 실패',value,e);return;}
      if(!wrap.isConnected)return;
      latestCoverSigV1044.set(value,coverSigV1041(firstFile));
@@ -181461,9 +182176,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
      let img=null;
      if(coverFound?.record?.blob){
        img=displayCoverBlobV1044(wrap,value,coverFound.record.blob);
-       // 과거 IDB/Comics/Folders 캐시는 읽기 전용 이관. 신규 IDB Blob은 저장하지 않는다.
-       if(coverFound.source!=='disk')queueTask(()=>syncDiskCoverV1044(value,firstFile,coverFound.record.blob));
-       else queueTask(()=>cleanOldIdbCoverV1045(value,firstFile));
+       void rememberDiskCoverV1399(rec,coverFound.record.diskNameV1399,meta.firstPath||saved?.firstPath||'', saved?.updatedAt??null);
      }else{
        // WebP를 만드는 동안에는 원본을 먼저 보여줘서 스크롤을 멈추지 않는다.
        const original=URL.createObjectURL(firstFile);
@@ -181472,6 +182185,8 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
        const pendingImage=img;
        queueTask(async()=>{
          const created=await cacheCoverLaterV1041(value,firstFile);
+         if(created?.persistedOnDiskV1399)
+           void rememberDiskCoverV1399(rec,await coverDiskNameV1044(value,firstFile),meta.firstPath||saved?.firstPath||'', saved?.updatedAt??null);
          if(!created?.blob || !wrap.isConnected || !pendingImage.isConnected)return;
          if(wrap.contains(pendingImage))img=displayCoverBlobV1044(wrap,value,created.blob);
        });
@@ -181503,8 +182218,7 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
                  if(!wrap.isConnected)return;
                  if(found?.record?.blob){
                    img=displayCoverBlobV1044(wrap,value,found.record.blob);
-                   if(found.source!=='disk')queueTask(()=>syncDiskCoverV1044(value,exactFile,found.record.blob));
-                   else queueTask(()=>cleanOldIdbCoverV1045(value,exactFile));
+                   void rememberDiskCoverV1399(rec,found.record.diskNameV1399,exact.firstPath||'', saved?.updatedAt??null);
                  }else{
                    const fallback=URL.createObjectURL(exactFile);
                    if(!wrap.isConnected){URL.revokeObjectURL(fallback);return;}
@@ -181512,6 +182226,8 @@ else document.getElementById('comicZipPosterBtnV979')?.addEventListener('click',
                    const pendingImage=img;
                    queueTask(async()=>{
                      const created=await cacheCoverLaterV1041(value,exactFile);
+                     if(created?.persistedOnDiskV1399)
+                       void rememberDiskCoverV1399(rec,await coverDiskNameV1044(value,exactFile),exact.firstPath||'', saved?.updatedAt??null);
                      if(created?.blob && wrap.isConnected && pendingImage.isConnected && wrap.contains(pendingImage))
                        img=displayCoverBlobV1044(wrap,value,created.blob);
                    });
@@ -186020,6 +186736,90 @@ html #wtLayer .layerHeadModeButtons :is(button.zoomBtn,a.zoomBtn):not([style*="b
 
  
  <!-- v1205: 만화 초기화/개별 삭제/0차 등록 해제 시 파생 회차 및 페이지 색인만 선택 정리. -->
+ <!-- v1405: 즐겨찾기 RAM 프리로드 유지, 마지막페이지/ZIP 표지 읽기 트랜잭션 묶음 및 이미지폴더 장수 DB 연결 공유 -->
+<!-- v1400: 구형 이미지폴더 표지 전용 DB는 자동 생성 없이 존재 확인 후 한 번에 삭제.
+     복구 불가능한 사용자 데이터 및 현재 표지 파일/장수 DB는 이 절차와 무관하다. -->
+<script id="comicLegacyFsCoverDbRemovalV1400">
+(() => {
+  'use strict';
+  const OLD_DB = 'comic_fs_cover_cache_v1041';
+  const DONE_KEY_V1402 = 'viewer_legacy_fs_cover_blob_deleted_v1402';
+  // This dedicated v1041 DB held only derived cover image Blobs.
+  // Do not use indexedDB.open() merely to test presence; that could create it.
+  const state = {status:'scheduled',deleted:false,checked:false,blocked:false,
+    attempted:0,error:'',database:OLD_DB};
+  let active=null;
+  const snapshot=()=>({...state});
+  async function cleanup(){
+    if(active)return active;
+    if(state.deleted||state.status==='absent')return snapshot();
+    try { if(localStorage.getItem(DONE_KEY_V1402)==='1'){state.status='already-completed';state.checked=true;return snapshot();} } catch (_) {}
+    active=(async()=>{
+      state.attempted++;
+      if(typeof indexedDB?.databases!=='function'){
+        state.status='unsupported';
+        state.error='현재 브라우저에서 IndexedDB 목록 API를 지원하지 않아 안전한 존재 확인을 할 수 없습니다.';
+        return snapshot();
+      }
+      state.status='checking';
+      let existing;
+      try{existing=await indexedDB.databases();}
+      catch(e){state.status='failed';state.error=String(e?.message||e);return snapshot();}
+      state.checked=true;
+      if(!Array.isArray(existing)||!existing.some(db=>db.name===OLD_DB)){
+        state.status='absent';state.deleted=false;
+        try { localStorage.setItem(DONE_KEY_V1402,'1'); } catch (_) {}
+        return snapshot();
+      }
+      state.status='deleting';
+      return await new Promise(resolve=>{
+        let req;
+        try{req=indexedDB.deleteDatabase(OLD_DB);}
+        catch(e){state.status='failed';state.error=String(e?.message||e);resolve(snapshot());return;}
+        req.onsuccess=()=>{state.status='deleted';state.deleted=true;state.blocked=false;
+          try { localStorage.setItem(DONE_KEY_V1402,'1'); } catch (_) {}
+          resolve(snapshot());};
+        req.onerror=()=>{state.status='failed';state.error=String(req.error?.message||req.error||'삭제 실패');resolve(snapshot());};
+        req.onblocked=()=>{
+          state.status='blocked';state.blocked=true;
+          // Another open viewer tab may hold the old DB. Chrome retries when it closes.
+          console.warn('[comic cover cleanup v1400] 구형 표지 DB 삭제 대기: 다른 웹뷰어 탭을 닫으세요.');
+        };
+      });
+    })().finally(()=>{active=null;});
+    return active;
+  }
+  window.comicLegacyFsCoverCleanupStatusV1400 = snapshot;
+  window.comicLegacyFsCoverCleanupRunV1400 = cleanup;
+  function schedule(){
+    if(typeof requestIdleCallback==='function')requestIdleCallback(()=>{void cleanup();},{timeout:10000});
+    else setTimeout(()=>{void cleanup();},1500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  else schedule();
+})();
+</script>
+<!-- v1402: Inspect persistent completion flags without scanning IndexedDB or personal records. -->
+<script id="viewerLegacyCleanupStatusV1402">
+(() => {
+  'use strict';
+  const keys = {
+    dmmActressDataset:'viewer_legacy_dmm_actress_dataset_cleaned_v1402',
+    oldFsCoverBlobDb:'viewer_legacy_fs_cover_blob_deleted_v1402',
+    autoThumbnailMigration:'viewer_legacy_auto_thumb_migrated_v1402',
+    oldZipLastPageLocalStorage:'viewer_legacy_last_page_ls_purged_v1402',
+    oldActressAliasReset:'video_actress_avwiki_only_identity_v899'
+  };
+  window.viewerLegacyCleanupStatusV1402=()=>{
+    const result={};
+    for(const [task,key] of Object.entries(keys)) {
+      try {result[task]={completed:localStorage.getItem(key)==='1',marker:key};}
+      catch(e){result[task]={completed:null,error:String(e?.message||e),marker:key};}
+    }
+    return result;
+  };
+})();
+</script>
 <script id="comicRelatedDatabaseCleanupV1205">
 (()=>{'use strict';
   const databases=[
@@ -186028,7 +186828,6 @@ html #wtLayer .layerHeadModeButtons :is(button.zoomBtn,a.zoomBtn):not([style*="b
     ['comic_fs_chapter_progress_v1201','records'],
     ['comic_fs_page_index_v1190','paths'],
     ['comic_fs_page_counts_v1102','counts'],
-    ['comic_fs_cover_cache_v1041','covers'],
     ['comic_zip_posters_v979','posters'],
     ['viewer_comic_last_pages_v1020','pages']
   ];
@@ -187812,10 +188611,10 @@ html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217
 </script>
 
 
-<!-- v1328: Chrome auto scroll anchoring conflicts with the virtual row-anchor
-     correction. Only disable it when a themed grid has virtual spacers. -->
+<!-- v1407: bookshelf AND ordinary lists use the same spacer-based logical
+     scroll anchoring. Prevent browser auto-anchor from applying a second shift. -->
 <style id="comicShelfVirtualResizeV1328">
-#wtList.wtShelfThemeOnV1217.wtListThumb:has(> .comicVirtualSpacerV1295){
+#wtList.wtListThumb:has(> .comicVirtualSpacerV1295){
   overflow-anchor:none!important;
 }
 </style>
