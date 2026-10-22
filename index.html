@@ -125950,6 +125950,21 @@ window.videoPosterPriorityStatusV1335=()=>{
 // and the original card builder. No new persistent storage or file queries.
 const VIDEO_VIRTUAL_LIMIT_V1326 = 150;
 let videoVirtualStateV1326 = null;
+// v1389: observe actual grid width after left/right rail visibility/width
+// transitions. The left rail does not dispatch a window resize event.
+let videoVirtualResizeObserverV1389 = null;
+function videoVirtualObserveSizeV1389(box) {
+  try { videoVirtualResizeObserverV1389?.disconnect(); } catch (_) {}
+  videoVirtualResizeObserverV1389 = null;
+  if (!box || typeof ResizeObserver !== 'function') return;
+  videoVirtualResizeObserverV1389 = new ResizeObserver(() => {
+    const st = videoVirtualStateV1326;
+    if (st?.box === box && videoVirtualActiveV1326(box)) {
+      videoVirtualScheduleV1326();
+    }
+  });
+  videoVirtualResizeObserverV1389.observe(box);
+}
 const videoVirtualCountersV1326 = {starts:0, windows:0, scrollHits:0, resized:0, skips:0, reused:0, newCards:0, recycled:0, removed:0, fullSwaps:0};
 const VIDEO_VIRTUAL_RECENT_POOL_V1329 = 96;
 function videoVirtualActiveV1326(box) {
@@ -125975,6 +125990,8 @@ function videoVirtualEligibleV1326(box) {
   return wtListCache.every(item => item?.__video && !item.__videoMissing && !item.__videoGroupInfo);
 }
 function videoVirtualResetV1326() {
+  try { videoVirtualResizeObserverV1389?.disconnect(); } catch (_) {}
+  videoVirtualResizeObserverV1389 = null;
   try { videoPosterPriorityStopV1335(videoVirtualStateV1326); } catch (_) {}
   if (videoVirtualStateV1326?.raf) {
     try { cancelAnimationFrame(videoVirtualStateV1326.raf); } catch (_) {}
@@ -125988,6 +126005,8 @@ function videoVirtualResetV1326() {
 // True re-render / invalidation continues to use videoVirtualResetV1326().
 const VIDEO_DETACHED_RECENT_LIMIT_V1334 = 24;
 function videoVirtualSuspendV1334() {
+  try { videoVirtualResizeObserverV1389?.disconnect(); } catch (_) {}
+  videoVirtualResizeObserverV1389 = null;
   const st = videoVirtualStateV1326;
   if (!st) return;
   try { videoPosterPriorityStopV1335(st); } catch (_) {}
@@ -126185,6 +126204,7 @@ function videoVirtualDrawV1326(st, start, end) {
 function videoVirtualUpdateV1326(st) {
   if (!videoVirtualActiveV1326(st.box) || contentMode !== 'video') return;
   const newWidth = st.box.clientWidth;
+  if (newWidth < 1 || st.box.clientHeight < 1) return;
   const d = videoVirtualDimensionsV1326(st);
   if (d.cols !== st.cols || Math.abs(newWidth - st.width) > 2 || Math.abs(d.gap - st.gap) > 0.5) {
     const oldPitch = st.rowHeight + st.gap;
@@ -126193,17 +126213,21 @@ function videoVirtualUpdateV1326(st) {
     st.cols = d.cols;
     st.gap = d.gap;
     st.width = newWidth;
-    // Card widths changed. Estimate before mounting and refine after mounting.
+    // v1389: measure the actual connected poster buttons AFTER the flex/grid
+    // width change. v1326 used a +65px estimate here and skipped remeasurement
+    // whenever the same virtual window remained visible. That produced large
+    // blank card rows until scrolling far enough to mount a new virtual range.
+    // Reading button bounds does not detach/recreate image or video elements.
+    const measuredV1389 = videoVirtualMeasureV1326(st);
     const usable = Math.max(50, newWidth - 4 - (st.cols - 1) * st.gap);
     const cardWidth = usable / st.cols;
     const ratio = st.box.classList.contains('videoPosterHorizontal')
       ? (videoPosterHorizontalRatio === 'post' ? 269 / 400 : 9 / 16) : 1.43;
-    st.rowHeight = Math.max(65, Math.ceil(cardWidth * ratio + 65));
+    st.rowHeight = measuredV1389 || Math.max(65, Math.ceil(cardWidth * ratio + 65));
     if (columnCountChangedV1329) {
-      // The source rows have a different alignment; only then remount cards.
+      // Re-align only when the chosen column count genuinely changes.
       st.start = -1; st.end = -1;
     } else {
-      // Maintain all connected image/video elements during width-only changes.
       videoVirtualSetSpacersV1326(st);
     }
     st.box.scrollTop = Math.round(logicalTop * (st.rowHeight + st.gap));
@@ -126266,6 +126290,7 @@ function videoVirtualStartV1326(box) {
     Math.floor(VIDEO_VIRTUAL_LIMIT_V1326 / st.cols) * st.cols);
   if (st.end <= 0) return;
   videoVirtualStateV1326 = st;
+  videoVirtualObserveSizeV1389(box);
   box.classList.add('videoVirtualizedV1326');
   appendVideoCards(st.items.slice(0, st.end).map(row=>row.__video), box,
     { priorityVirtualV1335:true });
@@ -126296,6 +126321,8 @@ function videoVirtualResumeV1326(st, box) {
     videoVirtualResetV1326();
     return;
   }
+  // v1389: restored DOM snapshots need their width observer reattached.
+  videoVirtualObserveSizeV1389(box);
   // Restart only posters whose unresolved lookup was stopped while detached.
   for (const card of box.querySelectorAll(':scope > .videoCard')) {
     videoPosterPriorityRequeueV1335(card);
@@ -169345,7 +169372,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1388;
+  const VIEWER_BUILD_V789 = 1390;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
