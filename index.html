@@ -1,3 +1,21 @@
+<!-- v1437: release clean-up; remove v1394/1395 native API wrappers, v1412-15 storage audit and v1419/v1424 performance probes. Keep caching, functional counters, user settings and runtime errors unchanged. -->
+<!-- v1436: video rail tabs match comic rail button spacing, size, blue active state and inset border; retain v1435. -->
+<!-- v1435: remove retranslate button from missing/meta-search/actress-wall shared caption; keep automatic first translation, cached titles and title editing. v1434 score badge retained. -->
+<!-- v1431: seven independent poster toggles: online source, capture, manual share, share registration, time, file size, resolution; v1430 and prior caches retained. -->
+<!-- v1430: fix owned-video extension/FPS independent toggles: shared wrapper scope and extension-only insertion; retain v1429 settings and all other caches. -->
+<!-- v1428: share per-work WorldCup/tag ranking fragments between poster top/bottom, coalesce pending reads, bounded RAM and invalidation generation; preserve v1427 badge handlers and v1424 trace. -->
+<!-- v1427: shared actress/delete/censor badge event handlers, native keyboard click, compact censor parsing and normalized actress reuse; keep v1426+ caches and v1424 trace. -->
+<!-- v1426: DMM camera static-CID bounded LRU, early eligibility without jp URLs, shared SVG clone; live CID priority and old preview navigation maintained. -->
+<!-- v1425: shared Scenes filename index (IDB+RAM), cached directory handle, missing frame-poster skip, WorldCup candidate reuse; preserve existing scene/count data and manual sync. -->
+<!-- v1429: selected owned-video poster badges individually disabled at DOM creation; checkbox preferences, mounted-card in-place refresh, no stored work data changes. -->
+<!-- v1421: video ordinary scroll fast guard bypasses repeated virtual geometry checks while mounted rows cover view, with periodic recheck and resize/style invalidation; v1420 row cache retained. -->
+<!-- v1420: video ordinary virtual list memoizes row measurement; remeasure only on geometry/style changes, retains v1419 trace and resize restoration. -->
+<!-- v1414: optional storage repeated-key/missing-read audit; original data, record formats and v1413 caches unchanged. -->
+<!-- v1413: video title translation DB connection reuse; v1412 audit remains. -->
+<!-- v1412: audit native localStorage/IndexedDB direct accesses by call site; opt-in only, no persisted data/schema changes. -->
+<!-- v1424: opt-in per-video-poster badge sync/async timing, calls and counts; original UI and storage untouched. -->
+<!-- v1423: ordinary video virtual DOM incremental card-index update, recycle-only observer reattach, diff-only spacer writes; keep v1422 visibility and 150-card cap. -->
+<!-- v1422: video entrance and poster priority use the virtual row map to eliminate distant-card geometry probes; preserve exact near-card checks and loading/animation order. -->
 <!-- v1386: keep lazy video caption/badges alive on whole-card hover so title/link areas cannot flicker or lose clicks; poster-only preview unchanged. -->
 <!-- v1385: no full poster-list rebuild for title translation and caption-mode switches in collage/coverflow; ignore horizontal/vertical clicks in coverflow. -->
 <!-- v1384: poster entrance effect and delay changes update preferences without rebuilding video lists; preserve ordinary and actress/code grouped DOM, loaded count, scroll. -->
@@ -305,9 +323,150 @@
 <!-- v1408: reuse fsdir root read-permission checks and shared path-prefix handles during single-work recovery; invalidate on root/permission changes; RAM only. -->
 <!-- v1407: ordinary comic virtual grid reuses measured row geometry like the bookshelf;
      scroll only checks logical row boundaries, fullscreen/rail/ratio keep existing corrections. -->
+<!-- v1415: privacy-safe LocalStorage hot-key caller and value-size tracing; no storage policy changes. -->
+<!-- v1416: developer flag RAM memo + lazy IndexedDB last-page key existence index; no stored data schema changes. -->
+<!-- v1417: batch adjacent video-title translation IndexedDB reads in bounded readonly transactions; preserve writes, deletion, schema and earlier caches. -->
+<!-- v1419: opt-in synchronous render timings, scoped DOM changes and scroll-frame interval metrics; no persistence or DOM monkeypatch. -->
+<!-- v1418: video hot settings read once at startup and refresh only on settings writes, resets and cross-tab storage events. No per-poster option storage reads. -->
+<!-- v1421: ordinary video virtual scroll fast guard skips unchanged-range CSS/geometry checks; preserved priority/entrance, resize/class/ratio revalidation. -->
 <!-- v1406 active-title RAM cache -->
 <html lang="ko" class="wv1110-light-starting wv1111-light-only wv1333-boot">
 <head>
+<script id="videoPosterBadgeOptionsV1429">
+/* v1433: nine optional owned-video badge settings default OFF when unspecified.
+   Previously saved user choices are preserved. Original metadata and functions remain unchanged. */
+(function(){
+  'use strict';
+  const KEY='video_poster_badge_visibility_v1429';
+  const ITEMS=[
+    ['sceneCount','썸네일 개수'],
+    ['playCount','재생 횟수'],
+    ['rank','월드컵·태그 순위 (상·하단)'],
+    ['dmmPreview','DMM 미리보기 카메라'],
+    ['topCode','포스터 상단 품번'],
+    ['actress','포스터 상단 배우명'],
+    ['extension','확장자'],
+    ['fps','FPS'],
+    ['bookmark','북마크'],
+    ['bodyPoster','몸매포스터'],
+    ['rating','별점'],
+    ['censor','노모·유모 선택'],
+    ['date','출시일'],
+    ['subtitle','자막'],
+    ['delete','실제파일 삭제'],
+    ['onlineSource','온라인 포스터 출처'],
+    ['posterCapture','캡처'],
+    ['manualShare','수동공유'],
+    ['shareRegister','공유등록'],
+    ['duration','시간'],
+    ['fileSize','용량'],
+    ['resolution','해상도']
+  ];
+  // v1433: only these nine visibility keys change their default (not stored preferences).
+  // rank controls both top/bottom; onlineSource is independent of capture.
+  const DEFAULT_OFF_KEYS_V1433=new Set([
+    'sceneCount','playCount','rank','dmmPreview','topCode',
+    'bodyPoster','onlineSource','manualShare','shareRegister'
+  ]);
+  const known=new Set(ITEMS.map(item=>item[0]));
+  const state=Object.create(null);
+  const load=()=>{
+    let data=null;
+    try{
+      const str=localStorage.getItem(KEY);
+      data=str?JSON.parse(str):null;
+    }catch(_){data=null;}
+    for(const [key] of ITEMS){
+      // A saved boolean wins; otherwise use the new per-badge default.
+      const saved=data && Object.prototype.hasOwnProperty.call(data,key) ? data[key] : undefined;
+      state[key]=typeof saved==='boolean' ? saved : !DEFAULT_OFF_KEYS_V1433.has(key);
+    }
+  };
+  load();
+  function isEnabled(key){return !known.has(key)||state[key]!==false;}
+  function snapshot(){const out={};for(const [key] of ITEMS)out[key]=isEnabled(key);return out;}
+  function sync(){
+    document.querySelectorAll('#videoBadgeOptionBoxV1429 input[data-badge-key]').forEach(input=>{
+      input.checked=isEnabled(input.dataset.badgeKey);
+    });
+  }
+  function set(key,value,persist=true){
+    if(!known.has(key))return false;
+    const enabled=value!==false;
+    if(state[key]===enabled)return false;
+    state[key]=enabled;
+    if(persist){try{localStorage.setItem(KEY,JSON.stringify(snapshot()));}catch(_){}}
+    sync();
+    try{window.videoApplyBadgeSelectionsV1429?.();}catch(e){console.warn('[badge option v1429]',e);}
+    return true;
+  }
+  // v1432: show these controls in the VIDEO S style panel, not the O options dashboard.
+  // Keep existing storage keys, checkboxes and badge refresh logic unchanged.
+  function build(){
+    const panel=document.getElementById('videoRandomStylePanel');
+    if(!panel)return;
+    const existing=document.getElementById('videoBadgeChoicesSectionV1432');
+    if(existing){
+      if(existing.parentNode!==panel){
+        const head=panel.querySelector('.videoRandomStylePanelHead');
+        if(head)head.insertAdjacentElement('afterend',existing);
+        else panel.prepend(existing);
+      }
+      sync();
+      return;
+    }
+    const section=document.createElement('details');
+    section.id='videoBadgeChoicesSectionV1432';
+    section.className='videoBadgeChoicesSectionV1432';
+    const heading=document.createElement('summary');
+    heading.textContent='포스터 배지 선택 ('+ITEMS.length+')';
+    heading.title='배지별 표시 ON/OFF 설정';
+    section.appendChild(heading);
+    const choices=document.createElement('div');
+    choices.id='videoBadgeOptionBoxV1429';
+    choices.className='videoBadgeOptionGridV1432';
+    for(const [key,label] of ITEMS){
+      const wrapper=document.createElement('label');
+      wrapper.className='videoBadgeOptionLabelV1432';
+      const input=document.createElement('input');
+      input.type='checkbox';input.dataset.badgeKey=key;input.checked=isEnabled(key);
+      input.addEventListener('change',()=>set(key,input.checked));
+      const caption=document.createElement('span');caption.textContent=label;
+      wrapper.append(input,caption);choices.appendChild(wrapper);
+    }
+    const note=document.createElement('div');
+    note.className='videoBadgeOptionNoteV1432';
+    note.textContent='체크 = 표시 · 설정 즉시 반영 · 원본 기록 유지';
+    choices.appendChild(note);
+    section.appendChild(choices);
+    const head=panel.querySelector('.videoRandomStylePanelHead');
+    if(head)head.insertAdjacentElement('afterend',section);
+    else panel.prepend(section);
+  }
+  window.videoPosterBadgeEnabledV1429=isEnabled;
+  window.videoPosterBadgeOptionsV1429=()=>snapshot();
+  window.videoPosterBadgeSetV1429=set;
+  window.addEventListener('storage',event=>{
+    if(event.key!==KEY)return;
+    const prev=JSON.stringify(snapshot());load();sync();
+    if(JSON.stringify(snapshot())!==prev)try{window.videoApplyBadgeSelectionsV1429?.();}catch(_){}
+  });
+  window.videoPosterBadgeBuildOptionsV1429=build;
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
+  else build();
+})();
+</script>
+<!-- v1432: video poster badge selection moved from O options to S menu; no saved-data changes. -->
+<style id="videoBadgeSMenuStyleV1432">
+#videoRandomStylePanel .videoBadgeChoicesSectionV1432{box-sizing:border-box;min-width:0;max-width:100%;margin:5px 4px 10px;border:1px solid rgba(152,170,194,.35);border-radius:6px;background:rgba(13,24,40,.55);color:#e3ecf6}
+#videoRandomStylePanel .videoBadgeChoicesSectionV1432>summary{cursor:pointer;user-select:none;padding:7px 8px;box-sizing:border-box;font-size:12px;font-weight:700;line-height:1.4;color:#cbe6ff;list-style-position:inside;white-space:normal;overflow-wrap:anywhere}
+#videoRandomStylePanel .videoBadgeChoicesSectionV1432>summary:hover{background:rgba(55,111,167,.28)}
+#videoRandomStylePanel .videoBadgeOptionGridV1432{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,125px),1fr));column-gap:7px;row-gap:6px;padding:6px;min-width:0;box-sizing:border-box}
+#videoRandomStylePanel .videoBadgeOptionLabelV1432{display:flex;align-items:flex-start;gap:5px;min-width:0;cursor:pointer;font-size:11px;line-height:1.35;color:#e3ecf6;overflow-wrap:anywhere}
+#videoRandomStylePanel .videoBadgeOptionLabelV1432 input{flex:0 0 14px;width:14px;height:14px;min-height:14px;margin:0;accent-color:#267fdb;cursor:pointer}
+#videoRandomStylePanel .videoBadgeOptionLabelV1432 span{min-width:0}
+#videoRandomStylePanel .videoBadgeOptionNoteV1432{grid-column:1/-1;opacity:.75;font-size:10px;line-height:1.45;overflow-wrap:anywhere}
+</style>
 <style id="comicRailPinnedChecksV1363">
 /* Yellow checkbox = pinned only until this HTML reloads. White = temporary. */
 #wtTagRail.comicUnifiedRailV1033 #wtTagRailAuthSec .wtTagRailRow .comicRailPinV1363{
@@ -1279,6 +1438,7 @@ html.wv1111-light-only #miniToolbar {
     for (const key of Array.from(videoTimers.keys())) {
       if (removes(key)) videoTimerClear(key);
     }
+    if(scope==='video'||scope==='both')window.VideoHotSettingsV1418?.invalidateAll();
     return {ok:true,scope,flushedPreserved:saved.written,
       droppedSettings,droppedVideo,clearedNamespaces};
   }
@@ -1311,8 +1471,17 @@ html.wv1111-light-only #miniToolbar {
     if(key===null){
       for(const savedKey of prefMemory.keys())
         if(immediateIdentityKeyV1406(savedKey))prefMemory.delete(savedKey);
+      // External storage.clear(): the four video setting snapshots also
+      // invalidate, except for local unsaved writes awaiting flush.
+      for(const k of window.VideoHotSettingsV1418?.keys()||[]){
+        if(!dirty.has(k))prefMemory.delete(k);
+      }
     }else if(typeof key==='string' && immediateIdentityKeyV1406(key)){
       prefMemory.delete(key);
+    }else if(window.VideoHotSettingsV1418?.owns(key)){
+      // v1418: cross-tab option changes must not leave the shared
+      // preference RAM cache stale; keep unsaved local option changes.
+      if(!dirty.has(key))prefMemory.delete(key);
     }
   });
   window.comicActiveTitleCacheStatusV1406=()=>({
@@ -1323,6 +1492,118 @@ html.wv1111-light-only #miniToolbar {
   setInterval(flush,FLUSH_MS);
   window.addEventListener('pagehide',flush,{capture:true});
 })();
+</script>
+<script id="videoHotSettingsSnapshotV1418">
+// Four UI settings are identical for every video poster. Decode once and read
+// plain RAM fields on the hot path; only option changes / resets / storage events
+// update these fields. Storage remains authoritative across page reloads.
+const VideoHotSettingsV1418 = (() => {
+  'use strict';
+  const titles = 'video_work_title_mode_v1';
+  const effect = 'video_poster_entrance_effect_v1';
+  const page = 'video_render_page_size_v1';
+  const perf = 'video_performance_mode_v1339';
+  const names = [titles, effect, page, perf];
+  const owned = new Set(names);
+  const sizes = [1,2,3,4,6,8,9,12,15,24,40,54,70,96,126,150,187,216,260];
+  const state = { title:'ko', entrance:'none', pageSize:24, lite:false };
+  const metrics = {storageReads:0, ramHits:0, updates:0, invalidations:0, crossTabUpdates:0};
+  const normalizePage = raw => {
+    const n = parseInt(raw,10);
+    if(!Number.isFinite(n))return 24;
+    if(sizes.includes(n))return n;
+    let best=sizes[0], dist=Math.abs(n-best);
+    for(const s of sizes){const d=Math.abs(n-s);if(d<dist){best=s;dist=d;}}
+    return best;
+  };
+  const normalizeTitle = raw => {
+    const v=String(raw||'ko').toLowerCase();
+    return v==='file'||v==='ja'?v:'ko';
+  };
+  const normalizeEffect = raw => {
+    const v=String(raw||'').trim().toLowerCase();
+    return v==='scatter-spring'?v:'none';
+  };
+  const apply = (key, raw, count=true) => {
+    if(!owned.has(key))return;
+    if(key===titles)state.title=normalizeTitle(raw);
+    else if(key===effect)state.entrance=normalizeEffect(raw);
+    else if(key===page)state.pageSize=normalizePage(raw);
+    else state.lite=raw==='lite';
+    if(count)metrics.updates++;
+  };
+  const reload = key => {
+    if(!owned.has(key))return;
+    let raw=null;
+    try {raw=ViewerCacheManager.storage.getItem(key);metrics.storageReads++;}catch(_){}
+    apply(key,raw,false);
+    if(key===titles && raw==='both'){
+      try {ViewerCacheManager.storage.setItem(titles,'ko');}catch(_){}
+    }
+  };
+  // Startup is the only routine store access. The 4 reads resolve against the
+  // pre-existing common preference RAM layer if already loaded.
+  names.forEach(reload);
+  const store=ViewerCacheManager.storage;
+  const originalSet=store.setItem.bind(store);
+  const originalRemove=store.removeItem.bind(store);
+  const originalClear=store.clear.bind(store);
+  // Observe the real option writers, including older settings dialogs.
+  store.setItem=function(key,value){
+    const result=originalSet(key,value);
+    if(owned.has(String(key)))apply(String(key),String(value));
+    return result;
+  };
+  store.removeItem=function(key){
+    const result=originalRemove(key);
+    if(owned.has(String(key)))apply(String(key),null);
+    return result;
+  };
+  store.clear=function(){
+    const result=originalClear();
+    for(const key of names)apply(key,null);
+    metrics.invalidations++;
+    return result;
+  };
+  const invalidateAll = () => {
+    // Reset in progress: defaults only; the pending reload will read storage.
+    for(const key of names)apply(key,null,false);
+    metrics.invalidations++;
+  };
+  window.addEventListener('storage', event => {
+    if(!event)return;
+    if(event.key===null){
+      // External storage.clear() notification. Keep current tab's pending
+      // preference writes authoritative (common cache handles that scope).
+      for(const key of names)apply(key,null,false);
+      metrics.invalidations++;
+      return;
+    }
+    if(owned.has(event.key)){
+      apply(event.key,event.newValue,false);
+      metrics.crossTabUpdates++;
+    }
+  });
+  const api = {
+    owns:key=>owned.has(key),keys:()=>names.slice(),invalidateAll,
+    title:()=>{metrics.ramHits++;return state.title;},
+    entrance:()=>{metrics.ramHits++;return state.entrance;},
+    pageSize:()=>{metrics.ramHits++;return state.pageSize;},
+    lite:()=>{metrics.ramHits++;return state.lite;},
+    raw:key=>{
+      metrics.ramHits++;
+      if(key===titles)return state.title;
+      if(key===effect)return state.entrance;
+      if(key===page)return String(state.pageSize);
+      if(key===perf)return state.lite?'lite':'normal';
+      return null;
+    },
+    stats:()=>({...metrics, ...state, hotSettings:names.slice(), readsAfterStartup:Math.max(0,metrics.storageReads-4)})
+  };
+  return Object.freeze(api);
+})();
+window.VideoHotSettingsV1418=VideoHotSettingsV1418;
+window.VideoHotSettingsStatsV1418=()=>VideoHotSettingsV1418.stats();
 </script>
 <script id="videoActressIndexCacheV1291">
 // v1291 / step 2-6-3: one shared RAM store for AVDBS / AVWiki / JavBus
@@ -1373,251 +1654,7 @@ function invalidateVideoActressSourceIndexV1291(source) {
   });
 })();
 </script>
-<script id="viewerPerformanceDiagnosticsV1394">
-// v1394: Developer-only, bounded diagnostics for IDB, folder handles, localStorage and RAM caches.
-// Original IndexedDB, File System Access and Storage API calls are not changed in meaning.
-(() => {
-'use strict';
-if (window.viewerPerfDiagnosticsV1394) return;
-const MAX_EVENTS=350, MAX_WARNINGS=120, WINDOW_MS=60000, WARN_COOLDOWN_MS=30000;
-const CACHE_WARN_RATE=80, MIN_CACHE_SAMPLES=20, CACHE_STARTUP_WARMUP_MS=45000;
-const THRESHOLD={idbOpens:30,idbTx:180,idbStoreWrites:75,idbSameKeyWrites:6,
-  folderSamePath:25,permissionSameHandle:30,lsSameKeyWrites:12,lsSameKeyReads:180};
-const empty=()=>Object.create(null);
-const keySizes=new WeakMap(), MAX_TRACKED_KEYS=2500;
-const state={since:Date.now(), idb:{opens:0,transactions:0,reads:0,writes:0,cursors:0,
-  indexReads:0,cursorMoves:0,byDb:empty(),byStore:empty(),byWriteKey:empty()},
-  fs:{directories:0,fileHandles:0,fileReads:0,permissionQueries:0,permissionRequests:0,
-    byPath:empty(),byPermission:empty()},
-  ls:{reads:0,writes:0,removes:0,clears:0,keys:0,byKey:empty()},
-  recent:[],warnings:[],hot:new Map(),warnedAt:new Map(),lastCacheCheckAt:0,cacheBaseline:empty(),cacheReady:false,cacheArmedAt:0};
-const modeOn=()=>{try{return window.viewerConsoleDeveloperModeV1101?.isEnabled?.()===true;}catch(_){return false;}};
-const now=()=>Date.now();
-function hit(obj,key){let k=String(key||'(unknown)');if(obj[k]===undefined){const size=keySizes.get(obj)||0;if(size>=MAX_TRACKED_KEYS)k='(기타 키 합계)';else keySizes.set(obj,size+1);}obj[k]=(obj[k]||0)+1;}
-function short(v,max=120){try{let t=String(v??'');return t.length>max?t.slice(0,max)+'…':t;}catch(_){return '?';}}
-function log(kind,data){if(!modeOn())return;state.recent.push({time:new Date().toLocaleTimeString(),kind,...data});if(state.recent.length>MAX_EVENTS)state.recent.shift();}
-function pct(hit,miss){const n=(hit||0)+(miss||0);return n?Math.round((hit||0)/n*10000)/100:null;}
-function top(obj,n=12){return Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([item,calls])=>({item,calls}));}
-function pushWarning(code,title,detail,level='warning',value=null,limit=null){
-  if(!modeOn())return;
-  const t=now(),last=state.warnedAt.get(code)||0;
-  if(t-last<WARN_COOLDOWN_MS)return;
-  state.warnedAt.set(code,t);
-  const item={time:new Date(t).toLocaleTimeString(),level,code,title,detail,value,limit};
-  state.warnings.push(item);if(state.warnings.length>MAX_WARNINGS)state.warnings.shift();
-  // Warn only on anomaly, never log every normal operation.
-  try{console.warn('[웹뷰어 진단 1394]',title,detail);}catch(_){}
-}
-// Rolling 60s detector: only hot keys stay in memory; pruning bounds the scan.
-let sampleNo=0;
-function observe(kind,key,threshold,title){
-  if(!modeOn())return;
-  const id=kind+'|'+key,t=now();
-  let entry=state.hot.get(id);
-  if(!entry || t-entry.start>=WINDOW_MS){entry={start:t,count:0};state.hot.set(id,entry);}
-  entry.count++;
-  if(entry.count===threshold+1 || (entry.count>threshold && entry.count%threshold===0))
-    pushWarning(id,title,`최근 60초 동안 ${entry.count}회 (기준 ${threshold}회), 대상: ${short(key,100)}`,'warning',entry.count,threshold);
-  if(++sampleNo%400===0){for(const [k,e] of state.hot)if(t-e.start>=WINDOW_MS)state.hot.delete(k);
-    if(state.hot.size>2500){const keys=state.hot.keys();while(state.hot.size>2200)state.hot.delete(keys.next().value);}}
-}
-function storeRow(name){return state.idb.byStore[name]||(state.idb.byStore[name]={reads:0,writes:0,cursors:0,indexReads:0,byOp:empty()});}
-function keyLabel(store,op,args){
-  if(!args?.length)return '(no-key)';
-  if(op==='clear')return '(all)';
-  if(op==='delete'||op==='get'||op==='getKey'||op==='count')return short(args[0],100);
-  if(op==='put'||op==='add'){
-    if(args.length>1&&args[1]!==undefined)return short(args[1],100);
-    // Key-path lookup ONLY when in dev mode, never stringify stored values.
-    try {const kp=store.keyPath,v=args[0];if(typeof kp==='string'&&kp&&v&&typeof v==='object'&&v[kp]!==undefined)return short(v[kp],100);}catch(_){}
-    return '(inline/auto-key)';
-  }
-  return short(args[0],100);
-}
-function wrap(proto,name,handler){
-  try{if(!proto||typeof proto[name]!=='function')return false;
-    const original=proto[name];
-    Object.defineProperty(proto,name,{configurable:true,writable:true,value:function(...args){
-      if(modeOn())try{handler.call(this,args);}catch(_){}
-      return Reflect.apply(original,this,args);
-    }});return true;
-  }catch(_){return false;}
-}
-const storesOps={get:'read',getKey:'read',getAll:'read',getAllKeys:'read',count:'read',
-  openCursor:'cursor',openKeyCursor:'cursor',put:'write',add:'write',delete:'write',clear:'write'};
-function trackStore(storeName,op,kind,args,owner,isIndex=false){
-  const row=storeRow(storeName);
-  hit(row.byOp,op);
-  if(kind==='read'){state.idb.reads++;row.reads++;if(isIndex){state.idb.indexReads++;row.indexReads++;}}
-  if(kind==='write'){
-    state.idb.writes++;row.writes++;observe('idb-store',storeName,THRESHOLD.idbStoreWrites,'IndexedDB 쓰기 집중');
-    const key=keyLabel(owner,op,args),id=storeName+' / '+key;
-    // Explicit or resolvable keys only; unknown auto-generated keys aren't marked as repeated.
-    if(key!=='(inline/auto-key)'&&key!=='(no-key)'&&key!=='(all)'){
-      hit(state.idb.byWriteKey,id);
-      observe('idb-key',id,THRESHOLD.idbSameKeyWrites,'동일 IndexedDB 키 반복 쓰기');
-    }
-    log('IDB 쓰기',{store:short(storeName),operation:op,key});
-  }
-  if(kind==='cursor'){state.idb.cursors++;row.cursors++;}
-}
-try{
-  if(window.indexedDB){
-    wrap(Object.getPrototypeOf(window.indexedDB),'open',function(args){state.idb.opens++;const db=short(args[0]);hit(state.idb.byDb,db);observe('idb-open',db,THRESHOLD.idbOpens,'IndexedDB 반복 연결');});
-    wrap(Object.getPrototypeOf(window.indexedDB),'deleteDatabase',function(args){log('IDB 데이터베이스 삭제',{name:short(args[0])});});
-  }
-  if(typeof IDBDatabase!=='undefined')wrap(IDBDatabase.prototype,'transaction',function(args){
-    state.idb.transactions++;const db=short(this.name),list=typeof args[0]==='string'?[args[0]]:Array.from(args[0]||[]);
-    hit(state.idb.byDb,db);observe('idb-tx',db,THRESHOLD.idbTx,'IndexedDB 트랜잭션 집중');
-    log('IDB 트랜잭션',{database:db,stores:list.slice(0,4).map(x=>short(x,50)),mode:args[1]||'readonly'});
-  });
-  if(typeof IDBObjectStore!=='undefined')for(const [op,kind] of Object.entries(storesOps))
-    wrap(IDBObjectStore.prototype,op,function(args){trackStore(short(this.name),op,kind,args,this);});
-  if(typeof IDBIndex!=='undefined')for(const [op,kind] of Object.entries(storesOps)){
-    if(kind==='write')continue;
-    wrap(IDBIndex.prototype,op,function(args){trackStore(short(this.objectStore?.name)+' [index:'+short(this.name)+']',op,kind,args,this,true);});
-  }
-  if(typeof IDBCursor!=='undefined'){
-    for(const op of ['continue','advance','continuePrimaryKey'])wrap(IDBCursor.prototype,op,function(){state.idb.cursorMoves++;});
-    for(const op of ['update','delete'])wrap(IDBCursor.prototype,op,function(args){
-      const store=short(this.source?.objectStore?.name||this.source?.name||'cursor'),key=short(this.primaryKey);
-      trackStore(store,op,'write',[key],{keyPath:null});
-    });
-  }
-}catch(_){}
-try{
-  if(typeof FileSystemDirectoryHandle!=='undefined'){
-    wrap(FileSystemDirectoryHandle.prototype,'getDirectoryHandle',function(args){
-      state.fs.directories++;const p=short(this.name+'/'+short(args[0]),120);hit(state.fs.byPath,'DIR '+p);
-      observe('dir',p,THRESHOLD.folderSamePath,'동일 폴더 반복 탐색');
-    });
-    wrap(FileSystemDirectoryHandle.prototype,'getFileHandle',function(args){
-      state.fs.fileHandles++;const p=short(this.name+'/'+short(args[0]),120);hit(state.fs.byPath,'FILE '+p);
-      // File handles are naturally requested for different items; warn only per same file.
-      observe('file',p,THRESHOLD.folderSamePath,'동일 파일 핸들 반복 조회');
-    });
-  }
-  if(typeof FileSystemFileHandle!=='undefined')wrap(FileSystemFileHandle.prototype,'getFile',function(){state.fs.fileReads++;});
-  if(typeof FileSystemHandle!=='undefined')for(const op of ['queryPermission','requestPermission'])
-    wrap(FileSystemHandle.prototype,op,function(){
-      const p=short(this.kind+':'+this.name,120);hit(state.fs.byPermission,op+':'+p);
-      if(op==='queryPermission')state.fs.permissionQueries++;else state.fs.permissionRequests++;
-      observe('permission',op+':'+p,THRESHOLD.permissionSameHandle,'권한 반복 확인');
-    });
-}catch(_){}
-try{
-  if(typeof Storage!=='undefined'){
-    wrap(Storage.prototype,'getItem',function(args){const key=short(args[0],110);state.ls.reads++;const row=state.ls.byKey[key]||(state.ls.byKey[key]={reads:0,writes:0,removes:0});row.reads++;
-      observe('ls-read',key,THRESHOLD.lsSameKeyReads,'LocalStorage 동일 키 반복 읽기');});
-    wrap(Storage.prototype,'setItem',function(args){const key=short(args[0],110);state.ls.writes++;const row=state.ls.byKey[key]||(state.ls.byKey[key]={reads:0,writes:0,removes:0});row.writes++;
-      observe('ls-write',key,THRESHOLD.lsSameKeyWrites,'LocalStorage 동일 키 반복 저장');log('LocalStorage 쓰기',{key});});
-    wrap(Storage.prototype,'removeItem',function(args){const key=short(args[0],110);state.ls.removes++;const row=state.ls.byKey[key]||(state.ls.byKey[key]={reads:0,writes:0,removes:0});row.removes++;log('LocalStorage 삭제',{key});});
-    wrap(Storage.prototype,'clear',function(){state.ls.clears++;log('LocalStorage 전체 삭제',{});});
-    wrap(Storage.prototype,'key',function(){state.ls.keys++;});
-  }
-}catch(_){}
-function cacheResults(raw=false){
- const items=[];const add=(name,h,m,details)=>{
-   const initialHits=Number(h)||0,initialMisses=Number(m)||0;
-   // A namespace created after warmup starts with its own baseline, not an immediate 0% warning.
-   if(!raw && state.cacheReady && !state.cacheBaseline[name])
-     state.cacheBaseline[name]={hits:initialHits,misses:initialMisses};
-   const base=raw||!state.cacheReady?null:state.cacheBaseline[name];
-   const hits=base?(initialHits>=base.hits?initialHits-base.hits:initialHits):initialHits;
-   const misses=base?(initialMisses>=base.misses?initialMisses-base.misses:initialMisses):initialMisses;
-   const rate=pct(hits,misses),lifetimePct=pct(initialHits,initialMisses);
-   const status=!raw&&!state.cacheReady?'초기 로딩 (경고 제외)':rate===null?'표본 없음':
-     hits+misses<MIN_CACHE_SAMPLES?'측정 중':rate<=CACHE_WARN_RATE?'경고':'정상';
-   items.push({name,hits,misses,ratePct:rate,lifetimePct,totalHits:initialHits,totalMisses:initialMisses,
-     status,measurement:!raw&&!state.cacheReady?'startup':'post-warmup',...details});
- };
- try{const a=window.ViewerCacheManager?.namespaceStats?.()||{};
-   for(const [name,x] of Object.entries(a))if(name.startsWith('comic.')||name.startsWith('video.')){
-     if(typeof x?.hits==='number'&&typeof x?.misses==='number')add(name,x.hits,x.misses,{size:x.size,evictions:x.evictions});
-   }
- }catch(_){}
- try{const x=window.comicPosterDirectoryCacheStatusV1360?.();if(x)add('만화 표지 폴더',x.hits,x.misses,{size:x.entries});}catch(_){}
- try{const x=window.videoQueryCacheStatsV1324?.();if(x){add('영상 필터',x.filterHits,x.filterMisses);add('영상 정렬',x.sortHits,x.sortMisses);}}catch(_){}
- try{const x=window.getComicListQueryCacheStatsV1000?.();if(x)add('만화 목록 쿼리',x.hits,x.misses);}catch(_){}
- return items.sort((a,b)=>(a.ratePct??101)-(b.ratePct??101));
-}
-function armCacheMonitoring(){
- if(state.cacheReady || now()-state.since<CACHE_STARTUP_WARMUP_MS)return;
- const baseline=empty();
- for(const c of cacheResults(true))baseline[c.name]={hits:c.hits,misses:c.misses};
- state.cacheBaseline=baseline;
- state.cacheReady=true;state.cacheArmedAt=now();
-}
-function checkCaches(){
- if(!modeOn())return;
- armCacheMonitoring();
- for(const c of cacheResults())if(c.status==='경고')pushWarning('cache:'+c.name,
-   '캐시 적중률 80% 이하',`${c.name}: 초기 로딩 제외 ${c.ratePct}% (적중 ${c.hits}, 실패 ${c.misses}; 누적 ${c.lifetimePct}%, 기준 80% 이하)`,'warning',c.ratePct,80);
- state.lastCacheCheckAt=now();
-}
-function check(){if(!modeOn())return [];checkCaches();return state.warnings.slice();}
-function snapshot(){if(modeOn())checkCaches();
- const durationMs=now()-state.since,idb=state.idb,fs=state.fs,ls=state.ls;
- const sortedStore=Object.entries(idb.byStore).map(([name,data])=>({name,reads:data.reads,writes:data.writes,cursors:data.cursors,indexReads:data.indexReads,operations:data.byOp})).sort((a,b)=>b.reads+b.writes+b.cursors-a.reads-a.writes-a.cursors).slice(0,20);
- const lsSorted=Object.entries(ls.byKey).map(([key,d])=>({key,...d,total:d.reads+d.writes+d.removes})).sort((a,b)=>b.total-a.total).slice(0,20);
- const caches=cacheResults();
- return {version:1395,enabled:modeOn(),since:new Date(state.since).toLocaleString(),durationSeconds:Math.round(durationMs/1000),
-   cacheMonitoring:{phase:state.cacheReady?'재사용 측정':'초기 로딩',warmingUp:!state.cacheReady,
-     startupGraceSeconds:CACHE_STARTUP_WARMUP_MS/1000,
-     secondsUntilActive:state.cacheReady?0:Math.ceil(Math.max(0,CACHE_STARTUP_WARMUP_MS-durationMs)/1000),
-     armedAt:state.cacheArmedAt?new Date(state.cacheArmedAt).toLocaleTimeString():null},
-   thresholds:{periodSeconds:60,cacheMinimumPercent:CACHE_WARN_RATE,cacheMinimumSamples:MIN_CACHE_SAMPLES,...THRESHOLD},
-   priority:{
-     indexedDB:{opens:idb.opens,transactions:idb.transactions,reads:idb.reads,indexReads:idb.indexReads,writes:idb.writes,cursorStarts:idb.cursors,cursorMoves:idb.cursorMoves,byDatabase:top(idb.byDb),topStores:sortedStore,repeatWriteCandidates:top(idb.byWriteKey,15)},
-     folders:{directoryHandles:fs.directories,fileHandles:fs.fileHandles,fileReads:fs.fileReads,permissionQueries:fs.permissionQueries,permissionRequests:fs.permissionRequests,topPaths:top(fs.byPath),topPermissions:top(fs.byPermission)},
-     caches:{thresholdPct:CACHE_WARN_RATE,items:caches,below80:caches.filter(x=>x.status==='경고')},
-     localStorage:{getItem:ls.reads,setItem:ls.writes,removeItem:ls.removes,clear:ls.clears,keyCalls:ls.keys,topKeys:lsSorted}
-   },warnings:state.warnings.slice(),recent:state.recent.slice(-80),
-   interpretation:'반복 쓰기는 동일 키 접근 후보이며 값이 동일한 쓰기인지 확정하지 않습니다. 폴더 탐색은 API 호출 횟수입니다. 캐시는 시작 45초 동안 누적 적중률을 보여주되 경고하지 않고, 그 뒤 새로 발생한 조회가 20회 이상일 때 80% 이하 경고합니다. 개발자모드 활성 중의 활동만 계측합니다.'};
-}
-function report(){const s=snapshot();if(!s.enabled)return '콘솔 개발모드를 켠 뒤 측정하세요: viewerConsoleDeveloperModeV1101.setEnabled(true)';
- const p=s.priority;
- const out=['=== 웹뷰어 통합 성능 진단 1395 ===',`측정시간 ${s.durationSeconds}초 | 경고 ${s.warnings.length}건 | 캐시 ${s.cacheMonitoring.phase}${s.cacheMonitoring.warmingUp?' (남은 유예 '+s.cacheMonitoring.secondsUntilActive+'초)':''}`,
-  `① IndexedDB: 연결 ${p.indexedDB.opens}, 트랜잭션 ${p.indexedDB.transactions}, 읽기 ${p.indexedDB.reads} (인덱스 ${p.indexedDB.indexReads}), 쓰기 ${p.indexedDB.writes}, 커서 시작 ${p.indexedDB.cursorStarts}`,
-  `② 폴더: 디렉터리 ${p.folders.directoryHandles}, 파일핸들 ${p.folders.fileHandles}, 파일읽기 ${p.folders.fileReads}, 권한확인 ${p.folders.permissionQueries}, 권한요청 ${p.folders.permissionRequests}`,
-  `③ 캐시: ${p.caches.items.map(c=>c.name+' '+(c.ratePct===null?'측정 전':c.ratePct+'%')+' ['+c.status+']'+(s.cacheMonitoring.warmingUp?'':` (누적 ${c.lifetimePct??'N/A'}%)`)).join(' / ')}`,
-  `④ LocalStorage: 읽기 ${p.localStorage.getItem}, 쓰기 ${p.localStorage.setItem}, 삭제 ${p.localStorage.removeItem}, 전체삭제 ${p.localStorage.clear}`,
-  '--- 이상징후 ---',
-  ...(s.warnings.length?s.warnings.map(w=>`[${w.time}] ${w.title}: ${w.detail}`):['현재까지 자동경고 없음']),
-  '--- 상위 IndexedDB 저장소 ---',
-  ...p.indexedDB.topStores.slice(0,10).map(x=>`${x.name}: 읽기 ${x.reads}, 쓰기 ${x.writes}, 커서 ${x.cursors}`),
-  '--- 상위 폴더 경로 ---',...p.folders.topPaths.slice(0,10).map(x=>`${x.calls}회 ${x.item}`),
-  '--- 상위 LocalStorage 키 ---',...p.localStorage.topKeys.slice(0,10).map(x=>`${x.key}: 읽기 ${x.reads}, 쓰기 ${x.writes}`)];
- const result=out.join('\n');try{console.log(result);}catch(_){}return result;
-}
-function reset(){state.cacheBaseline=empty();for(const c of cacheResults(true))state.cacheBaseline[c.name]={hits:c.hits,misses:c.misses};
- state.cacheReady=true;state.cacheArmedAt=now();
- state.since=now();state.idb={opens:0,transactions:0,reads:0,writes:0,cursors:0,indexReads:0,cursorMoves:0,byDb:empty(),byStore:empty(),byWriteKey:empty()};
- state.fs={directories:0,fileHandles:0,fileReads:0,permissionQueries:0,permissionRequests:0,byPath:empty(),byPermission:empty()};
- state.ls={reads:0,writes:0,removes:0,clears:0,keys:0,byKey:empty()};state.recent.length=0;state.warnings.length=0;state.hot.clear();state.warnedAt.clear();state.lastCacheCheckAt=0;
- return snapshot();}
-const api=Object.freeze({snapshot,report,reset,check,cacheResults,warnings:()=>state.warnings.slice(),
- copyReport:async()=>{const text=report();try{await navigator.clipboard.writeText(text);return '진단 보고서 복사 완료';}catch(_){return text;}}});
-window.viewerPerfDiagnosticsV1394=api;
-window.viewerPerfDiagnosticsV1395=api;
-window.viewerPerfDiagnosticsV1393=snapshot;
-window.viewerPerfDiagnosticsIdbV1393=()=>snapshot().priority.indexedDB;
-window.viewerPerfDiagnosticsFsV1393=()=>snapshot().priority.folders;
-window.viewerPerfDiagnosticsCacheV1393=()=>snapshot().priority.caches;
-window.viewerPerfDiagnosticsResetV1393=reset;
-window.viewerPerfReportV1394=report;
-window.viewerPerfReportV1395=report;
-window.viewerPerfWarningsV1394=api.warnings;
-window.viewerPerfWarningsV1395=api.warnings;
-window.viewerPerfCopyReportV1394=api.copyReport;
-window.viewerPerfCopyReportV1395=api.copyReport;
-window.viewerPerfResetV1394=reset;
-window.viewerPerfResetV1395=reset;
-window.addEventListener('viewer-console-mode-changed-v1101',()=>{if(modeOn())reset();});
-// Each 10 seconds, re-evaluate cache warnings only; no cache reads/writes to persisted storage.
-setInterval(()=>{if(modeOn())checkCaches();},10000);
-})();
-</script>
+
 <!-- v1152: 공유 기능 전체 임시 차단. 클라이언트 잠금이며 서버 권한 검증을 대체하지 않는다. -->
 <script id="viewerShareEmergencyGateV1152">
 (()=>{
@@ -6487,15 +6524,15 @@ body:has(#wtTagRail.videoUnifiedRailV1052) #videoRandomStyleBtn {display:inline-
 .videoActressWallScoreBadge {
   position: absolute;
   left: 6px;
-  bottom: 6px;
+  top: 6px;
   z-index: 3;
-  min-width: 27px;
-  padding: 2px 7px;
+  min-width: 24px;
+  padding: 1px 6px;
   border-radius: 999px;
   background: rgba(0,0,0,.68);
   color: #ffe082;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: 11px;
+  line-height: 1.15;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -15783,6 +15820,7 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
 
     inner.prepend(dashboard);
     inner.classList.add('opt-dashboard-ready');
+    // v1432: badge selection controls live in the S style panel, not O options.
   };
 
   if (document.readyState === 'loading') {
@@ -50730,39 +50768,6 @@ document.addEventListener('DOMContentLoaded', () => {
   white-space: nowrap;
 }
 
-.videoTitleRetranslateBtn {
-  display: none;
-  flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  border: 1px solid #566276;
-  border-radius: 4px;
-  background: #202734;
-  color: #aeb9ca;
-  font-size: 12px;
-  line-height: 14px;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
-}
-
-.videoTitleRetranslateBtn.is-visible {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.videoTitleRetranslateBtn:hover {
-  border-color: #8090aa;
-  color: #fff;
-}
-
-.videoTitleRetranslateBtn.is-busy {
-  opacity: .55;
-  pointer-events: none;
-}
-
 .videoMissingCardCaption .videoMissingCaptionTitleJa {
   color: #7f8b9d;
 }
@@ -56211,12 +56216,7 @@ function getVideoRenderPageSize() {
     }
   } catch (_) {}
 
-  try {
-    const n = Number(ViewerCacheManager.storage.getItem('video_render_page_size_v1'));
-    return Number.isFinite(n) && n > 0 ? n : 24;
-  } catch (_) {
-    return 24;
-  }
+  return VideoHotSettingsV1418.pageSize();
 }
 
 function getVideoRandomBookPageSize() {
@@ -57271,16 +57271,34 @@ const VIDEO_MISSING_PREVIEW_DAILY_USAGE_KEY =
 // - 미보유 Fourhoi 미리보기 100개/일
 const VIDEO_DEVELOPER_ACCESS_KEY_V910 = 'video_developer_access_v910';
 const VIDEO_DEVELOPER_ACCESS_PASSWORD_V910 = 'test';
-
+// v1416: this flag is checked during poster creation. Read storage once per tab;
+// writes through the options UI update RAM immediately. Do not poll localStorage
+// thousands of times during scrolling.
+let videoDeveloperFlagRamV1416 = null;
+const videoDeveloperFlagStatsV1416 = {storageReads:0,ramHits:0,updates:0,invalidations:0};
 function isVideoDeveloperAccessEnabledV910() {
-  try {
-    return ViewerCacheManager.storage.getItem(VIDEO_DEVELOPER_ACCESS_KEY_V910) === '1';
-  } catch (_) {
-    return false;
+  if (videoDeveloperFlagRamV1416 !== null) {
+    videoDeveloperFlagStatsV1416.ramHits++;
+    return videoDeveloperFlagRamV1416;
   }
+  try {
+    videoDeveloperFlagStatsV1416.storageReads++;
+    videoDeveloperFlagRamV1416 = ViewerCacheManager.storage.getItem(VIDEO_DEVELOPER_ACCESS_KEY_V910) === '1';
+  } catch (_) { videoDeveloperFlagRamV1416 = false; }
+  return videoDeveloperFlagRamV1416;
 }
+// Another tab can toggle the same setting; clear RAM on its storage event.
+window.addEventListener('storage', event => {
+  if (event.key !== VIDEO_DEVELOPER_ACCESS_KEY_V910 && event.key !== null) return;
+  videoDeveloperFlagRamV1416 = null;
+  videoDeveloperFlagStatsV1416.invalidations++;
+  try { updateVideoDeveloperAccessUiV910(); } catch (_) {}
+});
+window.VideoDeveloperFlagStatsV1416 = () => ({...videoDeveloperFlagStatsV1416,enabled:isVideoDeveloperAccessEnabledV910()});
 
 function setVideoDeveloperAccessEnabledV910(enabled) {
+  videoDeveloperFlagRamV1416 = !!enabled;
+  videoDeveloperFlagStatsV1416.updates++;
   try {
     if (enabled) ViewerCacheManager.storage.setItem(VIDEO_DEVELOPER_ACCESS_KEY_V910, '1');
     else ViewerCacheManager.storage.removeItem(VIDEO_DEVELOPER_ACCESS_KEY_V910);
@@ -65759,9 +65777,64 @@ function getVideoPosterActressGroupsFromBadge(el) {
   return normalizeVideoActressGroupList([el.dataset.actressText || '']);
 }
 
-function renderVideoPosterActressBadgeLines(el, groups, entry = null) {
+// v1427: one shared listener replaces per-name closures and redundant native-button
+// keydown listeners. Enter/Space already synthesize a click on a real <button>.
+function openVideoPosterActressProfileV1427(event) {
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const line=event?.currentTarget;
+  const group=String(line?.dataset?.actressGroup || '').trim();
+  const displayName=String(line?.textContent || '').trim();
+  if (!group && !displayName) return;
+
+  let canonical='';
+  try {
+    canonical=resolveVideoActressCanonicalKey(group) ||
+      resolveVideoActressCanonicalKey(displayName) ||
+      normalizeActressKey(group || displayName);
+  } catch (_) { canonical=normalizeActressKey(group || displayName); }
+  if(!canonical) return;
+  let workCount=0;
+  try {
+    const actressBase=getVideoRamIndex()?.actressBase || [];
+    const matched=actressBase.find(row => {
+      const rowKey=resolveVideoActressCanonicalKey(row?.key || row?.label || '') ||
+        normalizeActressKey(row?.key || row?.label || '');
+      return rowKey===canonical;
+    });
+    workCount=Number(matched?.count) || 0;
+  } catch (_) {}
+  openVideoActressProfileLayer(canonical,group || displayName,workCount);
+}
+
+function openVideoCensorMissavV1427(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const code=String(event?.currentTarget?.__v1427CensorCode || '').trim();
+  if(!code)return;
+
+  const url='https://missav123.com/ko/'+encodeURIComponent(code.toLowerCase())+'-uncensored-leak';
+  window.open(url,'_blank','noopener,noreferrer');
+}
+function stopVideoCensorMouseDownV1427(event){event.stopPropagation();}
+function chooseVideoCensorV1427(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const btn=event?.currentTarget;
+  const entry=btn?.__v1427CensorEntry;
+  const mode=btn?.__v1427CensorMode;
+  if(!entry || !mode)return;
+
+  try { stopVideoHoverPreview?.(); } catch (_) {}
+  setVideoExplicitCensorModeV930(entry,mode);
+}
+
+function renderVideoPosterActressBadgeLines(el, groups, entry = null, normalizedV1427 = false) {
   if (!el) return;
-  const sourceGroups = normalizeVideoActressGroupList(groups || []);
+  // Ordinary cards already received the normalized list from getVideoEntryActressGroups.
+  // Other callers (language/alias refresh) keep the original normalization path.
+  const sourceGroups = normalizedV1427 && Array.isArray(groups)
+    ? groups : normalizeVideoActressGroupList(groups || []);
   const items = [];
   const seen = new Set();
 
@@ -65786,80 +65859,38 @@ function renderVideoPosterActressBadgeLines(el, groups, entry = null) {
 
   const posterEntry = entry || el.__videoEntry || null;
 
-  items.slice(0, limit).forEach((item, itemIndex) => {
-    // v427: 보유 포스터 좌상단 배우명을 누르면 해당 배우정보창을 연다.
-    // 외부 사이트/Actors 폴더가 아니라 뷰어 내부 배우정보 레이어만 사용한다.
-    const line = document.createElement('button');
-    line.type = 'button';
-    line.className = 'videoPosterBadgeLine';
-    line.textContent = item.displayName;
-    line.dataset.actressGroup = item.group;
-    line.setAttribute('aria-label', `${item.displayName} 배우정보 열기`);
+  const actorFragmentV1427=document.createDocumentFragment();
+  const visibleCountV1427=Math.min(items.length,limit);
+  for(let itemIndex=0; itemIndex<visibleCountV1427; itemIndex++){
+    const item=items[itemIndex];
+    const line=document.createElement('button');
+    line.type='button';
+    line.className='videoPosterBadgeLine';
+    line.textContent=item.displayName;
+    line.dataset.actressGroup=item.group;
+    line.setAttribute('aria-label',`${item.displayName} 배우정보 열기`);
+    // Shared click handler; native Enter/Space activation stays available.
+    line.addEventListener('click',openVideoPosterActressProfileV1427);
 
-    const openPosterActressProfile = event => {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
 
-      let canonical = '';
-      try {
-        canonical =
-          resolveVideoActressCanonicalKey(item.group) ||
-          resolveVideoActressCanonicalKey(item.displayName) ||
-          normalizeActressKey(item.group || item.displayName);
-      } catch (_) {
-        canonical = normalizeActressKey(item.group || item.displayName);
-      }
-
-      if (!canonical) return;
-
-      let workCount = 0;
-      try {
-        const actressBase = getVideoRamIndex()?.actressBase || [];
-        const matched = actressBase.find(row => {
-          const rowKey =
-            resolveVideoActressCanonicalKey(row?.key || row?.label || '') ||
-            normalizeActressKey(row?.key || row?.label || '');
-          return rowKey === canonical;
-        });
-        workCount = Number(matched?.count) || 0;
-      } catch (_) {}
-
-      openVideoActressProfileLayer(
-        canonical,
-        item.group || item.displayName,
-        workCount
-      );
-    };
-
-    line.addEventListener('click', openPosterActressProfile);
-    line.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        openPosterActressProfile(event);
-      }
-    });
-
-    const groupWrap = document.createElement('div');
-    groupWrap.className = 'videoPosterActressCareerGroup';
+    const groupWrap=document.createElement('div');
+    groupWrap.className='videoPosterActressCareerGroup';
     groupWrap.appendChild(line);
-
-    // v557: 포스터 랭킹은 배우 종합랭킹이 아니라 "현재 품번" 랭킹만 표시한다.
-    // 다인 작품에서 같은 품번 랭킹이 배우마다 반복되지 않도록 첫 배우명 아래에 한 번만 붙인다.
-    if (itemIndex === 0 && posterEntry) {
-      const careerStack = createVideoPosterCareerRankStack(posterEntry);
+    if(itemIndex===0 && posterEntry && (el.__videoBadgeOnlyV1339 || window.videoPosterBadgeEnabledV1429?.('rank')!==false)){
+      const careerStack=createVideoPosterCareerRankStack(posterEntry);
       groupWrap.appendChild(careerStack);
     }
-
-    el.appendChild(groupWrap);
-  });
-
+    actorFragmentV1427.appendChild(groupWrap);
+  }
   const remain = Math.max(0, items.length - limit);
   if (remain > 0) {
     const more = document.createElement('div');
     more.className = 'videoPosterBadgeLine videoPosterBadgeMore';
     more.textContent = `+${remain}`;
     more.title = items.slice(limit).map(item => item.displayName).join(' · ');
-    el.appendChild(more);
+    actorFragmentV1427.appendChild(more);
   }
+  el.appendChild(actorFragmentV1427);
 }
 
 function syncVideoPosterActressMultiDisplayUI() {
@@ -66140,6 +66171,8 @@ function normalizeVideoActressGroupList(value) {
 }
 
 function getVideoEntryActressGroups(entry, resolvedWorkV1331 = undefined) {
+
+
   if (!entry) return [];
 
   // v921:
@@ -66169,6 +66202,7 @@ function getVideoEntryActressGroups(entry, resolvedWorkV1331 = undefined) {
   } catch (_) {
     return [];
   }
+
 }
 
 function getVideoActressGroupsSignature(value) {
@@ -71216,28 +71250,67 @@ function openVideoWorkIndexDb() {
   });
 }
 
+// v1413: opening/closing the same IndexedDB for each visible title caused
+// ~359 opens in a 64s v1412 trace. Reuse only the connection, never a
+// transaction. Keep reset/deleteDatabase safe with onversionchange closure.
+let videoTitleTranslationDbPromiseV1413 = null;
+let videoTitleTranslationDbHandleV1413 = null;
+const videoTitleTranslationDbStatsV1413 = {opens:0,reuses:0,failedOpens:0,versionCloses:0};
+window.VideoTitleTranslationDbStatsV1413 = () => ({
+  ...videoTitleTranslationDbStatsV1413,
+  connected:!!videoTitleTranslationDbHandleV1413,
+  opening:!!videoTitleTranslationDbPromiseV1413 && !videoTitleTranslationDbHandleV1413
+});
 function openVideoTitleTranslationDb() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(
-      VIDEO_TITLE_TRANSLATION_DB_NAME,
-      VIDEO_TITLE_TRANSLATION_DB_VERSION
-    );
-
+  if (videoTitleTranslationDbPromiseV1413) {
+    videoTitleTranslationDbStatsV1413.reuses++;
+    return videoTitleTranslationDbPromiseV1413;
+  }
+  const opening = new Promise((resolve, reject) => {
+    let req;
+    try {
+      req = indexedDB.open(VIDEO_TITLE_TRANSLATION_DB_NAME, VIDEO_TITLE_TRANSLATION_DB_VERSION);
+    } catch (error) { reject(error); return; }
     req.onupgradeneeded = () => {
       const db = req.result;
       if (!db.objectStoreNames.contains(VIDEO_TITLE_TRANSLATION_STORE)) {
-        db.createObjectStore(
-          VIDEO_TITLE_TRANSLATION_STORE,
-          { keyPath: 'key' }
-        );
+        db.createObjectStore(VIDEO_TITLE_TRANSLATION_STORE, {keyPath:'key'});
       }
     };
-
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(
-      req.error || new Error('제목 번역 캐시 DB 열기 실패')
-    );
+    req.onsuccess = () => {
+      const db = req.result;
+      // If a reset invalidated this opening, never retain the late connection.
+      if (videoTitleTranslationDbPromiseV1413 !== opening) {
+        try { db.close(); } catch (_) {}
+        reject(new Error('제목 번역 DB 연결이 무효화됨'));
+        return;
+      }
+      videoTitleTranslationDbStatsV1413.opens++;
+      videoTitleTranslationDbHandleV1413 = db;
+      db.onversionchange = () => {
+        videoTitleTranslationDbStatsV1413.versionCloses++;
+        if (videoTitleTranslationDbHandleV1413 === db) {
+          videoTitleTranslationDbHandleV1413 = null;
+          videoTitleTranslationDbPromiseV1413 = null;
+        }
+        try { db.close(); } catch (_) {}
+      };
+      db.onclose = () => {
+        if (videoTitleTranslationDbHandleV1413 === db) {
+          videoTitleTranslationDbHandleV1413 = null;
+          videoTitleTranslationDbPromiseV1413 = null;
+        }
+      };
+      resolve(db);
+    };
+    req.onerror = () => reject(req.error || new Error('제목 번역 캐시 DB 열기 실패'));
   });
+  videoTitleTranslationDbPromiseV1413 = opening;
+  void opening.catch(() => {
+    videoTitleTranslationDbStatsV1413.failedOpens++;
+    if (videoTitleTranslationDbPromiseV1413 === opening) videoTitleTranslationDbPromiseV1413 = null;
+  });
+  return opening;
 }
 
 async function getVideoWorkDbMeta(source = 'dmm') {
@@ -73017,6 +73090,8 @@ function resolveVideoWorkRowsForCodeV693(code, rows, selectedWorkId = '') {
 }
 
 function getVideoWorkMatchForEntryV693(entry) {
+
+
   if (!entry || !__videoWorkRuntimeCandidatesByLookupKey?.size) {
     return { status: 'none', row: null, candidates: [], stage: 'none' };
   }
@@ -73195,6 +73270,7 @@ function getVideoWorkMatchForEntryV693(entry) {
     ...normal,
     resolutionStatus: normal.status === 'matched' ? 'auto' : normal.status
   };
+
 }
 
 function getVideoWorkDuplicateCandidatesForEntryV693(entry) {
@@ -73821,20 +73897,8 @@ window.refreshVideoWorkRuntimeIndex = refreshVideoWorkRuntimeIndex;
 
 
 function getVideoWorkTitleMode() {
-  const raw = String(
-    ViewerCacheManager.storage.getItem(VIDEO_WORK_TITLE_MODE_KEY) || 'ko'
-  ).toLowerCase();
-
-  // v500: 스타일창은 파일/일/한 3종만 사용한다.
-  // 구버전의 '한+일'(both) 저장값은 '한'(ko)으로 자동 호환한다.
-  if (raw === 'both') {
-    try { ViewerCacheManager.storage.setItem(VIDEO_WORK_TITLE_MODE_KEY, 'ko'); } catch (_) {}
-    return 'ko';
-  }
-
-  return ['file', 'ja', 'ko'].includes(raw)
-    ? raw
-    : 'ko';
+  // v1418: once-decoded value, changed only by the title-mode setting.
+  return VideoHotSettingsV1418.title();
 }
 
 function syncVideoWorkTitleModeUI() {
@@ -74012,25 +74076,119 @@ function getVideoWorkTranslationKey(work) {
   return `${id}:${hashVideoTranslationText(titleJa)}`;
 }
 
-async function readVideoTitleTranslation(key) {
-  if (!key) return '';
-
-  const db = await openVideoTitleTranslationDb();
-
-  try {
-    return await new Promise((resolve, reject) => {
-      const tx = db.transaction(VIDEO_TITLE_TRANSLATION_STORE, 'readonly');
-      const req = tx.objectStore(VIDEO_TITLE_TRANSLATION_STORE).get(key);
-
-      req.onsuccess = () => {
-        resolve(String(req.result?.titleKo || '').trim());
-      };
-
-      req.onerror = () => reject(req.error);
-    });
-  } finally {
-    try { db.close(); } catch (_) {}
+// v1417: adjacent read requests share a *short-lived* readonly transaction.
+// Keep the v1413 database connection reuse. Never reuse a transaction and
+// never change translation record keys/values or readwrite operations.
+const VIDEO_TITLE_READ_BATCH_MAX_V1417 = 64;
+const VIDEO_TITLE_READ_BATCH_DELAY_MS_V1417 = 5;
+const videoTitleReadPendingV1417 = new Map(); // includes queued AND in-flight reads
+let videoTitleReadQueueV1417 = new Map();
+let videoTitleReadTimerV1417 = null;
+const videoTitleReadStatsV1417 = {
+  requests: 0, readonlyTransactions: 0, batchedKeys: 0,
+  maxBatch: 0, duplicateWaits: 0, failedBatches: 0,
+  invalidatedInFlight: 0, elapsedMs: 0, maxTransactionMs: 0
+};
+window.VideoTitleTranslationBatchStatsV1417 = () => ({
+  ...videoTitleReadStatsV1417,
+  avgBatch: videoTitleReadStatsV1417.readonlyTransactions
+    ? +(videoTitleReadStatsV1417.batchedKeys / videoTitleReadStatsV1417.readonlyTransactions).toFixed(2) : 0,
+  avgTransactionMs: videoTitleReadStatsV1417.readonlyTransactions
+    ? +(videoTitleReadStatsV1417.elapsedMs / videoTitleReadStatsV1417.readonlyTransactions).toFixed(2) : 0,
+  queued: videoTitleReadQueueV1417.size,
+  pending: videoTitleReadPendingV1417.size
+});
+// A user-triggered edit/delete must not accept a late pre-edit read result.
+function invalidateVideoTitlePendingReadV1417(key) {
+  const entry = videoTitleReadPendingV1417.get(key);
+  if (entry && !entry.invalidated) {
+    entry.invalidated = true;
+    videoTitleReadStatsV1417.invalidatedInFlight++;
   }
+}
+function settleVideoTitleReadV1417(entry, error, value) {
+  if (videoTitleReadPendingV1417.get(entry.key) === entry) {
+    videoTitleReadPendingV1417.delete(entry.key);
+  }
+  if (error) entry.reject(error);
+  else entry.resolve(entry.invalidated ? '' : value);
+}
+function scheduleVideoTitleReadFlushV1417() {
+  if (videoTitleReadTimerV1417 !== null || !videoTitleReadQueueV1417.size) return;
+  videoTitleReadTimerV1417 = setTimeout(flushVideoTitleReadQueueV1417, VIDEO_TITLE_READ_BATCH_DELAY_MS_V1417);
+}
+function flushVideoTitleReadQueueV1417() {
+  if (videoTitleReadTimerV1417 !== null) {
+    clearTimeout(videoTitleReadTimerV1417);
+    videoTitleReadTimerV1417 = null;
+  }
+  if (!videoTitleReadQueueV1417.size) return;
+
+  const batch = [];
+  for (const [key, entry] of videoTitleReadQueueV1417) {
+    batch.push(entry);
+    videoTitleReadQueueV1417.delete(key);
+    if (batch.length >= VIDEO_TITLE_READ_BATCH_MAX_V1417) break;
+  }
+  if (videoTitleReadQueueV1417.size) scheduleVideoTitleReadFlushV1417();
+  videoTitleReadStatsV1417.readonlyTransactions++;
+  videoTitleReadStatsV1417.batchedKeys += batch.length;
+  videoTitleReadStatsV1417.maxBatch = Math.max(videoTitleReadStatsV1417.maxBatch, batch.length);
+  const started = performance.now();
+
+  void (async () => {
+    const db = await openVideoTitleTranslationDb();
+    return await new Promise((resolve, reject) => {
+      let tx;
+      try {
+        tx = db.transaction(VIDEO_TITLE_TRANSLATION_STORE, 'readonly');
+        const store = tx.objectStore(VIDEO_TITLE_TRANSLATION_STORE);
+        for (const entry of batch) {
+          const req = store.get(entry.key);
+          req.onsuccess = () => {
+            entry.value = String(req.result?.titleKo || '').trim();
+          };
+          // Request failures abort the transaction by default; tx.onabort
+          // rejects the whole batch so no partial result is treated as saved.
+        }
+      } catch (error) {
+        try { tx?.abort(); } catch (_) {}
+        reject(error);
+        return;
+      }
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error || new Error('제목 번역 묶음 조회 취소'));
+      tx.onerror = () => { /* tx.onabort handles the failure once */ };
+    });
+  })().then(() => {
+    for (const entry of batch) settleVideoTitleReadV1417(entry, null, entry.value || '');
+  }).catch(error => {
+    videoTitleReadStatsV1417.failedBatches++;
+    for (const entry of batch) settleVideoTitleReadV1417(entry, error);
+  }).finally(() => {
+    const elapsed = performance.now() - started;
+    videoTitleReadStatsV1417.elapsedMs += elapsed;
+    videoTitleReadStatsV1417.maxTransactionMs = Math.max(videoTitleReadStatsV1417.maxTransactionMs, elapsed);
+  });
+}
+function readVideoTitleTranslation(key) {
+  if (!key) return Promise.resolve('');
+  videoTitleReadStatsV1417.requests++;
+  const existing = videoTitleReadPendingV1417.get(key);
+  if (existing) {
+    videoTitleReadStatsV1417.duplicateWaits++;
+    return existing.promise;
+  }
+  const entry = {key, invalidated:false, value:''};
+  entry.promise = new Promise((resolve, reject) => {
+    entry.resolve = resolve;
+    entry.reject = reject;
+  });
+  videoTitleReadPendingV1417.set(key, entry);
+  videoTitleReadQueueV1417.set(key, entry);
+  if (videoTitleReadQueueV1417.size >= VIDEO_TITLE_READ_BATCH_MAX_V1417) flushVideoTitleReadQueueV1417();
+  else scheduleVideoTitleReadFlushV1417();
+  return entry.promise;
 }
 
 async function writeVideoTitleTranslation(work, titleKo) {
@@ -74038,10 +74196,10 @@ async function writeVideoTitleTranslation(work, titleKo) {
   const ko = String(titleKo || '').trim();
   if (!key || !ko) return false;
 
+  invalidateVideoTitlePendingReadV1417(key);
   const db = await openVideoTitleTranslationDb();
 
-  try {
-    return await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
       const tx = db.transaction(VIDEO_TITLE_TRANSLATION_STORE, 'readwrite');
 
       tx.objectStore(VIDEO_TITLE_TRANSLATION_STORE).put({
@@ -74057,31 +74215,27 @@ async function writeVideoTitleTranslation(work, titleKo) {
       tx.onerror = () => reject(tx.error);
       tx.onabort = () => reject(tx.error);
     });
-  } finally {
-    try { db.close(); } catch (_) {}
-  }
+
 }
 
 async function deleteVideoTitleTranslation(work) {
   const key = getVideoWorkTranslationKey(work);
   if (!key) return false;
 
+  invalidateVideoTitlePendingReadV1417(key);
   __videoTitleKoMemory.delete(key);
   __videoTitleTranslationPromises.delete(key);
 
   const db = await openVideoTitleTranslationDb();
 
-  try {
-    return await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
       const tx = db.transaction(VIDEO_TITLE_TRANSLATION_STORE, 'readwrite');
       tx.objectStore(VIDEO_TITLE_TRANSLATION_STORE).delete(key);
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => reject(tx.error);
       tx.onabort = () => reject(tx.error);
     });
-  } finally {
-    try { db.close(); } catch (_) {}
-  }
+
 }
 
 async function forceRetranslateVideoWorkTitle(work) {
@@ -87686,6 +87840,190 @@ async function getSavedVideoLocalPosterFileV876(fileName) {
   }
 }
 
+// v1425 Scenes 공통 파일명 스냅샷: 원본·월드컵 기록과 별도이며 파일의 바이트는 저장하지 않는다.
+// 최초 연결시 1회 파일명만 훑고 IDB에 저장한다. 다음 실행에는 RAM Set으로 복원한다.
+// 월드컵 후보와 선택된 장면 JPG 포스터가 함께 조회하되, 각 기능의 분류 규칙은 유지한다.
+const VIDEO_SCENES_FILES_KEY_V1425 = 'video_scenes_filenames_v1425';
+const videoScenesFilesV1425 = {
+  root:null, dirRoot:null, dir:null, dirPending:null,
+  names:null, normalized:null, pending:null, changes:new Map(),
+  generation:0, revision:0, flushTimer:0, flushPromise:null,
+  source:'none', lastScan:0, scans:0, filesScanned:0,
+  skips:0, lookups:0, dirOpens:0, dirReuses:0, lastError:''
+};
+const videoScenesNormV1425 = name => String(name||'').trim().toLocaleLowerCase();
+function videoScenesFilesStatsV1425(){
+  const x=videoScenesFilesV1425;
+  return {ready:!!x.names, entries:x.names?.size||0, source:x.source,
+    scans:x.scans, lastScan:x.lastScan, scanning:!!x.pending,
+    lookups:x.lookups, skippedMissing:x.skips,
+    directoryOpens:x.dirOpens, directoryReuses:x.dirReuses,
+    pendingChanges:x.changes.size, lastError:x.lastError};
+}
+window.videoScenesFilesStatsV1425=videoScenesFilesStatsV1425;
+function videoScenesFilesInvalidateV1425(){
+  const x=videoScenesFilesV1425;
+  x.generation++;
+  if(x.flushTimer) clearTimeout(x.flushTimer);
+  x.root=null; x.dirRoot=null; x.dir=null; x.dirPending=null;
+  x.names=null; x.normalized=null; x.changes.clear();
+  x.flushTimer=0; x.source='none'; x.lastError='';
+  // 이전 scan/write가 완료돼도 generation 검사로 기존 root의 결과가 새 root에 섞이지 않는다.
+  try { videoWorldCupScenesDirPromise=null; } catch(_){}
+  try { videoWorldCupSceneFolderSpaceV1292.delete('candidates'); } catch(_){}
+}
+async function videoScenesGetDirV1425(root, create=false){
+  if(!root) return null;
+  const x=videoScenesFilesV1425;
+  if(x.dirRoot===root && x.dir){ x.dirReuses++; return x.dir; }
+  if(x.dirRoot===root && x.dirPending) return x.dirPending;
+  const generation=x.generation;
+  const pending=(async()=>{
+    const dir=videoScenesNormV1425(root.name)==='scenes' ? root :
+      await root.getDirectoryHandle('Scenes', create ? {create:true} : undefined);
+    if(generation===x.generation && x.dirRoot===root){ x.dir=dir; x.dirOpens++; }
+    return dir;
+  })();
+  x.dirRoot=root; x.dir=null; x.dirPending=pending;
+  try { return await pending; }
+  finally { if(x.dirPending===pending) x.dirPending=null; }
+}
+function videoScenesHasV1425(name, root=getVideoPosterRootHandleCachedV872()){
+  const x=videoScenesFilesV1425;
+  const key=videoScenesNormV1425(name);
+  if(!key || !root || !x.names || x.root!==root) return null; // 준비 전에는 원래 탐색 방식을 허용
+  if(x.changes.has(key)) return !!x.changes.get(key).present;
+  return x.normalized.has(key);
+}
+function videoScenesScheduleFlushV1425(){
+  const x=videoScenesFilesV1425;
+  if(!x.names || !x.root || x.flushTimer) return;
+  x.flushTimer=setTimeout(()=>{x.flushTimer=0;void videoScenesFlushV1425();}, 500);
+}
+async function videoScenesFlushV1425(){
+  const x=videoScenesFilesV1425;
+  if(x.flushPromise) return x.flushPromise;
+  if(!x.names || !x.root || typeof idbPutComic!=='function') return;
+  const generation=x.generation;
+  const task=(async()=>{
+    do {
+      if(generation!==x.generation || !x.names) return;
+      const revision=x.revision;
+      await idbPutComic(VIDEO_SCENES_FILES_KEY_V1425,{
+        version:1, rootHandle:x.root, names:Array.from(x.names.values()),
+        lastFullScan:x.lastScan, savedAt:Date.now()
+      });
+      if(generation!==x.generation) return;
+      if(revision===x.revision){x.changes.clear(); return;}
+    } while(generation===x.generation);
+  })().catch(error=>{x.lastError='저장 실패: '+String(error?.message||error);});
+  x.flushPromise=task;
+  try { await task; } finally {if(x.flushPromise===task)x.flushPromise=null;}
+}
+function videoScenesChangeV1425(name,present){
+  const x=videoScenesFilesV1425;
+  const original=String(name||'').trim(), key=videoScenesNormV1425(original);
+  if(!key) return;
+  x.changes.set(key,{name:original,present:!!present});
+  if(x.names){
+    present ? x.names.set(key,original) : x.names.delete(key);
+    x.normalized=new Set(x.names.keys());
+    x.revision++;
+    videoScenesScheduleFlushV1425();
+  }
+  // 월드컵 후보는 다음 조회에서 바뀐 파일명을 반영한다.
+  try { videoWorldCupSceneFolderSpaceV1292.delete('candidates'); } catch(_){}
+}
+async function videoScenesEnsureV1425({root=null,force=false}={}){
+  const x=videoScenesFilesV1425;
+  root=root||getVideoPosterRootHandleCachedV872();
+  if(!root || typeof idbGetComic!=='function' || typeof idbPutComic!=='function') return null;
+  if(x.pending){
+    try{await x.pending;}catch(_){}
+    if(!force && x.names && x.root===root) return x.names;
+  }
+  // 예외적인 외부 루트 교체에도 기존 폴더의 미저장 변경을 섞지 않는다.
+  if(x.root && x.root!==root){
+    let sameRoot=false;
+    try{sameRoot=!!(await x.root.isSameEntry(root));}catch(_){}
+    if(!sameRoot) videoScenesFilesInvalidateV1425();
+  }
+  const generation=++x.generation;
+  const task=(async()=>{
+    // 파일핸들이 새 JS 객체로 복원될 수 있으므로 저장 당시 폴더와 동일한지 비교한다.
+    if(!force && x.names && x.root){
+      if(x.root===root || await x.root.isSameEntry?.(root).catch(()=>false)){
+        if(generation!==x.generation) return null;
+        x.root=root;
+        return x.names;
+      }
+    }
+    if(!force){
+      let snapshot=null;
+      try {snapshot=await idbGetComic(VIDEO_SCENES_FILES_KEY_V1425);}catch(_){}
+      let same=false;
+      if(snapshot?.version===1 && Array.isArray(snapshot.names) && snapshot.rootHandle){
+        try {same=await snapshot.rootHandle.isSameEntry(root);}catch(_){}
+      }
+      if(generation!==x.generation) return null;
+      if(same){
+        const names=new Map();
+        for(const filename of snapshot.names){
+          const name=String(filename||'').trim();
+          if(name) names.set(videoScenesNormV1425(name),name);
+        }
+        for(const [key,v] of x.changes) v.present ? names.set(key,v.name) : names.delete(key);
+        x.root=root; x.names=names; x.normalized=new Set(names.keys());
+        x.lastScan=Number(snapshot.lastFullScan)||0; x.source='indexeddb'; x.lastError='';
+        if(x.changes.size) { x.revision++; videoScenesScheduleFlushV1425(); }
+        return x.names;
+      }
+    }
+    // 최초 1회 또는 명시적 썸동기화: 전체 파일명만 수집하며 getFile()은 호출하지 않는다.
+    const names=new Map();
+    let dir;
+    try {dir=await videoScenesGetDirV1425(root,false);}
+    catch(error){if(error?.name!=='NotFoundError') throw error; dir=null;}
+    if(dir){
+      for await(const [filename,handle] of dir.entries()){
+        if(generation!==x.generation) return null;
+        if(handle?.kind!=='file') continue;
+        const name=String(filename||'').trim();
+        if(name) names.set(videoScenesNormV1425(name),name);
+        if(names.size && names.size%1000===0) await new Promise(resolve=>setTimeout(resolve,0));
+      }
+    }
+    if(generation!==x.generation) return null;
+    for(const [key,v] of x.changes) v.present ? names.set(key,v.name) : names.delete(key);
+    if(x.flushPromise) await x.flushPromise;
+    if(generation!==x.generation) return null;
+    const scanAt=Date.now();
+    await idbPutComic(VIDEO_SCENES_FILES_KEY_V1425,{
+      version:1,rootHandle:root,names:Array.from(names.values()),
+      lastFullScan:scanAt,savedAt:scanAt
+    });
+    if(generation!==x.generation) return null;
+    x.root=root; x.names=names; x.normalized=new Set(names.keys());
+    x.lastScan=scanAt; x.filesScanned=names.size; x.scans++;
+    x.source=force?'manual-sync':'first-scan'; x.lastError='';
+    for(const [key,v] of x.changes) v.present ? x.names.set(key,v.name) : x.names.delete(key);
+    x.normalized=new Set(x.names.keys());
+    if(x.changes.size){x.revision++;videoScenesScheduleFlushV1425();}
+    return x.names;
+  })();
+  x.pending=task;
+  try {return await task;}
+  catch(error){x.lastError=String(error?.message||error);return null;}
+  finally {if(x.pending===task)x.pending=null;}
+}
+window.videoScenesReindexV1425=()=>videoScenesEnsureV1425({force:true});
+window.addEventListener('pagehide',()=>{
+  const x=videoScenesFilesV1425;
+  if(x.flushTimer)clearTimeout(x.flushTimer);
+  x.flushTimer=0;
+  if(x.changes.size)void videoScenesFlushV1425();
+});
+
 async function getSavedVideoFramePosterFileV817(fileName) {
   const name = String(fileName || '').trim();
   if (!name) return null;
@@ -87696,25 +88034,18 @@ async function getSavedVideoFramePosterFileV817(fileName) {
   // RAM 핸들이 아직 준비되지 않았으면 저장 장면 포스터만 즉시 건너뛰고 다음 후보로 진행한다.
   const root = getVideoPosterRootHandleCachedV872();
   if (!root) return null;
-
+  const indexed=videoScenesHasV1425(name,root);
+  videoScenesFilesV1425.lookups++;
+  if(indexed===false){videoScenesFilesV1425.skips++;return null;}
   try {
-    const scenesPromise = String(root?.name || '').trim().toLocaleLowerCase() === 'scenes'
-      ? Promise.resolve(root)
-      : root.getDirectoryHandle('Scenes');
-    const scenes = await withVideoPosterPassiveTimeoutV872(scenesPromise, 900);
-    if (!scenes) return null;
-
-    const handle = await withVideoPosterPassiveTimeoutV872(
-      scenes.getFileHandle(name),
-      900
-    );
-    if (!handle) return null;
-
-    const file = await withVideoPosterPassiveTimeoutV872(handle.getFile(), 900);
-    return file && Number(file.size) > 0 ? file : null;
-  } catch (_) {
-    return null;
-  }
+    // 준비되지 않은 색인은 구형 경로로 폴백한다. 폴더 핸들은 하나만 공유한다.
+    const scenes=await withVideoPosterPassiveTimeoutV872(videoScenesGetDirV1425(root,false),900);
+    if(!scenes) return null;
+    const handle=await withVideoPosterPassiveTimeoutV872(scenes.getFileHandle(name),900);
+    if(!handle) return null;
+    const file=await withVideoPosterPassiveTimeoutV872(handle.getFile(),900);
+    return file && Number(file.size)>0 ? file : null;
+  } catch (_) {return null;}
 }
 
 async function saveVideoFramePosterCandidateV814(entry, candidate) {
@@ -87729,6 +88060,7 @@ async function saveVideoFramePosterCandidateV814(entry, candidate) {
   const writable = await fileHandle.createWritable();
   await writable.write(candidate.blob);
   await writable.close();
+  videoScenesChangeV1425(fileName,true);
 
   setVideoFramePosterInfoV814(entry, {
     fileName,
@@ -88004,6 +88336,8 @@ function showVideoFramePosterOfferV814(wrap, entry, pending = null) {
 }
 
 function makePosterCandidates(meta) {
+
+
   /*
     품번 판단 책임은 parseVideoFilename()에만 둔다.
     meta.code가 있으면 그것을 확정 품번으로 믿고 그대로 후보를 만든다.
@@ -88182,6 +88516,7 @@ function makePosterCandidates(meta) {
   }
 
   return result;
+
 }
 
 window.getVideoOnlinePosterCandidates =
@@ -89220,10 +89555,18 @@ async function countVideoSceneFilesOnDisk() {
 }
 
 async function syncVideoSceneIndexIfNeeded() {
-  const diskCount = await countVideoSceneFilesOnDisk();
+  // 원본 파일을 건드리지 않고 Scenes 전체 파일명만 한 번 확인한다.
+  const names=await videoScenesEnsureV1425({force:true});
+  const diskCount=names
+    ? Array.from(names.values()).filter(n=>/^.*__t_\d+\.(?:webp|mp4)$/i.test(n)).length
+    : await countVideoSceneFilesOnDisk();
   const indexCount = getVideoSceneIndexTotalCount();
+  const savedNames=new Set(Object.values(getVideoSceneIndexMap()).flat().map(videoScenesNormV1425));
+  const onDiskNames=names ? Array.from(names.values()).filter(n=>/^.*__t_\d+\.(?:webp|mp4)$/i.test(n)).map(videoScenesNormV1425) : [];
+  const sameNames=names ? savedNames.size===onDiskNames.length && onDiskNames.every(n=>savedNames.has(n)) : true;
+  if (names) videoWorldCupSceneFolderSpaceV1292.delete('candidates');
 
-  if (diskCount === indexCount) {
+  if (diskCount === indexCount && sameNames) {
     return {
       changed: false,
       diskCount,
@@ -89284,9 +89627,14 @@ async function rebuildVideoSceneIndexFromDisk() {
       const index =
         Object.create(null);
 
+      const known=videoScenesFilesV1425.root===getVideoPosterRootHandleCachedV872()
+        ? videoScenesFilesV1425.names : null;
+      const sceneEntries=known
+        ? Array.from(known.values(),name=>[name,{kind:'file'}])
+        : scenes.entries();
       for await (
         const [name, handle]
-        of scenes.entries()
+        of sceneEntries
       ) {
         if (
           !handle ||
@@ -89569,6 +89917,7 @@ async function loadVideoScenes(
           await scenes.removeEntry(
             scene.name
           );
+          videoScenesChangeV1425(scene.name,false);
 
           item.remove();
 
@@ -95277,6 +95626,7 @@ async function saveVideoSceneClipBlob(
     blob
   );
   await writable.close();
+  videoScenesChangeV1425(fileName,true);
 
   if (
     typeof addVideoSceneIndexName ===
@@ -99907,9 +100257,20 @@ function ensureVideoOnlinePosterSaveButton(
   img,
   src
 ) {
+  // v1431: the two online badges share image state but their toggles are independent.
+  // Keep only references in this card (no IDB, blob, network work).
+  if(wrap?.dataset?.videoOwnedBadgeOptionsV1431==='1'){
+    wrap.__videoOnlineBadgeEntryV1431=entry;
+    wrap.__videoOnlineBadgeImgV1431=img;
+    wrap.__videoOnlineBadgeSrcV1431=src;
+  }
   removeVideoOnlinePosterSaveButton(
     wrap
   );
+  const ownedV1431 = wrap?.dataset?.videoOwnedBadgeOptionsV1431==='1';
+  const onlineSourceOnV1431 = !ownedV1431 || window.videoPosterBadgeEnabledV1429?.('onlineSource')!==false;
+  const posterCaptureOnV1431 = !ownedV1431 || window.videoPosterBadgeEnabledV1429?.('posterCapture')!==false;
+  if(!onlineSourceOnV1431 && !posterCaptureOnV1431)return;
 
   const controls =
     document.createElement(
@@ -99920,6 +100281,7 @@ function ensureVideoOnlinePosterSaveButton(
     'videoOnlinePosterControls';
 
 
+  if(onlineSourceOnV1431){
   const posterSource =
     getVideoOnlinePosterSourceName(
       src
@@ -99941,8 +100303,10 @@ function ensureVideoOnlinePosterSaveButton(
 
   // v568: 온라인 라벨의 title 툴팁은 항상 사용하지 않는다.
   onlineLabel.removeAttribute('title');
+  controls.appendChild(onlineLabel);
+  }
 
-
+  if(posterCaptureOnV1431){
   const save =
     document.createElement(
       'span'
@@ -100060,12 +100424,9 @@ function ensureVideoOnlinePosterSaveButton(
   );
 
   controls.appendChild(
-    onlineLabel
-  );
-
-  controls.appendChild(
     save
   );
+  }
 
   wrap.appendChild(
     controls
@@ -100420,6 +100781,7 @@ async function saveVideoWebpSceneToDirectory(
   const writable = await fileHandle.createWritable();
   await writable.write(blob);
   await writable.close();
+  videoScenesChangeV1425(fileName,true);
 
   if (typeof addVideoSceneIndexName === 'function') {
     addVideoSceneIndexName(entry, fileName);
@@ -101663,7 +102025,10 @@ function warmVideoPosterRootHandleCacheV872() {
       // 실제 파일 접근이 허용되지 않으면 getSavedVideoFramePosterFileV817에서
       // 900ms 안전 제한 후 다음 포스터 후보로 넘어간다.
       _videoPosterRootPassiveHandleCacheV864 = saved || null;
-      if (saved) void videoPosterIndexEnsureV1323({root:saved});
+      if (saved) {
+        void videoPosterIndexEnsureV1323({root:saved});
+        void videoScenesEnsureV1425({root:saved});
+      }
       return getVideoPosterRootHandleCachedV872();
     })
     .catch(() => {
@@ -101684,7 +102049,10 @@ function setVideoPosterRootPassiveHandleCacheV864(handle) {
   try { window.ComicPosterDirectoryHandlesV1360?.invalidate('root-set'); } catch (_) {}
   _videoPosterRootPassiveHandleCacheV864 = handle || null;
   try { _videoLocalPostersDirCacheV876 = null; } catch (_) {}
-  if (handle) void videoPosterIndexEnsureV1323({root:handle});
+  if (handle) {
+    void videoPosterIndexEnsureV1323({root:handle});
+    void videoScenesEnsureV1425({root:handle});
+  }
 }
 
 function resetVideoPosterRootPassiveHandleCacheV864() {
@@ -101692,6 +102060,7 @@ function resetVideoPosterRootPassiveHandleCacheV864() {
   _videoPosterRootPassiveHandleCacheV864 = undefined;
   _videoPosterRootPassiveHandlePromiseV864 = null;
   try { _videoLocalPostersDirCacheV876 = null; } catch (_) {}
+  videoScenesFilesInvalidateV1425();
 }
 
 async function getVideoPosterRootHandlePassiveV864() {
@@ -101926,6 +102295,7 @@ async function changeVideoPosterRootHandle() {
     );
 
     videoPosterIndexAbortForNewRootV1323();
+    videoScenesFilesInvalidateV1425();
     setVideoPosterRootPassiveHandleCacheV864(dir);
 
     if (
@@ -102006,6 +102376,7 @@ window.pickVideoLocalMediaRootFromUserV876 = async function() {
   }
 
   videoPosterIndexAbortForNewRootV1323();
+  videoScenesFilesInvalidateV1425();
   setVideoPosterRootPassiveHandleCacheV864(root);
   // v1056: 이미지폴더 변경 직후 권한/이미지폴더 두 버튼의 상태를 재확인한다.
   window.dispatchEvent(new CustomEvent('webviewer-image-folder-changed-v1056',{detail:{root}}));
@@ -103151,22 +103522,7 @@ function normalizeVideoPosterEntranceEffect(value) {
 }
 
 function getVideoPosterEntranceEffect() {
-  try {
-    const raw =
-      ViewerCacheManager.storage.getItem(
-        VIDEO_POSTER_ENTRANCE_EFFECT_KEY
-      );
-
-    if (raw === null) {
-      return 'none';
-    }
-
-    return normalizeVideoPosterEntranceEffect(
-      raw
-    );
-  } catch (_) {
-    return 'none';
-  }
+  return VideoHotSettingsV1418.entrance();
 }
 
 function getVideoPosterEntranceIndex(
@@ -103180,6 +103536,15 @@ function getVideoPosterEntranceIndex(
     };
   }
 
+  // v1422: the virtual grid already has the card's logical order.
+  const vst = videoVirtualStateV1326;
+  if (vst?.box === box && vst.cardIndexV1422) {
+    const index = vst.cardIndexV1422.get(card);
+    if (Number.isInteger(index) && index >= vst.start && index < vst.end &&
+        card.parentElement === box) {
+      return {index:index-vst.start, total:Math.max(1,vst.end-vst.start)};
+    }
+  }
   const cards =
     Array.from(
       box.children
@@ -103292,6 +103657,13 @@ function resetVideoPosterEntranceQueue() {
 function videoPosterEntranceInViewportV1387(card, box) {
   if (!card || !box || card.classList.contains('videoCoverflowHidden') ||
       card.style.display === 'none') return false;
+  // v1422: skip safely distant virtual rows without any DOM geometry read.
+  // Near the viewport edge keep the original exact clipping test.
+  if (videoVirtualDefinitelyFarV1422(card,box)) {
+    videoPosterVisibilityCountersV1422.entranceFarSkips++;
+    return false;
+  }
+  videoPosterVisibilityCountersV1422.entranceRectReads += 2;
   const r = card.getBoundingClientRect();
   const b = box.getBoundingClientRect();
   return r.width > 1 && r.height > 1 &&
@@ -103314,13 +103686,46 @@ function videoPosterEntranceReadyV1387(wrap, card) {
 function videoPosterEntranceRefreshVisibleV1387(box, replay = false) {
   if (!box?.isConnected || !box.classList.contains('videoListMode') ||
       getVideoPosterEntranceEffect() === 'none') return;
-  // 평소 가상 스크롤에서는 재사용한 카드가 재등장해도 애니메이션하지 않는다.
   if (!replay && !box.classList.contains('videoVirtualizedV1326')) return;
-  for (const card of box.querySelectorAll('.videoCard')) {
+  videoPosterVisibilityCountersV1422.entranceRefreshes++;
+  // v1422: only inspect cards near the visible rows. The virtual card order
+  // is built once on a genuine window change, so scrolling performs no DOM
+  // querySelectorAll over 150 cards and no offscreen rectangle measurements.
+  const vst=videoVirtualStateV1326;
+  let cards=null;
+  if (vst?.box===box && vst.indexedCardsV1422 &&
+      vst.indexedCardsV1422.length===vst.end-vst.start &&
+      !vst.geometryDirtyV1421 && !vst.rowInvalidatedV1420 && vst.rowHeight>0) {
+    const pitch=vst.rowHeight+vst.gap;
+    const height=box.clientHeight;
+    if (pitch>0 && height>0) {
+      const firstRow=Math.max(0,Math.floor(box.scrollTop/pitch)-2);
+      const lastRow=Math.ceil((box.scrollTop+height)/pitch)+2;
+      const from=Math.max(vst.start,firstRow*vst.cols)-vst.start;
+      const through=Math.min(vst.end,lastRow*vst.cols)-vst.start;
+      cards=vst.indexedCardsV1422.slice(from,Math.max(from,through));
+      videoPosterVisibilityCountersV1422.entranceRangeScans++;
+    }
+  }
+  if (!cards) {
+    videoPosterVisibilityCountersV1422.fallbackScans++;
+    cards=box.querySelectorAll('.videoCard');
+  }
+  for (const card of cards) {
+    if (!card) continue;
+    videoPosterVisibilityCountersV1422.entranceCardChecks++;
+    const wrap=card.querySelector('.videoPosterWrap');
+    if (!wrap) continue;
+    if (!replay && (wrap.__videoPosterEntrancePlayedV1387 ||
+                    wrap.__videoPosterEntranceQueuedV1387)) {
+      videoPosterVisibilityCountersV1422.entranceAlreadyHandled++;
+      continue;
+    }
     if (!videoPosterEntranceInViewportV1387(card, box)) continue;
-    const wrap = card.querySelector('.videoPosterWrap');
     if (!videoPosterEntranceReadyV1387(wrap, card)) continue;
-    enqueueVideoPosterEntrance(wrap, null, {replay});
+    videoPosterVisibilityCountersV1422.entranceVerifiedQueues++;
+    // Both calls are synchronous: do not read the same two rectangles again.
+    enqueueVideoPosterEntrance(wrap, null, {replay,viewportVerifiedV1422:true});
   }
 }
 window.videoPosterEntranceSettingsChangedV1384 = function(kind, effect) {
@@ -103409,6 +103814,7 @@ function enqueueVideoPosterEntrance(
     !card.isConnected ||
     !box.isConnected ||
     (box.classList.contains('videoVirtualizedV1326') &&
+     !options?.viewportVerifiedV1422 &&
      !videoPosterEntranceInViewportV1387(card, box))
   ) {
     return;
@@ -116333,84 +116739,162 @@ async function runVideoMissingHoverPreview(item, posterWrap, requestToken) {
 // v603: DMM 상세 미리보기 jp-1.jpg 후보 생성.
 // 작품 인덱스에 contentId가 있으면 그것을 1순위로 사용하고,
 // 없으면 기존 DMM 포스터 CID 복원기(보안 prefix + maker + 5자리 번호)를 그대로 재사용한다.
+// v1426: 카드 생성 때 반복되던 DMM 포스터 URL→CID→jp 이미지 URL 왕복 제거.
+// DMM CID만 보관하는 휘발성 유한 RAM 캐시(최대 5000품번)이며 네트워크/IDB를 사용하지 않는다.
+// prepared 규칙 또는 작품 매칭 맵이 교체되면 캐시를 지워 오래된 후보를 사용하지 않는다.
+const VIDEO_DMM_PREVIEW_CIDS_MAX_V1426 = 5000;
+const videoDmmPreviewCidsV1426 = new Map();
+const videoDmmPreviewCidsCountersV1426 = {
+  hits: 0, misses: 0, evictions: 0, resets: 0, eligibilityChecks: 0,
+  eligibleFromCache: 0, livePosterProbes: 0, urlsBuilt: 0, svgClones: 0
+};
+let videoDmmPreviewCidsPrefixMapV1426 = null;
+let videoDmmPreviewCidsWorkMapV1426 = null;
+let videoDmmPreviewCidsIndexModeV1426 = null;
+function videoDmmPreviewCidCacheRevisionV1426() {
+  const prefixMap = __videoDmmAutoPrefixMap;
+  const workMap = __videoWorkRuntimeCandidatesByLookupKey;
+  const mode = isVideoDmmPosterWorkIndexEnabled();
+  if (videoDmmPreviewCidsPrefixMapV1426 !== prefixMap ||
+      videoDmmPreviewCidsWorkMapV1426 !== workMap ||
+      videoDmmPreviewCidsIndexModeV1426 !== mode) {
+    if (videoDmmPreviewCidsPrefixMapV1426 !== null) videoDmmPreviewCidsCountersV1426.resets++;
+    videoDmmPreviewCidsV1426.clear();
+    videoDmmPreviewCidsPrefixMapV1426 = prefixMap;
+    videoDmmPreviewCidsWorkMapV1426 = workMap;
+    videoDmmPreviewCidsIndexModeV1426 = mode;
+  }
+  return mode;
+}
+function videoDmmCameraCacheStatsV1426() {
+  const c = videoDmmPreviewCidsCountersV1426;
+  const total = c.hits + c.misses;
+  return {
+    ready: true, entries: videoDmmPreviewCidsV1426.size,
+    capacity: VIDEO_DMM_PREVIEW_CIDS_MAX_V1426,
+    hits: c.hits, misses: c.misses,
+    hitRatePct: total ? Math.round(1000 * c.hits / total) / 10 : 0,
+    evictions: c.evictions, resets: c.resets,
+    eligibilityChecks: c.eligibilityChecks,
+    eligibleFromCache: c.eligibleFromCache,
+    livePosterProbes: c.livePosterProbes,
+    urlsBuilt: c.urlsBuilt, svgClones: c.svgClones
+  };
+}
+window.videoDmmCameraCacheStatsV1426 = videoDmmCameraCacheStatsV1426;
+
+// 실시간 포스터 CID는 버튼 클릭 직전 화면의 성공한 포스터를 존중하므로
+// 정적 품번 캐시와 섞지 않는다. 배지 표시 가능 여부는 정적 후보가 있으면 DOM을 읽지 않는다.
+function getVideoDmmLivePosterCidV1426(posterWrap) {
+  if (!posterWrap) return '';
+  videoDmmPreviewCidsCountersV1426.livePosterProbes++;
+  const image = posterWrap.querySelector?.('.videoPoster');
+  const src = String(image?.currentSrc || image?.src || '').trim();
+  const match = src.match(/\/digital\/video\/([^/?#]+)\//i);
+  return String(match?.[1] || '');
+}
+function getVideoDmmStaticCidsV1426(item) {
+  const usePreparedIndex = videoDmmPreviewCidCacheRevisionV1426();
+  const subjectCode = String(item?.code || '').trim();
+  const work = item?.dmmWork && typeof item.dmmWork === 'object' ? item.dmmWork : null;
+  const directSearchCid = item?.dmmSearch && item?.dmmCode ? String(item.dmmCode) : '';
+  // 작품 정보가 변경돼도 같은 품번에 이전 contentId를 돌려주지 않는다.
+  const key = JSON.stringify([subjectCode, String(work?.contentId || ''), directSearchCid]);
+  const cached = videoDmmPreviewCidsV1426.get(key);
+  if (cached) {
+    videoDmmPreviewCidsCountersV1426.hits++;
+    // 자주 보는 품번을 맨 뒤에 유지하는 bounded LRU. 기록 원본은 변경하지 않는다.
+    videoDmmPreviewCidsV1426.delete(key);
+    videoDmmPreviewCidsV1426.set(key,cached);
+    return cached;
+  }
+  videoDmmPreviewCidsCountersV1426.misses++;
+  const result = [];
+  const seen = new Set();
+  const addCid = value => {
+    const cid = String(value || '').normalize('NFKC').trim().toLowerCase();
+    if (!cid || cid.includes('-') || seen.has(cid)) return;
+    seen.add(cid);
+    result.push(cid);
+  };
+  // 1순위: 현재 작품의 원본 contentId. 실제 카메라 페이지 탐색 순서 보존.
+  if (work?.contentId) addCid(work.contentId);
+  if (directSearchCid) addCid(getVideoDmmCanonicalCidV394(directSearchCid));
+
+  // v372의 DMM 이미지 후보 생성 알고리즘을 그대로 사용하되,
+  // 4종 포스터 URL 생성→정규식 CID 역추출이라는 중간 단계를 생략한다.
+  if (subjectCode) {
+    const row = usePreparedIndex ? getVideoDmmWorkRowSyncV372(subjectCode,work) : null;
+    const addPosterCid = cid => {
+      cid = String(cid || '').trim().toLowerCase();
+      if (!cid || isVideoDmmNowPrintingUrl(`https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/${cid}/${cid}pl.jpg`)) return;
+      addCid(cid);
+    };
+    if (row?.contentId) addPosterCid(getVideoDmmCanonicalCidV394(row.contentId));
+    else addPosterCid(getVideoDmmCanonicalCidV394(subjectCode));
+    const parsed = getVideoDmmAlgorithmParsedV394(subjectCode,row);
+    if (parsed?.maker && parsed?.num) {
+      const core = buildVideoDmmImageCoreV372(parsed);
+      if (core) {
+        const prefixes = getVideoDmmPrefixesV372(subjectCode,parsed,row,usePreparedIndex);
+        if (!prefixes.length) prefixes.push('');
+        for (const prefix of prefixes) addPosterCid(`${String(prefix || '').toLowerCase()}${core}`);
+      }
+    }
+  }
+  addCid(getVideoDmmCanonicalCidV394(subjectCode));
+  const frozen = Object.freeze(result);
+  videoDmmPreviewCidsV1426.set(key,frozen);
+  if (videoDmmPreviewCidsV1426.size > VIDEO_DMM_PREVIEW_CIDS_MAX_V1426) {
+    const oldest = videoDmmPreviewCidsV1426.keys().next().value;
+    videoDmmPreviewCidsV1426.delete(oldest);
+    videoDmmPreviewCidsCountersV1426.evictions++;
+  }
+  return frozen;
+}
+function hasVideoDmmJpPreviewCandidatesV1426(item,posterWrap=null) {
+  videoDmmPreviewCidsCountersV1426.eligibilityChecks++;
+  // 대부분의 카드에는 정적 CID가 있으므로 DOM 조회/URL 배열을 생략한다.
+  if (getVideoDmmStaticCidsV1426(item).length) {
+    videoDmmPreviewCidsCountersV1426.eligibleFromCache++;
+    return true;
+  }
+  return !!getVideoDmmLivePosterCidV1426(posterWrap);
+}
 function makeVideoDmmJpPreviewCandidates(item, pageNo = 1, posterWrap = null) {
   const page = Math.max(1, Math.floor(Number(pageNo) || 1));
+  const urls = [];
+  const seen = new Set();
   const cids = [];
   const cidSeen = new Set();
-  const urls = [];
-  const urlSeen = new Set();
-
   const addCid = value => {
-    const cid = String(value || '')
-      .normalize('NFKC')
-      .trim()
-      .toLowerCase();
+    const cid = String(value || '').normalize('NFKC').trim().toLowerCase();
     if (!cid || cid.includes('-') || cidSeen.has(cid)) return;
     cidSeen.add(cid);
     cids.push(cid);
   };
-
-  const work = item?.dmmWork && typeof item.dmmWork === 'object'
-    ? item.dmmWork
-    : null;
-
-  // 현재 카드가 이미 DMM 포스터를 실제로 표시 중이면 그 성공한 CID가 최우선.
-  // 인덱스에 작품이 없어 보안 prefix를 추정해야 하는 경우에도 가장 정확하다.
-  const livePosterSrc = String(
-    posterWrap?.querySelector?.('.videoPoster')?.currentSrc ||
-    posterWrap?.querySelector?.('.videoPoster')?.src ||
-    ''
-  ).trim();
-  const liveCidMatch = livePosterSrc.match(/\/digital\/video\/([^/?#]+)\//i);
-  if (liveCidMatch?.[1]) addCid(liveCidMatch[1]);
-
-  // 정확한 DMM contentId가 있으면 최우선 후보군에 추가.
-  if (work?.contentId) addCid(work.contentId);
-
-  // DMM 작품검색 카드가 이미 원본 contentId를 들고 있는 경우.
-  if (item?.dmmSearch && item?.dmmCode) {
-    const exact = getVideoDmmCanonicalCidV394(item.dmmCode);
-    if (exact) addCid(exact);
-  }
-
-  const subjectCode = String(item?.code || '').trim();
-
-  // 기존 DMM 포스터 후보는 바로 이 프로그램의 보안코드/5자리 변환 규칙 결과다.
-  // URL에서 계산된 CID만 뽑아 jp-1.jpg 주소로 바꿔 쓴다.
-  if (subjectCode && typeof makeVideoDmmPosterCandidatesV372 === 'function') {
-    const posterCandidates = makeVideoDmmPosterCandidatesV372(subjectCode, work);
-    for (const posterUrl of posterCandidates) {
-      const m = String(posterUrl || '').match(/\/digital\/video\/([^/?#]+)\//i);
-      if (m?.[1]) addCid(m[1]);
-    }
-  }
-
-  // 입력 자체가 이미 완성된 DMM CID인 예외도 보존.
-  const directCid = getVideoDmmCanonicalCidV394(subjectCode);
-  if (directCid) addCid(directCid);
-
-  const addUrl = value => {
-    const url = String(value || '').trim();
-    if (!url || urlSeen.has(url)) return;
-    urlSeen.add(url);
-    urls.push(url);
-  };
-
+  // v603 우선순위 유지: 실제 화면에 성공한 DMM 포스터 CID가 먼저다.
+  addCid(getVideoDmmLivePosterCidV1426(posterWrap));
+  for (const cid of getVideoDmmStaticCidsV1426(item)) addCid(cid);
   for (const cid of cids) {
-    // 사용자가 확인한 DMM 상세 이미지 주소를 1순위로 사용.
-    addUrl(
-      'https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/' +
-      `${cid}/${cid}jp-${page}.jpg`
-    );
-
-    // awsimgsrc가 막히거나 예외인 경우의 DMM 백업 호스트.
-    addUrl(
-      'https://pics.dmm.com/digital/video/' +
-      `${cid}/${cid}jp-${page}.jpg`
-    );
+    const aws = `https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/${cid}/${cid}jp-${page}.jpg`;
+    const backup = `https://pics.dmm.com/digital/video/${cid}/${cid}jp-${page}.jpg`;
+    if (!seen.has(aws)) { seen.add(aws); urls.push(aws); }
+    if (!seen.has(backup)) { seen.add(backup); urls.push(backup); }
   }
-
+  videoDmmPreviewCidsCountersV1426.urlsBuilt += urls.length;
   return urls;
+}
+
+// 한 번 파싱한 기존 SVG 모양을 복제해 카드마다 innerHTML 재파싱하지 않는다.
+const videoDmmCameraIconTemplateV1426 = (() => {
+  const t = document.createElement('template');
+  t.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg>`;
+  return t.content.firstElementChild;
+})();
+function appendVideoDmmCameraIconV1426(button) {
+  button.appendChild(videoDmmCameraIconTemplateV1426.cloneNode(true));
+  videoDmmPreviewCidsCountersV1426.svgClones++;
 }
 
 // v608: DMM jp 미리보기 없음 전용 캐시.
@@ -118886,7 +119370,6 @@ function bindVideoMetaTitleDbEditorV653(item, caption, capKo, capKoText, capJa) 
 
   const isTitleTarget = target => {
     if (!(target instanceof Element)) return false;
-    if (target.closest('.videoTitleRetranslateBtn')) return false;
     return !!target.closest(
       '.videoMissingCaptionTitleKo,' +
       '.videoMissingCaptionTitleKoText,' +
@@ -119035,6 +119518,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function appendVideoMissingCardsResolved(items, box) {
+
+
   for (const item of items) {
     const card = document.createElement('div');
     card.className = 'videoCard videoMissingCard';
@@ -119271,18 +119756,14 @@ function appendVideoMissingCardsResolved(items, box) {
     // v603: DMM 상세 jp-1.jpg 미리보기.
     // 배우월 보유/미보유와 메타검색/범위/임의/DMM검색이 이 카드 렌더러를 공유하므로
     // 여기 한 번만 추가하면 모든 canonical 포스터에서 같은 버튼을 사용한다.
-    if (!item?.uncensoredCatalog && !isVideoDmmPreviewKnownMissing(item) && makeVideoDmmJpPreviewCandidates(item, 1, poster).length) {
+    if (!item?.uncensoredCatalog && !isVideoDmmPreviewKnownMissing(item) && hasVideoDmmJpPreviewCandidatesV1426(item, poster)) {
       const dmmPreviewBtn = document.createElement('button');
       dmmPreviewBtn.type = 'button';
       dmmPreviewBtn.className = 'videoDmmPreviewBtn';
       dmmPreviewBtn.dataset.dmmPreviewKey = getVideoDmmPreviewCacheKey(item);
       dmmPreviewBtn.setAttribute('aria-label', `${item.code} DMM 미리보기 이미지`);
       dmmPreviewBtn.title = 'DMM 미리보기 이미지';
-      dmmPreviewBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path>
-          <circle cx="12" cy="13" r="3"></circle>
-        </svg>`;
+      appendVideoDmmCameraIconV1426(dmmPreviewBtn);
 
       bindVideoDmmPreviewButtonGuard(
         dmmPreviewBtn,
@@ -119455,7 +119936,7 @@ function appendVideoMissingCardsResolved(items, box) {
       capMeta.append(capCode, capSep, capActress);
     }
 
-    // 2줄: 한국어 제목 + v398 개별 재번역 버튼
+    // 2줄: 한국어 제목 (재번역 버튼 없이 저장된 최초 번역 사용)
     const capKo = document.createElement('span');
     capKo.className = 'videoMissingCaptionTitleKo';
 
@@ -119472,15 +119953,7 @@ function appendVideoMissingCardsResolved(items, box) {
       ownedLocalTitleFallback || '\u00a0';
     capKo.title = ownedLocalTitleFallback || '';
 
-    const capRetry = document.createElement('span');
-    capRetry.className = 'videoTitleRetranslateBtn';
-    capRetry.setAttribute('role', 'button');
-    capRetry.tabIndex = 0;
-    capRetry.textContent = '↻';
-    capRetry.title = '이 작품 제목만 다시 번역';
-    capRetry.setAttribute('aria-label', '이 작품 제목 다시 번역');
-
-    capKo.append(capKoText, capRetry);
+    capKo.appendChild(capKoText);
 
     // 3줄: 일본어 제목
     const capJa = document.createElement('span');
@@ -119500,7 +119973,6 @@ function appendVideoMissingCardsResolved(items, box) {
       capKo.title = sourceName;
       capJa.textContent = ruleLabel || '\u00a0';
       capJa.title = ruleLabel;
-      capRetry.classList.remove('is-visible');
     }
 
     const applySpecialWorkMeta = work => {
@@ -119601,49 +120073,8 @@ function appendVideoMissingCardsResolved(items, box) {
 
         capKoText.textContent = visibleTitle || '\u00a0';
         capKo.title = visibleTitle || '';
-        capRetry.classList.toggle(
-          'is-visible',
-          !!(__videoJaKoTranslationEnabled && titleJa)
-        );
       };
 
-      const runRetranslate = async event => {
-        event?.preventDefault?.();
-        event?.stopPropagation?.();
-        if (!__videoJaKoTranslationEnabled || !titleJa) return;
-        if (capRetry.classList.contains('is-busy')) return;
-
-        capRetry.classList.add('is-busy');
-        const previous = capKoText.textContent;
-        capKoText.textContent = '재번역…';
-
-        try {
-          const ko =
-            typeof forceRetranslateVideoWorkTitle === 'function'
-              ? await forceRetranslateVideoWorkTitle(work)
-              : '';
-
-          if (!caption.isConnected) return;
-          if (ko) {
-            applyKo(ko);
-          } else {
-            capKoText.textContent = previous || '\u00a0';
-          }
-        } finally {
-          capRetry.classList.remove('is-busy');
-        }
-      };
-
-      // applySpecialWorkMeta가 같은 카드에서 다시 호출될 수 있으므로 핸들러는 한 번만 설치한다.
-      if (!capRetry.dataset.bound) {
-        capRetry.dataset.bound = '1';
-        capRetry.addEventListener('click', runRetranslate);
-        capRetry.addEventListener('keydown', event => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            runRetranslate(event);
-          }
-        });
-      }
 
       const cachedKo =
         typeof getVideoWorkKoreanTitleSync === 'function'
@@ -119766,6 +120197,7 @@ function appendVideoMissingCardsResolved(items, box) {
     card.appendChild(btn);
     box.appendChild(card);
   }
+
 }
 
 function renderVideoMissingWorksList(box) {
@@ -122783,23 +123215,19 @@ function syncVideoDeveloperShareBadgesV1350(){
     const row=card.querySelector('.videoCardMetaRow');
     const entry=entries.get(String(card.dataset.videoEntryId||''));
     if(!row||!entry)return;
-    if(!row.querySelector('.videoP2PShareCaptionV943')){
+    if(window.videoPosterBadgeEnabledV1429?.('manualShare')!==false && !row.querySelector('.videoP2PShareCaptionV943')){
       const badge=createVideoP2PShareBadgeV933(entry);
       badge.classList.add('videoP2PShareCaptionV943');row.appendChild(badge);
     }
-    if(!row.querySelector('.videoAutoSharePublishBadgeV946'))row.appendChild(createVideoAutoSharePublishBadgeV946(entry));
+    if(window.videoPosterBadgeEnabledV1429?.('shareRegister')!==false && !row.querySelector('.videoAutoSharePublishBadgeV946'))row.appendChild(createVideoAutoSharePublishBadgeV946(entry));
   });
 }
 
 // v1331: card-local derived metadata is shared ONLY while the same card is built.
 // Work/actress updates during later sessions thus stay live without persistent caches.
-const videoCardBuildStatsV1331 = { cards:0, workMatches:0, actressGroups:0,
-  directBadgeUpdates:0 };
-window.videoCardBuildStatsV1331 = () => ({ ...videoCardBuildStatsV1331 });
 // v1339: Video high/lite mode does not share comic_performance_mode_v1300.
 function isVideoLiteV1339(){
-  try{return ViewerCacheManager.storage.getItem('video_performance_mode_v1339')==='lite';}
-  catch(_){return false;}
+  return VideoHotSettingsV1418.lite();
 }
 function videoPerformanceSyncButtonV1339(){
   const b=document.getElementById('videoPerformanceToggleV1339');
@@ -122839,12 +123267,50 @@ else videoPerformanceSyncButtonV1339();
 window.videoPerformanceStatusV1339=()=>({mode:isVideoLiteV1339()?'lite':'normal',
   cards:document.querySelectorAll('#wtList > .videoCard').length,
   modalBadges:document.querySelectorAll('#videoDisplayBadgeStripV1339 .videoDetailBadgeUnitV1339').length});
+// v1427: shared actual-delete handlers, entry stored on its badge. No storage
+// mutations until a user confirms deletion; existing delete and refresh path kept.
+async function runActualVideoDeleteV1427(event){
+  event.preventDefault();
+  event.stopPropagation();
+  const entry=event.currentTarget?.__v1427DeleteEntry;
+  if(!entry)return;
+
+  stopVideoHoverPreview();
+  const fileName=entry.fileName || entry.display || '동영상';
+  const confirmed=confirm(
+    `실제 영상 파일을 삭제할까요?\n\n`+
+    `${fileName}\n\n`+
+    `영상 파일만 삭제됩니다.\n`+
+    `자막과 장면 파일은 그대로 유지됩니다.`
+  );
+  if(!confirmed)return;
+  try {
+    if(currentVideoEntry && String(currentVideoEntry.id)===String(entry.id)){
+      closeVideoPlayer();
+    }
+    await deleteActualVideoFileOnly(entry);
+    await removeDeletedVideoFromViewer(entry);
+    console.log('[실제 영상 삭제 완료]',fileName);
+  } catch(error){
+    console.error('[실제 영상 삭제 실패]',error);
+    alert('영상 삭제 실패\n\n'+(error?.message || error));
+  }
+}
+function handleActualVideoDeleteKeydownV1427(event){
+  if(event.key==='Enter' || event.key===' '){
+    runActualVideoDeleteV1427(event);
+  }
+}
+
 function appendVideoCards(list, box, renderOptsV1335 = null) {
+
+
 for (const entry of list) {
-      videoCardBuildStatsV1331.cards++;
+
       const card = document.createElement('div');
       card.className = 'videoCard';
       const videoBadgeOnlyV1339=!!renderOptsV1335?.displayBadgeOnlyV1339;
+      const badgeOnV1429=key=>videoBadgeOnlyV1339 || window.videoPosterBadgeEnabledV1429?.(key)!==false;
       const videoLiteCardV1339=isVideoLiteV1339()&&!videoBadgeOnlyV1339;
       if(videoLiteCardV1339)card.classList.add('videoLiteCardV1339');
       // v1365: the saved poster-text preference decides whether heavy owned-poster
@@ -122878,6 +123344,7 @@ for (const entry of list) {
 
       const posterWrap = document.createElement('div');
       posterWrap.className = 'videoPosterWrap';
+      if(!videoBadgeOnlyV1339)posterWrap.dataset.videoOwnedBadgeOptionsV1431='1';
       posterWrap.style.cursor = 'pointer';
       posterWrap.setAttribute('role', 'button');
       posterWrap.tabIndex = 0;
@@ -122885,7 +123352,7 @@ for (const entry of list) {
       let workMatchForOwnedPosterV764 = null;
       try {
         workMatchForOwnedPosterV764 = getVideoWorkMatchForEntryV693(entry);
-        videoCardBuildStatsV1331.workMatches++;
+
       } catch (_) {}
       const resolvedWorkV1331 = workMatchForOwnedPosterV764 == null
         ? undefined // preserve the original safe fallback if the matcher throws
@@ -122897,7 +123364,7 @@ for (const entry of list) {
       const videoEnsureActressGroupsV1365 = () => {
         if(actressGroupsV1331===null){
           actressGroupsV1331=getVideoEntryActressGroups(entry,resolvedWorkV1331);
-          videoCardBuildStatsV1331.actressGroups++;
+
         }
       };
 
@@ -123050,7 +123517,7 @@ bottomLeftMeta.className =
   'videoBottomLeftMeta';
 
 // v619: 품번과 매칭된 DMM 작품 인덱스의 날짜를 가장 앞에 표시.
-const indexedWorkDate = getVideoIndexedWorkDate(entry, resolvedWorkV1331);
+const indexedWorkDate = badgeOnV1429('date') ? getVideoIndexedWorkDate(entry, resolvedWorkV1331) : '';
 if (indexedWorkDate) {
   const dateBadge = document.createElement('span');
   dateBadge.className = 'videoIndexDateBadge';
@@ -123058,7 +123525,8 @@ if (indexedWorkDate) {
   bottomLeftMeta.appendChild(dateBadge);
 }
 
-if (isVideoLeakedWorkV929(entry)) {
+const isLeakedV1437 = isVideoLeakedWorkV929(entry);
+if (isLeakedV1437) {
   const leakedBadgeV929 = document.createElement('span');
   leakedBadgeV929.className = 'videoLeakedBadgeV929';
   leakedBadgeV929.textContent = '유출작';
@@ -123072,11 +123540,10 @@ if (isVideoLeakedWorkV929(entry)) {
 
 // v1344: shared original-style censor indicator. Manual updates can replace only
 // this node while leaving the poster image, metadata, rating and rail DOM intact.
-appendVideoCensorIndicatorV1344(bottomLeftMeta, entry);
+if(badgeOnV1429('censor')) appendVideoCensorIndicatorV1344(bottomLeftMeta, entry);
 
 // 자막
-if (entry.hasSubtitle) {
-
+if (entry.hasSubtitle && badgeOnV1429('subtitle')) {
   const subtitleBadge =
     document.createElement(
       'span'
@@ -123102,26 +123569,28 @@ bottomRightCountMeta.className =
   'videoBottomRightCountMeta';
 
 // 실제 재생 횟수 (미리보기 제외)
-const playCountBadge =
-  createVideoPlayCountBadge(entry);
+if (badgeOnV1429('playCount')) {
+const playCountBadge = createVideoPlayCountBadge(entry);
 
 bottomRightCountMeta.appendChild(
   playCountBadge
 );
+}
 
 // 저장된 장면(썸네일) 개수
-const sceneCountBadge =
-  createVideoSceneCountBadge(entry);
+if (badgeOnV1429('sceneCount')) {
+const sceneCountBadge = createVideoSceneCountBadge(entry);
 
 bottomRightCountMeta.appendChild(
   sceneCountBadge
 );
+}
 
 
 // ==================================================
 // 실제 영상 파일 삭제
 // ==================================================
-
+if(badgeOnV1429('delete')){
 const actualDeleteBadge =
   document.createElement(
     'span'
@@ -123150,139 +123619,35 @@ actualDeleteBadge.tabIndex =
   0;
 
 
-// 실제 삭제 실행
-const runActualVideoDelete =
-  async event => {
-
-    event.preventDefault();
-    event.stopPropagation();
-
-
-    /*
-      마우스 오버 영상 미리보기가
-      실행 중일 수도 있으므로 먼저 정리
-    */
-    stopVideoHoverPreview();
-
-
-    const fileName =
-      entry.fileName ||
-      entry.display ||
-      '동영상';
-
-
-    const confirmed =
-      confirm(
-        `실제 영상 파일을 삭제할까요?\n\n` +
-        `${fileName}\n\n` +
-        `영상 파일만 삭제됩니다.\n` +
-        `자막과 장면 파일은 그대로 유지됩니다.`
-      );
-
-
-    if (!confirmed) {
-      return;
-    }
-
-
-    try {
-
-      /*
-        혹시 현재 플레이어에서
-        이 영상을 재생 중이라면 먼저 닫음
-      */
-      if (
-        currentVideoEntry &&
-        String(currentVideoEntry.id) ===
-          String(entry.id)
-      ) {
-        closeVideoPlayer();
-      }
-
-
-      // ★ 실제 원본 영상 파일만 삭제
-      await deleteActualVideoFileOnly(
-        entry
-      );
-
-
-      // 뷰어 목록에서도 제거
-      await removeDeletedVideoFromViewer(
-        entry
-      );
-
-
-      console.log(
-        '[실제 영상 삭제 완료]',
-        fileName
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        '[실제 영상 삭제 실패]',
-        error
-      );
-
-
-      alert(
-        '영상 삭제 실패\n\n' +
-        (
-          error?.message ||
-          error
-        )
-      );
-    }
-  };
-
-
-actualDeleteBadge.addEventListener(
-  'click',
-  runActualVideoDelete
-);
-
-
-/*
-  키보드 Enter / Space도 지원
-*/
-actualDeleteBadge.addEventListener(
-  'keydown',
-  event => {
-
-    if (
-      event.key === 'Enter' ||
-      event.key === ' '
-    ) {
-      runActualVideoDelete(
-        event
-      );
-    }
-  }
-);
+// One shared pair of handlers for all ordinary video cards. This is a span
+// (not a native button), so retain explicit Enter/Space handling.
+actualDeleteBadge.__v1427DeleteEntry=entry;
+actualDeleteBadge.addEventListener('click',runActualVideoDeleteV1427);
+actualDeleteBadge.addEventListener('keydown',handleActualVideoDeleteKeydownV1427);
 
 
 bottomLeftMeta.appendChild(
   actualDeleteBadge
 );
+}
 
 // v943: 수동공유는 hover 미리보기와 충돌하지 않도록
 // 포스터 메타가 아닌 아래 텍스트 메타행에 배치한다.
 
 // 왼쪽 아래 메타 추가
-posterWrap.appendChild(
+if(bottomLeftMeta.childElementCount)posterWrap.appendChild(
   bottomLeftMeta
 );
 
 // 오른쪽 아래 2층: 재생횟수 + 썸네일 개수
-posterWrap.appendChild(
+if(bottomRightCountMeta.childElementCount)posterWrap.appendChild(
   bottomRightCountMeta
 );
 
 {
   // v1130: 배우 레일 선택 보유작에서는 포스터 상단의 출연자·배우명·부가 배지를 생략한다.
   // 일반 보유목록의 배우명 배지 및 캡션/검색용 원본 배우 정보는 그대로 유지한다.
-  if (videoBadgeOnlyV1339 || !posterWrap.classList.contains('videoActressSelectedOwned')) {
+  if (badgeOnV1429('actress') && (videoBadgeOnlyV1339 || !posterWrap.classList.contains('videoActressSelectedOwned'))) {
     const actressGroups = actressGroupsV1331;
     if (actressGroups.length) {
       const actress = document.createElement('div');
@@ -123292,7 +123657,8 @@ posterWrap.appendChild(
     actress.dataset.actressGroups = JSON.stringify(actressGroups);
     actress.dataset.actressText = String(actressGroups[0] || '');
     actress.__videoEntry = entry;
-    renderVideoPosterActressBadgeLines(actress, actressGroups, entry);
+    actress.__videoBadgeOnlyV1339=videoBadgeOnlyV1339;
+    renderVideoPosterActressBadgeLines(actress, actressGroups, entry, true);
 
     // 각 배우 이름 블록은 renderVideoPosterActressBadgeLines() 안에서
     // 자기 배우정보를 여는 개별 클릭 링크를 가진다.
@@ -123306,7 +123672,7 @@ posterWrap.appendChild(
 const topRightMeta = document.createElement('div');
 topRightMeta.className = 'videoTopRightMeta';
 
-if (entry.code) {
+if (entry.code && badgeOnV1429('topCode')) {
   const codeBadge = document.createElement('span');
 
   codeBadge.className = 'videoCodeBadge';
@@ -123346,14 +123712,12 @@ try {
 const videoExtension =
   getVideoFileExtension(entry);
 
-if (videoExtension) {
-  // v865: 확장자와 FPS를 한 묶음으로 두어 항상 바로 옆에 표시한다.
-  const extFpsGroup =
-    document.createElement('span');
-
-  extFpsGroup.className =
-    'videoExtFpsGroup';
-
+if (videoExtension && (badgeOnV1429('extension') || badgeOnV1429('fps'))) {
+  // v1430: Keep the wrapper in the outer scope. Extension and FPS are independent
+  // options, and either one (or both) must be able to use this same wrapper.
+  const extFpsGroup = document.createElement('span');
+  extFpsGroup.className = 'videoExtFpsGroup';
+  if(badgeOnV1429('extension')){
   const extBadge =
     document.createElement('span');
 
@@ -123409,7 +123773,8 @@ if (videoExtension) {
   }
 
   extFpsGroup.appendChild(extBadge);
-
+  }
+  if(badgeOnV1429('fps')){
   const fpsBadge =
     document.createElement('span');
 
@@ -123454,7 +123819,9 @@ if (videoExtension) {
   }
 
   extFpsGroup.appendChild(fpsBadge);
-  topRightMeta.appendChild(extFpsGroup);
+  }
+  // v1430: Attach extension-only, FPS-only, and both-enabled groups identically.
+  if(extFpsGroup.childElementCount)topRightMeta.appendChild(extFpsGroup);
 }
 
 if (topRightMeta.childElementCount) {
@@ -123462,18 +123829,14 @@ if (topRightMeta.childElementCount) {
 }
 
 // v605: 보유 리스트도 메타검색/배우월과 같은 DMM jp 미리보기 카메라 버튼 사용.
-if (!videoBadgeOnlyV1339 && !isVideoDmmPreviewKnownMissing(entry) && makeVideoDmmJpPreviewCandidates(entry, 1, posterWrap).length) {
+if (badgeOnV1429('dmmPreview') && !videoBadgeOnlyV1339 && !isVideoDmmPreviewKnownMissing(entry) && hasVideoDmmJpPreviewCandidatesV1426(entry, posterWrap)) {
   const dmmPreviewBtn = document.createElement('button');
   dmmPreviewBtn.type = 'button';
   dmmPreviewBtn.className = 'videoDmmPreviewBtn';
   dmmPreviewBtn.dataset.dmmPreviewKey = getVideoDmmPreviewCacheKey(entry);
   dmmPreviewBtn.setAttribute('aria-label', `${entry.code || entry.fileName || '영상'} DMM 미리보기 이미지`);
   dmmPreviewBtn.title = 'DMM 미리보기 이미지';
-  dmmPreviewBtn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path>
-      <circle cx="12" cy="13" r="3"></circle>
-    </svg>`;
+  appendVideoDmmCameraIconV1426(dmmPreviewBtn);
 
   bindVideoDmmPreviewButtonGuard(
     dmmPreviewBtn,
@@ -123494,102 +123857,47 @@ if (!videoBadgeOnlyV1339 && !isVideoDmmPreviewKnownMissing(entry) && makeVideoDm
 // ─────────────────────────────
 // 오른쪽 아래: 시간과 용량을 별도 배지로 표시
 // ─────────────────────────────
-const bottomMeta =
-  document.createElement('div');
-
-bottomMeta.className =
-  'videoBottomMeta';
-
-// 미리보기 시간 + 전체시간 묶음
-const timeGroup =
-  document.createElement('div');
-
-timeGroup.className =
-  'videoTimeGroup';
-
-
-const durationBadge =
-  document.createElement('span');
-
-durationBadge.className =
-  'videoDurationBadge';
-
-
-// 전체시간을 timeGroup 안에 넣음
-timeGroup.appendChild(
-  durationBadge
-);
-
-
-const fileSizeBadge =
-  document.createElement('span');
-
-fileSizeBadge.className =
-  'videoFileSizeBadge';
-
-
-const resolutionBadge =
-  document.createElement('span');
-
-resolutionBadge.className =
-  'videoResolutionBadge';
-
-
-bottomMeta.append(
-  timeGroup,
-  fileSizeBadge,
-  resolutionBadge
-);
-
-// 시간과 용량을 각각 표시
-updateVideoBottomMeta(
-  entry,
-  bottomMeta,
-  { durationBadge, fileSizeBadge, resolutionBadge }
-);
-videoCardBuildStatsV1331.directBadgeUpdates++;
-
-posterWrap.appendChild(bottomMeta);
-
-const savedDuration =
-  Number(entry.durationSec);
-
-const savedFileSize =
-  Number(entry.fileSizeBytes);
-
-const savedVideoWidth =
-  Number(entry.videoWidth);
-
-const savedVideoHeight =
-  Number(entry.videoHeight);
-
-if (
-  !Number.isFinite(savedDuration) ||
-  savedDuration <= 0 ||
-
-  !Number.isFinite(savedFileSize) ||
-  savedFileSize <= 0 ||
-
-  !Number.isFinite(savedVideoWidth) ||
-  savedVideoWidth <= 0 ||
-
-  !Number.isFinite(savedVideoHeight) ||
-  savedVideoHeight <= 0
-) {
-if(!videoBadgeOnlyV1339){
-videoDurationTargetMap.set(
-  posterWrap,
-  {
-    entry,
-    badge: bottomMeta
+const displayTimeV1431=badgeOnV1429('duration');
+const displaySizeV1431=badgeOnV1429('fileSize');
+const displayResolutionV1431=badgeOnV1429('resolution');
+if(displayTimeV1431 || displaySizeV1431 || displayResolutionV1431){
+  const bottomMeta=document.createElement('div');
+  bottomMeta.className='videoBottomMeta';
+  let durationBadge=null,fileSizeBadge=null,resolutionBadge=null;
+  if(displayTimeV1431){
+    const timeGroup=document.createElement('div');
+    timeGroup.className='videoTimeGroup';
+    durationBadge=document.createElement('span');
+    durationBadge.className='videoDurationBadge';
+    timeGroup.appendChild(durationBadge);
+    bottomMeta.appendChild(timeGroup);
   }
-);
-  videoDurationObserver?.observe(
-    posterWrap
-  );
-}
-}
+  if(displaySizeV1431){
+    fileSizeBadge=document.createElement('span');
+    fileSizeBadge.className='videoFileSizeBadge';
+    bottomMeta.appendChild(fileSizeBadge);
+  }
+  if(displayResolutionV1431){
+    resolutionBadge=document.createElement('span');
+    resolutionBadge.className='videoResolutionBadge';
+    bottomMeta.appendChild(resolutionBadge);
+  }
+  updateVideoBottomMeta(entry,bottomMeta,{durationBadge,fileSizeBadge,resolutionBadge});
 
+  posterWrap.appendChild(bottomMeta);
+
+  // Maintain the old metadata population behavior when any metadata badge is
+  // shown. Once all are hidden, the list no longer watches this card only for
+  // these badges. Opening/previewing a video still records its metadata normally.
+  const stateV1431=getVideoFileMetadataState(entry);
+  if(!stateV1431.complete && !videoBadgeOnlyV1339){
+    videoDurationTargetMap.set(posterWrap,{entry,badge:bottomMeta});
+    videoDurationObserver?.observe(posterWrap);
+  }
+}else if(!videoBadgeOnlyV1339){
+  videoDurationTargetMap.delete(posterWrap);
+  videoDurationObserver?.unobserve(posterWrap);
+}
 
   videoHighBadgeNodesV1365 = Array.from(posterWrap.children)
     .filter(node => !beforeV1365.has(node));
@@ -123709,16 +124017,18 @@ if (
   }
 
   // v476: 커버플로우도 일반 목록과 동일하게 북마크/몸매포스터/평점을 붙인다.
-  const bookmarkHeart =
-    createVideoWorkBookmarkButton(entry);
+  const bookmarkHeart = badgeOnV1429('bookmark') ?
+    createVideoWorkBookmarkButton(entry) : null;
 
-  const bodyPosterClover =
-    createVideoWorkBodyPosterButton(entry);
+  const bodyPosterClover = badgeOnV1429('bodyPoster') ?
+    createVideoWorkBodyPosterButton(entry) : null;
 
   // v1343: low-spec video cards omit the five-star DOM entirely.
   // The display editor creates and preserves the original interactive rating.
-  metaRow.append(bookmarkHeart, bodyPosterClover, meta);
-  if(!videoLiteCardV1339)metaRow.appendChild(createVideoWorkRating(entry));
+  if(bookmarkHeart)metaRow.appendChild(bookmarkHeart);
+  if(bodyPosterClover)metaRow.appendChild(bodyPosterClover);
+  metaRow.appendChild(meta);
+  if(!videoLiteCardV1339 && badgeOnV1429('rating'))metaRow.appendChild(createVideoWorkRating(entry));
 } else {
   renderVideoClickableMeta(
     meta,
@@ -123726,16 +124036,18 @@ if (
     actressGroupsV1331
   );
 
-  const bookmarkHeart =
-    createVideoWorkBookmarkButton(entry);
+  const bookmarkHeart = badgeOnV1429('bookmark') ?
+    createVideoWorkBookmarkButton(entry) : null;
 
-  const bodyPosterClover =
-    createVideoWorkBodyPosterButton(entry);
+  const bodyPosterClover = badgeOnV1429('bodyPoster') ?
+    createVideoWorkBodyPosterButton(entry) : null;
 
   // v1343: low-spec video cards omit the five-star DOM entirely.
   // The display editor creates and preserves the original interactive rating.
-  metaRow.append(bookmarkHeart, bodyPosterClover, meta);
-  if(!videoLiteCardV1339)metaRow.appendChild(createVideoWorkRating(entry));
+  if(bookmarkHeart)metaRow.appendChild(bookmarkHeart);
+  if(bodyPosterClover)metaRow.appendChild(bodyPosterClover);
+  metaRow.appendChild(meta);
+  if(!videoLiteCardV1339 && badgeOnV1429('rating'))metaRow.appendChild(createVideoWorkRating(entry));
 }
 
 // v1359: MOV also converts to MP4; selected MP4 uses the same gold badge.
@@ -123753,30 +124065,23 @@ if(videoBadgeOnlyV1339 || isVideoDeveloperAccessEnabledV910()){
 // v943: 포스터 재생영역 바깥의 텍스트 메타행에 수동공유 버튼 배치.
 // 제목/배우/품번 줄은 원래 포스터 클릭 재생과 분리되어 있으므로
 // hover 미리보기 중 클릭해도 playOwnedPoster로 떨어지지 않는다.
-const manualShareBadgeV943 =
-  createVideoP2PShareBadgeV933(entry);
-
-manualShareBadgeV943.classList.add(
-  'videoP2PShareCaptionV943'
-);
-
-metaRow.appendChild(
-  manualShareBadgeV943
-);
+if(badgeOnV1429('manualShare')){
+  const manualShareBadgeV943 = createVideoP2PShareBadgeV933(entry);
+  manualShareBadgeV943.classList.add('videoP2PShareCaptionV943');
+  metaRow.appendChild(manualShareBadgeV943);
+}
 
 // v946: 요청이 없어도 이 보유작을 "공유가능 작품"으로 알릴 수 있다.
-const voluntaryShareBadgeV946 =
-  createVideoAutoSharePublishBadgeV946(entry);
-
-metaRow.appendChild(
-  voluntaryShareBadgeV946
-);
+if(badgeOnV1429('shareRegister')){
+  const voluntaryShareBadgeV946 = createVideoAutoSharePublishBadgeV946(entry);
+  metaRow.appendChild(voluntaryShareBadgeV946);
+}
 
 }
-const actressCareerRankLine =
-  createVideoActressCareerRankLine(entry);
-
-cap.append(metaRow, actressCareerRankLine);
+if(badgeOnV1429('rank')){
+  const actressCareerRankLine = createVideoActressCareerRankLine(entry);
+  cap.append(metaRow, actressCareerRankLine);
+}else cap.appendChild(metaRow);
 } else {
   // Caption heart, clover, clickable actress/code/folder and rating stay in place.
   cap.appendChild(metaRow);
@@ -123804,8 +124109,12 @@ if(!videoDeferredCaptionV1365) videoBuildCaptionV1365();
         // No observer should retain a removed duration badge.
         try{
           const current=videoDurationTargetMap.get(posterWrap);
-          if(current?.badge && !current.badge.isConnected)
-            videoDurationTargetMap.set(posterWrap,{entry,badge:null});
+          if(current?.badge && !current.badge.isConnected){
+            if(!badgeOnV1429('duration') && !badgeOnV1429('fileSize') && !badgeOnV1429('resolution')){
+              videoDurationTargetMap.delete(posterWrap);
+              videoDurationObserver?.unobserve(posterWrap);
+            }else videoDurationTargetMap.set(posterWrap,{entry,badge:null});
+          }
         }catch(_){}
       };
       const videoRemoveCaptionV1383 = () => {
@@ -123842,6 +124151,19 @@ if(!videoDeferredCaptionV1365) videoBuildCaptionV1365();
         }
         return true;
       };
+      card.__videoBadgeOptionsRefreshV1429=()=>{
+        if(videoBadgeOnlyV1339)return;
+        videoRemoveHighBadgesV1383();
+        videoRemoveCaptionV1383();
+        const mode=window.getVideoPosterTextMode?.()||'all';
+        card.__videoPosterTextModeRefreshV1383?.(mode,card.matches(':hover'));
+        // v1431: online controls are created asynchronously by image load,
+        // not by videoBuildHighBadgesV1365. Refresh only these controls in place.
+        if(posterWrap.dataset.onlinePoster==='1' && posterWrap.__videoOnlineBadgeSrcV1431){
+          ensureVideoOnlinePosterSaveButton(posterWrap,entry,
+            posterWrap.__videoOnlineBadgeImgV1431,posterWrap.__videoOnlineBadgeSrcV1431);
+        }
+      };
 
       const del = document.createElement('button');
       del.type = 'button';
@@ -123862,12 +124184,25 @@ if(!videoDeferredCaptionV1365) videoBuildCaptionV1365();
       card.append(btn, del);
       box.appendChild(card);
     }
+
 }
 
 // v1383: This bridge lives in the owned-video closure, unlike the separate
 // posterior text-option UI script. The old UI script used `typeof contentMode`
 // across closures, so it skipped its redraw entirely. Grouped mode also needs
 // a card-level update instead of clearing nested group rows/load cursors.
+// v1429: in-place ordinary/grouped/coverflow badge rebuild. No poster image reload,
+// virtual-window reset, list query invalidation, or IDB data changes.
+window.videoApplyBadgeSelectionsV1429=function(){
+  if(contentMode!=='video')return {updated:0};
+  const box=document.getElementById('wtList');
+  let updated=0;
+  for(const card of box?.querySelectorAll('.videoCard:not(.videoMissingCard)')||[]){
+    if(typeof card.__videoBadgeOptionsRefreshV1429!=='function')continue;
+    card.__videoBadgeOptionsRefreshV1429();updated++;
+  }
+  return {updated};
+};
 window.videoApplyPosterTextSettingV1383 = function(mode) {
   if (contentMode !== 'video') return true;
   const box = document.getElementById('wtList');
@@ -124258,6 +124593,8 @@ function rebuildVideoActressGroupedSortCountsFromCache(items) {
 }
 
 function appendVideoActressGroupedSortItems(items, box) {
+
+
   for (const item of Array.isArray(items) ? items : []) {
     const entry = item?.__video;
     const info = item?.__videoGroupInfo;
@@ -124271,9 +124608,12 @@ function appendVideoActressGroupedSortItems(items, box) {
     // 이미 배우별로 펼친 항목이므로 여기서 다시 다른 배우 그룹으로 확장하지 않는다.
     appendVideoCards([entry], record.posters);
   }
+
 }
 
 function appendVideoGroupedSortCards(list, box) {
+
+
   for (const entry of Array.isArray(list) ? list : []) {
     const infos = getVideoGroupedSortInfos(entry);
     if (!infos.length) {
@@ -124292,6 +124632,7 @@ function appendVideoGroupedSortCards(list, box) {
       appendVideoCards([entry], record.posters);
     }
   }
+
 }
 
 
@@ -126209,6 +126550,98 @@ function appendVideoActressSelectedMixedCards(rows, box) {
 }
 
 
+// v1422: ordinary virtual grid only: share cached row positions with poster
+// priority and entrance checks. Re-index once per mounted window, never per
+// wheel event. Unknown/stale geometry falls back to original DOM rectangles.
+// v1423: In a sliding window, overlapping cards remain in the DOM. Never
+// rebuild that whole card list/metadata observer set for only a new row.
+// Counters are session-only; they contain no titles/paths/IDs.
+const videoVirtualDomStatsV1423 = {
+  draws:0, cachedCardLists:0, fallbackCardScans:0,
+  incrementalIndexes:0, fallbackIndexRebuilds:0,
+  retainedCards:0, createdCards:0, recycledCards:0,
+  observerResumes:0, fullObserverScansAvoided:0,
+  emptyFragmentInsertsAvoided:0, spacerWrites:0, spacerSameSkips:0,
+  validationFallbacks:0
+};
+window.VideoVirtualDomStatsV1423 = () => ({...videoVirtualDomStatsV1423,
+  active:!!(videoVirtualStateV1326 && videoVirtualActiveV1326(videoVirtualStateV1326.box)),
+  mounted:videoVirtualStateV1326?.indexedCardsV1422?.length ?? 0,
+  recent:videoVirtualStateV1326?.recentCards?.size ?? 0,
+  limit:VIDEO_VIRTUAL_LIMIT_V1326
+});
+const videoPosterVisibilityCountersV1422 = {
+  indexBuilds:0, indexedCards:0, priorityPumps:0, priorityFarSkips:0,
+  priorityRectReads:0, priorityIdleSkips:0, entranceRefreshes:0,
+  entranceRangeScans:0, entranceCardChecks:0, entranceFarSkips:0,
+  entranceRectReads:0, entranceAlreadyHandled:0, entranceVerifiedQueues:0,
+  fallbackScans:0
+};
+window.VideoPosterVisibilityStatsV1422 = () => ({
+  ...videoPosterVisibilityCountersV1422,
+  active:!!(videoVirtualStateV1326 && videoVirtualActiveV1326(videoVirtualStateV1326.box)),
+  indexed:videoVirtualStateV1326?.indexedCardsV1422?.length || 0,
+  queuedPosters:videoVirtualStateV1326?.posterPriorityJobsV1335?.size || 0
+});
+function videoVirtualReindexCardsV1422(st, knownCardsV1423 = null, addedCardsV1423 = null, retainMapV1423 = false) {
+  if (!st || !st.box) return;
+  let cards = knownCardsV1423;
+  // Cheap end-point check; unexpected foreign DOM writes must fall back to the
+  // original full scan so that a card is never assigned another work's index.
+  const valid = cards && cards.length === st.end - st.start &&
+    st.box.childElementCount === cards.length + 2 &&
+    st.box.firstElementChild === st.top && st.box.lastElementChild === st.bottom &&
+    (!cards.length || (cards[0].parentElement === st.box &&
+      cards[cards.length - 1].parentElement === st.box));
+  if (!valid) {
+    if (knownCardsV1423) videoVirtualDomStatsV1423.validationFallbacks++;
+    cards=Array.from(st.box.children).filter(el=>el.classList?.contains('videoCard'));
+    videoVirtualDomStatsV1423.fallbackIndexRebuilds++;
+  } else {
+    videoVirtualDomStatsV1423.incrementalIndexes++;
+  }
+  if (cards.length !== st.end - st.start) {
+    st.indexedCardsV1422=null;
+    st.cardIndexV1422=null;
+    return;
+  }
+  const reuse = !!(valid && retainMapV1423 && st.cardIndexV1422 && addedCardsV1423);
+  const indices = reuse ? st.cardIndexV1422 : new WeakMap();
+  if (reuse) {
+    // Surviving cards keep their previous *logical* indices. Update only
+    // newly created/recycled nodes. WeakMap does not retain removed nodes.
+    for (const item of addedCardsV1423) indices.set(item.card, item.index);
+  } else {
+    for (let i=0; i<cards.length; i++) indices.set(cards[i],st.start+i);
+  }
+  st.cardIndexV1422=indices;
+  st.indexedCardsV1422=cards;
+  videoPosterVisibilityCountersV1422.indexBuilds++;
+  videoPosterVisibilityCountersV1422.indexedCards+=cards.length;
+}
+function videoVirtualApproxRowV1422(card,box) {
+  const st=videoVirtualStateV1326;
+  if (!st || st.box!==box || !card || !st.cardIndexV1422 ||
+      !videoVirtualActiveV1326(box) || st.geometryDirtyV1421 ||
+      st.rowInvalidatedV1420 || !(st.rowHeight>0) || !(st.cols>0)) return null;
+  const index=st.cardIndexV1422.get(card);
+  if (!Number.isInteger(index) || index<st.start || index>=st.end ||
+      card.parentElement!==box) return null;
+  const pitch=st.rowHeight+st.gap;
+  if (!(pitch>0)) return null;
+  const top=Math.floor(index/st.cols)*pitch;
+  return {top,bottom:top+st.rowHeight,pitch,scroll:box.scrollTop,
+    height:box.clientHeight};
+}
+// Only reject cards further than one whole row outside the usable zone.
+// Candidates near the boundary still use the old exact getBoundingClientRect.
+function videoVirtualDefinitelyFarV1422(card,box,above=0,below=0) {
+  const r=videoVirtualApproxRowV1422(card,box);
+  if (!r) return false;
+  const safety=r.pitch+8;
+  return r.bottom < r.scroll-above-safety ||
+    r.top > r.scroll+r.height+below+safety;
+}
 // ===== v1335 — visibility-first / scroll-direction-aware VIDEO POSTER queue =====
 // Only ordinary v1326 video virtual grids use this scheduler. All other video
 // views (grouped, collage, coverflow, missing, custom posters) keep their
@@ -126309,6 +126742,7 @@ function videoPosterPriorityPumpV1335(st) {
       videoVirtualStateV1326 !== st || contentMode !== 'video' ||
       !st.box?.isConnected || !st.box.classList.contains('videoVirtualizedV1326')) return;
   const jobs=videoPosterPriorityQueueV1335(st);
+  videoPosterVisibilityCountersV1422.priorityPumps++;
   const scroll=st.box.scrollTop;
   const previous=st.posterPriorityLastScrollV1335;
   if (Number.isFinite(previous) && Math.abs(scroll - previous)>1) {
@@ -126326,6 +126760,17 @@ function videoPosterPriorityPumpV1335(st) {
     if (job.running || job.cancelled) continue;
     const card=job.wrap.closest('.videoCard');
     if (!job.wrap.isConnected || !card || card.parentElement!==st.box) continue;
+    // A full extra row of safety prevents offscreen classification errors
+    // from normal border/padding/rounding differences. Exact geometry is kept
+    // for every near-viewport candidate, preserving original priority order.
+    const farAbove=direction<0?aheadDistance:behindDistance;
+    const farBelow=direction>0?aheadDistance:behindDistance;
+    if (videoVirtualDefinitelyFarV1422(card,st.box,farAbove,farBelow)) {
+      videoPosterVisibilityCountersV1422.priorityFarSkips++;
+      videoPosterPriorityCountersV1335.skippedFar++;
+      continue;
+    }
+    videoPosterVisibilityCountersV1422.priorityRectReads++;
     const r=card.getBoundingClientRect();
     const upper=view.top, lower=view.bottom;
     const visible=r.bottom>=upper && r.top<=lower;
@@ -126368,6 +126813,19 @@ function videoPosterPriorityPumpV1335(st) {
 }
 function videoPosterPriorityScheduleV1335(st) {
   if (!st || st.videoPosterPriorityStoppedV1335 || st.posterPriorityRafV1335) return;
+  // Nothing to schedule if every queued poster is already running (its
+  // completion will schedule the next pump), or the queue is empty.
+  const jobs=st.posterPriorityJobsV1335;
+  let hasWaiting = false;
+  if (jobs?.size) {
+    for (const job of jobs.values()) {
+      if (!job.running && !job.cancelled) { hasWaiting=true; break; }
+    }
+  }
+  if (!hasWaiting) {
+    videoPosterVisibilityCountersV1422.priorityIdleSkips++;
+    return;
+  }
   st.posterPriorityRafV1335=requestAnimationFrame(()=>{
     st.posterPriorityRafV1335=0;
     videoPosterPriorityPumpV1335(st);
@@ -126391,13 +126849,102 @@ let videoVirtualStateV1326 = null;
 // v1389: observe actual grid width after left/right rail visibility/width
 // transitions. The left rail does not dispatch a window resize event.
 let videoVirtualResizeObserverV1389 = null;
+// v1420: changing poster orientation/caption/style may change row height
+// without changing the scroll box width; listen only for class changes.
+let videoVirtualClassObserverV1420 = null;
+const videoVirtualRowCacheStatsV1420 = {
+  measurements:0, geometryReads:0, cachedRangeSkips:0,
+  dimensionInvalidations:0, styleInvalidations:0, manualInvalidations:0,
+  classChangeSchedules:0
+};
+// v1421: no layout/style reads on wheel events while the mounted card window
+// safely covers the viewport. Real changes still go through the 1420 reflow.
+const videoVirtualScrollStatsV1421 = {
+  scheduled:0, fastSkips:0, fullUpdates:0, periodicChecks:0,
+  sizeDirtyEvents:0, classDirtyEvents:0, forcedChecks:0
+};
+const VIDEO_VIRTUAL_LAYOUT_RECHECK_MS_V1421 = 1000;
+window.VideoVirtualScrollStatsV1421 = () => {
+  const st = videoVirtualStateV1326;
+  return {...videoVirtualScrollStatsV1421,
+    active:!!(st && videoVirtualActiveV1326(st.box)),
+    guardFromRow:st?.fastGuardV1421?.from ?? null,
+    guardThroughRow:st?.fastGuardV1421?.through ?? null,
+    geometryDirty:!!st?.geometryDirtyV1421,
+    currentRowHeight:st?.rowHeight ?? null,
+    windowStart:st?.start ?? null, windowEnd:st?.end ?? null};
+};
+// Called ONLY from the full updater, after its range checks / DOM changes.
+function videoVirtualRememberScrollGuardV1421(st, firstVisible, visibleRows, targetRows, totalRows) {
+  const first = st.start >= 0 ? st.start / st.cols : -1;
+  const last = st.end >= 0 ? Math.ceil(st.end / st.cols) : -1;
+  const firstBatchRows = Math.ceil(Math.min(st.total, getVideoListBatchSize()) / st.cols);
+  const initial = st.start === 0 && st.end <= firstBatchRows * st.cols && firstVisible === 0;
+  const margin = initial ? 0 : Math.max(1, Math.min(4, Math.floor((targetRows - visibleRows) / 3)));
+  const from = first + (first > 0 ? margin : 0);
+  const through = last - (last < totalRows ? margin : 0) - visibleRows;
+  st.fastGuardV1421 = {
+    // At the initial top row a special zero-margin rule is in effect.
+    // Do not apply that rule blindly after the user moves to row 1.
+    from, through:initial ? Math.min(through, 0) : through,
+    className:st.box.className,
+    horizontalRatio:videoPosterHorizontalRatio,
+    cols:st.cols, batchSize:getVideoListBatchSize(),
+    checkedAt:performance.now()
+  };
+  st.geometryDirtyV1421 = false;
+}
+// Pure arithmetic + cached signatures in the hot scroll path. Never read
+// computed styles, clientWidth or card rectangles here.
+function videoVirtualCanSkipUpdateV1421(st) {
+  const g=st?.fastGuardV1421;
+  if (!g || !videoVirtualActiveV1326(st.box) || contentMode !== 'video' ||
+      st.geometryDirtyV1421 || st.rowInvalidatedV1420 || !(st.rowHeight > 0)) return false;
+  if (g.className !== st.box.className ||
+      g.horizontalRatio !== videoPosterHorizontalRatio ||
+      g.cols !== getVideoColumns() || g.batchSize !== getVideoListBatchSize()) return false;
+  // ResizeObserver normally owns width/height changes. Keep a safe fallback.
+  if (!videoVirtualResizeObserverV1389 &&
+      (st.width !== st.box.clientWidth || st.viewportHeightV1421 !== st.box.clientHeight)) return false;
+  if (performance.now() - g.checkedAt >= VIDEO_VIRTUAL_LAYOUT_RECHECK_MS_V1421) {
+    videoVirtualScrollStatsV1421.periodicChecks++;
+    return false;
+  }
+  const visibleRow=Math.floor(Math.max(0,st.box.scrollTop) / Math.max(1,st.rowHeight+st.gap));
+  return visibleRow >= g.from && visibleRow <= g.through;
+}
+
+function videoVirtualStopClassObserverV1420() {
+  try { videoVirtualClassObserverV1420?.disconnect(); } catch (_) {}
+  videoVirtualClassObserverV1420 = null;
+}
+function videoVirtualObserveClassV1420(box) {
+  videoVirtualStopClassObserverV1420();
+  if (!box || typeof MutationObserver !== 'function') return;
+  let lastClass = box.className;
+  videoVirtualClassObserverV1420 = new MutationObserver(() => {
+    if (box.className === lastClass) return;
+    lastClass = box.className;
+    const st = videoVirtualStateV1326;
+    if (st?.box === box && videoVirtualActiveV1326(box)) {
+      videoVirtualRowCacheStatsV1420.classChangeSchedules++;
+      st.geometryDirtyV1421 = true;
+      videoVirtualScrollStatsV1421.classDirtyEvents++;
+      videoVirtualScheduleV1326();
+    }
+  });
+  videoVirtualClassObserverV1420.observe(box, {attributes:true, attributeFilter:['class']});
+}
 function videoVirtualObserveSizeV1389(box) {
+  videoVirtualObserveClassV1420(box);
   try { videoVirtualResizeObserverV1389?.disconnect(); } catch (_) {}
   videoVirtualResizeObserverV1389 = null;
   if (!box || typeof ResizeObserver !== 'function') return;
   videoVirtualResizeObserverV1389 = new ResizeObserver(() => {
     const st = videoVirtualStateV1326;
     if (st?.box === box && videoVirtualActiveV1326(box)) {
+      st.geometryDirtyV1421 = true;
+      videoVirtualScrollStatsV1421.sizeDirtyEvents++;
       videoVirtualScheduleV1326();
     }
   });
@@ -126428,6 +126975,7 @@ function videoVirtualEligibleV1326(box) {
   return wtListCache.every(item => item?.__video && !item.__videoMissing && !item.__videoGroupInfo);
 }
 function videoVirtualResetV1326() {
+  videoVirtualStopClassObserverV1420();
   try { videoVirtualResizeObserverV1389?.disconnect(); } catch (_) {}
   videoVirtualResizeObserverV1389 = null;
   try { videoPosterPriorityStopV1335(videoVirtualStateV1326); } catch (_) {}
@@ -126443,6 +126991,7 @@ function videoVirtualResetV1326() {
 // True re-render / invalidation continues to use videoVirtualResetV1326().
 const VIDEO_DETACHED_RECENT_LIMIT_V1334 = 24;
 function videoVirtualSuspendV1334() {
+  videoVirtualStopClassObserverV1420();
   try { videoVirtualResizeObserverV1389?.disconnect(); } catch (_) {}
   videoVirtualResizeObserverV1389 = null;
   const st = videoVirtualStateV1326;
@@ -126450,6 +126999,8 @@ function videoVirtualSuspendV1334() {
   try { videoPosterPriorityStopV1335(st); } catch (_) {}
   if (st.raf) { try { cancelAnimationFrame(st.raf); } catch (_) {} }
   st.raf = 0;
+  st.fastGuardV1421 = null;
+  st.geometryDirtyV1421 = true;
   if (st.recentCards) {
     while (st.recentCards.size > VIDEO_DETACHED_RECENT_LIMIT_V1334) {
       st.recentCards.delete(st.recentCards.keys().next().value);
@@ -126484,16 +127035,45 @@ function videoVirtualDimensionsV1326(st) {
   if (!Number.isFinite(gap) || gap < 0) gap = 8;
   return { cols, gap };
 }
+// v1420: one signature per live virtual grid. The original height-measuring
+// function remains available for first paint and actual layout changes only.
+function videoVirtualRowSignatureV1420(st, cols = st.cols, width = st.width, gap = st.gap) {
+  return `${cols}|${Math.round(width * 2) / 2}|${Math.round(gap * 10) / 10}|` +
+    `${st.box.className}|${videoPosterHorizontalRatio}`;
+}
+window.VideoVirtualRowCacheStatsV1420 = () => {
+  const st = videoVirtualStateV1326;
+  return {...videoVirtualRowCacheStatsV1420,
+    active:!!(st && videoVirtualActiveV1326(st.box)),
+    currentRowHeight:st?.rowHeight ?? null,
+    currentColumns:st?.cols ?? null,
+    cacheValid:!!(st?.rowSignatureV1420 && st.rowHeight > 0),
+    invalidationPending:!!st?.rowInvalidatedV1420};
+};
+// Optional explicit invalidation for dynamic CSS/theme integrations.
+window.VideoVirtualRowCacheInvalidateV1420 = () => {
+  const st = videoVirtualStateV1326;
+  if (!st) return false;
+  st.rowInvalidatedV1420 = true;
+  videoVirtualRowCacheStatsV1420.manualInvalidations++;
+  videoVirtualScheduleV1326();
+  return true;
+};
 function videoVirtualMeasureV1326(st) {
+  videoVirtualRowCacheStatsV1420.measurements++;
+
+
   // The source cards already include aspect-ratio and caption settings.
   // Measure their *content* rather than the fixed outer virtual height.
   let natural = 0;
   for (const card of st.box.querySelectorAll(':scope > .videoCard')) {
     const button = card.querySelector('.videoCardBtn');
+    if (button) videoVirtualRowCacheStatsV1420.geometryReads++;
     const h = button?.getBoundingClientRect().height || 0;
     if (Number.isFinite(h)) natural = Math.max(natural, h);
   }
   return natural > 40 ? Math.ceil(natural) + 5 : 0;
+
 }
 function videoVirtualSpacerV1326(where) {
   const el = document.createElement('div');
@@ -126510,10 +127090,19 @@ function videoVirtualSetSpacersV1326(st) {
   const after = rows - Math.ceil(st.end / st.cols);
   for (const [node, count] of [[st.top, above], [st.bottom, after]]) {
     const visible = count > 0;
-    node.dataset.empty = visible ? '0' : '1';
-    node.style.height = visible ? `${Math.max(0, count * pitch - st.gap)}px` : '0px';
+    const empty = visible ? '0' : '1';
+    const height = visible ? `${Math.max(0, count * pitch - st.gap)}px` : '0px';
+    if (node.dataset.empty !== empty) { node.dataset.empty = empty; videoVirtualDomStatsV1423.spacerWrites++; }
+    else videoVirtualDomStatsV1423.spacerSameSkips++;
+    if (node.style.height !== height) { node.style.height = height; videoVirtualDomStatsV1423.spacerWrites++; }
+    else videoVirtualDomStatsV1423.spacerSameSkips++;
   }
-  st.box.style.setProperty('--video-virtual-row-height-v1326', `${st.rowHeight}px`);
+  const rowHeight = `${st.rowHeight}px`;
+  if (st.lastAppliedRowHeightV1423 !== rowHeight) {
+    st.box.style.setProperty('--video-virtual-row-height-v1326', rowHeight);
+    st.lastAppliedRowHeightV1423 = rowHeight;
+    videoVirtualDomStatsV1423.spacerWrites++;
+  } else videoVirtualDomStatsV1423.spacerSameSkips++;
 }
 // v1329: Preserve the actual <img>/<video> DOM of every overlapping card.
 // Creating a fragment from ALL works on every scroll used to restart both remote
@@ -126538,7 +127127,9 @@ function videoVirtualRememberCardV1329(st, index, card) {
   }
   videoVirtualCountersV1326.removed++;
 }
-function videoVirtualNewRangeV1329(st, first, last) {
+function videoVirtualNewRangeV1329(st, first, last, recycledOutV1423 = null) {
+
+
   const frag = document.createDocumentFragment();
   let pending = [];
   const flush = () => {
@@ -126552,6 +127143,7 @@ function videoVirtualNewRangeV1329(st, first, last) {
     if (reused) {
       flush();
       st.recentCards.delete(i);
+      if (recycledOutV1423) recycledOutV1423.push(reused);
       refreshVideoWorkCloverWidgetsV1346(reused);
       frag.appendChild(reused);
       try { videoPosterPriorityRequeueV1335(reused); } catch (_) {}
@@ -126565,17 +127157,32 @@ function videoVirtualNewRangeV1329(st, first, last) {
   }
   flush();
   return frag;
+
 }
 function videoVirtualDrawV1326(st, start, end) {
+
+
   if (!videoVirtualActiveV1326(st.box) || contentMode !== 'video') return;
   const oldScroll = st.box.scrollTop;
   const first = Math.max(0, Math.floor(start / st.cols) * st.cols);
   const capRows = Math.max(1, Math.floor(VIDEO_VIRTUAL_LIMIT_V1326 / st.cols));
   const last = Math.min(st.total, Math.ceil(end / st.cols) * st.cols, first + capRows * st.cols);
   if (first === st.start && last === st.end) return;
+  videoVirtualDomStatsV1423.draws++;
   const oldStart = st.start;
   const oldEnd = st.end;
-  const oldCards = Array.from(st.box.children).filter(el=>el.classList?.contains('videoCard'));
+  // v1423: v1422 already maintains an ordered card index. Use it when the
+  // grid boundaries are intact; otherwise preserve the old safe DOM scan.
+  const cached = st.indexedCardsV1422;
+  const cachedValid = !!(cached && cached.length === oldEnd - oldStart &&
+    st.box.childElementCount === cached.length + 2 &&
+    st.box.firstElementChild === st.top && st.box.lastElementChild === st.bottom &&
+    (!cached.length || (cached[0].parentElement === st.box &&
+      cached[cached.length - 1].parentElement === st.box)));
+  const oldCards = cachedValid ? cached :
+    Array.from(st.box.children).filter(el=>el.classList?.contains('videoCard'));
+  if (cachedValid) videoVirtualDomStatsV1423.cachedCardLists++;
+  else videoVirtualDomStatsV1423.fallbackCardScans++;
   const aligned = oldStart >= 0 && oldEnd > oldStart && oldCards.length === oldEnd - oldStart;
   const overlapStart = aligned ? Math.max(first, oldStart) : last;
   const overlapEnd = aligned ? Math.min(last, oldEnd) : first;
@@ -126588,38 +127195,65 @@ function videoVirtualDrawV1326(st, start, end) {
       try { stopVideoHoverPreview(); } catch (_) {}
     }
   }
-  // Evicted card wrappers must not hold old metadata jobs while the user scrolls.
-  videoMetadataDropQueuedCardsV1334(aligned
-    ? oldCards.filter((card, i) => oldStart + i < first || oldStart + i >= last)
-    : oldCards);
+  // Collect only outgoing cards once. Preserve the existing metadata cleanup
+  // and the small recent-card pool, including paused video and object URLs.
+  const outgoingV1423=[];
   if (aligned) {
-    for (let i = 0; i < oldCards.length; ++i) {
-      const index = oldStart + i;
-      if (index < first || index >= last) videoVirtualRememberCardV1329(st, index, oldCards[i]);
+    for (let i=0; i<oldCards.length; i++) {
+      const index=oldStart+i;
+      if (index<first || index>=last) outgoingV1423.push([index,oldCards[i]]);
     }
   } else {
-    // Resize can invalidate the old card indexing; do not associate wrong data with a card.
-    for (const node of oldCards) {
+    for (const card of oldCards) outgoingV1423.push([-1,card]);
+  }
+  videoMetadataDropQueuedCardsV1334(outgoingV1423.map(pair=>pair[1]));
+  if (aligned) {
+    for (const [index,card] of outgoingV1423) videoVirtualRememberCardV1329(st,index,card);
+  } else {
+    // Resize may invalidate card indexing. Discard rather than mix up artwork.
+    for (const [,node] of outgoingV1423) {
       try { videoPosterPriorityEvictV1335(node); } catch (_) {}
       try { videoDurationObserver?.unobserve?.(node.querySelector('.videoPosterWrap')); } catch (_) {}
       node.remove();
     }
   }
+  const recycledV1423=[];
+  const enteredV1423=[];
+  let orderedV1423=[];
+  const enteringV1423=(frag,firstIndex)=>{
+    const cards=Array.from(frag.children).filter(el=>el.classList?.contains('videoCard'));
+    for (let i=0;i<cards.length;i++) enteredV1423.push({card:cards[i],index:firstIndex+i});
+    return cards;
+  };
   if (overlap) {
-    // Leave intersecting cards connected. insertBefore adds only entering rows.
-    const retained = oldCards[overlapStart - oldStart];
-    const head = videoVirtualNewRangeV1329(st, first, overlapStart);
-    st.box.insertBefore(head, retained);
-    const tail = videoVirtualNewRangeV1329(st, overlapEnd, last);
-    st.box.insertBefore(tail, st.bottom);
-    videoVirtualCountersV1326.reused += overlapEnd - overlapStart;
+    // Keep overlapping DOM nodes, event listeners, images, object URLs intact.
+    const retained=oldCards[overlapStart-oldStart];
+    const head=videoVirtualNewRangeV1329(st,first,overlapStart,recycledV1423);
+    const headCards=enteringV1423(head,first);
+    if (headCards.length) st.box.insertBefore(head,retained);
+    else videoVirtualDomStatsV1423.emptyFragmentInsertsAvoided++;
+    const tail=videoVirtualNewRangeV1329(st,overlapEnd,last,recycledV1423);
+    const tailCards=enteringV1423(tail,overlapEnd);
+    if (tailCards.length) st.box.insertBefore(tail,st.bottom);
+    else videoVirtualDomStatsV1423.emptyFragmentInsertsAvoided++;
+    const survivors=oldCards.slice(overlapStart-oldStart,overlapEnd-oldStart);
+    orderedV1423=headCards.concat(survivors,tailCards);
+    videoVirtualDomStatsV1423.retainedCards+=survivors.length;
+    videoVirtualCountersV1326.reused+=survivors.length;
   } else {
-    // Large scrollbar jump: cards may still be recycled from the small recent pool.
-    st.box.insertBefore(videoVirtualNewRangeV1329(st, first, last), st.bottom);
+    // Large scroll jumps reuse the existing recent-card DOM pool.
+    const frag=videoVirtualNewRangeV1329(st,first,last,recycledV1423);
+    orderedV1423=enteringV1423(frag,first);
+    if (orderedV1423.length) st.box.insertBefore(frag,st.bottom);
+    else videoVirtualDomStatsV1423.emptyFragmentInsertsAvoided++;
     videoVirtualCountersV1326.fullSwaps++;
   }
+  videoVirtualDomStatsV1423.recycledCards+=recycledV1423.length;
+  videoVirtualDomStatsV1423.createdCards+=Math.max(0,enteredV1423.length-recycledV1423.length);
   st.start = first;
   st.end = last;
+  videoVirtualReindexCardsV1422(st, orderedV1423, enteredV1423,
+    cachedValid && aligned && overlap);
   videoVirtualSetSpacersV1326(st);
   st.box.scrollTop = oldScroll;
   const previouslyReachedV1397 = wtListRenderedCount || 0;
@@ -126627,44 +127261,57 @@ function videoVirtualDrawV1326(st, start, end) {
   // v1397: 누적 로딩 개수가 늘어날 때만 숫자 갱신 (스크롤마다 무조건 갱신하지 않음).
   if (wtListRenderedCount !== previouslyReachedV1397) updateWtCountUI();
   videoVirtualCountersV1326.windows++;
-  // Newly attached recycled cards need their duration observer restored; existing
-  // card observers remain attached, and appendVideoCards observes new cards itself.
+  // v1423: newly built cards already registered their duration observer in
+  // appendVideoCards(). Retained cards never left the DOM. Only recycled cards
+  // were explicitly unobserved in videoVirtualRememberCardV1329().
   try {
-    for (const target of st.box.querySelectorAll('.videoCard .videoPosterWrap')) {
-      if (videoDurationTargetMap.has(target)) videoDurationObserver?.observe(target);
+    for (const card of recycledV1423) {
+      const target=card.querySelector('.videoPosterWrap');
+      if (target && videoDurationTargetMap.has(target)) {
+        videoDurationObserver?.observe(target);
+        videoVirtualDomStatsV1423.observerResumes++;
+      }
     }
+    videoVirtualDomStatsV1423.fullObserverScansAvoided++;
   } catch (_) {}
-  const measured = videoVirtualMeasureV1326(st);
-  if (measured && Math.abs(measured - st.rowHeight) > 4) {
-    const previous = st.rowHeight + st.gap;
-    st.rowHeight = measured;
-    videoVirtualSetSpacersV1326(st);
-    st.box.scrollTop = Math.round(oldScroll / previous * (st.rowHeight + st.gap));
-  }
+  // v1420: this range has the SAME width/columns/poster style as the last.
+  // Its rows share one cached pitch. Do not force layout by calling
+  // getBoundingClientRect() on ~100 poster buttons on each window shift.
+  videoVirtualRowCacheStatsV1420.cachedRangeSkips++;
+
 }
 function videoVirtualUpdateV1326(st) {
+
+
   if (!videoVirtualActiveV1326(st.box) || contentMode !== 'video') return;
   const newWidth = st.box.clientWidth;
-  if (newWidth < 1 || st.box.clientHeight < 1) return;
+  const viewportHeightV1421 = st.box.clientHeight;
+  if (newWidth < 1 || viewportHeightV1421 < 1) return;
   const d = videoVirtualDimensionsV1326(st);
-  if (d.cols !== st.cols || Math.abs(newWidth - st.width) > 2 || Math.abs(d.gap - st.gap) > 0.5) {
+  const dimsChangedV1420 = d.cols !== st.cols ||
+    Math.abs(newWidth - st.width) > 2 || Math.abs(d.gap - st.gap) > 0.5;
+  const nextSignatureV1420 = videoVirtualRowSignatureV1420(st, d.cols, newWidth, d.gap);
+  const styleChangedV1420 = !dimsChangedV1420 &&
+    st.rowSignatureV1420 !== nextSignatureV1420;
+  if (dimsChangedV1420 || styleChangedV1420 || st.rowInvalidatedV1420) {
     const oldPitch = st.rowHeight + st.gap;
     const logicalTop = st.box.scrollTop / Math.max(1, oldPitch);
     const columnCountChangedV1329 = d.cols !== st.cols;
     st.cols = d.cols;
     st.gap = d.gap;
     st.width = newWidth;
-    // v1389: measure the actual connected poster buttons AFTER the flex/grid
-    // width change. v1326 used a +65px estimate here and skipped remeasurement
-    // whenever the same virtual window remained visible. That produced large
-    // blank card rows until scrolling far enough to mount a new virtual range.
-    // Reading button bounds does not detach/recreate image or video elements.
+    // v1389 resize restoration retained. v1420 also observes poster class/
+    // caption/ratio changes, which may not change the outer box dimensions.
     const measuredV1389 = videoVirtualMeasureV1326(st);
     const usable = Math.max(50, newWidth - 4 - (st.cols - 1) * st.gap);
     const cardWidth = usable / st.cols;
     const ratio = st.box.classList.contains('videoPosterHorizontal')
       ? (videoPosterHorizontalRatio === 'post' ? 269 / 400 : 9 / 16) : 1.43;
     st.rowHeight = measuredV1389 || Math.max(65, Math.ceil(cardWidth * ratio + 65));
+    st.rowSignatureV1420 = nextSignatureV1420;
+    st.rowInvalidatedV1420 = false;
+    if (dimsChangedV1420) videoVirtualRowCacheStatsV1420.dimensionInvalidations++;
+    else videoVirtualRowCacheStatsV1420.styleInvalidations++;
     if (columnCountChangedV1329) {
       // Re-align only when the chosen column count genuinely changes.
       st.start = -1; st.end = -1;
@@ -126677,7 +127324,7 @@ function videoVirtualUpdateV1326(st) {
   const scroll = Math.max(0, st.box.scrollTop);
   const pitch = Math.max(1, st.rowHeight + st.gap);
   const firstVisible = Math.floor(scroll / pitch);
-  const visibleRows = Math.max(1, Math.ceil(st.box.clientHeight / pitch) + 1);
+  const visibleRows = Math.max(1, Math.ceil(viewportHeightV1421 / pitch) + 1);
   const totalRows = Math.ceil(st.total / st.cols);
   const capRows = Math.max(1, Math.floor(VIDEO_VIRTUAL_LIMIT_V1326 / st.cols));
   const targetRows = Math.min(capRows, Math.max(
@@ -126691,20 +127338,38 @@ function videoVirtualUpdateV1326(st) {
   if (currentStartRow >= 0 && firstVisible >= currentStartRow + (currentStartRow ? margin : 0) &&
       firstVisible + visibleRows <= currentEndRow - (currentEndRow < totalRows ? margin : 0)) {
     videoVirtualCountersV1326.scrollHits++;
+    st.viewportHeightV1421 = viewportHeightV1421;
+    videoVirtualRememberScrollGuardV1421(st, firstVisible, visibleRows, targetRows, totalRows);
     return;
   }
   const lead = Math.max(0, Math.floor((targetRows - visibleRows) / 2));
   const rowStart = Math.min(Math.max(0, totalRows - targetRows), Math.max(0, firstVisible - lead));
   videoVirtualDrawV1326(st, rowStart * st.cols, Math.min(st.total, (rowStart + targetRows) * st.cols));
+  st.viewportHeightV1421 = viewportHeightV1421;
+  videoVirtualRememberScrollGuardV1421(st, firstVisible, visibleRows, targetRows, totalRows);
+
 }
 function videoVirtualScheduleV1326(force = false) {
   const st = videoVirtualStateV1326;
   if (!st || contentMode !== 'video') return;
+  if (force) st.forceUpdateV1421 = true;
   if (st.raf) return;
+  videoVirtualScrollStatsV1421.scheduled++;
   st.raf = requestAnimationFrame(() => {
     st.raf = 0;
     if (videoVirtualStateV1326 !== st) return;
-    videoVirtualUpdateV1326(st);
+    const forced = !!st.forceUpdateV1421;
+    st.forceUpdateV1421 = false;
+    if (!forced && videoVirtualCanSkipUpdateV1421(st)) {
+      // Scroll direction/visible posters can still change inside the same
+      // mounted range. Preserve v1335 loading and v1387 entrance behavior.
+      videoVirtualScrollStatsV1421.fastSkips++;
+      videoVirtualCountersV1326.scrollHits++;
+    } else {
+      if (forced) videoVirtualScrollStatsV1421.forcedChecks++;
+      videoVirtualScrollStatsV1421.fullUpdates++;
+      videoVirtualUpdateV1326(st);
+    }
     videoPosterPriorityScheduleV1335(st);
     videoPosterEntranceRefreshVisibleV1387(st.box);
   });
@@ -126736,6 +127401,8 @@ function videoVirtualStartV1326(box) {
   appendVideoCards(st.items.slice(0, st.end).map(row=>row.__video), box,
     { priorityVirtualV1335:true });
   st.rowHeight = videoVirtualMeasureV1326(st);
+  st.rowSignatureV1420 = videoVirtualRowSignatureV1420(st);
+  st.rowInvalidatedV1420 = false;
   if (!st.rowHeight) {
     const usable = Math.max(50, st.width - 4 - (st.cols - 1) * st.gap);
     const ratio = box.classList.contains('videoPosterHorizontal')
@@ -126745,6 +127412,7 @@ function videoVirtualStartV1326(box) {
   videoVirtualSetSpacersV1326(st);
   box.insertBefore(st.top, box.firstChild);
   box.appendChild(st.bottom);
+  videoVirtualReindexCardsV1422(st);
   wtListRenderedCount = st.end;
   videoVirtualCountersV1326.starts++;
   try { updateWtCountUI(); } catch (_) {}
@@ -126758,12 +127426,15 @@ function videoVirtualResumeV1326(st, box) {
   st.box = box;
   st.generation = String(box.dataset.videoRenderGeneration || '');
   st.items = wtListCache;
+  st.fastGuardV1421 = null;
+  st.geometryDirtyV1421 = true;
   if (!box.classList.contains('videoVirtualizedV1326') || !box.contains(st.top)) {
     videoVirtualResetV1326();
     return;
   }
   // v1389: restored DOM snapshots need their width observer reattached.
   videoVirtualObserveSizeV1389(box);
+  videoVirtualReindexCardsV1422(st);
   // Restart only posters whose unresolved lookup was stopped while detached.
   for (const card of box.querySelectorAll(':scope > .videoCard')) {
     videoPosterPriorityRequeueV1335(card);
@@ -128744,7 +129415,7 @@ function appendVideoActressWallUnownedWorkBatch(panel) {
 
     // v598: 배우월 전용 간이 포스터를 새로 만들지 않고,
     // 메타검색/미보유/범위뷰에서 이미 검증된 미보유 카드 생성기를 그대로 재사용한다.
-    // 따라서 보기·토렌트·즐겨찾기·DMM/품번·배우명·한/일 제목·재번역·
+    // 따라서 보기·토렌트·즐겨찾기·DMM/품번·배우명·한/일 제목·
     // 온라인 포스터 컨트롤·Fourhoi 미리보기까지 기존 미보유 검색과 동일해진다.
     if (typeof appendVideoMissingCardsResolved === 'function') {
       appendVideoMissingCardsResolved(batch, frag);
@@ -128908,7 +129579,7 @@ async function toggleVideoActressWallUnownedWorks(card, item) {
 // v600: 배우월의 "보유중인 작품"도 DMM 메타검색의 canonical 카드와 같은 DOM을 사용한다.
 // - 기존 배우월 전용 간이 카드(videoActressWallWorkItem)를 만들지 않는다.
 // - appendVideoMissingCardsResolved()를 그대로 재사용하므로 보유중 리본, 보기/토렌트,
-//   DMM/품번 비교, 배우명, 한/일 제목, 재번역, 온라인 포스터 컨트롤까지 메타검색과 동일하다.
+//   DMM/품번 비교, 배우명, 한/일 제목, 온라인 포스터 컨트롤까지 메타검색과 동일하다.
 // - 로컬 보유 엔트리는 owned=true로 표시하고, hover 미리보기는 일반 보유리스트와 동일한 실제 로컬 파일을 사용한다.
 // - DMM 레코드가 있으면 즉시 메타정보를 채운다.
 function makeVideoActressWallOwnedMetaItem(entry) {
@@ -130404,6 +131075,8 @@ function setupVideoActressPosterWallOwnedSectionV830(box, ownedItems = [], optio
 
 
 function renderVideoActressPosterWall(box) {
+
+
   if (!box) return false;
 
   // v830: 이전 보유배우 80명 지연렌더도 새 렌더에서 즉시 무효화한다.
@@ -130750,6 +131423,7 @@ function renderVideoActressPosterWall(box) {
 
   if (typeof updateWtCountUI === 'function') updateWtCountUI();
   return true;
+
 }
 
 // =========================================================
@@ -130888,10 +131562,10 @@ function videoDomKeyV1330() {
     videoRandomVisualStyle,
     ViewerCacheManager.storage.getItem('video_poster_render_style_v1'),
     ViewerCacheManager.storage.getItem('video_poster_text_mode_v1'),
-    ViewerCacheManager.storage.getItem('video_performance_mode_v1339'),
+    VideoHotSettingsV1418.raw('video_performance_mode_v1339'),
     ViewerCacheManager.storage.getItem('video_card_caption_layout_v1'),
     ViewerCacheManager.storage.getItem('video_card_gap_xy_v1'),
-    ViewerCacheManager.storage.getItem('video_poster_entrance_effect_v1')]);
+    VideoHotSettingsV1418.raw('video_poster_entrance_effect_v1')]);
 }
 function videoDomOrdinaryV1330() {
   return contentMode === 'video' && !videoActressPosterWallOn &&
@@ -131604,6 +132278,7 @@ try { syncVideoSortUI(); } catch (_) {}
     // 목록 렌더 때 Scenes 폴더 전체를 자동 스캔하지 않는다.
     // 장면 생성/삭제 시 캐시 개수는 즉시 갱신되고,
     // 필요 시 사용자가 장면 패널을 다시 열 때 한 번만 동기화한다.
+
   }
 
 function getVideoPosterHorizontalRatioCssValue() {
@@ -131658,6 +132333,8 @@ function setVideoPosterHorizontalRatio(mode) {
 
   // CSS aspect-ratio 변경이라 전체 목록 재렌더 없이 즉시 화면에 반영된다.
   applyVideoPosterHorizontalRatio();
+  // v1420: a CSS variable update can change the row without a box resize.
+  videoVirtualScheduleV1326();
 }
 
 function applyVideoPosterViewMode() {
@@ -132860,7 +133537,7 @@ function v1088VideoStateSig() {
     videoFpsFilterValueV866, videoPosterBadgeOnlyMode,
     videoActressSelectedSortModeV914, videoActressSelectedSortReverseV914,
     videoPosterViewMode, videoPosterHorizontalRatio,
-    ViewerCacheManager.storage.getItem('video_performance_mode_v1339')
+    VideoHotSettingsV1418.raw('video_performance_mode_v1339')
   ]);
 }
 // v1325: 배우 레일의 첫 선택 전 영상목록으로 되돌아오기 위한 일시적 DOM 스냅샷.
@@ -132881,7 +133558,7 @@ function videoActressReturnStateSigV1325() {
     // 화면 스타일을 바꿨다면 과거 카드 DOM을 복구하지 않는다.
     ViewerCacheManager.storage.getItem('video_poster_render_style_v1'),
     ViewerCacheManager.storage.getItem('video_poster_text_mode_v1'),
-    ViewerCacheManager.storage.getItem('video_performance_mode_v1339'),
+    VideoHotSettingsV1418.raw('video_performance_mode_v1339'),
     ViewerCacheManager.storage.getItem('video_card_caption_layout_v1'),
     ViewerCacheManager.storage.getItem('video_card_gap_xy_v1')
   ]);
@@ -148643,25 +149320,15 @@ function getVideoCensorTexts(entry) {
 // 직접선택은 display에만 태그를 저장하며 파일명/별칭 등은 변경하지 않는다.
 // ==================================================
 function getVideoExplicitCensorModeV930(entry) {
-  const text = String(entry?.display || '');
-  if (!text) return '';
-
-  const findLast = re => {
-    let last = -1;
-    let match;
-    re.lastIndex = 0;
-    while ((match = re.exec(text))) {
-      last = match.index;
-      if (!match[0]) re.lastIndex += 1;
-    }
-    return last;
-  };
-
-  const uncensoredAt = findLast(/\[\s*노모\s*\]/gi);
-  const censoredAt = findLast(/\[\s*유모\s*\]/gi);
-
-  if (uncensoredAt < 0 && censoredAt < 0) return '';
-  return uncensoredAt > censoredAt ? 'uncensored' : 'censored';
+  const text=String(entry?.display || '');
+  if(!text)return '';
+  // Match the last explicit [노모]/[유모] tag, preserving original priority.
+  const re=/\[\s*(노모|유모)\s*\]/gi;
+  let match,last='';
+  while((match=re.exec(text))){
+    last=match[1]==='노모'?'uncensored':'censored';
+  }
+  return last;
 }
 
 function isVideoExplicitUncensoredV930(entry) {
@@ -148673,32 +149340,27 @@ function isVideoExplicitCensoredV930(entry) {
 }
 
 function getVideoAutomaticCensorModeV931(entry) {
-  // display 직접확정 태그는 이 함수에서는 제외하고, 기존 자동판정 키워드만 본다.
-  const texts = [entry?.fileName, entry?.baseName, entry?.display]
-    .filter(Boolean)
-    .map(value => String(value).toLowerCase())
-    .map(text => text.replace(/\[\s*(?:노모|유모)\s*\]/gi, ' '));
-
-  // 기존 카드가 노모를 먼저 검사하던 우선순위를 그대로 유지한다.
-  const uncensored = texts.some(text => {
-    if (text.includes('모파') || text.includes('모파작')) return true;
-    if (/(?:^|[^a-z])uncensored(?:[-_\s]*leak)?(?:[^a-z]|$)/i.test(text)) return true;
-    if (text.includes('(노모)')) return true;
-    if (/\s노모\s/.test(text)) return true;
-    if (text.includes('유출작')) return true;
-    if (text.includes('[유출]')) return true;
-    return false;
-  });
-  if (uncensored) return 'uncensored';
-
-  const censored = texts.some(text => {
-    if (text.includes('모자이크')) return true;
-    if (text.includes('[모작]')) return true;
-    if (text.includes('(유모)')) return true;
-    if (/\s유모\s/.test(text)) return true;
-    return false;
-  });
-  return censored ? 'censored' : '';
+  // Preserve original precedence: search ALL text fields for uncensored first,
+  // then search them for censored. Do not change tag detection rules.
+  const values=[entry?.fileName,entry?.baseName,entry?.display];
+  const texts=[];
+  for(let i=0;i<values.length;i++){
+    if(values[i])texts.push(String(values[i]).toLowerCase()
+      .replace(/\[\s*(?:노모|유모)\s*\]/gi,' '));
+  }
+  for(let i=0;i<texts.length;i++){
+    const text=texts[i];
+    if(text.includes('모파') || text.includes('모파작') ||
+       /(?:^|[^a-z])uncensored(?:[-_\s]*leak)?(?:[^a-z]|$)/i.test(text) ||
+       text.includes('(노모)') || /\s노모\s/.test(text) ||
+       text.includes('유출작') || text.includes('[유출]'))return 'uncensored';
+  }
+  for(let i=0;i<texts.length;i++){
+    const text=texts[i];
+    if(text.includes('모자이크') || text.includes('[모작]') ||
+       text.includes('(유모)') || /\s유모\s/.test(text))return 'censored';
+  }
+  return '';
 }
 
 function getVideoResolvedCensorModeV931(entry, explicitV1331 = undefined) {
@@ -148818,18 +149480,12 @@ function appendVideoCensorChoiceV930(container, entry) {
     btn.textContent = label;
     btn.title = `${label}로 확정 · display에 [${label}] 저장`;
 
-    const run = event => {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      try { stopVideoHoverPreview?.(); } catch (_) {}
-      setVideoExplicitCensorModeV930(entry, mode);
-    };
+    btn.__v1427CensorEntry=entry;
+    btn.__v1427CensorMode=mode;
+    btn.addEventListener('mousedown',stopVideoCensorMouseDownV1427);
+    // Real button click covers both pointer and Enter/Space activation.
+    btn.addEventListener('click',chooseVideoCensorV1427);
 
-    btn.addEventListener('mousedown', event => event.stopPropagation());
-    btn.addEventListener('click', run);
-    btn.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') run(event);
-    });
     return btn;
   };
 
@@ -148866,13 +149522,8 @@ if (resolvedCensorModeV931 === 'uncensored') {
     yuMoBadge.title = (explicitCensorModeV930 === 'censored'
       ? '직접 확정된 [유모] 태그'
       : '파일명/제목 규칙으로 자동판정된 유모') + ` · MissAV에서 ${code} 보기`;
-    yuMoBadge.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      const missavCode = code.toLowerCase();
-      const url = 'https://missav123.com/ko/' + encodeURIComponent(missavCode) + '-uncensored-leak';
-      window.open(url, '_blank', 'noopener,noreferrer');
-    });
+    yuMoBadge.__v1427CensorCode=code;
+    yuMoBadge.addEventListener('click',openVideoCensorMissavV1427);
   } else {
     yuMoBadge.title = explicitCensorModeV930 === 'censored'
       ? '직접 확정된 [유모] 태그'
@@ -152332,6 +152983,8 @@ const VIDEO_ACTRESS_CAREER_BASE_POINTS = Object.freeze({
 });
 
 function invalidateVideoActressCareerRankingCache() {
+  // v1428: both on-poster rank locations must see new data after a match/record edit.
+  invalidateVideoWorkRankFragmentsV1428();
   videoWorldCupRecordsSpaceV1292.delete('career-ranking');
 }
 
@@ -152821,6 +153474,56 @@ function getVideoWorkCareerRankFragments(cache, entry) {
 }
 
 
+// v1428: one shared per-work ranking result for top poster / bottom caption.
+// Use the existing ViewerCacheManager RAM namespace (no second storage format).
+// It coalesces simultaneous requests and prevents stale async loads from being
+// written back after invalidation. Authoritative results still come from v554.
+const videoWorkRankFragmentsSpaceV1428 = ViewerCacheManager.namespace(
+  'video.worldcup.poster-rank-fragments', {maxEntries:1536, lru:true});
+let videoWorkRankRevisionV1428=0;
+const videoWorkRankStatsV1428 = {
+  requests:0, noKey:0, fragmentBuilds:0,
+  topRenders:0, bottomRenders:0, disconnectedSkips:0, staleSkips:0
+};
+function invalidateVideoWorkRankFragmentsV1428(){
+  ++videoWorkRankRevisionV1428;
+  videoWorkRankFragmentsSpaceV1428.clear();
+}
+function getVideoWorkRankFragmentsSharedV1428(entry){
+  videoWorkRankStatsV1428.requests++;
+  const key=getVideoWorkCareerRankingKey(entry);
+  if(!key){
+    videoWorkRankStatsV1428.noKey++;
+    return Promise.resolve([]);
+  }
+  return videoWorkRankFragmentsSpaceV1428.getOrLoad(key,async()=>{
+    // Only the first request for a work performs aggregate lookup / fragment
+    // extraction. The second badge awaits the exact same pending promise.
+    const cache=await getVideoActressCareerRankingCache();
+    videoWorkRankStatsV1428.fragmentBuilds++;
+    return getVideoWorkCareerRankFragments(cache,entry);
+  });
+}
+window.videoWorkRankStatsV1428=()=>{
+  const shared=videoWorkRankFragmentsSpaceV1428.stats();
+  return {
+    ready:true, entries:shared.size, capacity:shared.maxEntries, revision:videoWorkRankRevisionV1428,
+    requests:videoWorkRankStatsV1428.requests,
+    rankingRequests:shared.loads,
+    fragmentBuilds:videoWorkRankStatsV1428.fragmentBuilds,
+    hits:shared.hits, pendingShares:shared.sharedLoads,
+    actualRequestsSaved:shared.hits+shared.sharedLoads,
+    pending:shared.pending, evictions:shared.evictions,
+    invalidations:shared.invalidations, errors:shared.loadErrors,
+    noKey:videoWorkRankStatsV1428.noKey,
+    topRenders:videoWorkRankStatsV1428.topRenders,
+    bottomRenders:videoWorkRankStatsV1428.bottomRenders,
+    disconnectedSkips:videoWorkRankStatsV1428.disconnectedSkips,
+    staleSkips:videoWorkRankStatsV1428.staleSkips,
+    note:'requests = 상·하단 표시 요청; rankingRequests/fragmentBuilds = 고유 작품 조회·추출. hits/pendingShares는 공통 캐시 재사용. async 대기는 CPU 시간이 아닙니다.'
+  };
+};
+
 // v612: 포스터에 표시되는 월드컵/태그매치 순위 '글자' hover용.
 // 기존 월드컵 랭킹의 중앙 로컬 영상 미리보기 엔진을 그대로 재사용한다.
 function bindVideoCareerRankTextPreview(target, entry, rankFragment = null) {
@@ -152884,6 +153587,7 @@ async function hydrateVideoPosterCareerRankStack(stack, entry = null) {
   if (!stack) return;
 
   const posterEntry = entry || stack.__videoEntry || null;
+  const rankRevisionV1428=videoWorkRankRevisionV1428;
   const token = String(Date.now()) + ':' + Math.random();
   stack.dataset.rankLoadToken = token;
 
@@ -152894,10 +153598,12 @@ async function hydrateVideoPosterCareerRankStack(stack, entry = null) {
       return;
     }
 
-    const cache = await getVideoActressCareerRankingCache();
-    if (!stack.isConnected || stack.dataset.rankLoadToken !== token) return;
-
-    const fragments = getVideoWorkCareerRankFragments(cache, posterEntry);
+    const fragments = await getVideoWorkRankFragmentsSharedV1428(posterEntry);
+    if(!stack.isConnected){videoWorkRankStatsV1428.disconnectedSkips++;return;}
+    if(rankRevisionV1428!==videoWorkRankRevisionV1428 || stack.dataset.rankLoadToken !== token){
+      videoWorkRankStatsV1428.staleSkips++;return;
+    }
+    videoWorkRankStatsV1428.topRenders++;
     stack.replaceChildren();
 
     fragments.forEach(item => {
@@ -152917,6 +153623,7 @@ async function hydrateVideoPosterCareerRankStack(stack, entry = null) {
     console.warn('[video work career ranking] 포스터 상단 세로 랭킹 표시 실패', error);
     stack.classList.remove('on');
     stack.replaceChildren();
+  } finally {
   }
 }
 
@@ -152931,15 +153638,17 @@ function createVideoActressCareerRankLine(entry) {
 async function hydrateVideoActressCareerRankLine(line, entry) {
   if (!line || !entry) return;
 
+  const rankRevisionV1428=videoWorkRankRevisionV1428;
   const token = String(Date.now()) + ':' + Math.random();
   line.dataset.rankLoadToken = token;
 
   try {
-    const cache = await getVideoActressCareerRankingCache();
-    if (!line.isConnected || line.dataset.rankLoadToken !== token) return;
-
-    const fragments =
-      getVideoWorkCareerRankFragments(cache, entry);
+    const fragments = await getVideoWorkRankFragmentsSharedV1428(entry);
+    if(!line.isConnected){videoWorkRankStatsV1428.disconnectedSkips++;return;}
+    if(rankRevisionV1428!==videoWorkRankRevisionV1428 || line.dataset.rankLoadToken !== token){
+      videoWorkRankStatsV1428.staleSkips++;return;
+    }
+    videoWorkRankStatsV1428.bottomRenders++;
 
     line.replaceChildren();
 
@@ -152962,6 +153671,7 @@ async function hydrateVideoActressCareerRankLine(line, entry) {
     console.warn('[video work career ranking] 포스터 하단 랭킹 표시 실패', error);
     line.classList.remove('on');
     line.replaceChildren();
+  } finally {
   }
 }
 
@@ -153500,7 +154210,9 @@ async function getVideoWorldCupSceneCandidates({ force = false } = {}) {
   const cached = !force ? videoWorldCupSceneFolderSpaceV1292.get('candidates') : null;
   if (Array.isArray(cached)) return cached.slice();
 
-  const scenes = await getVideoWorldCupScenesDirectoryHandle();
+  const root = await getVideoPosterRootHandle();
+  const inventory = await videoScenesEnsureV1425({root});
+  const scenes = inventory ? null : await getVideoWorldCupScenesDirectoryHandle();
   const result = [];
   const seen = new Set();
 
@@ -153544,7 +154256,12 @@ async function getVideoWorldCupSceneCandidates({ force = false } = {}) {
 
   const imagePattern = /\.(webp|mp4|jpg|jpeg|png|gif|avif)$/i;
 
-  for await (const [name, handle] of scenes.entries()) {
+  // 준비된 전체 파일명 목록이 있으면 폴더를 다시 순회하지 않는다.
+  // 월드컵의 파일형식·연결 규칙은 이전과 같고, 인덱스 실패 시 디스크 순회로 복구한다.
+  const sceneEntries = inventory
+    ? Array.from(inventory.values(),name=>[name,{kind:'file'}])
+    : scenes.entries();
+  for await (const [name, handle] of sceneEntries) {
     if (!handle || handle.kind !== 'file') continue;
 
     const sceneFileName = String(name || '').trim();
@@ -154332,6 +155049,7 @@ async function deleteVideoWorldCupSceneSavedFile(entry) {
 
   try {
     await scenes.removeEntry(fileName);
+    videoScenesChangeV1425(fileName,false);
   } catch (error) {
     // 파일이 이미 사라진 경우에는 기록의 저장파일 연결만 정리한다.
     if (error?.name !== 'NotFoundError') throw error;
@@ -154358,10 +155076,7 @@ async function getVideoWorldCupScenesDirectoryHandle() {
 
   videoWorldCupScenesDirPromise = (async () => {
     const root = await getVideoPosterRootHandle();
-    if (String(root?.name || '').trim().toLocaleLowerCase() === 'scenes') {
-      return root;
-    }
-    return await root.getDirectoryHandle('Scenes');
+    return await videoScenesGetDirV1425(root,false);
   })();
 
   try {
@@ -161198,7 +161913,7 @@ function installVideoWorldCupUi() {
           showVideoJobDoneNotice({
             title: '썸네일 확인 완료',
             main: `폴더 ${result.diskCount.toLocaleString()}개 · 인덱스 ${result.indexCount.toLocaleString()}개`,
-            detail: 'Scenes 폴더와 저장된 썸네일 인덱스가 일치합니다.',
+            detail: '썸네일 개수와 Scenes 공통 파일명 캐시까지 다시 확인했습니다.',
             counts: '동기화할 항목이 없습니다.',
             ms: 5000
           });
@@ -162830,7 +163545,7 @@ document.addEventListener(
 
   function getVideoRenderPageSize() {
     try {
-      return normalizeVideoRenderPageSize(ViewerCacheManager.storage.getItem(STORAGE_KEY));
+      return VideoHotSettingsV1418.pageSize();
     } catch (_) {
       return DEFAULT_SIZE;
     }
@@ -162993,20 +163708,7 @@ document.addEventListener(
   };
 
   const loadEffect = () => {
-    try {
-      const raw =
-        ViewerCacheManager.storage.getItem(
-          EFFECT_KEY
-        );
-
-      if (raw === null) {
-        return DEFAULT_EFFECT;
-      }
-
-      return normalizeEffect(raw);
-    } catch (_) {
-      return DEFAULT_EFFECT;
-    }
+    return VideoHotSettingsV1418.entrance();
   };
 
   const saveEffect = value => {
@@ -169814,7 +170516,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1411;
+  const VIEWER_BUILD_V789 = 1437;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -177102,6 +177804,76 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
   const OLD_PREFIX='comic_zip_last_page_';
   const PURGE_DONE_KEY_V1402='viewer_legacy_last_page_ls_purged_v1402';
   let openPromise=null, warned=false;
+  // v1416: one small getAllKeys() index replaces thousands of guaranteed-empty
+  // reads when most comics have never been opened. Actual saved page values
+  // continue to come from the original IndexedDB object store.
+  const PAGE_INDEX_TTL_V1416=60000;
+  let pageIndexV1416=null, pageIndexPromiseV1416=null;
+  let pageIndexExpiresV1416=0, pageIndexGenerationV1416=0;
+  const pageWritesV1416=new Map();
+  const pageIndexStatsV1416={indexLoads:0,indexKeys:0,emptySkips:0,positiveReads:0,
+    indexErrors:0,invalidations:0,writeAdds:0,staleFallbacks:0};
+  function invalidatePageIndexV1416(){
+    pageIndexV1416=null;
+    pageIndexExpiresV1416=0;
+    pageIndexGenerationV1416++;
+    pageIndexStatsV1416.invalidations++;
+  }
+  function pageIndexSnapshotV1416(){
+    return {...pageIndexStatsV1416,ready:!!pageIndexV1416,
+      loading:!!pageIndexPromiseV1416,keys:pageIndexV1416?.size??0,
+      writesPending:[...pageWritesV1416.values()].reduce((a,b)=>a+b,0)};
+  }
+  window.ComicLastPageIndexStatsV1416=pageIndexSnapshotV1416;
+  // Snapshot can become stale if another window writes a page; bound the lifetime,
+  // and refresh when the user returns to this tab. No persistent schema changes.
+  let pageIndexWasBlurredV1416=false, pageIndexPageShownV1416=false;
+  window.addEventListener('blur',()=>{pageIndexWasBlurredV1416=true;});
+  window.addEventListener('focus',()=>{
+    if(pageIndexWasBlurredV1416){pageIndexWasBlurredV1416=false;invalidatePageIndexV1416();}
+  });
+  window.addEventListener('pageshow',()=>{
+    if(pageIndexPageShownV1416)invalidatePageIndexV1416();
+    pageIndexPageShownV1416=true;
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible' && pageIndexWasBlurredV1416){
+      pageIndexWasBlurredV1416=false;invalidatePageIndexV1416();
+    }
+  });
+  async function ensurePageIndexV1416(){
+    if(pageIndexV1416 && Date.now()<pageIndexExpiresV1416)return pageIndexV1416;
+    if(pageIndexPromiseV1416)return pageIndexPromiseV1416;
+    const generation=pageIndexGenerationV1416;
+    const pending=(async()=>{
+      const db=await open();
+      return await new Promise((resolve,reject)=>{
+        const tx=db.transaction(STORE,'readonly');
+        let keys=null;
+        const req=tx.objectStore(STORE).getAllKeys();
+        req.onsuccess=()=>{keys=req.result;};
+        tx.oncomplete=()=>resolve(keys||[]);
+        tx.onerror=()=>reject(tx.error||new Error('마지막 페이지 키 색인 조회 실패'));
+        tx.onabort=()=>reject(tx.error||new Error('마지막 페이지 키 색인 중단'));
+      });
+    })().then(keys=>{
+      if(generation!==pageIndexGenerationV1416){
+        pageIndexStatsV1416.staleFallbacks++;
+        return null; // concurrent deletion/write; fall back to current DB reads
+      }
+      pageIndexV1416=new Set(keys);
+      pageIndexExpiresV1416=Date.now()+PAGE_INDEX_TTL_V1416;
+      pageIndexStatsV1416.indexLoads++;
+      pageIndexStatsV1416.indexKeys=pageIndexV1416.size;
+      return pageIndexV1416;
+    }).catch(e=>{
+      pageIndexStatsV1416.indexErrors++;
+      // Failure must NEVER hide saved page data: fall back to the old get path.
+      return null;
+    }).finally(()=>{if(pageIndexPromiseV1416===pending)pageIndexPromiseV1416=null;});
+    pageIndexPromiseV1416=pending;
+    return pending;
+  }
   function warn(err){
     if(warned)return;warned=true;
     console.warn('[v1020] 마지막 페이지 IndexedDB 접근 실패. 해당 페이지 기록이 저장되지 않을 수 있습니다.',err);
@@ -177117,7 +177889,7 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
         };
         req.onsuccess=()=>{
           const db=req.result;
-          db.onversionchange=()=>{db.close();openPromise=null;};
+          db.onversionchange=()=>{invalidatePageIndexV1416();db.close();openPromise=null;};
           resolve(db);
         };
         req.onerror=()=>reject(req.error||new Error('DB 열기 실패'));
@@ -177183,8 +177955,7 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
       tx.onabort=()=>fail(tx.error);
     }catch(e){lastPageBatchStatsV1405.failedBatches++;finish(e,results);}
   }
-  function get(workId){
-    const key=String(workId);
+  function queueLastPageGetV1416(key){
     const existing=lastPageReadQueueV1405.get(key);
     if(existing){lastPageBatchStatsV1405.duplicateWaits++;return existing.promise;}
     const row={key,started:false,resolve:null,reject:null,promise:null};
@@ -177193,17 +177964,42 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
     scheduleLastPageFlushV1405();
     return row.promise;
   }
+  async function get(workId){
+    const key=String(workId);
+    // Preserve the pending batch result even when the background key index is
+    // being rebuilt or a matching write is not yet committed.
+    const existing=lastPageReadQueueV1405.get(key);
+    if(existing){lastPageBatchStatsV1405.duplicateWaits++;return existing.promise;}
+    const keys=await ensurePageIndexV1416();
+    if(keys && !keys.has(key) && !pageWritesV1416.has(key)){
+      pageIndexStatsV1416.emptySkips++;
+      return null;
+    }
+    pageIndexStatsV1416.positiveReads++;
+    return queueLastPageGetV1416(key);
+  }
   async function put(workId,page){
     const n=Number(page);
     if(!Number.isSafeInteger(n)||n<1)return;
-    const db=await open();
-    return new Promise((resolve,reject)=>{
-      const tx=db.transaction(STORE,'readwrite');
-      tx.objectStore(STORE).put({page:n,updatedAt:Date.now()},String(workId));
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error||new Error('페이지 저장 실패'));
-      tx.onabort=()=>reject(tx.error||new Error('페이지 저장 중단'));
-    });
+    const key=String(workId);
+    pageWritesV1416.set(key,(pageWritesV1416.get(key)||0)+1);
+    try{
+      const db=await open();
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(STORE,'readwrite');
+        tx.objectStore(STORE).put({page:n,updatedAt:Date.now()},key);
+        tx.oncomplete=resolve;
+        tx.onerror=()=>reject(tx.error||new Error('페이지 저장 실패'));
+        tx.onabort=()=>reject(tx.error||new Error('페이지 저장 중단'));
+      });
+      if(pageIndexPromiseV1416)invalidatePageIndexV1416();
+      else if(pageIndexV1416){pageIndexV1416.add(key);pageIndexStatsV1416.writeAdds++;}
+      // When the cache is not loaded it will include this committed key on
+      // its next getAllKeys() scan.
+    }finally{
+      const n=pageWritesV1416.get(key)||0;
+      if(n<=1)pageWritesV1416.delete(key);else pageWritesV1416.set(key,n-1);
+    }
   }
   // 오래된 기록은 어떤 작품에도 복원하지 않는다. 다른 로컬스토리지 키는 절대 삭제하지 않는다.
   // 키가 수만 개여도 한 번에 삭제하지 않도록 이벤트 루프에 작업을 양보한다.
@@ -177293,7 +178089,8 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
     job.catch(warn).finally(()=>{if(groupWriteQueuesV1183.get(key)===job)groupWriteQueuesV1183.delete(key);});
     return job;
   }
-  window.ComicLastPageV1020={get,put,getGroup,putGroup,purgeLegacy,warn};
+  window.ComicLastPageV1020={get,put,getGroup,putGroup,purgeLegacy,warn,
+    invalidateIndexV1416:invalidatePageIndexV1416};
   purgeLegacy();
 })();
 </script>
@@ -186925,6 +187722,7 @@ html #wtLayer .layerHeadModeButtons :is(button.zoomBtn,a.zoomBtn):not([style*="b
     try{window.ComicZipV979?.forgetCachedV1205?.(belongs);}catch(_){}
     try{await window.ComicRecentV1090?.forgetV1205?.(belongs);}catch(e){failed.push('최근 본 작품');}
     try{await window.ComicLastPageV1020?.forgetV1205?.(belongs,rootId);}catch(e){failed.push('마지막 페이지 RAM');}
+    try{window.ComicLastPageV1020?.invalidateIndexV1416?.();}catch(_){}
     for(const [db,store] of databases){
       try{
         const direct=!rootId&&db!=='viewer_comic_last_pages_v1020'
@@ -186934,6 +187732,8 @@ html #wtLayer .layerHeadModeButtons :is(button.zoomBtn,a.zoomBtn):not([style*="b
       }
       catch(e){failed.push(db);console.warn('[comic cleanup v1205]',db,e);}
     }
+    // Any deleted last-page keys must not survive in the RAM existence index.
+    try{window.ComicLastPageV1020?.invalidateIndexV1416?.();}catch(_){}
     // The older webtoon runtime last-read map is shared by the ordinary comic viewer.
     // Remove the affected roots in one save, not one write for each of 36,000 works.
     if(rootId){
@@ -190531,4 +191331,72 @@ body.videoDeveloperShareVisibleV1381 #wtList:is(.videoDmmMetaSearchGridMode,.vid
   opacity: 1 !important;
   pointer-events: auto !important;
 }
+</style>
+
+
+<!-- v1436: match video rail actress/tag, 한/영/일 and right M/S tabs to comic rail tab sizing, spacing, active blue and inset outline; preserve tab behavior. -->
+<style id="videoRailButtonsMatchComicV1436">
+/* Comic .comicCreatorTabV1033 reference: 1px gap, 2px 1px padding,
+   var(--ui-fs), 1.2 line-height, 3px corners, no real border.
+   Comic selected rails use v1249 blue #2466b9 and inset #8cbaff border. */
+#wtTagRail.videoUnifiedRailV1052 .videoMainTabsV1052,
+#wtTagRail.videoUnifiedRailV1052 .videoActressRailLangHeader,
+#videoRightRailV1374 .videoRightRailTabsV1374 {
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  flex:0 0 auto;
+  box-sizing:border-box;
+  gap:1px;
+  padding:6px 1px 4px;
+}
+#wtTagRail.videoUnifiedRailV1052 .videoMainTabV1052,
+#wtTagRail.videoUnifiedRailV1052 .videoActressRailLangBtn,
+#videoRightRailV1374 .videoRightRailTabV1374 {
+  display:block;
+  flex:1 1 0;
+  min-width:0;
+  width:auto;
+  height:auto;
+  min-height:0;
+  box-sizing:border-box;
+  margin:0;
+  padding:2px 1px;
+  border:0;
+  border-radius:3px;
+  box-shadow:none;
+  background:#333;
+  color:#bfc5cf;
+  font-family:inherit;
+  font-size:var(--ui-fs,12px);
+  font-weight:400;
+  line-height:1.2;
+  text-align:center;
+  white-space:nowrap;
+  cursor:pointer;
+}
+#wtTagRail.videoUnifiedRailV1052 .videoMainTabV1052:is(.active,[aria-selected="true"]),
+#wtTagRail.videoUnifiedRailV1052 .videoActressRailLangBtn:is(.active,[aria-pressed="true"]),
+#videoRightRailV1374 .videoRightRailTabV1374:is(.active,[aria-selected="true"]) {
+  background:#2466b9;
+  color:#fff;
+  font-weight:400;
+  border:0;
+  box-shadow:inset 0 0 0 1px #8cbaff;
+}
+#wtTagRail.videoUnifiedRailV1052 .videoMainTabV1052:hover:not(.active):not([aria-selected="true"]),
+#wtTagRail.videoUnifiedRailV1052 .videoActressRailLangBtn:hover:not(.active):not([aria-pressed="true"]),
+#videoRightRailV1374 .videoRightRailTabV1374:hover:not(.active):not([aria-selected="true"]) {
+  background:#414b5b;
+  color:#f4f6f9;
+}
+#wtTagRail.videoUnifiedRailV1052 :is(.videoMainTabV1052,.videoActressRailLangBtn):focus-visible,
+#videoRightRailV1374 .videoRightRailTabV1374:focus-visible {
+  outline:1px solid #8cbaff;
+  outline-offset:-1px;
+}
+/* Narrow rails: keep the same text size and compact gap, never overflow. */
+#wtTagRail.videoUnifiedRailV1052 .videoMainTabsV1052,
+#wtTagRail.videoUnifiedRailV1052 .videoActressRailLangHeader { overflow:hidden; }
 </style>
