@@ -1,3 +1,6 @@
+<!-- v1457: 로컬호스트 책장 이미지 누락 시 GitHub JPG 자동 조회, Cache Storage 저장으로 재접속/오프라인 재사용, 설치 EXE 변경 불필요. -->
+<!-- v1456: 만화 하단 탐색바 클릭 포커스 잔류·상하 여백 수정, 만화 표지 미세 확대/움직임 효과 ON/OFF(기본 OFF). -->
+<!-- v1455: 로컬호스트 안내를 일반 문장으로 간소화·백신 검사 안내; 만화 ZIP/CBZ+이미지폴더 공통 하단 얇은 진행선/마우스오버 페이지 탐색바 추가. -->
 <!-- v1454: 로컬호스트 안내 상단에 독립 목록/공통 이미지폴더 안내 2줄 추가. -->
 <!-- v1453: 로컬호스트 ZIP 압축 해제·설치 안내 추가, 설치 클릭 시 당회 PWA 가이드만 생략(나중에/다시 안보기는 기존 유지). -->
 <!-- v1452: file:/// 로컬 HTML에도 로컬호스트→앱 설치 가이드 표시, 앱설치 버튼에서 GitHub/로컬호스트 선택, 가이드 숨김 설정만 선택 초기화. -->
@@ -14084,6 +14087,7 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
       <div class="wt-actions">
       <button class="zoomBtn" id="wtViewPixiV1080" type="button" title="작가별 보기: 작가 라벨 + 가로 작품열, 펼치기">작가별</button>
       <button class="zoomBtn" id="comicPerformanceToggleV1307" type="button" aria-pressed="false" title="만화 포스터의 고사양/저사양 보기 전환">고사양</button>
+      <button class="zoomBtn" id="comicPosterHoverToggleV1456" type="button" aria-pressed="false" title="만화 표지 마우스 확대·미세 움직임 효과 켜기" style="display:none">표지효과 OFF</button>
       <button class="zoomBtn" id="videoPerformanceToggleV1339" type="button" aria-pressed="false" title="영상 전용 고사양/저사양 포스터 전환" style="display:none">고사양</button>
       <button class="zoomBtn" id="wtEditBtn"  title="목록 수정">수정</button>
 	  <!-- ✅ 정렬 (수정 다음) -->
@@ -169713,7 +169717,10 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     caveat.style.cssText='margin-top:13px;font-size:12px;line-height:1.5;color:#9fb2cb';
     const installNote=document.createElement('div');
     installNote.textContent='다운로드 받은 압축파일을 풀어서 설치파일을 실행하시면 됩니다.';
-    installNote.style.cssText='margin-top:13px;padding:10px 12px;background:#253246;border:1px solid #4d6688;border-radius:8px;font-size:13px;font-weight:750;line-height:1.5;color:#eef5ff';
+    installNote.style.cssText='margin-top:9px;font-size:12px;line-height:1.5;color:#9fb2cb';
+    const securityNote=document.createElement('div');
+    securityNote.textContent='※ 설치파일은 일부 백신에서 경고하거나 차단할 수 있습니다. 백신을 끄지 말고 검사 결과와 오진 신고 여부를 확인한 뒤 설치하세요.';
+    securityNote.style.cssText='margin-top:5px;font-size:12px;line-height:1.5;color:#9fb2cb';
     const footer=document.createElement('div');
     footer.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px';
     const rememberLabel=document.createElement('label');
@@ -169736,7 +169743,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     download.addEventListener('click',()=>finish(remember.checked,'install'));
     actions.append(later,download);
     footer.append(rememberLabel,actions);
-    panel.append(title,sub,points,caveat,installNote,footer);
+    panel.append(title,sub,points,caveat,installNote,securityNote,footer);
     layer.append(panel);
     document.body.append(layer);
     later.focus();
@@ -171014,7 +171021,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1454;
+  const VIEWER_BUILD_V789 = 1457;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -178206,6 +178213,25 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #comicZipLightboxV984 .zipLightboxCounterV984{font-size:11px;}}
 </style>
 
+
+<style id="comicReaderBottomPagerStyleV1455">
+/* ZIP·CBZ / 로컬 이미지폴더 만화 공통: 평상시는 3px 진행선, 포인터로 펼쳐 탐색 */
+#comicZipLightboxV984 .comicBottomPagerV1455{position:fixed;left:0;right:0;bottom:0;height:13px;z-index:9;box-sizing:border-box;display:flex;align-items:flex-end;padding:0 0 0;background:transparent;cursor:pointer;touch-action:manipulation;transition:height .16s ease,background .16s ease;user-select:none;-webkit-tap-highlight-color:transparent;}
+#comicZipLightboxV984 .comicBottomPagerV1455:hover,#comicZipLightboxV984 .comicBottomPagerV1455:focus-visible{height:38px;background:rgba(10,14,22,.93);box-shadow:0 -4px 16px #0008;}
+#comicZipLightboxV984 .comicBottomTrackV1455{position:relative;width:100%;height:3px;flex:none;overflow:visible;background:rgba(220,225,230,.42);transition:height .16s ease,margin .16s ease;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomTrackV1455{height:22px;margin-bottom:8px;background:rgba(215,223,230,.18);}
+#comicZipLightboxV984 .comicBottomFillV1455{position:absolute;inset:0 auto 0 0;width:0;background:#ff6948;pointer-events:none;transition:width .08s linear;z-index:1;}
+#comicZipLightboxV984 .comicBottomSegmentsV1455{position:absolute;inset:0;display:flex;z-index:2;pointer-events:none;opacity:0;transition:opacity .15s;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomSegmentsV1455{opacity:1;}
+#comicZipLightboxV984 .comicBottomSegmentsV1455>i{display:block;flex:1 1 0;min-width:0;border-right:1px solid rgba(255,255,255,.23);box-sizing:border-box;}
+#comicZipLightboxV984 .comicBottomSegmentsV1455>i:last-child{border-right:0;}
+#comicZipLightboxV984 .comicBottomCursorV1455{position:absolute;top:-1px;bottom:-1px;width:2px;background:#fff;box-shadow:0 0 3px #000;z-index:3;pointer-events:none;display:none;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomCursorV1455{display:block;}
+#comicZipLightboxV984 .comicBottomTipV1455{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#151e2b;color:#fff;padding:4px 9px;border:1px solid #8190a5;border-radius:6px;font:700 12px/1.25 system-ui,sans-serif;white-space:nowrap;box-shadow:0 2px 8px #0009;pointer-events:none;display:none;z-index:4;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomTipV1455{display:block;}
+@media (pointer:coarse){#comicZipLightboxV984 .comicBottomPagerV1455{height:15px;}#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible){height:38px;}}
+</style>
+
 <style id="comicZipBackdropV989">
 /* 일반 만화 라이트박스와 비슷한 어두운 반투명 블러 배경. 이미지와 메뉴는 흐려지지 않음. */
 #comicZipLightboxV984{background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
@@ -180891,6 +180917,69 @@ async function openLightbox(value, fileJumpV1005=null){
     void go(Math.max(0,(groupLastV1183?.page||resumePageV1090)-1));
   });
   cover.append(image,verticalViewV986,spreadViewV1226,topZone,badge,head,lastBoxV988);document.body.appendChild(cover);
+
+  // v1455: MangaDex식 하단 페이지 탐색. 수만 장 만화도 페이지마다 DOM을 만들지 않는다.
+  // 200개를 넘으면 시각 구간은 묶어 표시하지만 클릭 위치는 실제 전체 페이지 번호에 대응한다.
+  const bottomPagerV1455=document.createElement('div');
+  bottomPagerV1455.className='comicBottomPagerV1455';
+  bottomPagerV1455.setAttribute('role','slider');
+  bottomPagerV1455.setAttribute('aria-label','만화 페이지 빠른 이동');
+  bottomPagerV1455.setAttribute('aria-valuemin','1');
+  bottomPagerV1455.setAttribute('aria-valuemax',String(pages.length));
+  bottomPagerV1455.setAttribute('aria-valuenow','1');
+  bottomPagerV1455.tabIndex=0;
+  bottomPagerV1455.title='하단에 마우스를 올리면 페이지 탐색바가 펼쳐집니다';
+  const bottomTrackV1455=document.createElement('div');bottomTrackV1455.className='comicBottomTrackV1455';
+  const bottomFillV1455=document.createElement('div');bottomFillV1455.className='comicBottomFillV1455';
+  const bottomSegmentsV1455=document.createElement('div');bottomSegmentsV1455.className='comicBottomSegmentsV1455';
+  const bottomCursorV1455=document.createElement('div');bottomCursorV1455.className='comicBottomCursorV1455';
+  const bottomTipV1455=document.createElement('div');bottomTipV1455.className='comicBottomTipV1455';
+  for(let i=0,count=Math.min(pages.length,200);i<count;i++)bottomSegmentsV1455.appendChild(document.createElement('i'));
+  bottomTrackV1455.append(bottomFillV1455,bottomSegmentsV1455,bottomCursorV1455,bottomTipV1455);
+  bottomPagerV1455.append(bottomTrackV1455);
+  cover.appendChild(bottomPagerV1455);
+  function syncBottomPagerV1455(pageIndex){
+    const current=Math.max(0,Math.min(pages.length-1,Number(pageIndex)||0));
+    bottomFillV1455.style.width=((current+1)/pages.length*100)+'%';
+    bottomPagerV1455.setAttribute('aria-valuenow',String(current+1));
+    bottomPagerV1455.setAttribute('aria-valuetext',`${current+1} / ${pages.length} 페이지`);
+  }
+  function bottomPagerPageAtV1455(e){
+    const rect=bottomTrackV1455.getBoundingClientRect();
+    if(!rect.width)return 0;
+    const fraction=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+    return Math.min(pages.length-1,Math.floor(fraction*pages.length));
+  }
+  function bottomPagerPointerV1455(e){
+    const target=bottomPagerPageAtV1455(e);
+    const percent=(target+.5)/pages.length*100;
+    bottomCursorV1455.style.left=percent+'%';
+    bottomTipV1455.style.left=`clamp(43px, ${percent}%, calc(100% - 43px))`;
+    bottomTipV1455.textContent=`${target+1} / ${pages.length}`;
+  }
+  bottomPagerV1455.addEventListener('pointermove',bottomPagerPointerV1455);
+  bottomPagerV1455.addEventListener('pointerenter',bottomPagerPointerV1455);
+  // v1456: 클릭 뒤 남아 있던 포커스 때문에 마우스 이탈 후에도 열린 채 유지되는 문제 해결.
+  bottomPagerV1455.addEventListener('pointerleave',e=>{
+    if(e.pointerType==='mouse' && document.activeElement===bottomPagerV1455) bottomPagerV1455.blur();
+  });
+  bottomPagerV1455.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    if(destroyed)return;
+    const target=bottomPagerPageAtV1455(e);
+    void go(target);
+  });
+  bottomPagerV1455.addEventListener('keydown',e=>{
+    if(destroyed)return;
+    let target=null;
+    if(e.key==='Home')target=0;
+    if(e.key==='End')target=pages.length-1;
+    if(e.key==='PageUp')target=idx-10;
+    if(e.key==='PageDown')target=idx+10;
+    if(target===null)return;
+    e.preventDefault();e.stopPropagation();void go(target);
+  });
+
   // v1020: 과거 localStorage 기록을 사용하지 않고 IndexedDB에서만 마지막 페이지를 읽는다.
   // 작품의 기존 고유 ID를 그대로 키로 사용하여 동명이인 작품/서로 다른 루트의 충돌을 방지한다.
   let savedLastPageV988=1;
@@ -181463,6 +181552,7 @@ async function openLightbox(value, fileJumpV1005=null){
     counter.textContent=label;badge.textContent=label;
     counter.title=folderPagesV985[idx]?.imagePath || '';
     pageInputV987.value=String(idx+1);
+    syncBottomPagerV1455(idx);
     if(!folderSelectV987.hidden)folderSelectV987.value=folderPagesV985[idx]?.folder || '';
     if(flash)flashBadge();
     rememberZipPageV988(idx+1);
@@ -189119,6 +189209,106 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
   box-shadow:3px 5px 8px rgba(15,7,2,.60),0 7px 10px -6px rgba(0,0,0,.75);
 }
 </style>
+<!-- v1457: Bookshelf images resolve first from Actors/ beside index.html; otherwise
+     fetch public, original JPGs and cache them for offline PWA use. No image-folder
+     permission prompts and no IndexedDB data migrations. -->
+<script id="viewerShelfAssetsFallbackV1457">
+(()=>{
+  'use strict';
+  const PREFIX='https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/Actors/';
+  const CACHE='webviewer-bookshelf-jpg-v1457';
+  const NAMES=new Set(['thema1.jpg','thema1_top.jpg']);
+  const jobs=new Map();
+  const resident=new Map();
+  const statuses=new Map();
+  const isImage=url=>new Promise(done=>{
+    const img=new Image();
+    img.onload=()=>done(!!img.naturalWidth&&!!img.naturalHeight);
+    img.onerror=()=>done(false);
+    img.src=url;
+  });
+  function validJpeg(blob){
+    return blob.size>=1000&&blob.size<=15*1024*1024;
+  }
+  async function validResponse(resp){
+    const blob=await resp.blob();
+    if(!validJpeg(blob))throw new Error('책장 이미지 크기 이상');
+    const sig=new Uint8Array(await blob.slice(0,3).arrayBuffer());
+    if(sig[0]!==255||sig[1]!==216||sig[2]!==255)throw new Error('책장 이미지 형식 이상');
+    return blob;
+  }
+  async function getCache(){
+    try{
+      if(typeof caches!=='undefined'&&location.protocol!=='file:')return await caches.open(CACHE);
+    }catch(_){/* Browser may disable CacheStorage or run in private mode. */}
+    return null;
+  }
+  async function resolve(name){
+    const local=new URL('Actors/'+name,document.baseURI).href;
+    if(await isImage(local)){
+      statuses.set(name,'local');
+      return local;
+    }
+    const remote=PREFIX+name;
+    const cache=await getCache();
+    if(cache){
+      try{
+        const saved=await cache.match(remote);
+        if(saved){
+          const blob=await validResponse(saved);
+          const url=URL.createObjectURL(blob);
+          if(await isImage(url)){
+            statuses.set(name,'cache');
+            return url;
+          }
+          URL.revokeObjectURL(url);
+        }
+      }catch(_){try{await cache.delete(remote)}catch(__){}}
+    }
+    try{
+      const resp=await fetch(remote,{mode:'cors',cache:'no-store'});
+      if(!resp.ok)throw new Error('HTTP '+resp.status);
+      const blob=await validResponse(resp);
+      const url=URL.createObjectURL(blob);
+      if(!await isImage(url)){URL.revokeObjectURL(url);throw new Error('책장 이미지 디코딩 실패');}
+      if(cache){
+        try{await cache.put(remote,new Response(blob,{headers:{'content-type':'image/jpeg'}}))}catch(_){}
+      }
+      statuses.set(name,'github');
+      return url;
+    }catch(err){
+      // Network fetch may be disallowed while an ordinary image load works.
+      if(await isImage(remote)){
+        statuses.set(name,'github-direct');
+        return remote;
+      }
+      statuses.set(name,'unavailable');
+      console.warn('[bookshelf v1457] 이미지 사용 불가:',name,err?.message||err);
+      return null;
+    }
+  }
+  function get(name){
+    if(!NAMES.has(name))return Promise.resolve(null);
+    if(resident.has(name))return Promise.resolve(resident.get(name));
+    if(jobs.has(name))return jobs.get(name);
+    const job=resolve(name).then(url=>{
+      if(url)resident.set(name,url);
+      return url;
+    }).finally(()=>jobs.delete(name));
+    jobs.set(name,job);
+    return job;
+  }
+  window.ViewerShelfImageAssetsV1457={get,status:()=>Object.fromEntries(statuses)};
+  // Cache both assets after first online visit, even when bookshelf is not open.
+  // If no connection exists, current local images/cache are still attempted first.
+  const warm=()=>setTimeout(()=>{
+    void get('thema1.jpg');
+    void get('thema1_top.jpg');
+  },1500);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',warm,{once:true});
+  else warm();
+})();
+</script>
 <script id="comicBookshelfThemeV1217">
 (()=>{
  'use strict';
@@ -189284,13 +189474,12 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
  function verifyImage(){
    if(loaded)return Promise.resolve(true);
    if(checkPromise)return checkPromise;
-   checkPromise=new Promise(resolve=>{
-     const img=new Image();
-     const url=new URL(REL,document.baseURI).href;
-     img.onload=()=>{loaded=true;loadedUrl=url;resolve(true)};
-     img.onerror=()=>resolve(false);
-     img.src=url;
-   }).finally(()=>checkPromise=null);
+   checkPromise=window.ViewerShelfImageAssetsV1457.get('thema1.jpg')
+     .then(url=>{
+       if(!url)return false;
+       loaded=true;loadedUrl=url;
+       return true;
+     }).finally(()=>checkPromise=null);
    return checkPromise;
  }
  async function setEnabled(flag,quiet=false){
@@ -189298,7 +189487,7 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
     const ok=await verifyImage();
     if(!ok){
       enabled=false;persist(false);sync();
-      if(!quiet)alert('책장 이미지가 없습니다. 웹뷰어 HTML 파일과 같은 폴더에 있는 Actors 폴더에 thema1.jpg를 넣어주세요.\n예: 웹뷰어 v2.91.html / Actors/thema1.jpg');
+      if(!quiet)alert('책장 이미지를 불러오지 못했습니다. 인터넷에 연결하여 한 번 실행하면 책장 이미지가 저장되어 오프라인에서도 사용할 수 있습니다.\n또는 HTML/index.html 옆의 Actors 폴더에 thema1.jpg를 넣어주세요.');
       return;
     }
     enabled=true;persist(true);sync();
@@ -189486,7 +189675,7 @@ html.comicShelfImmersiveV1225.comicShelfWithHeaderV1239 #wtLayer #wtList{
    }catch(_){ /* 파일 프로토콜의 캔버스 보안 제한: 내장 타일 계속 사용 */ }
  };
  img.onerror=()=>{};
- img.src='Actors/thema1.jpg';
+ void window.ViewerShelfImageAssetsV1457.get('thema1.jpg').then(url=>{if(url)img.src=url;});
 })();
 </script>
 
@@ -190054,7 +190243,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
 /* Shelf header starts with the same cropped, repeating center timber grain as #wtTagRail.
    When Actors/thema1_top.jpg is confirmed loaded it is used at full header size. */
 html.comicShelfTopReadyV1257 #wtBox:has(> #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) > .wt-head{
-  background-image:url("Actors/thema1_top.jpg")!important;
+  background-image:var(--comic-shelf-top-image-v1457,url("Actors/thema1_top.jpg"))!important;
   background-position:center center!important;
   background-repeat:no-repeat!important;
   background-size:100% 100%!important;
@@ -190079,21 +190268,16 @@ html #wtList.wtShelfThemeOnV1217 .wtSingleRescanV1085:is(:hover,:active,:focus,:
 <script id="comicShelfTopFallbackLoaderV1257">
 (()=>{
   'use strict';
-  /* The original wood tile is already loaded, or inlined as a backup, by v1243.
-     No external fetch, extra file permission or new IndexedDB entry is required. */
-  const image=new Image();
-  image.onload=()=>{
-    if(image.naturalWidth>0&&image.naturalHeight>0){
+  async function applyTop(){
+    const url=await window.ViewerShelfImageAssetsV1457.get('thema1_top.jpg');
+    if(url){
+      // CSS values are locally constructed from a trusted URL or blob object URL.
+      document.documentElement.style.setProperty('--comic-shelf-top-image-v1457','url("'+url+'")');
       document.documentElement.classList.add('comicShelfTopReadyV1257');
-    }
-  };
-  image.onerror=()=>document.documentElement.classList.remove('comicShelfTopReadyV1257');
-  image.src='Actors/thema1_top.jpg';
-  window.addEventListener('viewer-shelf-assets-saved-v1269',()=>{
-    const retry=new Image();
-    retry.onload=()=>document.documentElement.classList.add('comicShelfTopReadyV1257');
-    retry.src='Actors/thema1_top.jpg?reload='+Date.now();
-  });
+    }else document.documentElement.classList.remove('comicShelfTopReadyV1257');
+  }
+  void applyTop();
+  window.addEventListener('viewer-shelf-assets-saved-v1269',()=>void applyTop());
 })();
 </script>
 
@@ -191774,7 +191958,7 @@ const MIG_KEY_V1388='comicRightRailDefaultInit_v1388';
 const STEPS=[55,106,150,194,238,282,326,370]; // exact left rail steps
 const groups=[
   ['만화 관리',[['wtClearBtn','리셋'],['comicZipPosterBtnV979','표지저장'],['fsComicUnlink','연결해제'],['comicHighHitomiLinkToggleV1315','H링크'],['comicHighKoneLinkToggleV1315','Kone링크']]],
-  ['화면 · 읽기',[['delUiToggleWt','D 삭제버튼'],['ratingToggleWt','R 평점보이기'],['toggleFullWt','V 전체']]],
+  ['화면 · 읽기',[['delUiToggleWt','D 삭제버튼'],['ratingToggleWt','R 평점보이기'],['comicPosterHoverToggleV1456','표지효과 OFF'],['toggleFullWt','V 전체']]],
   ['도구 · 관리',[['lsOpenInWt','L 로컬스토리지'],['videoPreviewShortcutBtnWt','단축키'],['viewerFullResetBtnWt','완전초기화']]]
 ];
 const rail=document.getElementById('comicRightRailV1366');
@@ -191930,6 +192114,54 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else watchTabs();
 ensureOrder();syncVisible();
 window.ComicRightRailV1366=Object.freeze({stats:()=>({visible,width,buttons:proxies.length,comic:isComic()}),refresh:syncButtons});
+})();
+</script>
+
+<style id="comicPosterHoverMotionStyleV1456">
+/* v1456: 만화 표지에만 미세 호버 효과. 카드 크기/레이아웃/배지/버튼은 움직이지 않음. */
+html.comicPosterHoverMotionV1456 #wtList .wtThumbItem > .wtThumbBtn .wtThumbImgWrap :is(img.wtThumbImg,.wtThumbFavCover),
+html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCoverV1202,.fsChapterCoverV1204) > img{
+  transform-origin:center center;
+  transition:transform .27s ease-out;
+}
+html.comicPosterHoverMotionV1456 #wtList .wtThumbItem > .wtThumbBtn:hover .wtThumbImgWrap :is(img.wtThumbImg,.wtThumbFavCover),
+html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCardV1202,.fsChapterCardV1204):hover :is(.zipInnerCoverV1202,.fsChapterCoverV1204) > img{
+  will-change:transform;
+  animation:comicPosterBreatheV1456 2.6s ease-in-out infinite alternate;
+}
+@keyframes comicPosterBreatheV1456{
+  from{transform:translate3d(0,0,0) scale(1.025)}
+  to{transform:translate3d(-2px,-2px,0) scale(1.045)}
+}
+@media (prefers-reduced-motion:reduce){
+  html.comicPosterHoverMotionV1456 #wtList :is(.wtThumbImgWrap img.wtThumbImg,.wtThumbFavCover,.zipInnerCoverV1202 > img,.fsChapterCoverV1204 > img){
+    animation:none!important;transition:none!important;transform:none!important;
+  }
+}
+</style>
+<script id="comicPosterHoverMotionScriptV1456">
+(()=>{
+  'use strict';
+  const KEY='comic_poster_hover_motion_v1456';
+  const button=document.getElementById('comicPosterHoverToggleV1456');
+  if(!button)return;
+  const storage=window.ViewerCacheManager?.storage || window.localStorage;
+  let on=false;
+  try{on=storage.getItem(KEY)==='1';}catch(_){on=false;}
+  function apply(){
+    document.documentElement.classList.toggle('comicPosterHoverMotionV1456',on);
+    button.textContent=on?'표지효과 ON':'표지효과 OFF';
+    button.title=on?'만화 표지 호버 확대·미세 움직임 효과 끄기':'만화 표지 호버 확대·미세 움직임 효과 켜기';
+    button.setAttribute('aria-pressed',String(on));
+    button.classList.toggle('active',on);
+    window.ComicRightRailV1366?.refresh?.();
+  }
+  button.addEventListener('click',()=>{
+    on=!on;
+    try{storage.setItem(KEY,on?'1':'0');}catch(_){}
+    apply();
+  });
+  apply();
 })();
 </script>
 
