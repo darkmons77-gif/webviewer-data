@@ -171024,7 +171024,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1460;
+  const VIEWER_BUILD_V789 = 1462;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -171284,7 +171284,88 @@ try {
     }
   }
 
+  // v1461: localhost 앱은 HTML 파일을 내려받지 않고 서버가 원자적으로 교체한다.
+  const LOCAL_UPDATE_ORIGIN_V1461 = 'http://127.0.0.1:18765';
+  const isLocalViewerV1461 = () => location.origin === LOCAL_UPDATE_ORIGIN_V1461;
+
+  async function checkLocalhostUpdateV1461(options){
+    const opt=options||{};
+    const manual=opt.manual===true;
+    const button=opt.button||null;
+    const oldText=button?button.textContent:'';
+    if(button){button.disabled=true;button.textContent='업데이트 확인중';}
+    try {
+      if(!manual){
+        // 화면의 자동 알림은 GitHub version.json이 아니라 로컬호스트 서버의
+        // 실제 설치 빌드를 기준으로 판정한다.
+        const resp=await fetch('/__webviewer_local/update-status',{cache:'no-store'});
+        if(!resp.ok)return;
+        const status=await resp.json();
+        const localBuild=Number(status.localBuild)||VIEWER_BUILD_V789;
+        const remoteBuild=Number(status.remoteBuild)||0;
+        const remote=Math.max(remoteBuild,localBuild);
+        setViewerLatestBlinkV886({version:remote});
+        return;
+      }
+      markViewerLatestSessionAcknowledgedV889();
+      const resp=await fetch('/__webviewer_local/check-now',{
+        method:'POST',cache:'no-store',credentials:'same-origin',
+        headers:{'X-WebViewer-Update':'check-now','Content-Type':'application/json'},
+        body:'{}'
+      });
+      if(resp.status===404||resp.status===405){
+        await showViewerUpdateDialogV789({
+          title:'로컬호스트 서버 업데이트 필요',
+          message:'현재 설치된 로컬호스트 서버는 버튼으로 HTML을 즉시 교체하는 기능이 없습니다.',
+          notice:'로컬호스트 v5 설치 프로그램을 기존 버전 위에 설치하세요. 영상·만화 목록과 PWA 저장소는 유지됩니다.',
+          cancelText:'확인',closeOnly:true
+        });
+        return;
+      }
+      let status=null;
+      try{status=await resp.json();}catch(_){ }
+      if(!resp.ok){
+        throw new Error(status?.error||status?.errorMessage||('서버 업데이트 HTTP '+resp.status));
+      }
+      const installed=Number(status?.localBuild)||VIEWER_BUILD_V789;
+      const remote=Number(status?.remoteBuild)||0;
+      const changed=installed>VIEWER_BUILD_V789 || /^HTML 자동 교체 완료/.test(String(status?.lastResult||''));
+      const newerRemote=remote>installed;
+      const localText='현재 설치: v'+installed+'\nGitHub 확인: '+(remote?'v'+remote:'확인되지 않음');
+      const additional=status?.lastResult?('\n'+status.lastResult):'';
+      if(changed){
+        const go=await showViewerUpdateDialogV789({
+          title:'웹뷰어 업데이트 적용 완료',
+          message:localText+additional,
+          notice:'서버의 index.html이 자동 교체되었습니다. 새 버전을 열려면 화면을 새로고침하세요.',
+          cancelText:'나중에',downloadText:'새 버전 열기'
+        });
+        if(go)location.reload();
+      }else{
+        await showViewerUpdateDialogV789({
+          title:resp.ok?'로컬호스트 업데이트 확인':'업데이트 확인 실패',
+          message:localText+additional,
+          notice:newerRemote?'현재 서버에서 GitHub 버전 확인이 지연되고 있습니다. 잠시 후 다시 확인하세요.':'현재 설치된 HTML을 계속 사용합니다. GitHub index.html이 더 높아지면 서버가 자동으로 교체합니다.',
+          cancelText:'확인',closeOnly:true
+        });
+      }
+    }catch(error){
+      console.warn('[local viewer update v1461]',error);
+      if(manual){
+        await showViewerUpdateDialogV789({
+          title:'로컬호스트 자동 교체 실패',
+          message:'현재 HTML은 변경하지 않았습니다.',
+          notice:String(error?.message||error),
+          cancelText:'닫기',closeOnly:true
+        });
+      }
+    }finally{
+      if(button){button.disabled=false;button.textContent=oldText||'최신버전';}
+    }
+  }
+
   async function runViewerLatestCheckV789(options){
+    if(isLocalViewerV1461()) return checkLocalhostUpdateV1461(options);
     const opt = options || {};
     const manual = opt.manual === true;
     const button = opt.button || null;
@@ -171657,6 +171738,137 @@ try {
   } else {
     startViewerLatestV789();
   }
+})();
+</script>
+
+<!-- v1462: HTML과 별도로 로컬호스트 서버(EXE) 버전을 검사하고 구버전만 설치 안내 -->
+<script id="viewerLocalhostServerUpdateNoticeV1462">
+(()=>{
+  'use strict';
+  // HTML 빌드 번호와 서버 설치 프로그램 버전은 독립적으로 관리한다.
+  // 이 값은 새 HTML에 포함된 로컬호스트 최신 권장 버전의 기본값이며,
+  // 실제 배포 여부/다운로드 링크는 GitHub version.json localhost 항목으로 검증한다.
+  const RECOMMENDED_SERVER_VERSION_V1462=5;
+  const MANIFEST_URL_V1462='https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
+  const SEEN_KEY_PREFIX_V1462='webviewer_localhost_server_upgrade_seen_v1462_';
+  const ALLOWED_PREFIX_V1462='https://github.com/darkmons77-gif/webviewer-data/releases/download/';
+  const isLocalhostV1462=()=> location.protocol==='http:' &&
+    (location.hostname==='127.0.0.1'||location.hostname==='localhost') && location.port==='18765';
+  if(!isLocalhostV1462())return;
+
+  // v4 및 이전 서버는 내부 건강상태 버전 문구가 v3-naming으로 남아 있다.
+  // 이 경우 실제 v3/v4 구분은 불가하여 'v4 이하'로 보여준다.
+  function parseInstalledV1462(raw){
+    const s=String(raw||'').trim();
+    const numeric=s.match(/^v(\d+)(?:\b|[-.])/i);
+    if(numeric)return {number:Number(numeric[1]),label:'v'+numeric[1]};
+    if(s==='1441-local-auto-v3-naming')return {number:4,label:'v4 이하'};
+    return {number:0,label:'버전 확인 불가'};
+  }
+  function allowedDownloadV1462(value){
+    try{
+      const u=new URL(String(value||''));
+      return u.protocol==='https:' && u.href.startsWith(ALLOWED_PREFIX_V1462) &&
+             /^\/darkmons77-gif\/webviewer-data\/releases\/download\/[^/]+\/[^/]+\.zip$/i.test(u.pathname);
+    }catch(_){return false;}
+  }
+  async function readManifestV1462(){
+    const r=await fetch(MANIFEST_URL_V1462+'?serverCheck='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw Error('GitHub version.json HTTP '+r.status);
+    const j=await r.json();
+    const candidate=j?.localhost||j?.localServer||null;
+    const latest=Number(candidate?.version)||0;
+    const url=String(candidate?.url||'');
+    const viewerLatest=Number(j?.viewer?.version)||0;
+    const hasRelease=Number.isSafeInteger(latest)&&latest>0&&allowedDownloadV1462(url);
+    // 서버 최신 버전이 아직 등록되지 않았어도 HTML 최신 번호는 기록한다.
+    return {latest:hasRelease?latest:0,url:hasRelease?url:'',viewerLatest};
+  }
+  async function readInstalledV1462(){
+    const r=await fetch('/__webviewer_local/health',{cache:'no-store'});
+    if(!r.ok)throw Error('로컬 서버 상태 HTTP '+r.status);
+    const j=await r.json();
+    if(j?.product!=='WebViewerLocal'||j?.status!=='ready')throw Error('웹뷰어 서버 응답이 아님');
+    return parseInstalledV1462(j.version);
+  }
+  function showDialogV1462(installed,release){
+    if(document.getElementById('viewerLocalhostServerUpgradeV1462'))return;
+    const layer=document.createElement('div');
+    layer.id='viewerLocalhostServerUpgradeV1462';
+    layer.setAttribute('role','dialog');layer.setAttribute('aria-modal','true');
+    layer.setAttribute('aria-label','웹뷰어 로컬호스트 서버 업데이트 안내');
+    layer.style.cssText='position:fixed;inset:0;z-index:2147483553;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box;background:rgba(0,0,0,.76);backdrop-filter:blur(3px)';
+    const panel=document.createElement('div');
+    panel.style.cssText='box-sizing:border-box;width:min(490px,96vw);max-height:90vh;overflow:auto;padding:22px;background:#151b27;color:#f3f7ff;border:1px solid #516482;border-radius:15px;font:14px/1.6 system-ui,sans-serif;box-shadow:0 20px 70px #000b';
+    const title=document.createElement('h2');title.textContent='로컬호스트 서버 업데이트가 있습니다';
+    title.style.cssText='margin:0 0 12px;font-size:21px;font-weight:850;color:#f1f7ff';
+    const detail=document.createElement('div');detail.style.cssText='padding:12px 14px;background:#17365f;border-radius:9px;font-size:15px;font-weight:700';
+    const htmlNeeds=release.viewerLatest>1462;
+    detail.textContent='로컬호스트: '+installed.label+' → v'+release.latest+(htmlNeeds?'\n웹뷰어 HTML: v1462 → v'+release.viewerLatest:'');
+    detail.style.whiteSpace='pre-line';
+    const description=document.createElement('div');description.style.cssText='margin-top:13px;color:#c9d7e7;line-height:1.7';
+    description.textContent='로컬호스트 서버의 새 버전이 배포됐습니다. 설치 파일을 다시 받아 기존 프로그램 위에 설치하시겠습니까?';
+    const note=document.createElement('div');note.style.cssText='margin-top:12px;color:#a7bad0;font-size:12px;line-height:1.65';
+    note.textContent='다운로드한 ZIP의 압축을 풀고 설치 EXE를 실행하세요. 기존 로컬호스트를 삭제할 필요는 없으며, 웹뷰어 목록과 설정은 유지됩니다. 백신 경고가 나오면 파일 검사를 먼저 확인하세요.';
+    const footer=document.createElement('div');footer.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap;margin-top:20px';
+    const hideLabel=document.createElement('label');hideLabel.style.cssText='display:flex;gap:6px;align-items:center;font-size:12px;color:#c9d7e7;cursor:pointer';
+    const hide=document.createElement('input');hide.type='checkbox';hide.style.cssText='width:15px;height:15px;accent-color:#2466b9';
+    hideLabel.append(hide,document.createTextNode('이 버전 다시 알리지 않기'));
+    const actions=document.createElement('div');actions.style.cssText='display:flex;align-items:center;gap:8px';
+    const later=document.createElement('button');later.textContent='나중에';later.type='button';
+    later.style.cssText='border:1px solid #6c7786;border-radius:7px;padding:8px 14px;background:#2a3343;color:#fff;cursor:pointer';
+    const install=document.createElement('a');install.href=release.url;install.textContent='v'+release.latest+' 다운로드';
+    install.style.cssText='border:1px solid #8eb9e8;border-radius:7px;padding:8px 14px;background:#2466b9;color:#fff;text-decoration:none;font-weight:800';
+    const close=(clickedInstall)=>{
+      if(hide.checked){try{localStorage.setItem(SEEN_KEY_PREFIX_V1462+release.latest,'1');}catch(_){}}
+      if(clickedInstall){try{sessionStorage.setItem(SEEN_KEY_PREFIX_V1462+release.latest,'1');}catch(_){}}
+      layer.remove();
+    };
+    later.addEventListener('click',()=>close(false));
+    install.addEventListener('click',()=>close(true));
+    layer.addEventListener('click',e=>{if(e.target===layer)close(false);});
+    actions.append(later,install);footer.append(hideLabel,actions);
+    panel.append(title,detail,description,note,footer);layer.append(panel);document.body.append(layer);
+    later.focus();
+  }
+
+  async function checkV1462(){
+    try{
+      const [installed,release]=await Promise.all([readInstalledV1462(),readManifestV1462()]);
+      const htmlCurrent=1462;
+      const htmlNeeds=release.viewerLatest>htmlCurrent;
+      const serverKnown=installed.number>0 && release.latest>0;
+      const serverNeeds=serverKnown && installed.number<release.latest;
+      const updateType=htmlNeeds?(serverNeeds?'both':'html'):(serverNeeds?'localhost':'none');
+      // 현재 HTML + 서버가 각각 최신인지 비교한 기록. 최신 GitHub 값과 로컬 값만 기록하며,
+      // 사용자의 만화/영상/IndexedDB 데이터는 건드리지 않는다.
+      const result={
+        checkedAt:new Date().toISOString(),updateType,
+        html:{installed:htmlCurrent,latest:release.viewerLatest,needsUpdate:htmlNeeds},
+        localhost:{installed:installed.number||null,installedLabel:installed.label,
+                   latest:release.latest||null,needsUpdate:serverNeeds}
+      };
+      window.viewerDualVersionStatusV1462=result;
+      // version.json에 실제 서버 Release가 등록된 경우에만 설치 팝업을 띄운다.
+      // HTML 업데이트는 기존 '최신버전' 버튼이 별도로 처리한다.
+      if(!serverNeeds)return result;
+      const key=SEEN_KEY_PREFIX_V1462+release.latest;
+      if(localStorage.getItem(key)==='1'||sessionStorage.getItem(key)==='1')return result;
+      if(document.getElementById('viewerUpdateLayerV788'))return result;
+      showDialogV1462(installed,release);
+      return result;
+    }catch(e){console.info('[localhost server version v1462] 업데이트 확인 생략:',e?.message||e);return null;}
+  }
+  // 웹뷰어의 PWA 첫 설치 안내가 나타나는 경우 사용자 흐름을 방해하지 않는다.
+  const start=async()=>{
+    try{if(window.viewerPwaIntroWaitV1442)await window.viewerPwaIntroWaitV1442;}catch(_){}
+    setTimeout(()=>{void checkV1462();},5000);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else void start();
+  // 수동 진단/테스트에서도 사용할 수 있다.
+  window.checkLocalhostServerVersionV1462=checkV1462;
+  window.checkViewerDualVersionStatusV1462=checkV1462;
+  window.LOCALHOST_RECOMMENDED_SERVER_V1462=RECOMMENDED_SERVER_VERSION_V1462;
 })();
 </script>
 
@@ -192701,3 +192913,7 @@ body.videoDeveloperShareVisibleV1381 #wtList:is(.videoDmmMetaSearchGridMode,.vid
 #wtTagRail.videoUnifiedRailV1052 .videoMainTabsV1052,
 #wtTagRail.videoUnifiedRailV1052 .videoActressRailLangHeader { overflow:hidden; }
 </style>
+
+<!-- v1461: 로컬호스트 최신버전 클릭 시 서버 즉시 확인·HTML 원자적 교체 요청, file:///는 기존 다운로드 유지 -->
+
+<!-- v1462: 업데이트 구분 기록 [HTML: v1461→v1462 변경 / 서버: v5 유지]. GitHub version.json의 viewer.version 과 localhost.version을 로컬 실행 정보와 각각 비교하여 HTML만 / 서버만 / 양쪽 / 변경없음 구분. 로컬호스트 접속에서만 서버 업데이트 안내. -->
