@@ -1,3 +1,6 @@
+<!-- v1460: 첫 2장 비율 판정 후 세로 만화는 항상 세로로 시작·수동 변경 일회성, 가로 만화만 가로/펼침 선호 저장·적용. -->
+<!-- v1459: 만화 표지효과 빠른 줌업/이동 + 짧은 탄성으로 변경, 기존 ON/OFF 및 저장값 유지. -->
+<!-- v1458: 모바일 터치형 하단 탐색바(탭 확대/드래그 후 놓아 이동/바깥 터치·2초 축소), 펼침 선호 유지하며 긴 세로 만화만 자동 세로보기 우선. -->
 <!-- v1457: 로컬호스트 책장 이미지 누락 시 GitHub JPG 자동 조회, Cache Storage 저장으로 재접속/오프라인 재사용, 설치 EXE 변경 불필요. -->
 <!-- v1456: 만화 하단 탐색바 클릭 포커스 잔류·상하 여백 수정, 만화 표지 미세 확대/움직임 효과 ON/OFF(기본 OFF). -->
 <!-- v1455: 로컬호스트 안내를 일반 문장으로 간소화·백신 검사 안내; 만화 ZIP/CBZ+이미지폴더 공통 하단 얇은 진행선/마우스오버 페이지 탐색바 추가. -->
@@ -14087,7 +14090,7 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
       <div class="wt-actions">
       <button class="zoomBtn" id="wtViewPixiV1080" type="button" title="작가별 보기: 작가 라벨 + 가로 작품열, 펼치기">작가별</button>
       <button class="zoomBtn" id="comicPerformanceToggleV1307" type="button" aria-pressed="false" title="만화 포스터의 고사양/저사양 보기 전환">고사양</button>
-      <button class="zoomBtn" id="comicPosterHoverToggleV1456" type="button" aria-pressed="false" title="만화 표지 마우스 확대·미세 움직임 효과 켜기" style="display:none">표지효과 OFF</button>
+      <button class="zoomBtn" id="comicPosterHoverToggleV1456" type="button" aria-pressed="false" title="만화 표지 빠른 확대·움직임 효과 켜기" style="display:none">표지효과 OFF</button>
       <button class="zoomBtn" id="videoPerformanceToggleV1339" type="button" aria-pressed="false" title="영상 전용 고사양/저사양 포스터 전환" style="display:none">고사양</button>
       <button class="zoomBtn" id="wtEditBtn"  title="목록 수정">수정</button>
 	  <!-- ✅ 정렬 (수정 다음) -->
@@ -171021,7 +171024,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1457;
+  const VIEWER_BUILD_V789 = 1460;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -178215,21 +178218,34 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 
 
 <style id="comicReaderBottomPagerStyleV1455">
-/* ZIP·CBZ / 로컬 이미지폴더 만화 공통: 평상시는 3px 진행선, 포인터로 펼쳐 탐색 */
-#comicZipLightboxV984 .comicBottomPagerV1455{position:fixed;left:0;right:0;bottom:0;height:13px;z-index:9;box-sizing:border-box;display:flex;align-items:flex-end;padding:0 0 0;background:transparent;cursor:pointer;touch-action:manipulation;transition:height .16s ease,background .16s ease;user-select:none;-webkit-tap-highlight-color:transparent;}
-#comicZipLightboxV984 .comicBottomPagerV1455:hover,#comicZipLightboxV984 .comicBottomPagerV1455:focus-visible{height:38px;background:rgba(10,14,22,.93);box-shadow:0 -4px 16px #0008;}
+/* v1458: 페이지 탐색바. PC는 hover, 모바일은 탭/드래그. 화면 아래 항상 3px 진행선. */
+#comicZipLightboxV984 .comicBottomPagerV1455{position:fixed;left:0;right:0;bottom:0;height:13px;z-index:9;box-sizing:border-box;display:flex;align-items:flex-end;padding:0;background:transparent;cursor:pointer;touch-action:none;transition:height .16s ease,background .16s ease;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;}
 #comicZipLightboxV984 .comicBottomTrackV1455{position:relative;width:100%;height:3px;flex:none;overflow:visible;background:rgba(220,225,230,.42);transition:height .16s ease,margin .16s ease;}
-#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomTrackV1455{height:22px;margin-bottom:8px;background:rgba(215,223,230,.18);}
 #comicZipLightboxV984 .comicBottomFillV1455{position:absolute;inset:0 auto 0 0;width:0;background:#ff6948;pointer-events:none;transition:width .08s linear;z-index:1;}
 #comicZipLightboxV984 .comicBottomSegmentsV1455{position:absolute;inset:0;display:flex;z-index:2;pointer-events:none;opacity:0;transition:opacity .15s;}
-#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomSegmentsV1455{opacity:1;}
 #comicZipLightboxV984 .comicBottomSegmentsV1455>i{display:block;flex:1 1 0;min-width:0;border-right:1px solid rgba(255,255,255,.23);box-sizing:border-box;}
 #comicZipLightboxV984 .comicBottomSegmentsV1455>i:last-child{border-right:0;}
 #comicZipLightboxV984 .comicBottomCursorV1455{position:absolute;top:-1px;bottom:-1px;width:2px;background:#fff;box-shadow:0 0 3px #000;z-index:3;pointer-events:none;display:none;}
-#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomCursorV1455{display:block;}
 #comicZipLightboxV984 .comicBottomTipV1455{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#151e2b;color:#fff;padding:4px 9px;border:1px solid #8190a5;border-radius:6px;font:700 12px/1.25 system-ui,sans-serif;white-space:nowrap;box-shadow:0 2px 8px #0009;pointer-events:none;display:none;z-index:4;}
-#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible) .comicBottomTipV1455{display:block;}
-@media (pointer:coarse){#comicZipLightboxV984 .comicBottomPagerV1455{height:15px;}#comicZipLightboxV984 .comicBottomPagerV1455:is(:hover,:focus-visible){height:38px;}}
+/* PC 포커스/모바일 터치 열림. hover로 열린 상태는 PC에서만 허용(터치 hover 잔류 방지). */
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:focus-visible,.comicPagerTouchExpandedV1458){height:38px;background:rgba(10,14,22,.93);box-shadow:0 -4px 16px #0008;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:focus-visible,.comicPagerTouchExpandedV1458) .comicBottomTrackV1455{height:22px;margin-bottom:8px;background:rgba(215,223,230,.18);}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:focus-visible,.comicPagerTouchExpandedV1458) :is(.comicBottomSegmentsV1455,.comicBottomTipV1455){opacity:1;display:flex;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:focus-visible,.comicPagerTouchExpandedV1458) .comicBottomCursorV1455{display:block;}
+#comicZipLightboxV984 .comicBottomPagerV1455:is(:focus-visible,.comicPagerTouchExpandedV1458) .comicBottomTipV1455{display:block;}
+@media(hover:hover){
+ #comicZipLightboxV984 .comicBottomPagerV1455:hover{height:38px;background:rgba(10,14,22,.93);box-shadow:0 -4px 16px #0008;}
+ #comicZipLightboxV984 .comicBottomPagerV1455:hover .comicBottomTrackV1455{height:22px;margin-bottom:8px;background:rgba(215,223,230,.18);}
+ #comicZipLightboxV984 .comicBottomPagerV1455:hover .comicBottomSegmentsV1455{opacity:1;}
+ #comicZipLightboxV984 .comicBottomPagerV1455:hover :is(.comicBottomCursorV1455,.comicBottomTipV1455){display:block;}
+}
+@media(hover:none){
+ /* 가상 hover가 남더라도 열리지 않고, 화면에는 얇은 진행선만 표시. 터치 가능한 높이는 30px. */
+ #comicZipLightboxV984 .comicBottomPagerV1455{height:30px;bottom:env(safe-area-inset-bottom,0px);}
+ #comicZipLightboxV984 .comicBottomPagerV1455.comicPagerTouchExpandedV1458{height:52px;}
+ #comicZipLightboxV984 .comicBottomPagerV1455.comicPagerTouchExpandedV1458 .comicBottomTrackV1455{height:32px;margin-bottom:8px;}
+ #comicZipLightboxV984 .comicBottomPagerV1455.comicPagerTouchExpandedV1458 .comicBottomSegmentsV1455{opacity:1;}
+}
 </style>
 
 <style id="comicZipBackdropV989">
@@ -180957,17 +180973,76 @@ async function openLightbox(value, fileJumpV1005=null){
     bottomTipV1455.style.left=`clamp(43px, ${percent}%, calc(100% - 43px))`;
     bottomTipV1455.textContent=`${target+1} / ${pages.length}`;
   }
-  bottomPagerV1455.addEventListener('pointermove',bottomPagerPointerV1455);
-  bottomPagerV1455.addEventListener('pointerenter',bottomPagerPointerV1455);
-  // v1456: 클릭 뒤 남아 있던 포커스 때문에 마우스 이탈 후에도 열린 채 유지되는 문제 해결.
+  // v1458: 터치에서는 hover에 의존하지 않는다. 한 번 탭해 펼치고 드래그 완료 때만 이동.
+  let pagerTouchActiveV1458=null;
+  let pagerTouchTimerV1458=0;
+  let pagerSuppressClickUntilV1458=0;
+  const pagerIsTouchV1458=e=>e.pointerType==='touch'||e.pointerType==='pen';
+  function pagerCloseV1458(){
+    clearTimeout(pagerTouchTimerV1458);pagerTouchTimerV1458=0;
+    bottomPagerV1455.classList.remove('comicPagerTouchExpandedV1458');
+  }
+  function pagerScheduleCloseV1458(){
+    clearTimeout(pagerTouchTimerV1458);
+    pagerTouchTimerV1458=setTimeout(()=>{
+      if(!pagerTouchActiveV1458)pagerCloseV1458();
+    },2000);
+  }
+  bottomPagerV1455.addEventListener('pointerenter',e=>{
+    if(!pagerIsTouchV1458(e))bottomPagerPointerV1455(e);
+  });
+  bottomPagerV1455.addEventListener('pointermove',e=>{
+    if(pagerTouchActiveV1458?.id===e.pointerId){
+      pagerTouchActiveV1458.lastX=e.clientX;
+      if(Math.abs(e.clientX-pagerTouchActiveV1458.startX)>8)pagerTouchActiveV1458.moved=true;
+      bottomPagerPointerV1455(e);
+    }else if(!pagerIsTouchV1458(e))bottomPagerPointerV1455(e);
+  });
+  bottomPagerV1455.addEventListener('pointerdown',e=>{
+    if(destroyed||!pagerIsTouchV1458(e)||!e.isPrimary)return;
+    e.preventDefault();e.stopPropagation();
+    const alreadyOpen=bottomPagerV1455.classList.contains('comicPagerTouchExpandedV1458');
+    clearTimeout(pagerTouchTimerV1458);
+    bottomPagerV1455.classList.add('comicPagerTouchExpandedV1458');
+    pagerTouchActiveV1458={id:e.pointerId,startX:e.clientX,lastX:e.clientX,moved:false,alreadyOpen};
+    try{bottomPagerV1455.setPointerCapture(e.pointerId);}catch(_){}
+    bottomPagerPointerV1455(e);
+  });
+  bottomPagerV1455.addEventListener('pointerup',e=>{
+    if(!pagerTouchActiveV1458||pagerTouchActiveV1458.id!==e.pointerId)return;
+    e.preventDefault();e.stopPropagation();
+    const touch=pagerTouchActiveV1458;pagerTouchActiveV1458=null;
+    bottomPagerPointerV1455(e);
+    pagerSuppressClickUntilV1458=performance.now()+600;
+    // 처음 가볍게 탭했을 때는 확장만; 이미 펼친 상태의 탭이나 드래그는 이동.
+    if(!destroyed&&(touch.alreadyOpen||touch.moved))void go(bottomPagerPageAtV1455(e));
+    pagerScheduleCloseV1458();
+  });
+  bottomPagerV1455.addEventListener('pointercancel',e=>{
+    if(pagerTouchActiveV1458?.id!==e.pointerId)return;
+    pagerTouchActiveV1458=null;
+    pagerScheduleCloseV1458();
+  });
+  // 바깥 화면을 터치하면 접지만, 해당 터치의 원래 기능은 그대로 수행.
+  cover.addEventListener('pointerdown',e=>{
+    if(pagerTouchActiveV1458||bottomPagerV1455.contains(e.target))return;
+    if(bottomPagerV1455.classList.contains('comicPagerTouchExpandedV1458'))pagerCloseV1458();
+  },true);
+  // v1456: 클릭 후 포커스 잔류 방지. 터치는 click 자체를 처리하지 않아 중복 이동 방지.
   bottomPagerV1455.addEventListener('pointerleave',e=>{
-    if(e.pointerType==='mouse' && document.activeElement===bottomPagerV1455) bottomPagerV1455.blur();
+    if(e.pointerType==='mouse' && document.activeElement===bottomPagerV1455)bottomPagerV1455.blur();
   });
   bottomPagerV1455.addEventListener('click',e=>{
     e.preventDefault();e.stopPropagation();
-    if(destroyed)return;
-    const target=bottomPagerPageAtV1455(e);
-    void go(target);
+    if(destroyed||performance.now()<pagerSuppressClickUntilV1458)return;
+    if(window.matchMedia?.('(hover: none)').matches){
+      // 일부 모바일 브라우저는 PointerEvent 없이 합성 click만 전달할 수 있음.
+      if(!bottomPagerV1455.classList.contains('comicPagerTouchExpandedV1458')){
+        bottomPagerV1455.classList.add('comicPagerTouchExpandedV1458');
+      }else void go(bottomPagerPageAtV1455(e));
+      bottomPagerPointerV1455(e);pagerScheduleCloseV1458();return;
+    }
+    void go(bottomPagerPageAtV1455(e));
   });
   bottomPagerV1455.addEventListener('keydown',e=>{
     if(destroyed)return;
@@ -180976,6 +181051,8 @@ async function openLightbox(value, fileJumpV1005=null){
     if(e.key==='End')target=pages.length-1;
     if(e.key==='PageUp')target=idx-10;
     if(e.key==='PageDown')target=idx+10;
+    if(e.key==='ArrowLeft')target=idx-1;
+    if(e.key==='ArrowRight')target=idx+1;
     if(target===null)return;
     e.preventDefault();e.stopPropagation();void go(target);
   });
@@ -180995,10 +181072,32 @@ async function openLightbox(value, fileJumpV1005=null){
     }catch(e){window.ComicLastPageV1020.warn(e);}
   }
   let firstOwnedUrlV1090='';
-  void (async()=>{try{
-    const blob=await readImageV992(pages[0]);if(!cover.isConnected)return;
-    firstOwnedUrlV1090=URL.createObjectURL(blob);firstImageV1090.src=firstOwnedUrlV1090;
-  }catch(e){firstLabelV1090.textContent='처음 1페이지';}})();
+  // v1460: 기존 첫 페이지 미리보기를 방향 판정에도 재사용해 첫 페이지를 두 번 해제하지 않는다.
+  // 첫 미리보기 로딩 실패 시에는 두 번째 이미지 비율만 확인한다.
+  const firstImageReadyV1460=(async()=>{
+    try{
+      const blob=await readImageV992(pages[0]);
+      if(destroyed||!cover.isConnected)return [0,0];
+      firstOwnedUrlV1090=URL.createObjectURL(blob);
+      return await new Promise(resolve=>{
+        let done=false;
+        const finish=(width,height)=>{
+          if(done)return;done=true;
+          clearTimeout(timeout);
+          firstImageV1090.removeEventListener('load',onLoad);
+          firstImageV1090.removeEventListener('error',onError);
+          resolve([width,height]);
+        };
+        const onLoad=()=>finish(firstImageV1090.naturalWidth,firstImageV1090.naturalHeight);
+        const onError=()=>finish(0,0);
+        const timeout=setTimeout(()=>finish(0,0),12000);
+        firstImageV1090.addEventListener('load',onLoad,{once:true});
+        firstImageV1090.addEventListener('error',onError,{once:true});
+        firstImageV1090.src=firstOwnedUrlV1090;
+        if(firstImageV1090.complete)onLoad();
+      });
+    }catch(e){firstLabelV1090.textContent='처음 1페이지';return [0,0];}
+  })();
   let saveTimerV1020=0,pendingPageV1020=null;
   // 화면 초기 표시(go(idx))는 실제 독서 이동이 아니다. 초기 렌더만으로 묶음기록을 덮어쓰지 않는다.
   // 반면 회차 선택으로 이동한 페이지1은 사용자의 명시적 선택이므로 읽기 위치로 인정한다.
@@ -182274,7 +182373,11 @@ async function openLightbox(value, fileJumpV1005=null){
 
   async function setDirectionV986(direction){
     if(destroyed||!['horizontal','vertical','spread'].includes(direction))return;
-    if(direction===readDirectionV986)return;
+    if(direction===readDirectionV986){
+      // 초기 방향 판정 중 사용자가 가로를 누른 경우 빈 화면으로 남지 않게 한다.
+      if(direction==='horizontal'&&!image.src)await go(idx);
+      return;
+    }
     stopAutoPageV1194();
     readDirectionV986=direction;syncDirectionButtonsV986();
     heartManagerV1148?.setVertical(direction==='vertical');
@@ -182290,11 +182393,29 @@ async function openLightbox(value, fileJumpV1005=null){
     }
     showControls();hideControlsLater(2000);
   }
-  // v1192: 사용자가 직접 방향을 눌렀다면 늦게 끝난 자동 판별이 그 선택을 덮어쓰지 않는다.
-  let autoDirectionCancelledV1192=false;
-  horizontalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;try{ViewerCacheManager.storage.setItem('comic_reader_view_v1226','horizontal');}catch(_){}void setDirectionV986('horizontal');};
-  verticalBtnV986.onclick=()=>{autoDirectionCancelledV1192=true;try{ViewerCacheManager.storage.setItem('comic_reader_view_v1226','horizontal');}catch(_){}void setDirectionV986('vertical');};
-  spreadBtnV1226.onclick=()=>{autoDirectionCancelledV1192=true;try{ViewerCacheManager.storage.setItem('comic_reader_view_v1226','spread');}catch(_){}void setDirectionV986('spread');};
+  // v1460: 펼침/가로 전역 선호는 가로 만화에 한해서만 읽고 기록한다.
+  // 세로 만화에서의 가로·펼침 선택은 현재 열린 뷰어에만 유효하다.
+  let readerOrientationV1460='unknown';
+  let directionManuallyChosenV1460=false;
+  const saveHorizontalPreferenceV1460=mode=>{
+    if(readerOrientationV1460!=='horizontal')return;
+    try{ViewerCacheManager.storage.setItem('comic_reader_view_v1226',mode);}catch(_){}
+  };
+  horizontalBtnV986.onclick=()=>{
+    directionManuallyChosenV1460=true;
+    saveHorizontalPreferenceV1460('horizontal');
+    void setDirectionV986('horizontal');
+  };
+  verticalBtnV986.onclick=()=>{
+    directionManuallyChosenV1460=true;
+    // 세로 선택 자체는 전역 가로/펼침 선호를 변경하지 않는다.
+    void setDirectionV986('vertical');
+  };
+  spreadBtnV1226.onclick=()=>{
+    directionManuallyChosenV1460=true;
+    saveHorizontalPreferenceV1460('spread');
+    void setDirectionV986('spread');
+  };
   async function go(n,fromAutoPageV1194=false,preserveAutoPageV1213=false){
     // 기본 수동 이동은 기존대로 자동넘김을 정지한다. v1213 방향키 건너뛰기만 예외.
     if(!fromAutoPageV1194&&!preserveAutoPageV1213)stopAutoPageV1194();
@@ -182434,10 +182555,10 @@ async function openLightbox(value, fileJumpV1005=null){
         prepared={value:target,file:targetFile,pages:targetPages};
       }
       if(destroyed)return;
-      const direction=readDirectionV986;
+      // v1460: 다음 작품에는 이전 작품에서 수동 선택한 모드를 전달하지 않는다.
       destroy(preserveGroupV1184);
       await openLightbox(target,{...prepared,startAtFirst:!Number.isInteger(resumePageV1183),
-        startAtPage:Number.isInteger(resumePageV1183)?resumePageV1183:null,direction});
+        startAtPage:Number.isInteger(resumePageV1183)?resumePageV1183:null});
     }catch(e){
       if(!destroyed)alert((isFolderV992?'다음 이미지폴더':'다음 압축파일')+' 열기 실패: '+errText(e));
     }finally{
@@ -182582,57 +182703,45 @@ async function openLightbox(value, fileJumpV1005=null){
   });
   attachZipAuthorPanelV988(cover,value,destroy);
   syncDirectionButtonsV986();refreshBadge();
-  let preferredBookModeV1226='horizontal';
-  try{if(ViewerCacheManager.storage.getItem('comic_reader_view_v1226')==='spread')preferredBookModeV1226='spread';}catch(_){}
-  if(fileJumpV1005?.direction==='vertical')await setDirectionV986('vertical');
-  else if(fileJumpV1005?.direction==='spread')await setDirectionV986('spread');
-  else if(fileJumpV1005?.direction==='horizontal')await go(idx);
-  else if(preferredBookModeV1226==='spread'){
-    autoDirectionCancelledV1192=true;await setDirectionV986('spread');
-  }else await go(idx);
-
-  // v1192: 자동 방향은 최초 열기에서만 적용한다. Shift 이전/다음 작품처럼
-  // 기존에 방향을 명시해 전달한 이동은 사용자가 선택한 가로/세로 상태를 우선한다.
-  // 첫 번째 이미지의 기존 '처음 1페이지' 미리보기를 재사용하므로 중복 압축해제를 피한다.
-  if(!destroyed && !['horizontal','vertical'].includes(fileJumpV1005?.direction)){
-    const isLongV1192=(w,h)=>Number.isFinite(w)&&Number.isFinite(h)&&w>0&&h>=w*2;
-    const switchIfNeededV1192=(w,h)=>{
-      if(!destroyed&&!autoDirectionCancelledV1192&&readDirectionV986==='horizontal'&&isLongV1192(w,h)){
-        autoDirectionCancelledV1192=true;
-        void setDirectionV986('vertical');
-        return true;
-      }
-      return false;
-    };
-    const checkSecondV1192=async()=>{
-      if(pages.length<2||destroyed||autoDirectionCancelledV1192)return;
-      let probeUrl=null;
+  // v1460: 페이지 비율을 먼저 확인한 다음, 첫 화면의 읽기 모드를 결정한다.
+  // 저장 선호를 일단 펼침으로 적용하고 뒤늦게 세로로 바꾸는 예전 흐름을 제거한다.
+  const tallPageV1460=(w,h)=>Number.isFinite(w)&&Number.isFinite(h)&&w>0&&h>=w*2;
+  const detectReaderOrientationV1460=async()=>{
+    const first=await firstImageReadyV1460;
+    if(destroyed)return 'unknown';
+    if(tallPageV1460(first[0],first[1]))return 'vertical';
+    if(pages.length>1){
+      let url='';
       try{
         const blob=await readImageV992(pages[1]);
-        if(destroyed||autoDirectionCancelledV1192)return;
-        probeUrl=URL.createObjectURL(blob);
-        const ratio=await new Promise(resolve=>{
+        if(destroyed)return 'unknown';
+        url=URL.createObjectURL(blob);
+        const [w,h]=await new Promise(resolve=>{
           const probe=new Image();
-          probe.onload=()=>resolve([probe.naturalWidth,probe.naturalHeight]);
-          probe.onerror=()=>resolve([0,0]);
-          probe.src=probeUrl;
+          let done=false;
+          const finish=(a,b)=>{if(done)return;done=true;clearTimeout(timer);resolve([a,b]);};
+          const timer=setTimeout(()=>finish(0,0),12000);
+          probe.onload=()=>finish(probe.naturalWidth,probe.naturalHeight);
+          probe.onerror=()=>finish(0,0);
+          probe.src=url;
+          if(probe.complete)finish(probe.naturalWidth,probe.naturalHeight);
         });
-        switchIfNeededV1192(ratio[0],ratio[1]);
-      }catch(e){console.warn('[comic auto direction v1192] 두 번째 이미지 비율 확인 실패',e?.message||e);}
-      finally{if(probeUrl)URL.revokeObjectURL(probeUrl);}
-    };
-    const checkFirstV1192=()=>{
-      if(destroyed||autoDirectionCancelledV1192)return;
-      if(!switchIfNeededV1192(firstImageV1090.naturalWidth,firstImageV1090.naturalHeight))
-        void checkSecondV1192();
-    };
-    if(firstImageV1090.complete && firstImageV1090.src){
-      if(firstImageV1090.naturalWidth>0)checkFirstV1192();
-      else void checkSecondV1192(); // 이미 로드 실패한 첫 장도 처리
+        if(tallPageV1460(w,h))return 'vertical';
+      }catch(e){console.warn('[comic direction v1460] 이미지 비율 확인 실패',e?.message||e);}
+      finally{if(url)URL.revokeObjectURL(url);}
+    }
+    return 'horizontal';
+  };
+  readerOrientationV1460=await detectReaderOrientationV1460();
+  if(!destroyed&&!directionManuallyChosenV1460){
+    if(readerOrientationV1460==='vertical'){
+      // 높이가 긴 만화는 저장된 펼침/가로 설정을 무시하고 매번 세로에서 시작한다.
+      await setDirectionV986('vertical');
     }else{
-      firstImageV1090.addEventListener('load',checkFirstV1192,{once:true});
-      // 첫 장 이미지가 손상돼도 정상적인 둘째 장이라면 세로보기 판별 가능.
-      firstImageV1090.addEventListener('error',()=>void checkSecondV1192(),{once:true});
+      let preferredBookModeV1226='horizontal';
+      try{if(ViewerCacheManager.storage.getItem('comic_reader_view_v1226')==='spread')preferredBookModeV1226='spread';}catch(_){}
+      if(preferredBookModeV1226==='spread')await setDirectionV986('spread');
+      else await go(idx);
     }
   }
   } finally { balanceV1024?.endOpen(); }
@@ -192117,25 +192226,29 @@ window.ComicRightRailV1366=Object.freeze({stats:()=>({visible,width,buttons:prox
 })();
 </script>
 
-<style id="comicPosterHoverMotionStyleV1456">
-/* v1456: 만화 표지에만 미세 호버 효과. 카드 크기/레이아웃/배지/버튼은 움직이지 않음. */
-html.comicPosterHoverMotionV1456 #wtList .wtThumbItem > .wtThumbBtn .wtThumbImgWrap :is(img.wtThumbImg,.wtThumbFavCover),
-html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCoverV1202,.fsChapterCoverV1204) > img{
-  transform-origin:center center;
-  transition:transform .27s ease-out;
-}
-html.comicPosterHoverMotionV1456 #wtList .wtThumbItem > .wtThumbBtn:hover .wtThumbImgWrap :is(img.wtThumbImg,.wtThumbFavCover),
-html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCardV1202,.fsChapterCardV1204):hover :is(.zipInnerCoverV1202,.fsChapterCoverV1204) > img{
-  will-change:transform;
-  animation:comicPosterBreatheV1456 2.6s ease-in-out infinite alternate;
-}
-@keyframes comicPosterBreatheV1456{
-  from{transform:translate3d(0,0,0) scale(1.025)}
-  to{transform:translate3d(-2px,-2px,0) scale(1.045)}
+<style id="comicPosterHoverMotionStyleV1459">
+/* v1459: 기존 2.6초간 반복 확대를 없애고 즉시 반응하는 표지 zoom/pop으로 변경.
+   렌더된 표지 이미지만 transform 처리. 카드/제목/배지 크기는 변하지 않음.
+   기존 comicPosterHoverMotionV1456 토글 및 저장 키를 유지해 설정 이전 불필요. */
+@media (hover:hover) and (pointer:fine){
+  html.comicPosterHoverMotionV1456 #wtList .wtThumbItem > .wtThumbBtn .wtThumbImgWrap > :is(img.wtThumbImg,.wtThumbFavCover),
+  html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCoverV1202,.fsChapterCoverV1204) > img{
+    transform-origin:center center;
+    /* 빠른 확대 + 살짝 튀어나오는 탄성: 계속 커지거나 숨쉬는 애니메이션 없음 */
+    transition:transform .24s cubic-bezier(.18,1.28,.32,1),filter .24s ease-out;
+    transform:translate3d(0,0,0) scale(1) rotate(0deg);
+  }
+  html.comicPosterHoverMotionV1456 #wtList .wtThumbItem > .wtThumbBtn:hover .wtThumbImgWrap > :is(img.wtThumbImg,.wtThumbFavCover),
+  html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCardV1202,.fsChapterCardV1204):hover :is(.zipInnerCoverV1202,.fsChapterCoverV1204) > img{
+    transform:translate3d(-3px,-5px,0) scale(1.12) rotate(-.65deg);
+    will-change:transform;
+  }
 }
 @media (prefers-reduced-motion:reduce){
-  html.comicPosterHoverMotionV1456 #wtList :is(.wtThumbImgWrap img.wtThumbImg,.wtThumbFavCover,.zipInnerCoverV1202 > img,.fsChapterCoverV1204 > img){
-    animation:none!important;transition:none!important;transform:none!important;
+  html.comicPosterHoverMotionV1456 #wtList :is(.wtThumbImgWrap > img.wtThumbImg,.wtThumbFavCover,.zipInnerCoverV1202 > img,.fsChapterCoverV1204 > img){
+    transition:none!important;
+    animation:none!important;
+    transform:none!important;
   }
 }
 </style>
@@ -192151,7 +192264,7 @@ html.comicPosterHoverMotionV1456 #wtList :is(.zipInnerCardV1202,.fsChapterCardV1
   function apply(){
     document.documentElement.classList.toggle('comicPosterHoverMotionV1456',on);
     button.textContent=on?'표지효과 ON':'표지효과 OFF';
-    button.title=on?'만화 표지 호버 확대·미세 움직임 효과 끄기':'만화 표지 호버 확대·미세 움직임 효과 켜기';
+    button.title=on?'만화 표지 빠른 확대·움직임 효과 끄기':'만화 표지 빠른 확대·움직임 효과 켜기';
     button.setAttribute('aria-pressed',String(on));
     button.classList.toggle('active',on);
     window.ComicRightRailV1366?.refresh?.();
