@@ -1,12 +1,14 @@
 {
   "schema": 1,
   "updatedAt": "2026-10-24",
-
   "viewer": {
-    "version": 1460,
+    "version": 1462,
     "url": "https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/index.html"
   },
-  
+  "localhost": {
+    "version": 5,
+    "url": "https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip"
+  },
   "actors": {
     "version": 1,
     "url": "https://github.com/darkmons77-gif/webviewer-data/releases/download/db-v1/avwikidb_actors.json"
@@ -14,5 +16,10 @@
   "works": {
     "version": 1,
     "index": "https://github.com/darkmons77-gif/webviewer-data/releases/download/db-v1/avwikidb_works_index.json"
+  },
+  "release": {
+    "viewerChanged": true,
+    "localhostChanged": false,
+    "note": "v1462 HTML에 서버 업데이트 알림과 HTML/서버 별도 버전 진단 추가. 로컬호스트 서버는 v5 그대로 유지."
   }
 }
