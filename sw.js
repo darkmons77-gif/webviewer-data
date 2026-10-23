@@ -1,4 +1,5 @@
-const SHELL_CACHE = 'webviewer-shell-v1';
+// WebViewer 1441 icon refresh; retain existing offline shell behavior.
+const SHELL_CACHE = 'webviewer-shell-v1441';
 const SHELL_FILES = [
   './mobile.html',
   './manifest.webmanifest',
@@ -13,7 +14,6 @@ self.addEventListener('install', event => {
       .then(() => self.skipWaiting())
   );
 });
-
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
@@ -21,15 +21,11 @@ self.addEventListener('activate', event => {
       .then(() => self.clients.claim())
   );
 });
-
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
-
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-
-  // 페이지 이동: 온라인이면 최신 mobile.html을 받고, 실패하면 설치된 앱 셸 사용.
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
@@ -45,9 +41,6 @@ self.addEventListener('fetch', event => {
     })());
     return;
   }
-
-  // DB 대용량 JSON은 Service Worker에 중복 저장하지 않는다.
-  // 배우/작품 데이터의 영구 캐시는 mobile.html의 IndexedDB가 담당한다.
   if (/\.json$/i.test(url.pathname)) {
     if (url.pathname.endsWith('/version.json')) {
       event.respondWith((async () => {
@@ -65,8 +58,6 @@ self.addEventListener('fetch', event => {
     }
     return;
   }
-
-  // manifest/icon/app shell: 캐시 우선, 없으면 네트워크.
   event.respondWith((async () => {
     const cached = await caches.match(request);
     if (cached) return cached;
