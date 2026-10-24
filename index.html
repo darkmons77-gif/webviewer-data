@@ -1,3 +1,7 @@
+<!-- v1489: 외부 API Hitomi 시험 기능은 기존 개발자 권한 ON일 때만 표시 및 실행. MangaDex/로컬/기존 [H] 링크 유지. -->
+<!-- v1486: Hitomi v13 검색 인덱스 정식 /n/경로 사용, 접두어 정규화, 누락 메타데이터 조회 보완. 기존 MangaDex/로컬 인덱스 유지. -->
+<!-- v1485: Hitomi 목록 검색 인덱스/메타데이터 누락 보완 및 웹호스트 썸네일 주소 수정. 서버 v12 필요. MangaDex 및 로컬 저장 유지. -->
+<!-- v1484: v1483 Hitomi 스크립트가 동영상 팝업의 문자열 안에 삽입되어 전체 문서가 깨진 문제 수정. 정상 v1482 구조 기준, Hitomi UI/CSS/코드를 실제 마지막 body 닫힘 전 삽입. -->
 <!-- v1482: 만화 오른쪽 사이드 기능/외부 탭 분리, MangaDex 검색 UI를 외부로 이동. 기존 로컬/MangaDex 작가 목록, 회차/ZIP, DB 변경 없음. -->
 <!-- v1481: HTML 상단 두 버전 레이블에 설치된 로컬호스트 실제 버전을 health API에서 조회해 표시. GitHub 최신 버전/서버 EXE·사용자 DB 변경 없음. v1480 기반. -->
 <!-- v1480: MangaDex 작품 매칭에서 작가명·작가 상세 확인·레일 등록 UI 및 관련 조회를 제거. 회차 선택·표지 적용·스크롤 숨김·설치 안내 유지. v1479 기반. -->
@@ -309,11 +313,6 @@
 <!-- v1036: 건의사항 전송 성공 시 브라우저 localStorage에 내 전송내역만 저장(최대 200건), 건의하기 창에서 날짜/내용 조회 및 개별 삭제. 서버 7일 보관과 독립. -->
 <!-- v1035: 건의 관리 버튼은 상단 및 영상 M 메뉴에서 제거, 옵션(O) 영상 개발자 권한 옆으로 이동. 개발자 권한 ON일 때만 노출. -->
 <!-- v1034: Cloudflare Worker 건의함 연결: 익명 건의 전송(전체 사용자)·개발자 전용 관리자 인증/목록/삭제. 인증키는 RAM에만 보관. -->
-<!-- v1033: 만화 작가·그룹·태그 3탭 공용 레일. 기존 태그 필터·즐겨찾기·가상 스크롤 유지, 영상 레일 변경 없음. -->
-<!-- v1032: 영상에서 만화 ZIP표지 버튼만 숨김(만화 유지), 음악 반복 옆 현재 곡 제목을 가용 폭 전체에 표시·긴 제목은 줄바꿈. -->
-<!-- v1030: 영상 M의 흑백 메뉴 중복 항목 제거. 기존 공통 흑백 버튼을 S → 포스터 표현에 고정(다른 보조 슬롯으로 이동 금지). 효과·단축키 보존. -->
-<!-- v1029: 영상 무포스터 전체확정 대상을 메인 화면의 실제 '포스터 없음' 카드와 결합하여 누락 수정. -->
-<!-- v1028: 만화 작가/그룹 레일 양옆 폭조절 화살표 추가, 영상 무포스터 10개 후보 랜덤(초반30초 1장 필수), M 메뉴 확인된 무포스터 일괄 자동확정. -->
 <!doctype html>
 <!-- v1026: 만화 초기 기본값 그림/8열, 만화만 초기화 시 ZIP 표지·마지막 페이지 DB 및 미완료 스캔 체크포인트·폴더 백업 누락 제거. -->
 <!-- v1025: 최초 만화 폴더 500개 단위 별도 IndexedDB 스캔 체크포인트, 이전 미완료 ZIP 임시목록 복원, 최종 목록 일괄 저장 후 1회 정렬/화면 갱신, 카드 앵커 위치 복원, 작가·그룹 레일 유휴시간 후순위 집계. -->
@@ -13371,6 +13370,24 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
   height: var(--video-virtual-row-height-v1326, auto);
   box-sizing: border-box;
 }
+</style>
+<style id="comicHitomiStyleV1483">
+/* Hitomi v1483 uses exactly the same 8-column, width-safe gallery cards as MangaDex. */
+#comicHitomiPanelV1483{display:flex;flex-direction:column;gap:5px;padding:7px 5px;border:1px solid #59748e;border-radius:6px;background:rgba(34,75,114,.20);margin:5px 0;font:11px/1.45 system-ui,sans-serif;box-sizing:border-box;min-width:0;color:#d8e8fb}
+#comicHitomiPanelV1483 .hitomiTitleV1483{font-weight:750;color:#a7d3ff}
+#comicHitomiPanelV1483 .hitomiRowV1483{display:flex;gap:3px;flex-wrap:wrap;min-width:0}
+#comicHitomiPanelV1483 button,#comicHitomiPanelV1483 select,#comicHitomiPanelV1483 input{box-sizing:border-box;min-height:21px;border:1px solid #576b85;border-radius:4px;background:#20334b;color:#edf4ff;font:inherit;min-width:0}
+#comicHitomiPanelV1483 button{padding:2px 5px;cursor:pointer;flex:1 1 auto}
+#comicHitomiPanelV1483 button.active{background:#2466b9;color:white;border-color:#9ac6ef;font-weight:bold}
+#comicHitomiPanelV1483 input{flex:1 1 72px;width:72px;padding:2px 4px}
+#comicHitomiPanelV1483 select{max-width:100%;flex:0 0 auto}
+#comicHitomiPanelV1483 .hitomiFootV1483{font-size:10px;opacity:.78;overflow-wrap:anywhere}
+#wtList.comicMdxLibraryV1466 .hitomiNoCoverV1483[hidden]{display:none!important}
+#wtList.comicMdxLibraryV1466 .hitomiNoCoverV1483{width:100%;aspect-ratio:3/4;display:grid;place-items:center;background:#22364b;color:#b5c3d4;font-size:12px;padding:6px;box-sizing:border-box;text-align:center}
+#wtList.comicMdxLibraryV1466 .hitomiMoreV1483{grid-column:1 / -1;justify-self:center;padding:6px 20px}
+#comicHitomiDialogV1483{position:fixed;inset:0;z-index:2147483400;display:grid;place-items:center;background:rgba(0,0,0,.82);padding:16px;box-sizing:border-box}
+#comicHitomiDialogV1483 .hitomiDialogPanelV1483{color:#e8f4ff;background:#1d2b3c;max-width:min(560px,96vw);max-height:85vh;overflow:auto;padding:16px;border:1px solid #6d8bab;border-radius:10px;box-sizing:border-box;font:13px/1.55 system-ui,sans-serif;overflow-wrap:anywhere}
+#comicHitomiDialogV1483 button,#comicHitomiDialogV1483 a{background:#294b6d;color:white;border:1px solid #567fa6;border-radius:5px;padding:5px 10px;text-decoration:none;display:inline-block;margin:4px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -171251,7 +171268,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1482;
+  const VIEWER_BUILD_V789 = 1489;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -192365,6 +192382,138 @@ window.ComicMangaDexZipV1473=(()=>{'use strict';
 
 </script>
 
+<script id="comicHitomiExploreV1483">
+(()=>{'use strict';
+const ROOT='http://127.0.0.1:18766/__webviewer_local/hitomi/';
+const make=(tag,txt,cls)=>{const e=document.createElement(tag);if(txt!==null&&txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e};
+const state={mode:'recent',lang:'all',term:'',page:0,offset:null,seed:0,items:[],hasMore:false,active:false,busy:false,epoch:0,snapshot:null,error:''};
+try{const saved=localStorage.getItem('comic_hitomi_language_v1483');if(['ko','ja','en','all'].includes(saved))state.lang=saved;}catch(_){}
+const panel=make('section',null);panel.id='comicHitomiPanelV1483';window.__comicHitomiPanelV1483=panel;
+// v1489: Hide the experimental external API panel before mounting to prevent a one-frame flash.
+const hitomiDeveloperEnabledV1489=()=>{try{return window.isVideoDeveloperAccessEnabledV910?.()===true;}catch(_){return false;}};
+panel.hidden=!hitomiDeveloperEnabledV1489();panel.style.display=panel.hidden?'none':'';
+panel.append(make('div','Hitomi · 외부 작품 탐색','hitomiTitleV1483'));
+const langRow=make('div',null,'hitomiRowV1483'),modeRow=make('div',null,'hitomiRowV1483'),searchRow=make('div',null,'hitomiRowV1483');
+const langButtons={};for(const [code,text] of [['ko','한국어'],['ja','일본어'],['en','영어'],['all','전체']]){
+ const b=make('button',text);b.type='button';b.dataset.lang=code;langButtons[code]=b;b.onclick=()=>{state.lang=code;try{localStorage.setItem('comic_hitomi_language_v1483',code);}catch(_){};syncLang();void openSearch(state.mode,state.term);};langRow.append(b);
+}
+function syncLang(){for(const [code,b] of Object.entries(langButtons))b.classList.toggle('active',state.lang===code);}
+for(const [mode,text] of [['recent','최근 등록'],['random','무작위']]){const b=make('button',text);b.type='button';b.onclick=()=>void openSearch(mode,'');modeRow.append(b);}
+const searchType=make('select');for(const [key,label] of [['artist','작가'],['tag','태그'],['id','작품번호']]){const o=make('option',label);o.value=key;searchType.append(o);}
+const termInput=make('input');termInput.type='search';termInput.placeholder='작가 / 태그 / 작품번호';termInput.setAttribute('aria-label','Hitomi 검색어');
+const go=make('button','검색');go.type='button';go.onclick=()=>void openSearch(searchType.value,termInput.value.trim());termInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go.click()}};
+searchRow.append(searchType,termInput,go);
+const foot=make('div','작가/태그는 영문 이름(예: female:...) · 작품번호로 직접 열기 · 원격 CDN 오류는 서버 상태 확인 · 작품 클릭 시 전체 페이지 보기','hitomiFootV1483');
+panel.append(langRow,modeRow,searchRow,foot);syncLang();
+// MangaDex rail is rebuilt when switching local artist/group tabs. Reattach the single panel node (never clone it).
+const mount=()=>{const slot=document.getElementById('comicRightRailExternalToolsV1482');if(slot&&!slot.contains(panel))slot.append(panel)};
+const slot=document.getElementById('comicRightRailExternalToolsV1482');if(slot){new MutationObserver(()=>{if(!slot.contains(panel))queueMicrotask(mount)}).observe(slot,{childList:true});mount();}
+function list(){return document.getElementById('wtList')}
+function clear(){if(!state.active)return;state.epoch++;state.active=false;state.busy=false;const l=list();if(!l||!state.snapshot)return;const snap=state.snapshot;state.snapshot=null;l.className=snap.className;l.style.cssText=snap.cssText;l.replaceChildren(...snap.nodes);l.scrollTop=snap.scrollTop;}
+function activate(){let l=list();if(!l)return false;if(!state.active){
+  if(window.ComicMangaDexLibraryV1466?.active?.())window.ComicMangaDexLibraryV1466.clear();
+  l=list();if(!l)return false;state.snapshot={nodes:[...l.childNodes],className:l.className,cssText:l.style.cssText,scrollTop:l.scrollTop};state.active=true;
+  l.classList.add('comicMdxLibraryV1466','wtListThumb');
+  const inside=!!document.getElementById('wtLayer')?.contains(l);
+  const normal=typeof wtColsNormal!=='undefined'?wtColsNormal:null;
+  const layer=typeof wtColsLayer!=='undefined'?wtColsLayer:null;
+  const fallback=typeof wtThumbCols!=='undefined'?wtThumbCols:8;
+  const n=inside?(layer??normal??fallback):(normal??layer??fallback);
+  l.style.setProperty('--mdx-cols-v1471',String(Math.max(1,Math.min(20,Number(n)||8))));
+  }return true;}
+const numberOk=v=>Number.isSafeInteger(Number(v))&&Number(v)>0;
+let currentHitomiReader=null;
+// v1489: Reuse the EXISTING video developer privilege. No separate switch or stored flag.
+function syncHitomiDeveloperAccessV1489(){
+ const allowed=hitomiDeveloperEnabledV1489();
+ panel.hidden=!allowed;panel.style.display=allowed?'':'none';
+ if(!allowed){
+  try{currentHitomiReader?.close?.();}catch(_){}
+  document.getElementById('comicHitomiDialogV1483')?.remove();
+  clear(); // Restore the local comic list if permission is revoked while viewing Hitomi.
+ }
+}
+window.addEventListener('viewer-share-access-changed-v1152',syncHitomiDeveloperAccessV1489);
+window.addEventListener('storage',e=>{if(e.key==='video_developer_access_v910'||e.key===null)syncHitomiDeveloperAccessV1489();});
+syncHitomiDeveloperAccessV1489();
+async function openReader(card){
+ if(!hitomiDeveloperEnabledV1489())return;
+ if(currentHitomiReader?.close)currentHitomiReader.close();
+ const shade=make('div');shade.id='comicHitomiReaderV1487';shade.style.cssText='position:fixed;inset:0;z-index:2147483400;background:#080a0df7;color:#fff;display:flex;flex-direction:column;align-items:stretch';
+ const top=make('div');top.style.cssText='display:flex;align-items:center;gap:7px;padding:7px 12px;background:#151d28;flex-wrap:wrap';
+ const label=make('strong',card.title);label.style.cssText='flex:1;min-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+ const pageInfo=make('span','페이지 확인 중…');
+ const prev=make('button','◀ 이전'),next=make('button','다음 ▶'),info=make('button','정보'),closeButton=make('button','닫기');
+ for(const b of [prev,next,info,closeButton]){b.type='button';b.style.cssText='border:1px solid #64758a;border-radius:5px;background:#263c53;color:#fff;padding:5px 9px;cursor:pointer'}
+ const picArea=make('div');picArea.style.cssText='flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:auto;padding:8px';
+ const img=make('img');img.style.cssText='display:block;max-height:100%;max-width:100%;object-fit:contain';img.alt=card.title;
+ const notice=make('div');notice.style.cssText='font-size:12px;color:#d5dce8;text-align:center;padding:5px 10px;background:#131b25';
+ top.append(label,pageInfo,prev,next,info,closeButton);picArea.append(img);shade.append(top,picArea,notice);document.body.append(shade);
+ const abort=new AbortController();let current=0,pages=[],closed=false;
+ const close=()=>{if(closed)return;closed=true;abort.abort();document.removeEventListener('keydown',keys,true);shade.remove();if(currentHitomiReader?.close===close)currentHitomiReader=null;};
+ currentHitomiReader={close};closeButton.onclick=close;
+ info.onclick=()=>detail(card);
+ const show=(n)=>{if(closed||!pages.length)return;current=Math.max(0,Math.min(pages.length-1,n));const at=current;let retried=false;pageInfo.textContent=(current+1)+' / '+pages.length;prev.disabled=current===0;next.disabled=current>=pages.length-1;notice.textContent='이미지 불러오는 중…';img.onload=()=>{if(!closed&&current===at)notice.textContent='페이지 '+(at+1)+' / '+pages.length+' · 이미지 로딩 완료';};img.onerror=()=>{if(closed||current!==at)return;if(!retried){retried=true;notice.textContent='이미지 연결 재시도 중…';setTimeout(()=>{if(!closed&&current===at)img.src=pages[at]+'&retry=1'},700);return;}notice.textContent='페이지 '+(at+1)+' 이미지 연결 실패 · 이전/다음 페이지는 계속 이동 가능 · CDN 연결을 확인하세요.';};img.src=pages[current];};
+ prev.onclick=()=>show(current-1);next.onclick=()=>show(current+1);
+ const keys=(e)=>{if(closed)return;if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}else if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();e.stopPropagation();next.click()}else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();prev.click()}};
+ document.addEventListener('keydown',keys,true);
+ let touchX=null;picArea.addEventListener('touchstart',e=>{touchX=e.touches[0]?.clientX??null},{passive:true});picArea.addEventListener('touchend',e=>{if(touchX===null)return;const dx=(e.changedTouches[0]?.clientX??touchX)-touchX;touchX=null;if(Math.abs(dx)>65)show(current+(dx<0?1:-1))},{passive:true});
+ try{
+  const r=await fetch(ROOT+'pages?id='+encodeURIComponent(card.id),{cache:'no-store',signal:abort.signal});
+  if(!r.ok){let err='HTTP '+r.status;try{err=(await r.json()).error||err}catch(_){}throw Error(err)}
+  const data=await r.json();if(closed)return;
+  pages=Array.isArray(data.pages)?data.pages.filter(u=>typeof u==='string'&&u.startsWith(ROOT)):[];
+  if(!pages.length)throw Error('읽을 이미지가 없습니다');
+  notice.textContent=data.previewOnly?'전체 이미지 정보를 가져오지 못해 표지 1장만 미리보기로 표시합니다.':'Hitomi 이미지 서버 상태에 따라 일부 페이지는 저해상도 미리보기로 표시될 수 있습니다.';
+  show(0)
+ }catch(e){if(closed)return;pageInfo.textContent='조회 실패';notice.textContent='이미지 목록 조회 실패: '+String(e?.message||e)+' · 원본 사이트에서 확인할 수 있습니다.';}
+}
+
+function detail(card){document.getElementById('comicHitomiDialogV1483')?.remove();const shade=make('div');shade.id='comicHitomiDialogV1483';const body=make('div',null,'hitomiDialogPanelV1483');
+ const h=make('h3',card.title);h.style.margin='0 0 8px';body.append(h);
+ for(const [label,value] of [['작품번호',card.id],['언어',card.language||'미상'],['종류',card.kind||'-'],['작가',(card.artists||[]).join(', ')||'-'],['페이지',card.pages||0],['등록',card.date||'-'],['태그',(card.tags||[]).slice(0,30).join(', ')||'-']])body.append(make('div',label+' : '+value));
+ const go=make('a','Hitomi 사이트에서 열기 ↗');go.href='https://hitomi.la/galleries/'+encodeURIComponent(card.id)+'.html';go.target='_blank';go.rel='noopener noreferrer';
+ const inside=make('button','웹뷰어에서 보기');inside.type='button';inside.onclick=()=>{shade.remove();void openReader(card)};
+ const close=make('button','닫기');close.type='button';close.onclick=()=>shade.remove();body.append(inside,go,close);shade.append(body);shade.onclick=e=>{if(e.target===shade)shade.remove()};document.body.append(shade);
+}
+function render(){if(!state.active)return;const l=list();if(!l)return;const scroll=l.scrollTop,frag=document.createDocumentFragment();
+ const bar=make('div',null,'mdxLibraryToolbarV1466');const back=make('button','← 내 만화 목록');back.onclick=clear;back.type='button';const name={recent:'최근 등록',random:'무작위',artist:'작가 검색',tag:'태그 검색',id:'작품번호 조회'}[state.mode]||'Hitomi';
+ const title=make('strong',name+' · Hitomi');const mark=make('span','[출처] Hitomi · '+state.lang.toUpperCase());mark.style.color='#9bcfff';const status=make('span',state.busy?'불러오는 중…':state.error||'작품 '+state.items.length+'개','mdxLibraryStatusV1466');bar.append(back,title,mark,status);frag.append(bar);
+ for(const card of state.items){if(!numberOk(card.id))continue;const item=make('div',null,'wtThumbItem');item.style.setProperty('--wt-thumb-card-width-v1097','100%');
+  const btn=make('button',null,'wtThumbBtn');btn.type='button';btn.title=card.title+' · 작품정보';
+  const frame=make('div',null,'wtThumbImgWrap'),img=make('img',null,'wtThumbImg');img.loading='lazy';img.decoding='async';img.alt=card.title;
+  const fallback=make('div','표지 없음','hitomiNoCoverV1483');fallback.hidden=true;
+  img.onerror=()=>{img.remove();fallback.hidden=false;};img.src=String(card.cover||'');frame.append(img,fallback);
+  const cap=make('div',null,'wtThumbCap');cap.append(make('span','[출처] Hitomi · '+(card.language||'?')+' · '+(card.pages>0?card.pages+'p':''),'wtComicMetaV1094'),make('span',card.title,'wtComicTitleV1094'));btn.append(frame,cap);btn.onclick=()=>void openReader(card);item.style.position='relative';
+  const inf=make('button','ⓘ');inf.type='button';inf.title='작품 정보';inf.style.cssText='position:absolute;right:4px;top:4px;z-index:2;background:#121b27dd;color:#fff;border:1px solid #76899c;border-radius:50%;cursor:pointer;width:25px;height:25px';inf.onclick=()=>detail(card);
+  item.append(btn,inf);frag.append(item);
+ }
+ if(state.hasMore||state.busy){const next=make('button',state.busy?'불러오는 중…':'작품 더보기','hitomiMoreV1483');next.disabled=state.busy;next.type='button';next.onclick=()=>void load(true);frag.append(next);}
+ if(!state.items.length&&!state.busy)frag.append(make('div',state.error||'검색 결과가 없습니다.'));
+ l.replaceChildren(frag);l.scrollTop=scroll;
+}
+async function load(append=false){if(state.busy)return;const epoch=state.epoch;state.busy=true;state.error='';render();
+ const p=new URLSearchParams({mode:state.mode,lang:state.lang,page:String(state.page),limit:'32',seed:String(state.seed)});
+ if(state.mode==='id')p.set('id',state.term);else if(state.mode==='artist'||state.mode==='tag')p.set('term',state.term);
+ if(Number.isInteger(state.offset)&&state.offset>=0)p.set('offset',String(state.offset));
+ try{const r=await fetch(ROOT+'browse?'+p.toString(),{cache:'no-store'});if(!r.ok){let m='HTTP '+r.status;try{const j=await r.json();m=j.error||m;}catch(_){}throw Error(m)}const out=await r.json();if(epoch!==state.epoch)return;
+  const a=Array.isArray(out.data)?out.data:[];state.items=append?[...state.items,...a]:a;state.hasMore=!!out.hasMore;state.page=Number(out.page||0)+1;state.offset=Number.isInteger(Number(out.nextOffset))?Number(out.nextOffset):null;
+  if(out.metadataFailed>0)state.error='일부 작품 정보('+out.metadataFailed+'건)를 확인하지 못했습니다.';
+ }catch(e){if(epoch===state.epoch)state.error='Hitomi 요청 실패: '+String(e?.message||e)+' · Hitomi_Adapter_v15 실행 및 http://127.0.0.1:18766 연결 확인';}
+ finally{if(epoch===state.epoch){state.busy=false;render();}}
+}
+async function openSearch(mode,term){if(!hitomiDeveloperEnabledV1489())return;
+ if(!['recent','random','artist','tag','id'].includes(mode))return;
+ if(location.hostname!=='127.0.0.1'||location.port!=='18765'){alert('Hitomi 목록은 127.0.0.1:18765 웹뷰어와 Hitomi 보조 서버 v15가 함께 실행되어야 사용할 수 있습니다.');return;}
+ if((mode==='artist'||mode==='tag'||mode==='id')&&!String(term||'').trim()){alert('검색어를 입력하세요.');return;}
+ if(mode==='id'&&!/^\d{1,12}$/.test(String(term))){alert('작품번호는 숫자로 입력하세요.');return;}
+ if(typeof contentMode!=='undefined'&&contentMode!=='comic')document.getElementById('wtContentComic')?.click?.();
+ if(!activate())return;state.epoch++;state.mode=mode;state.term=String(term||'');state.page=0;state.offset=null;state.seed=Math.floor(Math.random()*2147483647);state.items=[];state.hasMore=false;state.error='';void load();
+}
+// Ensure switching back to MangaDex restores the normal list before its own view snapshots it.
+const mdx=window.ComicMangaDexAuthorV1465;if(mdx){for(const key of ['open','openSaved','openBrowse']){if(typeof mdx[key]!=='function')continue;const original=mdx[key];mdx[key]=function(...args){clear();return original.apply(this,args);};}}
+window.ComicHitomiExploreV1483={open:openSearch,clear,active:()=>state.active};
+})();</script>
 </body>
 
 
@@ -193818,4 +193967,4 @@ body.videoDeveloperShareVisibleV1381 #wtList:is(.videoDmmMetaSearchGridMode,.vid
 <!-- v1472: 회차창 닫기/탭 변경 시 ZIP 유지, 전역 상단 진행/취소, WebP 품질 60% 선택 저장 -->
 <!-- v1473: MangaDex ZIP 고화질/절약 전송, WebP/JPG 저장, 60/70/80/90/100 인코딩 옵션 -->
 <!-- v1474: MangaDex ZIP 이미지 1/2/3/4장 동시 요청; 4 req/s 상한, ZIP 순서 유지, 중단/진행률 기존 기능 보존 -->
-<!-- v1475: MangaDex 원작언어별 최근 등록/최근 업데이트/무작위/고급 작품 검색; 기존 회차/ZIP/로컬 인덱스 보존 -->
+<!-- v1475: MangaDex 원작언어별 최근 등록/최근 업데이트/무작위/고급 작품 검색; 기존 회차/ZIP/로컬 인덱스 보존                                                                                                                                                                                                                                                                              -->
