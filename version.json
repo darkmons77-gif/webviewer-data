@@ -6,7 +6,7 @@
     "url": "https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/index.html"
   },
   "localhost": {
-    "version": 8,
+    "version": 9,
     "url": "https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip"
   },
   "actors": {
@@ -20,6 +20,6 @@
   "release": {
     "viewerChanged": true,
     "localhostChanged": false,
-    "note": "v1462 HTML에 서버 업데이트 알림과 HTML/서버 별도 버전 진단 추가. 로컬호스트 서버는 v5 그대로 유지."
+    "note": "v1474 HTML에 서버 업데이트 알림과 HTML/서버 별도 버전 진단 추가. 로컬호스트 서버는 v9 그대로 유지."
   }
 }
