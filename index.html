@@ -1,3 +1,7 @@
+<!-- v1480: MangaDex 작품 매칭에서 작가명·작가 상세 확인·레일 등록 UI 및 관련 조회를 제거. 회차 선택·표지 적용·스크롤 숨김·설치 안내 유지. v1479 기반. -->
+<!-- v1479: MangaDex 결과별 작가 이름만 사용(로컬 작품 작가명 대체 제거), 매칭창 스크롤바 숨김+스크롤 유지, 로컬호스트 링크/이용조건 업데이트 안내 추가. v1478 기반. -->
+<!-- v1478: MangaDex 작품 매칭은 대표 표지 1장 우선 표시, 회차 메타데이터 선택 후 1페이지만 미리보기/적용, 매칭 결과의 작가 ID를 별도 레일에 등록. 기존 v1477 기능·로컬 원본 유지. -->
+<!-- v1477: MangaDex 상단 언어 버튼은 작품 검색결과 필터, 회차 팝업 언어는 독립. 보유 번역언어 메타데이터로 표지 전 선별하고 모자라면 다음 목록 페이지 조회. 서버 v9 및 로컬 DB 변경 없음. -->
 <!-- v1476: 무포스터 전체확정은 현재 전체 1000개 결과를 검사·저장, 표시 카드만 갱신, 최종 렌더 제거. -->
 <!-- v1460: 첫 2장 비율 판정 후 세로 만화는 항상 세로로 시작·수동 변경 일회성, 가로 만화만 가로/펼침 선호 저장·적용. -->
 <!-- v1459: 만화 표지효과 빠른 줌업/이동 + 짧은 탄성으로 변경, 기존 ON/OFF 및 저장값 유지. -->
@@ -45698,14 +45702,22 @@ const selectOnlyThisFromText = (e) => {
   go.onclick=e=>{e.preventDefault();e.stopPropagation();search();};
   inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();search();}else if(e.key==='Escape')e.stopPropagation();};
   ctl.append(inp,go);
+  // v1477: 레일의 언어 버튼은 작품 목록 검색 결과 전용. 회차 팝업의 언어와 공유하지 않는다.
   const bar=document.createElement('div');bar.className='mdx-lang-bar';
-  const language=()=>window.__comicMdxLangV1467||'all';
-  const repaint=()=>bar.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lang===language()));
-  window.__comicMdxRepaintRailV1468=repaint;
+  const listLanguage=()=>['ko','en','ja'].includes(window.__comicMdxListLangV1477)?window.__comicMdxListLangV1477:'all';
+  const repaint=()=>bar.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lang===listLanguage()));
+  window.__comicMdxRepaintListLangV1477=repaint;
   for(const lang of ['ko','en','ja','all']){
     const b=document.createElement('button');b.type='button';b.textContent='['+lang+']';b.dataset.lang=lang;
-    b.title=lang==='all'?'모든 언어 회차':'['+lang+'] 회차만 표시';
-    b.onclick=e=>{e.preventDefault();e.stopPropagation();window.__comicMdxLangV1467=lang;repaint();window.__comicMdxLiveFilterV1468?.();};bar.append(b);
+    b.title=lang==='all'?'모든 언어의 작품 검색':'['+lang+'] 회차가 등록된 작품만 검색 결과에 표시';
+    b.onclick=e=>{
+      e.preventDefault();e.stopPropagation();
+      if(listLanguage()===lang)return;
+      window.__comicMdxListLangV1477=lang;repaint();
+      // 탐색 결과를 보고 있을 때만 그 조건으로 재검색; 작가명 검색·로컬 레일은 그대로 유지.
+      window.ComicMangaDexAuthorV1465?.refreshBrowseLanguageV1477?.(lang);
+    };
+    bar.append(b);
   }
   repaint();
   // v1475: Discover modes live in the existing MangaDex creator rail, independent of local author filtering.
@@ -45735,9 +45747,9 @@ const selectOnlyThisFromText = (e) => {
   }catch(e){console.warn('[MangaDex] 장르 불러오기 실패',e);}};
   const refreshMenu=()=>{for(const b of menu.querySelectorAll('button'))b.classList.toggle('on',b.dataset.mode===ui.mode);adv.hidden=ui.mode!=='advanced';form.hidden=ui.mode==='author';if(ui.mode==='advanced')void loadTags();};
   function launch(mode){ui.mode=mode;refreshMenu();if(mode==='author'){inp.focus();return;}if(mode==='advanced'){ui.title=title.value;ui.year=year.value;}
-    window.ComicMangaDexAuthorV1465?.openBrowse?.(mode,{original:ui.original,title:ui.title,status:ui.status,demographic:ui.demographic,year:ui.year,tag:ui.tag,rating:ui.rating});}
+    window.ComicMangaDexAuthorV1465?.openBrowse?.(mode,{original:ui.original,title:ui.title,status:ui.status,demographic:ui.demographic,year:ui.year,tag:ui.tag,rating:ui.rating,listLang:listLanguage()});}
   for(const [mode,label] of modeLabels){const b=document.createElement('button');b.type='button';b.dataset.mode=mode;b.textContent=label;b.onclick=e=>{e.preventDefault();e.stopPropagation();if(mode==='advanced'){ui.mode=mode;refreshMenu();}else launch(mode);};menu.append(b);}
-  const langTitle=document.createElement('div');langTitle.className='mdxBrowseLangTitleV1475';langTitle.textContent='회차 언어';
+  const langTitle=document.createElement('div');langTitle.className='mdxBrowseLangTitleV1475';langTitle.textContent='작품 목록 언어';
   mdxAuthorBoxV1465.append(lbl,ctl,langTitle,bar,menu,form);refreshMenu();
   
   window.comicMangaDexAuthorInputV1465=name=>{const value=String(name||'').trim();if(!value)return;window.__comicMdxAuthorLastV1465=value;inp.value=value;};
@@ -171229,7 +171241,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1476;
+  const VIEWER_BUILD_V789 = 1480;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -187021,6 +187033,21 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'🚀 웹뷰어 초대규모 성능 최적화!',
       subtitle:'소스 전반 최적화 · 5만 만화 / 3만 영상 지향 · 사이드/레일 · 노란 체크 · MP4 변환',
       html:document.getElementById('wv1388MajorOptimizationGuide')?.innerHTML||''
+    },
+    {
+      id:'release-v1479-mangadex-localhost-install-fix',build:'빌드 1479',
+      title:'📚 MangaDex 검색 · 로컬호스트 설치 안내',
+      subtitle:'설치 주소 오류 수정 · 로컬호스트에서만 MangaDex 기능 이용',
+      html:`<div class="wv1098Section" style="padding:8px 4px;line-height:1.75">
+        <h3>로컬호스트 설치 주소 오류 수정</h3>
+        <p>잘못 연결되던 설치 주소를 현재 배포 중인 주소로 바로잡았습니다.
+        <a href="https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip" target="_blank" rel="noopener noreferrer">로컬호스트 설치 파일 다운로드</a></p>
+        <h3>MangaDex 검색 기능 이용 방법</h3>
+        <p><strong>MangaDex 작가 검색·최근 등록·최근 업데이트·무작위·고급 검색·작품 매칭 및 회차 기능은 로컬호스트 설치 후 로컬호스트 주소로 웹뷰어를 열어야 사용할 수 있습니다.</strong></p>
+        <p>로컬호스트 실행 주소: <strong>http://127.0.0.1:18765/</strong></p>
+        <h3>매칭창 개선</h3>
+        <p>작품당 대표 표지를 먼저 보여주고, 회차를 선택하면 해당 회차의 첫 페이지를 미리보기 및 표지로 적용할 수 있습니다. 매칭창은 스크롤바를 숨기면서 휠·터치 스크롤을 지원합니다.</p>
+      </div>`
     }
   ];
   let current=history.length-1;
@@ -191759,10 +191786,24 @@ html.comicShelfImmersiveV1225.comicShelfPlainFullV1355 #wtLayer #wtPanelBody > #
 #comicMangaDexDialogV1464 .mdx-toolbar input{min-width:0;flex:1 1 260px;padding:8px 10px;background:#0e1722;border:1px solid #5a738a;border-radius:6px;color:#fff}
 #comicMangaDexDialogV1464 .mdx-toolbar button,#comicMangaDexDialogV1464 .mdx-close{padding:7px 12px;background:#2466b9;color:#fff;border:1px solid #8eb9e8;border-radius:5px;cursor:pointer}
 </style>
+<style id="comicMangaDexMatchChoicesV1478">
+#comicMangaDexDialogV1464 .mdx-result{cursor:default;min-width:0;gap:6px}
+#comicMangaDexDialogV1464 .mdx-result:hover{background:#243448}
+#comicMangaDexDialogV1464 .mdx-result .mdx-match-preview{width:100%;aspect-ratio:3/4;object-fit:contain;background:#152131;border-radius:5px}
+#comicMangaDexDialogV1464 .mdx-result select,#comicMangaDexDialogV1464 .mdx-result input{box-sizing:border-box;min-width:0;width:100%;border:1px solid #68839d;border-radius:4px;background:#182638;color:#f4f7ff;padding:5px 3px;font:11px system-ui,sans-serif}
+#comicMangaDexDialogV1464 .mdx-result .mdx-match-act{box-sizing:border-box;width:100%;border-radius:4px;padding:5px 3px;border:1px solid #7da9d5;background:#245b94;color:#fff;font:700 11px/1.4 system-ui,sans-serif;cursor:pointer;text-align:center}
+#comicMangaDexDialogV1464 .mdx-result .mdx-match-act:disabled{opacity:.46;cursor:default}
+#comicMangaDexDialogV1464 .mdx-result .mdx-match-alt{background:#293b51;border-color:#68839d}
+#comicMangaDexDialogV1464 .mdx-result .mdx-match-hint{color:#b5c9dc;font:10px/1.4 system-ui,sans-serif;min-height:14px;overflow-wrap:anywhere}
+/* v1479: hide scrollbar visuals without disabling wheel, touch or keyboard scrolling */
+#comicMangaDexDialogV1464 .mdx-panel{scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#comicMangaDexDialogV1464 .mdx-panel::-webkit-scrollbar{display:none;width:0;height:0}
+</style>
 <script id="comicMangaDexMatcherV1464">
 (()=>{
  'use strict';
  const PREFIX='/__webviewer_local/mangadex/';
+ const UUID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
  const available=()=>location.protocol==='http:'&&location.hostname==='127.0.0.1'&&location.port==='18765';
  const cleanTitle=display=>{
    let title=String(display||'');
@@ -191772,94 +191813,161 @@ html.comicShelfImmersiveV1225.comicShelfPlainFullV1355 #wtLayer #wtPanelBody > #
      .replace(/[\s_-]*\d{1,4}\s*(?:권|화|회|부)?\s*$/,'').trim().slice(0,180);
  };
  const titleFor=item=>{
-   const obj=item?.attributes?.title||{};
-   const alternative=item?.attributes?.altTitles||[];
-   const first=Object.values(obj)[0]||'';
-   const korean=obj.ko||alternative.find(x=>x.ko)?.ko;
-   return String(korean||obj.ja||obj.en||first||'제목 없음');
+   const obj=item?.attributes?.title||{},alt=item?.attributes?.altTitles||[];
+   return String(obj.ko||alt.find(x=>x.ko)?.ko||obj.ja||obj.en||Object.values(obj)[0]||'제목 없음');
  };
  const getCover=item=>{
    const rel=(item?.relationships||[]).find(x=>x.type==='cover_art');
-   const filename=String(rel?.attributes?.fileName||'');
-   const id=String(item?.id||'');
-   if(!/^[0-9a-f-]{36}$/i.test(id)|| !/^[\w.-]{1,150}$/.test(filename))return null;
-   return {id,filename};
+   const filename=String(rel?.attributes?.fileName||''),id=String(item?.id||'');
+   return UUID.test(id)&&/^[\w.-]{1,150}$/.test(filename)?{id,filename}:null;
  };
- const txt=(tag,s,css)=>{const el=document.createElement(tag);el.textContent=s||'';if(css)el.style.cssText=css;return el;};
+ const txt=(tag,s,css)=>{const el=document.createElement(tag);el.textContent=s??'';if(css)el.style.cssText=css;return el;};
+ const api=async(route,signal)=>{
+   const r=await fetch(PREFIX+route,{cache:'no-store',signal});
+   if(!r.ok)throw Error('MangaDex 요청 실패 (HTTP '+r.status+')');
+   return r.json();
+ };
  const launch=async(value,display)=>{
    document.getElementById('comicMangaDexDialogV1464')?.remove();
    const shade=document.createElement('div');shade.id='comicMangaDexDialogV1464';
    shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');
+   const liveUrls=new Set(),controllers=new Set();
+   let seq=0,closed=false;
+   const cleanup=()=>{closed=true;++seq;controllers.forEach(c=>c.abort());controllers.clear();for(const url of liveUrls)URL.revokeObjectURL(url);liveUrls.clear();shade.remove();};
    const panel=document.createElement('div');panel.className='mdx-panel';
-   const heading=txt('h2','MangaDex 원작 표지 매칭','font-size:21px;margin:0 0 8px');
-   const note=txt('div','검색 결과를 확인하고 표지를 선택하세요. 원본 ZIP·이미지 파일은 변경하지 않습니다.','font-size:12px;color:#c2d0e0');
+   const heading=txt('h2','MangaDex 표지 매칭','font-size:21px;margin:0 0 8px');
+   const note=txt('div','작품당 대표 표지 1장만 먼저 표시합니다. 회차 목록은 텍스트만 조회하고, 회차 선택 시 첫 페이지만 미리봅니다. 원본 ZIP·이미지 파일은 변경하지 않습니다.','font-size:12px;color:#c2d0e0');
    const toolbar=document.createElement('div');toolbar.className='mdx-toolbar';
    const input=document.createElement('input');input.type='search';input.value=cleanTitle(display);
    input.placeholder='검색할 만화 제목';input.setAttribute('aria-label','MangaDex 검색어');
-   const search=txt('button','검색');search.type='button';
-   toolbar.append(input,search);
+   const search=txt('button','검색');search.type='button';toolbar.append(input,search);
    const status=txt('div','','font-size:13px;color:#c0d1e5;min-height:22px');
    const results=document.createElement('div');results.className='mdx-results';
    const footer=document.createElement('div');footer.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:8px;flex-wrap:wrap';
    const credit=txt('a','자료 제공: MangaDex','color:#94d0ff;font-size:12px');credit.href='https://mangadex.org/';credit.target='_blank';credit.rel='noopener noreferrer';
-   const close=txt('button','닫기');close.type='button';close.className='mdx-close';close.onclick=()=>shade.remove();
-   shade.addEventListener('click',e=>{if(e.target===shade)shade.remove();});
-   shade.addEventListener('keydown',e=>{if(e.key==='Escape')shade.remove();});
+   const close=txt('button','닫기');close.type='button';close.className='mdx-close';close.onclick=cleanup;
+   shade.addEventListener('click',e=>{if(e.target===shade)cleanup();});
+   shade.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();cleanup();}});
    footer.append(credit,close);panel.append(heading,note,toolbar,status,results,footer);shade.append(panel);document.body.append(shade);
    if(!available()){
-     status.textContent='현재 자동 매칭 테스트는 웹뷰어 로컬호스트 서버 v6에서 지원합니다. GitHub·file:/// 웹뷰어는 외부 API의 CORS 제한으로 직접 검색할 수 없습니다.';
+     status.textContent='표지 매칭은 로컬호스트 v9에서 지원합니다.';
      const a=txt('a','MangaDex에서 제목 검색하기','color:#94d0ff;display:inline-block;margin-top:7px');
-     a.href='https://mangadex.org/search?q='+encodeURIComponent(input.value);a.target='_blank';a.rel='noopener noreferrer';
-     results.append(a);return;
+     a.href='https://mangadex.org/search?q='+encodeURIComponent(input.value);a.target='_blank';a.rel='noopener noreferrer';results.append(a);return;
    }
-   let seq=0;
+   // Work cover thumbnails are the only images fetched on search. Chapter metadata is lazy.
+   const makeCard=(item,c,token)=>{
+     const card=txt('div','');card.className='mdx-result';
+     const img=document.createElement('img');img.loading='lazy';img.alt='MangaDex 작품 대표 표지';img.className='mdx-match-preview';
+     img.src=PREFIX+'cover?id='+encodeURIComponent(c.id)+'&file='+encodeURIComponent(c.filename)+'&size=256';
+     const name=txt('strong',titleFor(item));
+     const langs=txt('small',String(item?.attributes?.originalLanguage||'')+' · '+String(item?.attributes?.status||''));
+     const note=txt('div','대표 표지 (초기 표시)','mdx-match-hint');
+     const chapterSelect=document.createElement('select');chapterSelect.setAttribute('aria-label',name.textContent+' 회차 선택');
+     const placeholder=new Option('회차 선택 · 클릭해서 목록 조회','');chapterSelect.append(placeholder);
+     const pageMore=txt('button','회차 더보기');pageMore.type='button';pageMore.className='mdx-match-act mdx-match-alt';pageMore.hidden=true;
+     const statusText=txt('div','','mdx-match-hint');
+     const chooseCover=txt('button','대표 표지 적용');chooseCover.type='button';chooseCover.className='mdx-match-act mdx-match-alt';
+     const chooseChapter=txt('button','선택 회차 첫 페이지 적용');chooseChapter.type='button';chooseChapter.className='mdx-match-act';chooseChapter.disabled=true;
+     card.append(img,name,langs,note,chapterSelect,pageMore,statusText,chooseCover,chooseChapter);
+     const state={loaded:false,loading:false,offset:0,total:0,chapter:null,previewUrl:null,selection:0,rows:new Set(),done:false};
+     const still=()=>!closed&&token===seq&&shade.isConnected&&card.isConnected;
+     const addChapters=async()=>{
+       if(state.loading||state.done||!still())return;
+       state.loading=true;chapterSelect.disabled=true;pageMore.disabled=true;
+       statusText.textContent='회차 정보 불러오는 중… (이미지 다운로드 없음)';
+       try{
+         const doc=await api('chapters?id='+encodeURIComponent(c.id)+'&offset='+state.offset);
+         if(!still())return;
+         const rows=Array.isArray(doc?.data)?doc.data:[];
+         const count=Number(doc?.total);
+         state.total=Number.isFinite(count)&&count>=0?count:state.offset+rows.length;
+         state.offset+=rows.length;
+         for(const ch of rows){
+           if(!UUID.test(String(ch?.id||''))||ch?.attributes?.externalUrl||state.rows.has(ch.id))continue;
+           state.rows.add(ch.id);
+           const a=ch.attributes||{};
+           const label=['Vol.'+(a.volume??'-'),'Ch.'+(a.chapter??'-'),String(a.title||''),'['+String(a.translatedLanguage||'?')+']'].join(' ').trim();
+           const opt=new Option(label,ch.id);opt._mdxChapter=ch;chapterSelect.append(opt);
+         }
+         state.done=rows.length===0||state.offset>=state.total;
+         pageMore.hidden=state.done;
+         statusText.textContent=`회차 ${state.rows.size}개 확인 · 전체 ${state.total}개`;
+         if(state.rows.size===0&&state.done)placeholder.textContent='등록된 회차가 없습니다.';
+         else placeholder.textContent='회차를 선택하세요';
+       }catch(e){if(still()){statusText.textContent='회차 조회 실패: '+String(e?.message||e);state.loaded=false;placeholder.textContent='다시 클릭해서 회차 조회';}}
+       finally{state.loading=false;chapterSelect.disabled=false;pageMore.disabled=false;}
+     };
+     chapterSelect.addEventListener('focus',()=>{if(!state.loaded){state.loaded=true;void addChapters();}});
+     chapterSelect.addEventListener('pointerdown',()=>{if(!state.loaded){state.loaded=true;void addChapters();}});
+     pageMore.onclick=()=>void addChapters();
+     chapterSelect.onchange=async()=>{
+       const n=++state.selection;
+       const opt=chapterSelect.selectedOptions[0];state.chapter=opt?._mdxChapter||null;
+       chooseChapter.disabled=true;
+       if(state.previewUrl){URL.revokeObjectURL(state.previewUrl);liveUrls.delete(state.previewUrl);state.previewUrl=null;}
+       // Retain initial work-level representative cover until the chosen chapter's first image arrives.
+       img.src=PREFIX+'cover?id='+encodeURIComponent(c.id)+'&file='+encodeURIComponent(c.filename)+'&size=256';
+       if(!state.chapter){note.textContent='대표 표지 (초기 표시)';return;}
+       note.textContent='선택한 회차의 1페이지 준비 중…';
+       try{
+         const meta=await api('chapter-pages?id='+encodeURIComponent(state.chapter.id));
+         if(!still()||n!==state.selection)return;
+         if(!Number.isInteger(Number(meta?.pages))||Number(meta.pages)<1)throw Error('해당 회차에 이미지가 없습니다.');
+         const requestUrl=PREFIX+'chapter-image?id='+encodeURIComponent(state.chapter.id)+'&page=0&quality=data-saver';
+         const r=await fetch(requestUrl,{cache:'no-store'});
+         if(!r.ok)throw Error('회차 이미지 불러오기 실패 (HTTP '+r.status+')');
+         const blob=await r.blob();if(!blob.size||blob.size>20*1024*1024)throw Error('첫 페이지 이미지 크기가 올바르지 않습니다.');
+         if(!still()||n!==state.selection)return;
+         const url=URL.createObjectURL(blob);liveUrls.add(url);state.previewUrl=url;img.src=url;
+         note.textContent='['+String(state.chapter.attributes?.translatedLanguage||'?')+'] Ch.'+String(state.chapter.attributes?.chapter||'-')+' · 첫 페이지 미리보기';
+         statusText.textContent='선택 회차의 첫 페이지 1장만 불러왔습니다.';
+         chooseChapter.disabled=false;
+       }catch(e){if(still()&&n===state.selection){note.textContent='대표 표지 유지';statusText.textContent='미리보기 실패: '+String(e?.message||e);}}
+     };
+     const save=async chapter=>{
+       chooseCover.disabled=chooseChapter.disabled=true;
+       search.disabled=true;status.textContent=chapter?'선택 회차 첫 페이지를 고화질로 저장 중…':'대표 표지를 저장 중…';
+       try{
+         // Request FS write permission from an explicit save button click, not a background fetch.
+         const root=await window.ComicPosterSharedRootV1403?.getRoot?.('fs');
+         if(!root)throw Error('공통 이미지폴더를 먼저 연결하세요.');
+         if(typeof root.queryPermission==='function'&&await root.queryPermission({mode:'readwrite'})!=='granted'){
+           if(await root.requestPermission?.({mode:'readwrite'})!=='granted')throw Error('이미지폴더 쓰기 권한이 필요합니다.');
+         }
+         const route=chapter?'chapter-image?id='+encodeURIComponent(chapter.id)+'&page=0&quality=data':
+           'cover?id='+encodeURIComponent(c.id)+'&file='+encodeURIComponent(c.filename)+'&size=original';
+         const r=await fetch(PREFIX+route,{cache:'no-store'});
+         if(!r.ok)throw Error('MangaDex 이미지 다운로드 실패 (HTTP '+r.status+')');
+         const blob=await r.blob();if(!blob.size||blob.size>20*1024*1024)throw Error('저장할 이미지 용량이 올바르지 않습니다.');
+         const result=/^zipcomic:@/i.test(value)
+           ?await window.ComicZipV979?.saveExternalCoverV1464?.(value,blob)
+           :await window.ComicFsLocalV990?.saveExternalCoverV1464?.(value,blob);
+         if(!result?.blob?.size)throw Error('표지 저장 처리 결과를 확인하지 못했습니다.');
+         try{localStorage.setItem('comicMangaDexMatchV1464:'+value,JSON.stringify({id:c.id,title:name.textContent,source:'MangaDex',chapterId:chapter?.id||'',updatedAt:Date.now()}));}catch(_){}
+         status.textContent='표지 저장 완료! 공통 이미지폴더에 WebP로 저장했습니다.';
+         window.showToast?.('MangaDex 선택 표지를 저장했습니다.',2700);
+         setTimeout(()=>{if(!closed)cleanup();},1000);
+       }catch(e){status.textContent='저장 실패: '+String(e?.message||e);if(still()){chooseCover.disabled=false;chooseChapter.disabled=!state.previewUrl;}}
+       finally{search.disabled=false;}
+     };
+     chooseCover.onclick=()=>void save(null);
+     chooseChapter.onclick=()=>{if(state.chapter&&state.previewUrl)void save(state.chapter);};
+     return card;
+   };
    async function runSearch(){
      const q=input.value.trim();if(!q){status.textContent='검색할 제목을 입력하세요.';return;}
-     const token=++seq;results.replaceChildren();status.textContent='MangaDex 검색 중…';search.disabled=true;
+     const token=++seq;controllers.forEach(c=>c.abort());controllers.clear();
+     for(const url of liveUrls)URL.revokeObjectURL(url);liveUrls.clear();
+     results.replaceChildren();status.textContent='MangaDex 검색 중…';search.disabled=true;
      try{
-       const response=await fetch(PREFIX+'search?title='+encodeURIComponent(q),{cache:'no-store'});
-       if(!response.ok)throw Error(response.status===404?'로컬호스트 v9 서버 연결을 확인하세요.':'MangaDex 검색 오류 (HTTP '+response.status+')');
-       const payload=await response.json();
-       if(token!==seq||!shade.isConnected)return;
+       const payload=await api('search?title='+encodeURIComponent(q));
+       if(token!==seq||closed||!shade.isConnected)return;
        const items=Array.isArray(payload?.data)?payload.data:[];
-       status.textContent=items.length===0?'검색 결과 없음 · 다른 제목으로 다시 검색해 보세요.':
-         items.length===1?'검색 결과 1개 · 표지를 확인하고 선택하세요.':`검색 결과 ${items.length}개 · 원하는 작품을 선택하세요.`;
-       for(const item of items){
-         const c=getCover(item);
-         if(!c)continue;
-         const card=document.createElement('button');card.type='button';card.className='mdx-result';
-         const img=document.createElement('img');img.loading='lazy';img.alt='표지 미리보기';
-         img.src=PREFIX+'cover?id='+encodeURIComponent(c.id)+'&file='+encodeURIComponent(c.filename)+'&size=256';
-         const title=txt('strong',titleFor(item));
-         const langs=txt('small',String(item?.attributes?.originalLanguage||'')+' · '+String(item?.attributes?.status||''));
-         const select=txt('small','선택하면 표지 저장','color:#9cdaff;font-weight:700');
-         card.append(img,title,langs,select);results.append(card);
-         card.addEventListener('click',async()=>{
-           card.disabled=true;search.disabled=true;status.textContent='표지 내려받기 및 WebP 저장 중…';
-           try{
-             // Obtain write permission from the same explicit selection gesture.
-             const root=await window.ComicPosterSharedRootV1403?.getRoot?.('fs');
-             if(!root)throw Error('공통 이미지폴더가 지정되지 않았습니다. 먼저 이미지폴더를 연결하세요.');
-             if(typeof root.queryPermission==='function'&&await root.queryPermission({mode:'readwrite'})!=='granted'){
-               if(await root.requestPermission?.({mode:'readwrite'})!=='granted')throw Error('이미지폴더 쓰기 권한을 허용해야 합니다.');
-             }
-             const r=await fetch(PREFIX+'cover?id='+encodeURIComponent(c.id)+'&file='+encodeURIComponent(c.filename)+'&size=original',{cache:'no-store'});
-             if(!r.ok)throw Error('MangaDex 표지 다운로드 실패 ('+r.status+')');
-             const blob=await r.blob();if(!blob.size||blob.size>8*1024*1024)throw Error('표지 이미지 용량이 올바르지 않습니다.');
-             const result=/^zipcomic:@/i.test(value)
-               ? await window.ComicZipV979?.saveExternalCoverV1464?.(value,blob)
-               : await window.ComicFsLocalV990?.saveExternalCoverV1464?.(value,blob);
-             if(!result?.blob?.size)throw Error('표지 저장 처리 결과를 확인하지 못했습니다.');
-             try{localStorage.setItem('comicMangaDexMatchV1464:'+value,JSON.stringify({id:c.id,title:title.textContent,source:'MangaDex',updatedAt:Date.now()}));}catch(_){}
-             status.textContent='표지 저장 완료! 공통 이미지폴더에 WebP로 저장했습니다.';
-             window.showToast?.('MangaDex 원작 표지를 저장했습니다.',2700);
-             setTimeout(()=>{if(shade.isConnected)shade.remove();},1000);
-           }catch(e){status.textContent='저장 실패: '+String(e?.message||e);card.disabled=false;}
-           finally{search.disabled=false;}
-         });
-       }
-       if(items.length && !results.children.length)status.textContent='검색 결과는 있지만 표지 정보가 없습니다. 다른 제목을 시도하세요.';
-     }catch(e){if(token===seq&&shade.isConnected)status.textContent='검색 실패: '+String(e?.message||e);}
+       status.textContent=items.length===0?'검색 결과 없음 · 다른 제목을 입력하세요.':
+         `검색 결과 ${items.length}개 · 대표 표지를 먼저 확인하고 회차를 선택할 수 있습니다.`;
+       for(const item of items){const c=getCover(item);if(c)results.append(makeCard(item,c,token));}
+       if(items.length&&!results.children.length)status.textContent='검색된 작품에 대표 표지가 없습니다. 다른 제목으로 검색하세요.';
+     }catch(e){if(token===seq&&!closed)status.textContent='검색 실패: '+String(e?.message||e);}
      finally{if(token===seq)search.disabled=false;}
    }
    search.onclick=()=>void runSearch();input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void runSearch();}});
@@ -192011,7 +192119,7 @@ html.comicShelfImmersiveV1225.comicShelfPlainFullV1355 #wtLayer #wtPanelBody > #
  };
 })();
 </script>
-<script id="comicMdxNativeLibraryV1466">(()=>{'use strict';const P='/__webviewer_local/mangadex/';const EXPLORE='/__webviewer_local/mangadex/explore';const BROWSE_LABELS={recent:'최근 등록',updates:'최근 업데이트',random:'무작위',advanced:'고급 검색'};const UUID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;const valid=id=>UUID.test(String(id||''));const onLocalhost=()=>location.protocol==='http:'&&location.hostname==='127.0.0.1'&&location.port==='18765';const E=(tag,text,cls)=>{const el=document.createElement(tag);if(text!=null)el.textContent=text;if(cls)el.className=cls;return el;};const titleOf=item=>{const t=item?.attributes?.title||{},alt=item?.attributes?.altTitles||[];return String(t.ko||alt.find(x=>x?.ko)?.ko||t.ja||t.en||Object.values(t)[0]||'제목 없음');};const coversrc=item=>{const r=(item?.relationships||[]).find(x=>x?.type==='cover_art');const id=String(item?.id||''),file=String(r?.attributes?.fileName||'');return valid(id)&&/^[\w.-]{1,150}$/.test(file)?P+'cover?id='+encodeURIComponent(id)+'&file='+encodeURIComponent(file)+'&size=256':'';};const state={active:false,name:'',author:null,authors:[],works:[],total:0,busy:false,epoch:0,cache:new Map(),initialClasses:'',status:'',book:null,browse:false,mode:'',browseArgs:{},seed:0,pageOffset:0};const applyMdxColumnsV1471=()=>{const box=document.getElementById('wtList');if(!state.active||!box?.classList.contains('comicMdxLibraryV1466'))return;const inside=!!document.getElementById('wtLayer')?.contains(box);const normal=typeof wtColsNormal!=='undefined'?wtColsNormal:null;const layer=typeof wtColsLayer!=='undefined'?wtColsLayer:null;const fallback=typeof wtThumbCols!=='undefined'?wtThumbCols:8;const n=inside?(layer??normal??fallback):(normal??layer??fallback);box.style.setProperty('--mdx-cols-v1471',String(Math.max(1,Math.min(20,Number(n)||8))));};window.addEventListener('resize',()=>{if(state.active)requestAnimationFrame(applyMdxColumnsV1471);});document.addEventListener('change',()=>{if(state.active)requestAnimationFrame(applyMdxColumnsV1471);},true);const request=async route=>{const r=await fetch(P+route,{cache:'no-store'});if(!r.ok)throw Error(r.status===404?'로컬호스트 v9 서버 연결을 확인하세요.':'MangaDex 요청 실패 (HTTP '+r.status+')');return r.json();};const clear=()=>{++state.epoch;state.active=false;state.works=[];state.author=null;state.browse=false;state.busy=false;window.__comicMdxSyncSavedSelectionV1469?.();const box=document.getElementById('wtList');if(box){box.classList.remove('comicMdxLibraryV1466');if(state.initialClasses)box.className=state.initialClasses;}try{window.ComicListReuseV1314?.invalidate?.();}catch(_){}try{if(typeof renderWebtoonList==='function')renderWebtoonList(true);}catch(e){console.warn('[MangaDex] 로컬 목록 복원 실패',e);}};const toolbar=()=>{const wrap=E('div',null,'mdxLibraryToolbarV1466');const back=E('button','← 내 만화 목록');back.type='button';back.onclick=clear;const heading=E('strong',state.author?state.author.attributes?.name+'의 작품':state.browse?BROWSE_LABELS[state.mode]+' · MangaDex':'MangaDex 작가 검색');const source=E('span','[출처] MangaDex');source.style.color='#89c9ff';const stat=E('span',state.status||'','mdxLibraryStatusV1466');wrap.append(back,heading,source);
+<script id="comicMdxNativeLibraryV1466">(()=>{'use strict';const P='/__webviewer_local/mangadex/';const EXPLORE='/__webviewer_local/mangadex/explore';const BROWSE_LABELS={recent:'최근 등록',updates:'최근 업데이트',random:'무작위',advanced:'고급 검색'};const UUID=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;const valid=id=>UUID.test(String(id||''));const onLocalhost=()=>location.protocol==='http:'&&location.hostname==='127.0.0.1'&&location.port==='18765';const E=(tag,text,cls)=>{const el=document.createElement(tag);if(text!=null)el.textContent=text;if(cls)el.className=cls;return el;};const titleOf=item=>{const t=item?.attributes?.title||{},alt=item?.attributes?.altTitles||[];return String(t.ko||alt.find(x=>x?.ko)?.ko||t.ja||t.en||Object.values(t)[0]||'제목 없음');};const coversrc=item=>{const r=(item?.relationships||[]).find(x=>x?.type==='cover_art');const id=String(item?.id||''),file=String(r?.attributes?.fileName||'');return valid(id)&&/^[\w.-]{1,150}$/.test(file)?P+'cover?id='+encodeURIComponent(id)+'&file='+encodeURIComponent(file)+'&size=256':'';};const state={active:false,name:'',author:null,authors:[],works:[],total:0,busy:false,epoch:0,cache:new Map(),initialClasses:'',status:'',book:null,browse:false,mode:'',browseArgs:{},seed:0,pageOffset:0,browsePending:[],browseScanned:0,browseMissingLanguages:0};const applyMdxColumnsV1471=()=>{const box=document.getElementById('wtList');if(!state.active||!box?.classList.contains('comicMdxLibraryV1466'))return;const inside=!!document.getElementById('wtLayer')?.contains(box);const normal=typeof wtColsNormal!=='undefined'?wtColsNormal:null;const layer=typeof wtColsLayer!=='undefined'?wtColsLayer:null;const fallback=typeof wtThumbCols!=='undefined'?wtThumbCols:8;const n=inside?(layer??normal??fallback):(normal??layer??fallback);box.style.setProperty('--mdx-cols-v1471',String(Math.max(1,Math.min(20,Number(n)||8))));};window.addEventListener('resize',()=>{if(state.active)requestAnimationFrame(applyMdxColumnsV1471);});document.addEventListener('change',()=>{if(state.active)requestAnimationFrame(applyMdxColumnsV1471);},true);const request=async route=>{const r=await fetch(P+route,{cache:'no-store'});if(!r.ok)throw Error(r.status===404?'로컬호스트 v9 서버 연결을 확인하세요.':'MangaDex 요청 실패 (HTTP '+r.status+')');return r.json();};const clear=()=>{++state.epoch;state.active=false;state.works=[];state.author=null;state.browse=false;state.busy=false;window.__comicMdxSyncSavedSelectionV1469?.();const box=document.getElementById('wtList');if(box){box.classList.remove('comicMdxLibraryV1466');if(state.initialClasses)box.className=state.initialClasses;}try{window.ComicListReuseV1314?.invalidate?.();}catch(_){}try{if(typeof renderWebtoonList==='function')renderWebtoonList(true);}catch(e){console.warn('[MangaDex] 로컬 목록 복원 실패',e);}};const toolbar=()=>{const wrap=E('div',null,'mdxLibraryToolbarV1466');const back=E('button','← 내 만화 목록');back.type='button';back.onclick=clear;const heading=E('strong',state.author?state.author.attributes?.name+'의 작품':state.browse?BROWSE_LABELS[state.mode]+' · MangaDex':'MangaDex 작가 검색');const source=E('span','[출처] MangaDex');source.style.color='#89c9ff';const stat=E('span',state.status||'','mdxLibraryStatusV1466');wrap.append(back,heading,source);
 if(state.author){
  const registry=window.ComicMangaDexSavedAuthorsV1469;
  const name=String(state.author.attributes?.name||'');
@@ -192023,7 +192131,7 @@ if(state.author){
  const result=await registry.add(state.author);state.status=result.ok?'작가 레일에 등록했습니다.':result.reason;
  }catch(e){state.status='레일 등록 실패: '+String(e.message||e);}showList();};
  wrap.append(add);
-}if(state.browse){const refresh=E('button',state.mode==='random'?'다른 무작위 보기':'↻ 새로고침');refresh.type='button';refresh.onclick=()=>void openBrowse(state.mode,state.browseArgs);wrap.append(refresh);}wrap.append(stat);return wrap;};const showList=()=>{if(!state.active)return;const box=document.getElementById('wtList');if(!box)return;if(!box.classList.contains('comicMdxLibraryV1466')){state.initialClasses=box.className;box.classList.add('comicMdxLibraryV1466','wtListThumb');}applyMdxColumnsV1471();const current=box.scrollTop;const f=document.createDocumentFragment();f.append(toolbar());for(const item of state.works){if(!valid(item?.id))continue;const name=titleOf(item),wrap=E('div',null,'wtThumbItem');wrap.style.setProperty('--wt-thumb-card-width-v1097','100%');const btn=E('button',null,'wtThumbBtn');btn.type='button';btn.title=name+' · 회차 목록 보기';const frame=E('div',null,'wtThumbImgWrap');const src=coversrc(item);if(src){const img=E('img',null,'wtThumbImg');img.alt=name;img.src=src;img.loading='lazy';img.decoding='async';frame.append(img);}const cap=E('div',null,'wtThumbCap');const credit=E('span','[출처] MangaDex','wtComicMetaV1094');const title=E('span',name,'wtComicTitleV1094');cap.append(credit,title);btn.append(frame,cap);btn.onclick=()=>void showChapters(item);wrap.append(btn);f.append(wrap);}if(state.busy||(state.browse?(state.mode==='random'?state.pageOffset<160:state.pageOffset<Math.min(state.total,10000)):state.works.length<state.total)){const next=E('button',state.busy?'불러오는 중…':'작품 더보기','mdxLibraryMoreV1466');next.type='button';next.disabled=state.busy;next.onclick=()=>void loadWorks(true);f.append(next);}if(state.works.length===0&&!state.busy){const msg=E('div',state.browse?'조건에 맞는 작품이 없습니다. 원작 언어나 검색 조건을 바꿔 보세요.':'작품이 없습니다. 다른 이름으로 다시 검색해 보세요.');msg.className='mdxBrowseEmptyV1475';f.append(msg);}box.replaceChildren(f);box.scrollTop=current;};const render=()=>{if(!state.active)return;const box=document.getElementById('wtList');if(box?.querySelector('.mdxLibraryToolbarV1466'))return;showList();};async function browseRequest(mode,args){
+}if(state.browse){const refresh=E('button',state.mode==='random'?'다른 무작위 보기':'↻ 새로고침');refresh.type='button';refresh.onclick=()=>void openBrowse(state.mode,state.browseArgs);wrap.append(refresh);}wrap.append(stat);return wrap;};const showList=()=>{if(!state.active)return;const box=document.getElementById('wtList');if(!box)return;if(!box.classList.contains('comicMdxLibraryV1466')){state.initialClasses=box.className;box.classList.add('comicMdxLibraryV1466','wtListThumb');}applyMdxColumnsV1471();const current=box.scrollTop;const f=document.createDocumentFragment();f.append(toolbar());for(const item of state.works){if(!valid(item?.id))continue;const name=titleOf(item),wrap=E('div',null,'wtThumbItem');wrap.style.setProperty('--wt-thumb-card-width-v1097','100%');const btn=E('button',null,'wtThumbBtn');btn.type='button';btn.title=name+' · 회차 목록 보기';const frame=E('div',null,'wtThumbImgWrap');const src=coversrc(item);if(src){const img=E('img',null,'wtThumbImg');img.alt=name;img.src=src;img.loading='lazy';img.decoding='async';frame.append(img);}const cap=E('div',null,'wtThumbCap');const credit=E('span','[출처] MangaDex','wtComicMetaV1094');const title=E('span',name,'wtComicTitleV1094');cap.append(credit,title);btn.append(frame,cap);btn.onclick=()=>void showChapters(item);wrap.append(btn);f.append(wrap);}if(state.busy||(state.browse?(state.browsePending.length>0||(state.mode==='random'?state.pageOffset<(state.browseArgs.listLang==='all'?160:640):state.pageOffset<Math.min(state.total,10000))):state.works.length<state.total)){const next=E('button',state.busy?'불러오는 중…':'작품 더보기','mdxLibraryMoreV1466');next.type='button';next.disabled=state.busy;next.onclick=()=>void loadWorks(true);f.append(next);}if(state.works.length===0&&!state.busy){const msg=E('div',state.browse?'조건에 맞는 작품이 없습니다. 원작 언어나 검색 조건을 바꿔 보세요.':'작품이 없습니다. 다른 이름으로 다시 검색해 보세요.');msg.className='mdxBrowseEmptyV1475';f.append(msg);}box.replaceChildren(f);box.scrollTop=current;};const render=()=>{if(!state.active)return;const box=document.getElementById('wtList');if(box?.querySelector('.mdxLibraryToolbarV1466'))return;showList();};async function browseRequest(mode,args){
  const p=new URLSearchParams();p.set('mode',mode);for(const key of ['original','title','status','demographic','year','tag','rating','offset','seed']){
   const value=args?.[key];if(value!==undefined&&value!==null&&String(value).length)p.set(key,String(value));
  }
@@ -192036,12 +192144,66 @@ async function openBrowse(mode,filters={}){
  if(!onLocalhost()){alert('MangaDex 탐색은 로컬호스트 v8에서 실행해 주세요.');return;}
  if(typeof contentMode!=='undefined'&&contentMode!=='comic')document.getElementById('wtContentComic')?.click?.();
  ++state.epoch;state.author=null;state.browse=true;state.mode=mode;
- state.browseArgs={original:filters.original||'all',title:String(filters.title||'').slice(0,130),status:filters.status||'all',demographic:filters.demographic||'all',year:String(filters.year||''),tag:String(filters.tag||''),rating:filters.rating||'standard'};
- state.seed=(Math.floor(Math.random()*4294967294)+1)>>>0;state.pageOffset=0;state.active=true;state.works=[];state.total=0;state.status='검색 중…';state.busy=false;
+ state.browseArgs={original:filters.original||'all',title:String(filters.title||'').slice(0,130),status:filters.status||'all',demographic:filters.demographic||'all',year:String(filters.year||''),tag:String(filters.tag||''),rating:filters.rating||'standard',listLang:['ko','en','ja'].includes(filters.listLang)?filters.listLang:'all'};
+ state.seed=(Math.floor(Math.random()*4294967294)+1)>>>0;state.pageOffset=0;state.browsePending=[];state.browseScanned=0;state.browseMissingLanguages=0;state.active=true;state.works=[];state.total=0;state.status='검색 중…';state.busy=false;
  document.getElementById('comicMdxAuthorDialogV1465')?.remove();
  window.__comicMdxSyncSavedSelectionV1469?.();await loadWorks(false);
 }
-async function loadWorks(append=false){if((!state.author&&!state.browse)||state.busy)return;const epoch=state.epoch;state.busy=true;state.status='작품 검색 중…';showList();try{const offset=append?(state.browse?state.pageOffset:state.works.length):0;const data=state.browse?await browseRequest(state.mode,{...state.browseArgs,offset,seed:state.seed}):await request('author-works?id='+encodeURIComponent(state.author.id)+'&offset='+offset);if(epoch!==state.epoch)return;const next=(Array.isArray(data?.data)?data.data:[]).filter(w=>valid(w?.id));state.works=append?[...state.works,...next.filter(w=>!state.works.some(x=>x.id===w.id))]:next;state.pageOffset=offset+next.length;state.total=Number(data?.total)||state.works.length;state.status=state.browse?(state.works.length+'개 표시 · '+(state.mode==='random'?'새 무작위 탐색':'검색 결과 '+state.total+'개')):(state.works.length+' / '+state.total+'개 작품');}catch(e){if(epoch===state.epoch)state.status=String(e.message||e);}finally{if(epoch===state.epoch){state.busy=false;showList();}}}async function selectAuthor(author){if(!valid(author?.id))return;state.browse=false;state.author=author;state.works=[];state.total=0;state.status='';window.__comicMdxSyncSavedSelectionV1469?.();state.epoch++;await loadWorks(false);}function chooseAuthor(authors){document.getElementById('comicMdxAuthorDialogV1465')?.remove();const shade=E('div',null,'');shade.id='comicMdxAuthorDialogV1465';shade.style.cssText='position:fixed;inset:0;z-index:2147483637;background:#000b;display:flex;justify-content:center;align-items:center;padding:20px;box-sizing:border-box';const panel=E('div');panel.style.cssText='max-height:80vh;overflow:auto;background:#1b2736;border:1px solid #647d97;padding:18px;border-radius:12px;max-width:580px;width:95vw;color:white';panel.append(E('h3','MangaDex 작가 선택'));for(const author of authors){if(!valid(author?.id))continue;const btn=E('button',String(author.attributes?.name||'이름 없음'));btn.type='button';btn.style.cssText='display:block;width:100%;margin:4px 0;padding:9px;background:#2b4059;color:#fff;border:1px solid #5a7591;border-radius:5px;text-align:left;cursor:pointer';btn.onclick=()=>{shade.remove();void selectAuthor(author);};const add=E('button','+ 레일 추가');add.type='button';add.className='comicMdxRegisterV1469';
+// v1477: MangaDex 작품 검색의 언어 필터는 회차 데이터/이미지를 받지 않고 작품 메타데이터로 판정한다.
+const browseLangMatchV1477=(item,code)=>{
+ if(code==='all')return true;
+ const langs=item?.attributes?.availableTranslatedLanguages;
+ return Array.isArray(langs)&&langs.some(v=>String(v||'').toLowerCase()===code);
+};
+async function loadWorks(append=false){
+ if((!state.author&&!state.browse)||state.busy)return;
+ const epoch=state.epoch;state.busy=true;state.status='작품 검색 중…';showList();
+ try{
+   const target=32;
+   if(!state.browse){
+     const offset=append?state.works.length:0;
+     const data=await request('author-works?id='+encodeURIComponent(state.author.id)+'&offset='+offset);
+     if(epoch!==state.epoch)return;
+     const next=(Array.isArray(data?.data)?data.data:[]).filter(w=>valid(w?.id));
+     state.works=append?[...state.works,...next.filter(w=>!state.works.some(x=>x.id===w.id))]:next;
+     state.total=Number(data?.total)||state.works.length;
+     state.status=state.works.length+' / '+state.total+'개 작품';
+   }else{
+     const lang=state.browseArgs.listLang||'all';
+     const cap=state.mode==='random'?(lang==='all'?160:640):10000;
+     let picked=[];
+     // 이전 API 페이지에서 선별하고 남아 있던 작품을 먼저 표시한다.
+     if(append&&state.browsePending.length)picked=state.browsePending.splice(0,target);
+     // 한 번에 최대 6개 메타데이터 페이지. 언어가 드문 경우 서버 과부하 방지.
+     const maxRequests=lang==='all'?1:6;
+     for(let scan=0;scan<maxRequests&&picked.length<target&&state.pageOffset<cap;scan++){
+       if(scan>0)await new Promise(resolve=>setTimeout(resolve,250));
+       if(epoch!==state.epoch)return;
+       const currentOffset=state.pageOffset;
+       const data=await browseRequest(state.mode,{...state.browseArgs,offset:currentOffset,seed:state.seed});
+       if(epoch!==state.epoch)return;
+       const rows=(Array.isArray(data?.data)?data.data:[]).filter(w=>valid(w?.id));
+       const reported=Number(data?.total);
+       state.total=Number.isFinite(reported)&&reported>=0?reported:state.total;
+       state.pageOffset=currentOffset+rows.length;
+       state.browseScanned+=rows.length;
+       if(lang!=='all')state.browseMissingLanguages+=rows.filter(w=>!Array.isArray(w?.attributes?.availableTranslatedLanguages)).length;
+       const accepted=rows.filter(w=>browseLangMatchV1477(w,lang));
+       const room=target-picked.length;
+       picked.push(...accepted.slice(0,room));
+       if(accepted.length>room)state.browsePending.push(...accepted.slice(room));
+       if(!rows.length||(state.mode!=='random'&&state.pageOffset>=state.total))break;
+     }
+     const known=new Set(append?state.works.map(w=>w.id):[]);
+     const deduped=picked.filter(w=>{if(known.has(w.id))return false;known.add(w.id);return true;});
+     state.works=append?[...state.works,...deduped]:deduped;
+     state.status=(lang==='all'?'':('['+lang+'] 회차 보유 · '))+state.works.length+'개 표시'+(lang==='all'?'':(' · 작품 '+state.browseScanned+'개 확인'));
+     if(lang!=='all'&&state.browseMissingLanguages)state.status+=' · 언어정보 없는 '+state.browseMissingLanguages+'개 제외';
+   }
+ }catch(e){if(epoch===state.epoch)state.status=String(e.message||e);
+ }finally{if(epoch===state.epoch){state.busy=false;showList();}}
+}
+async function selectAuthor(author){if(!valid(author?.id))return;state.browse=false;state.author=author;state.works=[];state.total=0;state.status='';window.__comicMdxSyncSavedSelectionV1469?.();state.epoch++;await loadWorks(false);}function chooseAuthor(authors){document.getElementById('comicMdxAuthorDialogV1465')?.remove();const shade=E('div',null,'');shade.id='comicMdxAuthorDialogV1465';shade.style.cssText='position:fixed;inset:0;z-index:2147483637;background:#000b;display:flex;justify-content:center;align-items:center;padding:20px;box-sizing:border-box';const panel=E('div');panel.style.cssText='max-height:80vh;overflow:auto;background:#1b2736;border:1px solid #647d97;padding:18px;border-radius:12px;max-width:580px;width:95vw;color:white';panel.append(E('h3','MangaDex 작가 선택'));for(const author of authors){if(!valid(author?.id))continue;const btn=E('button',String(author.attributes?.name||'이름 없음'));btn.type='button';btn.style.cssText='display:block;width:100%;margin:4px 0;padding:9px;background:#2b4059;color:#fff;border:1px solid #5a7591;border-radius:5px;text-align:left;cursor:pointer';btn.onclick=()=>{shade.remove();void selectAuthor(author);};const add=E('button','+ 레일 추가');add.type='button';add.className='comicMdxRegisterV1469';
 const existing=window.ComicMangaDexSavedAuthorsV1469?.findName?.(author.attributes?.name);
 const local=window.__comicMdxLocalAuthorExistsV1469?.(author.attributes?.name);
 add.disabled=!!existing||!!local;
@@ -192056,7 +192218,7 @@ const line=E('div');line.style.cssText='display:flex;gap:5px;align-items:center'
  state.name=String(author.name||'');state.active=true;state.busy=false;
  void selectAuthor({id:author.id,attributes:{name:author.name}});
 };
-window.ComicMangaDexAuthorV1465={open:openAuthor,openSaved,openBrowse,current:()=>state.active?state.author?.id:null};})();</script>
+window.ComicMangaDexAuthorV1465={open:openAuthor,openSaved,openBrowse,current:()=>state.active?state.author?.id:null,refreshBrowseLanguageV1477:lang=>{if(!state.active||!state.browse)return;void openBrowse(state.mode,{...state.browseArgs,listLang:lang});}};})();</script>
 <script id="comicMdxZipExporterV1473">
 /* v1474 MangaDex ZIP: bounded concurrent image downloads (1-4), ordered ZIP writes, rate limiter and abort; other features v1473 retained. */
 window.ComicMangaDexZipV1473=(()=>{'use strict';
