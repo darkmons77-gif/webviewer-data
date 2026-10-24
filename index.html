@@ -1,3 +1,4 @@
+<!-- v1476: 무포스터 전체확정은 현재 전체 1000개 결과를 검사·저장, 표시 카드만 갱신, 최종 렌더 제거. -->
 <!-- v1460: 첫 2장 비율 판정 후 세로 만화는 항상 세로로 시작·수동 변경 일회성, 가로 만화만 가로/펼침 선호 저장·적용. -->
 <!-- v1459: 만화 표지효과 빠른 줌업/이동 + 짧은 탄성으로 변경, 기존 ON/OFF 및 저장값 유지. -->
 <!-- v1458: 모바일 터치형 하단 탐색바(탭 확대/드래그 후 놓아 이동/바깥 터치·2초 축소), 펼침 선호 유지하며 긴 세로 만화만 자동 세로보기 우선. -->
@@ -87527,118 +87528,187 @@ async function captureOneRandomVideoFramePosterV1028(entry) {
 // v1029: 「포스터 없음」 UI를 실제 표시 상태의 우선 근거로 사용한다.
 // 영상 라이브러리에 없는 외부/가상 카드는 일괄 캡처하지 않으며,
 // 저장된 장면이 있어도 화면에서 실제 실패한 경우에는 다시 만들 수 있다.
+// v1476: 현재 화면에는 300개만 그려져 있어도 wtListCache에는 필터 결과 1000개가 들어 있다.
+// 전체 행을 대상으로 판정하고 현재 DOM은 저장 성공한 카드만 직접 갱신한다.
+// 검증되지 않은 원격 포스터는 먼저 실제 후보를 확인해 정상 포스터를 덮어쓰지 않는다.
 function collectVideoMissingPosterBulkEntriesV1029() {
-  const ownedByKey = new Map();
+  const entries = new Map();
+  // 특수 목록의 미보유/가상 카드는 제외하고 현재 목록의 보유 영상 전체를 스냅샷한다.
   try {
-    const source = typeof loadVideoList === 'function' ? loadVideoList() : [];
-    for (const entry of source) {
+    const rows = Array.isArray(wtListCache) ? wtListCache : [];
+    for (const row of rows) {
+      const entry = row?.__video;
       if (!isVideoFramePosterOwnedEntryV814(entry)) continue;
       const key = getVideoFramePosterEntryKeyV814(entry);
-      if (key && !ownedByKey.has(key)) ownedByKey.set(key, entry);
+      if (key && !entries.has(key)) entries.set(key, entry);
     }
   } catch (_) {}
-
-  const candidates = new Map();
+  // 아직 목록 캐시가 없을 때만 원본 보유 목록으로 대체한다.
+  if (!entries.size) {
+    try {
+      for (const entry of loadVideoList()) {
+        if (!isVideoFramePosterOwnedEntryV814(entry)) continue;
+        const key = getVideoFramePosterEntryKeyV814(entry);
+        if (key && !entries.has(key)) entries.set(key, entry);
+      }
+    } catch (_) {}
+  }
   const visibleKeys = new Set();
-  const visibleWrapsByKey = new Map();
-  // 먼저 현재 메인 영상 목록에 실제로 「포스터 없음」을 띄운 카드를 수집.
-  // (v1028 기록 Map에서 누락된 카드도 여기서 복구한다.)
+  const verifiedMissingKeys = new Set();
   try {
     document.querySelectorAll('#wtList .videoCard .videoPosterWrap').forEach(wrap => {
       if (!wrap.querySelector('.videoFramePosterOfferV814')) return;
       const key = String(wrap.__videoFrameEntryV1028 ||
         wrap.closest('.videoCard')?.dataset?.videoEntryId || '').trim();
-      const entry = ownedByKey.get(key);
-      if (!entry) return; // 일반 미보유/검색 가상카드는 제외
-      visibleKeys.add(key);
-      if (!visibleWrapsByKey.has(key)) visibleWrapsByKey.set(key, []);
-      visibleWrapsByKey.get(key).push(wrap);
-      candidates.set(key, entry);
+      if (entries.has(key)) {
+        visibleKeys.add(key);
+        verifiedMissingKeys.add(key);
+      }
     });
   } catch (_) {}
-
-  // 이전에 확인한 무포스터도 합치되, 이미 Scenes 확정된 작품은 중복 저장하지 않음.
-  for (const [key, entry] of videoFramePosterVerifiedMissingV1028) {
-    const owned = ownedByKey.get(key);
-    if (!owned || !isVideoFramePosterOwnedEntryV814(owned)) continue;
-    if (candidates.has(key)) continue;
-    if (getVideoFramePosterInfoV814(owned)?.fileName) continue;
-    candidates.set(key, owned);
+  for (const [key] of videoFramePosterVerifiedMissingV1028) {
+    if (entries.has(key) && !getVideoFramePosterInfoV814(entries.get(key))?.fileName) {
+      verifiedMissingKeys.add(key);
+    }
   }
-  return {list: Array.from(candidates.values()), visibleKeys, visibleWrapsByKey};
+  return {list:Array.from(entries.values()),visibleKeys,verifiedMissingKeys};
 }
 
 window.runVideoMissingPosterBulkV1028 = runVideoMissingPosterBulkV1028;
 async function runVideoMissingPosterBulkV1028() {
   if (videoFramePosterBulkBusyV1028 || videoFramePosterPickerBusyV814) {
-    showToast?.('장면 선택 또는 자동 확정 작업이 진행 중입니다.', 2500);
+    showToast?.('장면 선택 또는 자동 확정 작업이 진행 중입니다.',2500);
     return;
   }
-  // v1029: 화면의 실제 「포스터 없음」 카드를 일괄 처리 후보에 반드시 합친다.
-  // 기존 v1028 Map은 포스터 로드 성공 콜백/재렌더 과정에서 항목이 삭제될 수 있어
-  // 화면에서는 안내가 보이지만 전체확정 대상에서는 누락되는 문제가 있었다.
-  const {list, visibleKeys, visibleWrapsByKey} = collectVideoMissingPosterBulkEntriesV1029();
+  const {list, visibleKeys, verifiedMissingKeys} = collectVideoMissingPosterBulkEntriesV1029();
   if (!list.length) {
-    alert('포스터 없음이 확인된 보유 영상이 아직 없습니다.\n목록에서 포스터 후보 검사가 끝나 "포스터 없음"이 표시된 영상들이 일괄 확정 대상입니다.\n아직 화면에 불러오지 않은 영상은 검사 대상에 포함되지 않습니다.');
+    alert('현재 영상 목록에 확인할 보유 영상이 없습니다.');
     return;
   }
-  if (!confirm(`포스터 없음이 확인된 보유 영상 ${list.length}개(현재 화면 ${visibleKeys.size}개 포함)에 임의 장면을 자동 저장할까요?\n\n각 영상에서 1장만 추출해 Scenes에 저장합니다.\n기존 정상 포스터는 변경하지 않고, 중간에 취소할 수 있습니다.`)) return;
-  // 폴더 선택/쓰기 권한은 반드시 사용자 클릭 직후에 요청한다.
+  if (!confirm(`현재 영상 목록 ${list.length.toLocaleString()}개 전체(현재 무포스터 표시 ${visibleKeys.size}개)를 검사할까요?\n\n아직 그리지 않은 카드도 정상 포스터 여부를 확인한 뒤, 실제 포스터가 없는 작품만 Scenes에 1장씩 저장합니다.\n검사 중 온라인 요청 한도에 도달하면 확인하지 못한 작품은 건너뜁니다.\n기존 목록/스크롤은 다시 그리지 않습니다.`)) return;
+
+  videoFramePosterBulkBusyV1028 = true;
+  videoFramePosterBulkStopV1028 = false;
+  // 사용자 클릭에 의해 동기적으로 시작된 쓰기 권한 요청을 우선 처리한다.
   try { await getVideoPosterRootHandle(); }
-  catch (e) { showToast?.('공용 이미지폴더 연결/쓰기 권한이 필요합니다: '+(e?.message||e),3500); return; }
+  catch(e) {
+    videoFramePosterBulkBusyV1028 = false;
+    showToast?.('공용 이미지폴더 연결/쓰기 권한이 필요합니다: '+(e?.message||e),3500);
+    return;
+  }
   const layer=document.createElement('div');
   layer.id='videoFramePosterBulkLayerV1028';
   layer.style.cssText='position:fixed;inset:0;z-index:9999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:16px;box-sizing:border-box';
   const panel=document.createElement('div');
-  panel.style.cssText='width:min(450px,94vw);padding:20px;border:1px solid #555;border-radius:12px;background:#1b1f29;color:#eee;font:13px system-ui;line-height:1.7';
-  const title=document.createElement('h3');title.textContent='포스터 없음 · 전체 자동 확정';title.style.margin='0 0 12px';
-  const status=document.createElement('div');status.style.cssText='min-height:60px;white-space:pre-wrap;word-break:break-word';
+  panel.style.cssText='width:min(480px,94vw);padding:20px;border:1px solid #555;border-radius:12px;background:#1b1f29;color:#eee;font:13px system-ui;line-height:1.7';
+  const title=document.createElement('h3');title.textContent='포스터 없음 · 전체 목록 검사/확정';title.style.margin='0 0 12px';
+  const status=document.createElement('div');status.style.cssText='min-height:74px;white-space:pre-wrap;word-break:break-word';
   const stop=document.createElement('button');stop.type='button';stop.textContent='중지';
   stop.style.cssText='padding:8px 18px;border:1px solid #888;border-radius:6px;background:#333;color:white;cursor:pointer';
   stop.addEventListener('click',()=>{videoFramePosterBulkStopV1028=true;stop.disabled=true;stop.textContent='중지 요청됨';});
   panel.append(title,status,stop);layer.appendChild(panel);document.body.appendChild(layer);
-  videoFramePosterBulkBusyV1028=true;videoFramePosterBulkStopV1028=false;
-  let saved=0,failed=0,skipped=0,done=0;
+
+  let saved=0,failed=0,skipped=0,done=0,checked=0,uncertain=0;
+  let stoppedForQuota=false;
+  const missingKeys=new Set(verifiedMissingKeys);
+  const toAudit=list.filter(entry=>!missingKeys.has(getVideoFramePosterEntryKeyV814(entry)));
+  const knownMissing=missingKeys.size;
   try {
-    for (const entry of list) {
-      if (videoFramePosterBulkStopV1028) break;
-      const key=getVideoFramePosterEntryKeyV814(entry);
-      // 화면에서 지금도 '포스터 없음'이 보이면 임시 Map에서 지워졌거나
-      // 저장된 Scenes 사진 경로가 낡았어도 재시도를 허용한다.
-      const stillVisibleMissing = (visibleWrapsByKey.get(key) || []).some(wrap =>
-        wrap.isConnected && !!wrap.querySelector('.videoFramePosterOfferV814'));
-      if (!stillVisibleMissing &&
-          (!videoFramePosterVerifiedMissingV1028.has(key) || getVideoFramePosterInfoV814(entry)?.fileName)) {
-        skipped++;done++;continue;
+    status.textContent=`전체 ${list.length}개 중 ${knownMissing}개 무포스터 확인됨\n나머지 ${toAudit.length}개 포스터 검사 준비 중…`;
+    // Posters 파일명 인덱스를 한 번만 읽어 정상 로컬 포스터의 원격 재검사/오판을 막는다.
+    let localPosterNames=null;
+    try { localPosterNames=await scanVideoNoPosterExistingSet(); }
+    catch(error) { console.warn('[v1476 무포스터 로컬 표지 색인]',error); }
+    const auditSafe = localPosterNames instanceof Set && navigator.onLine !== false;
+    if (!auditSafe && toAudit.length) {
+      // 파일명 색인 또는 인터넷 연결이 없으면 원격 표지 실패를 무포스터로 오판할 수 있다.
+      // 이미 검증된 항목만 처리하고 나머지는 이번 작업에서 확정하지 않는다.
+      uncertain += toAudit.length;
+      status.textContent='포스터 검사 환경을 확인할 수 없어 미검증 작품은 건너뜁니다.\n현재 확인된 무포스터만 확정합니다.';
+    }
+    if (auditSafe && !videoFramePosterBulkStopV1028) {
+      let cursor=0;
+      const auditWorker=async()=>{
+        while (!videoFramePosterBulkStopV1028 && !stoppedForQuota) {
+          const i=cursor++;
+          if (i>=toAudit.length) return;
+          const entry=toAudit[i], key=getVideoFramePosterEntryKeyV814(entry);
+          try {
+            // 이미 Scenes에 확정한 작품은 전체 작업에서도 덮어쓰지 않는다.
+            if (getVideoFramePosterInfoV814(entry)?.fileName) {
+              skipped++;
+            } else if (localPosterNames && videoBulkEntryHasLocalPoster(entry,localPosterNames)) {
+              skipped++;
+            } else {
+              // 장면 파일이 저장되어 있지만 매핑이 없는 구형 작품도 중복 확정하지 않는다.
+              const frameName=makeVideoFramePosterFileNameV814(entry);
+              const root=getVideoPosterRootHandleCachedV872();
+              if (root && videoScenesHasV1425(frameName,root)===true) {
+                skipped++;
+              } else {
+                const hasPoster=await videoEntryHasAnyDisplayablePoster(entry);
+                if (hasPoster===null) {stoppedForQuota=true;uncertain++;}
+                else if (hasPoster===false) missingKeys.add(key);
+                else skipped++;
+              }
+            }
+          } catch(error) {
+            // 오류/제한은 "포스터 없음"으로 간주하지 않는다.
+            uncertain++;
+            console.warn('[v1476 무포스터 검사 불확실]',entry?.fileName,error);
+          }
+          checked++;
+          if (checked%5===0 || checked===toAudit.length || stoppedForQuota) {
+            status.textContent=`전체 ${list.length}개 검사 · ${checked+knownMissing}/${list.length}\n무포스터 ${missingKeys.size} / 정상·저장됨 ${skipped} / 미확정 ${uncertain}`;
+          }
+          // 사용자 조작과 목록 스크롤을 막지 않도록 검사 중간에도 양보한다.
+          if (checked%10===0) await new Promise(resolve=>setTimeout(resolve,0));
+        }
+      };
+      await Promise.all(Array.from({length:Math.min(3,toAudit.length)},()=>auditWorker()));
+    }
+    const targets=list.filter(entry=>missingKeys.has(getVideoFramePosterEntryKeyV814(entry)));
+    if (!videoFramePosterBulkStopV1028) {
+      for (const entry of targets) {
+        if (videoFramePosterBulkStopV1028) break;
+        const key=getVideoFramePosterEntryKeyV814(entry);
+        // 검사 완료 후 다른 UI에서 포스터가 새로 지정됐으면 건너뛴다.
+        const isStillShownMissing=Array.from(document.querySelectorAll('#wtList .videoPosterWrap')).some(wrap=>
+          wrap.__videoFrameEntryV1028===key && !!wrap.querySelector('.videoFramePosterOfferV814'));
+        if (!isStillShownMissing && getVideoFramePosterInfoV814(entry)?.fileName) {
+          skipped++; done++; continue;
+        }
+        status.textContent=`전체 ${list.length}개 검사 ${checked+knownMissing}/${list.length}${stoppedForQuota?' · 온라인 한도 도달':''}\n무포스터 확정 ${done+1}/${targets.length} · 저장 ${saved} / 실패 ${failed}\n${entry.fileName||entry.display||''}`;
+        try {
+          const candidate=await captureOneRandomVideoFramePosterV1028(entry);
+          await saveVideoFramePosterCandidateV814(entry,candidate);
+          saved++;
+          // 이미 화면에 존재하는 카드만 새 포스터로 갱신. 가상 스크롤, 카운트, 위치를 건드리지 않는다.
+          document.querySelectorAll('#wtList .videoPosterWrap').forEach(wrap=>{
+            if (wrap.__videoFrameEntryV1028===key && wrap.isConnected) {
+              showVideoFramePosterBlobInWrapV814(wrap,candidate.blob,entry);
+            }
+          });
+        } catch(error) {
+          failed++;
+          console.warn('[v1476 무포스터 자동 확정 실패]',entry?.fileName,error);
+        }
+        done++;
+        await new Promise(resolve=>setTimeout(resolve,60));
       }
-      status.textContent=`${done+1}/${list.length} 처리 중 · 저장 ${saved} / 실패 ${failed}\n${entry.fileName || entry.display || ''}`;
-      try {
-        const candidate=await captureOneRandomVideoFramePosterV1028(entry);
-        await saveVideoFramePosterCandidateV814(entry,candidate);
-        saved++;
-        // 현재 화면에 보이는 해당 카드도 즉시 전환한다.
-        document.querySelectorAll('.videoPosterWrap').forEach(wrap=>{
-          if (wrap.__videoFrameEntryV1028 === key) showVideoFramePosterBlobInWrapV814(wrap,candidate.blob,entry);
-        });
-      } catch(e) {
-        failed++;
-        console.warn('[v1028 무포스터 자동 확정 실패]',entry?.fileName,e);
-      }
-      done++;
-      // 장시간 처리 시 브라우저 UI와 영상 작업에 양보한다.
-      await new Promise(r=>setTimeout(r,60));
     }
   } finally {
     videoFramePosterBulkBusyV1028=false;
-    status.textContent=`${videoFramePosterBulkStopV1028?'중지됨':'완료'} · 저장 ${saved} / 실패 ${failed} / 건너뜀 ${skipped} / 전체 ${list.length}`;
-    stop.disabled=false;stop.textContent='닫기';stop.onclick=()=>layer.remove();
-    stop.replaceWith(stop.cloneNode(true));
-    const close=panel.lastElementChild;
+    const notChecked=Math.max(0,toAudit.length-checked);
+    status.textContent=`${videoFramePosterBulkStopV1028?'중지됨':'완료'} · 전체 목록 ${list.length}개 검사\n무포스터 저장 ${saved} / 실패 ${failed} / 기존 포스터·확정 ${skipped}\n미확정 ${uncertain} / 미검사 ${notChecked}${stoppedForQuota?' (온라인 요청 한도)':''}\n목록·스크롤 재렌더링 없음`;
+    const close=document.createElement('button');close.type='button';close.textContent='닫기';
+    close.style.cssText=stop.style.cssText;
     close.addEventListener('click',()=>layer.remove());
-    try {
-      if (saved > 0 && contentMode === 'video' && typeof renderVideoList==='function') renderVideoList();
-      else if (saved === 0) videoRedundantRenderStatsV1347.missingPosterBulkSkips++;
-    } catch (_) {}
+    stop.replaceWith(close);
+    // 저장 직후 현재 보이는 포스터는 위에서 직접 교체했다.
+    // 스크롤 밖의 카드는 나중에 가상 스크롤로 생성될 때 Scenes 저장값을 자동으로 읽는다.
+    // renderVideoList() 전체호출을 하지 않아 기존 300/1000 상태와 스크롤을 유지한다.
+    try {videoRedundantRenderStatsV1347.missingPosterBulkSkips++;}catch(_){}
   }
 }
 
@@ -171159,7 +171229,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1475;
+  const VIEWER_BUILD_V789 = 1476;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
