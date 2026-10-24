@@ -1,3 +1,4 @@
+<!-- v1482: 만화 오른쪽 사이드 기능/외부 탭 분리, MangaDex 검색 UI를 외부로 이동. 기존 로컬/MangaDex 작가 목록, 회차/ZIP, DB 변경 없음. -->
 <!-- v1481: HTML 상단 두 버전 레이블에 설치된 로컬호스트 실제 버전을 health API에서 조회해 표시. GitHub 최신 버전/서버 EXE·사용자 DB 변경 없음. v1480 기반. -->
 <!-- v1480: MangaDex 작품 매칭에서 작가명·작가 상세 확인·레일 등록 UI 및 관련 조회를 제거. 회차 선택·표지 적용·스크롤 숨김·설치 안내 유지. v1479 기반. -->
 <!-- v1479: MangaDex 결과별 작가 이름만 사용(로컬 작품 작가명 대체 제거), 매칭창 스크롤바 숨김+스크롤 유지, 로컬호스트 링크/이용조건 업데이트 안내 추가. v1478 기반. -->
@@ -15979,10 +15980,14 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
     <aside id="comicRightRailV1366" class="is-hidden" aria-label="만화 오른쪽 기능 사이드" aria-hidden="true">
       <div class="comicRightRailHeadV1366">
         <button class="comicRightRailArrowV1366" id="comicRightRailNarrowV1366" type="button" title="왼쪽 화살표: 레일 폭 늘리기">◀</button>
-        <span id="comicRightRailTitleV1366">기능</span>
+        <div class="comicRightRailTabsV1482" role="tablist" aria-label="만화 오른쪽 사이드 메뉴">
+          <button id="comicRightRailTabFunctionsV1482" class="comicRightRailTabV1482 active" type="button" role="tab" aria-selected="true" aria-controls="comicRightRailToolsV1366">기능</button>
+          <button id="comicRightRailTabExternalV1482" class="comicRightRailTabV1482" type="button" role="tab" aria-selected="false" aria-controls="comicRightRailExternalToolsV1482">외부</button>
+        </div>
         <button class="comicRightRailArrowV1366" id="comicRightRailWidenV1366" type="button" title="오른쪽 화살표: 레일 폭 줄이기">▶</button>
       </div>
-      <div id="comicRightRailToolsV1366" class="comicRightRailToolsV1366"></div>
+      <div id="comicRightRailToolsV1366" class="comicRightRailToolsV1366" role="tabpanel" aria-labelledby="comicRightRailTabFunctionsV1482"></div>
+      <div id="comicRightRailExternalToolsV1482" class="comicRightRailToolsV1366 comicRightRailExternalToolsV1482" role="tabpanel" aria-labelledby="comicRightRailTabExternalV1482" hidden></div>
     </aside>
     <aside id="videoRightRailV1374" class="is-hidden" aria-label="영상 오른쪽 메뉴·스타일 사이드" aria-hidden="true">
       <div class="videoRightRailHeadV1374">
@@ -45785,7 +45790,11 @@ const selectOnlyThisFromText = (e) => {
     clearAllComicRailPinsV1364();
   });
   pinActionsV1364.append(pinCountV1363,clearPinsV1364);
-  railFilterWrapV1090.append(railSearchV1090,mdxAuthorBoxV1465,pinActionsV1364,railSectionsV1090,railInitialsV1104);
+   // v1482: MangaDex 탐색 UI는 오른쪽 '외부' 탭에서만 표시한다.
+   // 기존 왼쪽 작가 목록(로컬/등록된 MangaDex 작가)·선택·즐겨찾기는 그대로 둔다.
+   railFilterWrapV1090.append(railSearchV1090,pinActionsV1364,railSectionsV1090,railInitialsV1104);
+   const externalSlotV1482=document.getElementById('comicRightRailExternalToolsV1482');
+   if(externalSlotV1482) externalSlotV1482.replaceChildren(mdxAuthorBoxV1465);
   syncComicPinIndicatorV1363(railFilterWrapV1090);
   function syncComicRailInitialLayoutV1155(mode){
     const vertical=comicRailIndexDirectionV1155==='vertical';
@@ -171242,7 +171251,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1481;
+  const VIEWER_BUILD_V789 = 1482;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -193067,6 +193076,16 @@ html.comicShelfImmersiveV1225 #comicRightRailV1366{display:none!important}
 #comicRightRailV1366 .comicRightRailHeadV1366{flex:0 0 23px;min-height:23px;display:flex;gap:2px;align-items:center;padding:1px 2px;box-sizing:border-box;background:rgba(12,17,24,.45)}
 #comicRightRailV1366 .comicRightRailArrowV1366{flex:0 0 22px;min-width:0;max-width:22px;padding:0;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;line-height:19px}
 #comicRightRailV1366 .comicRightRailArrowV1366:hover{background:rgba(91,143,219,.30)}
+/* v1482: 기존 오른쪽 '기능' 레일 안에 '외부' 탭을 추가, 폭/가상 목록 동작 유지. */
+#comicRightRailV1366 .comicRightRailTabsV1482{display:flex;flex:1 1 0;min-width:0;gap:2px;align-items:center;justify-content:center}
+#comicRightRailV1366 .comicRightRailTabV1482{flex:1 1 0;min-width:0;line-height:18px;min-height:20px;padding:0 2px;border:1px solid transparent;border-radius:3px;background:transparent;color:inherit;cursor:pointer;white-space:nowrap;overflow:hidden;font:inherit;font-weight:600;text-align:center}
+#comicRightRailV1366 .comicRightRailTabV1482.active{background:#2466b9;border-color:#5689c4;color:#fff}
+#comicRightRailV1366 .comicRightRailToolsV1366[hidden]{display:none!important}
+#comicRightRailV1366 .comicRightRailExternalToolsV1482{padding:2px 3px 9px}
+#comicRightRailV1366 .comicRightRailExternalToolsV1482 #comicMdxAuthorRailBoxV1465{margin:4px 0;box-sizing:border-box;max-width:100%}
+#comicRightRailV1366.wtRailNarrowWidthV1366 .comicRightRailTabV1482{font-size:10px;padding:0}
+#comicRightRailV1366.comicRightRailTinyV1482 .comicRightRailTabV1482{font-size:9px;letter-spacing:-.5px}
+#wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailV1366 .comicRightRailTabV1482:not(.active){background:transparent;color:inherit}
 #comicRightRailV1366 #comicRightRailTitleV1366{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;font-weight:600}
 #comicRightRailV1366 .comicRightRailToolsV1366{flex:1;min-height:0;overflow:auto;scrollbar-width:none;overscroll-behavior:contain;padding:4px 3px 8px}
 #comicRightRailV1366 .comicRightRailToolsV1366::-webkit-scrollbar{display:none}
@@ -193092,7 +193111,7 @@ html.comicShelfImmersiveV1225 #comicRightRailV1366{display:none!important}
    backgrounds, danger/active meaning, opacity and panel geometry. */
 html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailV1366,
 html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailV1366 :is(
-  .comicRightRailProxyV1366,.comicRightRailSectionHeadV1366,
+  .comicRightRailProxyV1366,.comicRightRailSectionHeadV1366,.comicRightRailTabV1482,
   #comicRightRailTitleV1366,.comicRightRailArrowV1366
 ){
   font-family:var(--viewer-common-font-family-v1162,system-ui,"Malgun Gothic",sans-serif)!important;
@@ -193107,7 +193126,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
 html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailV1366,
 html.comicShelfStrongTextV1268 #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailV1366 :is(
   .comicRightRailProxyV1366:not(.active):not(.is-danger),
-  .comicRightRailSectionHeadV1366,#comicRightRailTitleV1366,.comicRightRailArrowV1366
+  .comicRightRailSectionHeadV1366,.comicRightRailTabV1482:not(.active),#comicRightRailTitleV1366,.comicRightRailArrowV1366
 ){
   color:#fff7e7!important;
   text-shadow:0 1px 2px rgba(25,12,2,.72),0 0 2px rgba(18,8,1,.50)!important;
@@ -193129,7 +193148,34 @@ const rail=document.getElementById('comicRightRailV1366');
 const btn=document.getElementById('comicRightRailToggleV1366');
 const body=document.getElementById('wtPanelBody');
 const list=document.getElementById('comicRightRailToolsV1366');
-if(!rail||!btn||!body||!list)return;
+const external=document.getElementById('comicRightRailExternalToolsV1482');
+const functionTab=document.getElementById('comicRightRailTabFunctionsV1482');
+const externalTab=document.getElementById('comicRightRailTabExternalV1482');
+if(!rail||!btn||!body||!list||!external||!functionTab||!externalTab)return;
+const TAB_KEY_V1482='comicRightRailTab_v1482';
+let activeTabV1482='functions';
+try{activeTabV1482=ViewerCacheManager.storage.getItem(TAB_KEY_V1482)==='external'?'external':'functions';}catch(_){}
+function syncRightTabV1482(){
+  const isExternal=activeTabV1482==='external';
+  list.hidden=isExternal;
+  external.hidden=!isExternal;
+  for(const [tab,on] of [[functionTab,!isExternal],[externalTab,isExternal]]){
+    tab.classList.toggle('active',on);
+    tab.setAttribute('aria-selected',String(on));
+    tab.tabIndex=on?0:-1;
+  }
+}
+for(const [tab,target] of [[functionTab,'functions'],[externalTab,'external']]){
+  tab.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    if(activeTabV1482===target)return;
+    activeTabV1482=target;
+    try{ViewerCacheManager.storage.setItem(TAB_KEY_V1482,target);}catch(_){}
+    syncRightTabV1482();
+    if(target==='functions')requestAnimationFrame(syncButtons);
+  });
+}
+syncRightTabV1482();
 const isComic=()=>document.getElementById('wtContentComic')?.classList.contains('active')===true &&
   window.viewerMusicTabIsActiveV968?.()!==true;
 let visible=true,width=194,ticket=0,pendingAnchor=null,pendingOverflow='';
@@ -193150,8 +193196,8 @@ function sourceWidth(){
 function syncWidth(){
   rail.style.width=width+'px';rail.style.flex='0 0 '+width+'px';
   rail.classList.toggle('wtRailNarrowWidthV1366',width<=106);
-  const caption=document.getElementById('comicRightRailTitleV1366');
-  if(caption)caption.textContent=width<=55?'F':'기능';
+   // v1482: 기능/외부 탭은 폭을 조절해도 그대로 유지한다.
+   rail.classList.toggle('comicRightRailTinyV1482',width<=55);
 }
 try {const value=ViewerCacheManager.storage.getItem(KEY); width=value===null?sourceWidth():Number(value);}catch(_){width=sourceWidth();}
 if(!Number.isFinite(width)||width<55)width=sourceWidth();
