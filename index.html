@@ -1,3 +1,4 @@
+<!-- v1481: HTML 상단 두 버전 레이블에 설치된 로컬호스트 실제 버전을 health API에서 조회해 표시. GitHub 최신 버전/서버 EXE·사용자 DB 변경 없음. v1480 기반. -->
 <!-- v1480: MangaDex 작품 매칭에서 작가명·작가 상세 확인·레일 등록 UI 및 관련 조회를 제거. 회차 선택·표지 적용·스크롤 숨김·설치 안내 유지. v1479 기반. -->
 <!-- v1479: MangaDex 결과별 작가 이름만 사용(로컬 작품 작가명 대체 제거), 매칭창 스크롤바 숨김+스크롤 유지, 로컬호스트 링크/이용조건 업데이트 안내 추가. v1478 기반. -->
 <!-- v1478: MangaDex 작품 매칭은 대표 표지 1장 우선 표시, 회차 메타데이터 선택 후 1페이지만 미리보기/적용, 매칭 결과의 작가 ID를 별도 레일에 등록. 기존 v1477 기능·로컬 원본 유지. -->
@@ -171241,7 +171242,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1480;
+  const VIEWER_BUILD_V789 = 1481;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -171250,6 +171251,44 @@ try {
     el.textContent = `버전 4.1(빌드${VIEWER_BUILD_V789}) 모드 :`;
   });
 } catch (_) {}
+
+// v1481: 실행 중인 로컬호스트의 실제 버전을 표기한다.
+// GitHub version.json의 최신 서버 버전이나 HTML에 고정한 권장 버전은 사용하지 않는다.
+(() => {
+  const isLocalServer = location.protocol === 'http:' &&
+    (location.hostname === '127.0.0.1' || location.hostname === 'localhost') &&
+    location.port === '18765';
+  if (!isLocalServer) return;  // GitHub Pages/file://에서는 서버가 설치됐다고 추정하지 않는다.
+
+  const showServerVersion = (label, isError = false) => {
+    document.querySelectorAll('[data-viewer-build-label]').forEach(el => {
+      el.textContent = `버전 4.1(빌드${VIEWER_BUILD_V789}) · 서버 ${label} 모드 :`;
+      el.title = isError
+        ? '로컬호스트 서버 버전을 확인할 수 없습니다.'
+        : `웹뷰어 HTML 빌드 ${VIEWER_BUILD_V789} / 설치된 로컬호스트 ${label}`;
+    });
+  };
+  showServerVersion('확인 중');
+  fetch('/__webviewer_local/health', {cache:'no-store', headers:{Accept:'application/json'}})
+    .then(res => {
+      if (!res.ok) throw new Error('health HTTP ' + res.status);
+      return res.json();
+    })
+    .then(info => {
+      if (info?.product !== 'WebViewerLocal' || info?.status !== 'ready') {
+        throw new Error('웹뷰어 로컬호스트 응답이 아닙니다.');
+      }
+      const m = /^v?(\d+)(?:$|[.\-])/i.exec(String(info.version ?? '').trim());
+      if (!m) throw new Error('서버 버전 형식을 확인할 수 없습니다.');
+      const installedVersion = 'v' + Number(m[1]);
+      showServerVersion(installedVersion);
+      window.viewerInstalledLocalhostVersionV1481 = installedVersion;
+    })
+    .catch(err => {
+      showServerVersion('확인 불가', true);
+      console.info('[로컬호스트 버전 표시 v1481]', err?.message || err);
+    });
+})();
 
   const VIEWER_VERSION_MANIFEST_URL_V789 =
     'https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
