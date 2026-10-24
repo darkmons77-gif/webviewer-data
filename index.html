@@ -15954,8 +15954,8 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
         style="background:#5b45a8;color:#fff;font-weight:700;">앱설치</button>
 <a id="viewerLocalHostInstallBtnV1449"
    class="zoomBtn"
-   href="https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v6/WebViewerLocalHost_Setup.zip"
-   title="Windows 로컬호스트 v4 설치 ZIP 바로 다운로드"
+   href="https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip"
+   title="Windows 로컬호스트 서버 v8 설치 ZIP 바로 다운로드"
    style="background:#286376;color:#fff;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">로컬호스트설치</a>
 </div>
     </div>
@@ -87536,6 +87536,7 @@ function collectVideoMissingPosterBulkEntriesV1029() {
   return {list: Array.from(candidates.values()), visibleKeys, visibleWrapsByKey};
 }
 
+window.runVideoMissingPosterBulkV1028 = runVideoMissingPosterBulkV1028;
 async function runVideoMissingPosterBulkV1028() {
   if (videoFramePosterBulkBusyV1028 || videoFramePosterPickerBusyV814) {
     showToast?.('장면 선택 또는 자동 확정 작업이 진행 중입니다.', 2500);
@@ -169670,7 +169671,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
 (()=>{
   'use strict';
   const GITHUB='https://darkmons77-gif.github.io/webviewer-data/';
-  const LOCALHOST='https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v6/WebViewerLocalHost_Setup.zip';
+  const LOCALHOST='https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip';
   const HIDE_LOCALHOST='webviewer_localhost_intro_hide_v1451';
   const HIDE_PWA='webviewer_pwa_intro_hide_v1442';
   // 앱 안내 이외의 IndexedDB / 만화 / 영상 설정은 지우지 않는다.
@@ -169754,7 +169755,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
   // Windows에서 GitHub Pages 또는 file:/// 로 연 경우 설치 안내를 먼저 표시한다.
   // 로컬호스트와 이미 설치한 앱 모드에는 표시하지 않는다.
   const FLAG='webviewer_localhost_intro_hide_v1451';
-  const DOWNLOAD='https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v6/WebViewerLocalHost_Setup.zip';
+  const DOWNLOAD='https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip';
   let release;
   const ready=new Promise(resolve=>{release=resolve;});
   window.viewerLocalhostIntroWaitV1451=ready;
@@ -193125,7 +193126,7 @@ function makeMenu(){
     if(id==='viewerFullResetBtnWt')b.classList.add('videoRailMenuDangerV957');
     b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();
       if(id){const source=document.getElementById(id);if(source&&!source.disabled)source.click();}
-      else if(typeof runVideoMissingPosterBulkV1028==='function')void runVideoMissingPosterBulkV1028();
+      else if(typeof window.runVideoMissingPosterBulkV1028==='function')void window.runVideoMissingPosterBulkV1028().catch(err=>{console.error('[무포스터 전체확정]',err);alert('무포스터 전체확정 실패: '+(err?.message||err));});
       requestAnimationFrame(syncMenuButtons);
     });
     list.appendChild(b);
