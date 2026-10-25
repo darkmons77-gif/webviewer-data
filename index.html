@@ -1,3 +1,8 @@
+<!-- v1513: 앱설치 방식 선택 대화상자 ID가 스크립트 ID와 충돌하여 버튼이 무반응인 문제 수정. 1512 설치 안내 유지, 사용자 데이터 불변. -->
+<!-- v1512: 로컬호스트 설치 안내창이 숨겨진 동영상 레이어 내부에 들어가 클릭해도 보이지 않는 문제 수정(상단 설치/업데이트 버튼 공통). v1511 외부탭 복원·DB 유지. -->
+<!-- v1511: 외부 탭 자동저장·퀵저장 버튼 소실 복구, MangaDex/Hitomi 순서 고정. 저장모드·DB 변경 없음. -->
+<!-- v1510: 기존설치 경로 클릭안내 상세화, GitHub 설치 사진 표시/내장 대체. DB/서버/원본 불변. -->
+<!-- v1509: 로컬호스트 설치방법(기존/처음 사용자) 화면, 상단 설치버튼, 최신 업데이트 1회 알림. DB/서버/원본 불변. -->
 <!-- v1500: 서버 14.3 통합 설치·외부 index.html 동기화·폴더 열기 개선. -->
 <!-- v1499: PWA 최초설치 안내 + v14.2 서버 설치 동기화. -->
 <!-- v1499: 로컬호스트 전용 HTML 폴더 열기(서버 14.3 보조 기능) / 서버 버전 분리 비교 14.10 지원; 로컬 만화/영상 IDB 무변경. -->
@@ -13251,6 +13256,37 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
 #comicHitomiDialogV1483 .hitomiDialogPanelV1483{color:#e8f4ff;background:#1d2b3c;max-width:min(560px,96vw);max-height:85vh;overflow:auto;padding:16px;border:1px solid #6d8bab;border-radius:10px;box-sizing:border-box;font:13px/1.55 system-ui,sans-serif;overflow-wrap:anywhere}
 #comicHitomiDialogV1483 button,#comicHitomiDialogV1483 a{background:#294b6d;color:white;border:1px solid #567fa6;border-radius:5px;padding:5px 10px;text-decoration:none;display:inline-block;margin:4px;cursor:pointer}
 </style>
+<!-- v1508: Hitomi owned ribbon text alignment, unobtrusive heart at metadata edge, external cover thumbnails use cover; preserves v1507 external list protection -->
+<style id="viewerLocalhostInstallStyleV1509">
+/* v1509: independent install instructions, no changes to local databases or server files. */
+#wv1509InstallOverlay{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.83);display:none;align-items:center;justify-content:center;padding:14px;box-sizing:border-box;font:14px/1.6 system-ui,"Malgun Gothic",sans-serif;color:#eaf2ff}
+#wv1509InstallOverlay.wv1509Open{display:flex}
+#wv1509InstallOverlay *{box-sizing:border-box}
+#wv1509InstallOverlay .wv1509Panel{width:min(680px,100%);max-height:min(90vh,870px);overflow:auto;overscroll-behavior:contain;background:#172130;border:1px solid #526784;border-radius:13px;box-shadow:0 18px 65px #000c;padding:22px 24px}
+#wv1509InstallOverlay .wv1509Head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border-bottom:1px solid #40516b;padding-bottom:13px}
+#wv1509InstallOverlay h2{color:#f4f8ff;font-size:22px;line-height:1.35;margin:0;font-weight:800}
+#wv1509InstallOverlay .wv1509Sub{font-size:12px;color:#aabbd0;margin:4px 0 0}
+#wv1509InstallOverlay .wv1509Close{width:31px;height:31px;flex:0 0 31px;border:1px solid #526984;border-radius:7px;background:#25344a;color:#e4efff;font:700 21px/1 system-ui,sans-serif;cursor:pointer}
+#wv1509InstallOverlay .wv1509Tabs{display:flex;gap:8px;margin:17px 0 15px;flex-wrap:wrap}
+#wv1509InstallOverlay .wv1509Tab{border:1px solid #4e6888;background:#29394f;color:#c9d9ef;border-radius:7px;padding:9px 15px;font:700 14px system-ui,sans-serif;cursor:pointer}
+#wv1509InstallOverlay .wv1509Tab[aria-selected="true"]{background:#265b9d;border-color:#91bdf2;color:white}
+#wv1509InstallOverlay .wv1509Steps{margin:0;padding:0 0 0 24px;list-style-type:decimal}
+#wv1509InstallOverlay .wv1509Steps li{padding:0 0 10px 4px;color:#e2eafa}
+#wv1509InstallOverlay .wv1509Steps li::marker{color:#91c7ff;font-weight:700}
+#wv1509InstallOverlay .wv1509Steps strong{color:#fff}
+#wv1509InstallOverlay .wv1509Steps code{background:#273c5a;border:1px solid #425773;border-radius:4px;padding:1px 4px;color:#bddfff;user-select:all;word-break:break-all}
+#wv1509InstallOverlay .wv1509Guide[hidden]{display:none!important}
+#wv1509InstallOverlay .wv1509Hint{margin:10px 0 0;padding:11px 13px;background:#222d3b;border-left:3px solid #b9a164;color:#cbd9e9;font-size:12px;border-radius:5px}
+#wv1509InstallOverlay .wv1509Hint strong{color:#ffe1a7}
+#wv1509InstallOverlay .wv1509FileSample{font-size:12px;color:#b5c7dc;margin:12px 0 0}
+#wv1509InstallOverlay .wv1509FileSample summary{cursor:pointer;color:#b8d9ff}
+#wv1509InstallOverlay .wv1509FileSample img{display:block;max-width:100%;margin:8px 0;background:#fff;border-radius:4px;border:1px solid #73839b}
+#wv1509InstallOverlay .wv1509Foot{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;border-top:1px solid #40516b;padding-top:15px;margin-top:18px}
+#wv1509InstallOverlay .wv1509Foot a{display:inline-flex;justify-content:center;align-items:center;text-align:center;text-decoration:none;background:#276cbf;color:#fff;border:1px solid #8ebaf0;border-radius:7px;padding:9px 17px;font:800 14px system-ui,sans-serif}
+#wv1509InstallOverlay .wv1509Foot button{border:1px solid #596d85;background:#2b3849;color:#e1edfa;border-radius:7px;padding:9px 15px;font:700 13px system-ui,sans-serif;cursor:pointer}
+#wv1509InstallOverlay .wv1509Foot a:hover,#wv1509InstallOverlay .wv1509Foot button:hover{filter:brightness(1.15)}
+@media(max-width:540px){#wv1509InstallOverlay .wv1509Panel{padding:15px;max-height:94vh}#wv1509InstallOverlay h2{font-size:19px}#wv1509InstallOverlay .wv1509Tab{flex:1 1 130px;padding:9px 5px}}
+</style>
 </head>
 <body>
 <div id="viewerStartupSplashV1333" role="status" aria-live="polite" aria-label="웹뷰어 시작 중">
@@ -15838,11 +15874,9 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
         type="button"
         title="이 웹뷰어를 태블릿/모바일에 PWA 앱으로 설치"
         style="background:#5b45a8;color:#fff;font-weight:700;">앱설치</button>
-<a id="viewerLocalHostInstallBtnV1449"
-   class="zoomBtn"
-   href="https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip"
-   title="Windows 로컬호스트 서버 v8 설치 ZIP 바로 다운로드"
-   style="background:#286376;color:#fff;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">로컬호스트설치</a>
+<button id="viewerLocalHostInstallBtnV1449" class="zoomBtn" type="button"
+   title="로컬호스트 설치방법 확인 및 ZIP 다운로드"
+   style="background:#286376;color:#fff;font-weight:700;">로컬호스트 설치방법</button>
 </div>
     </div>
   <!-- ✅ 추가: 헤더 아래 본문(가로로 레일 + wtBox) -->
@@ -15866,7 +15900,12 @@ html.comicCreatorSwapVisibleV1165 #wtTagRail.comicUnifiedRailV1033 .comicCreator
         <button class="comicRightRailArrowV1366" id="comicRightRailWidenV1366" type="button" title="오른쪽 화살표: 레일 폭 줄이기">▶</button>
       </div>
       <div id="comicRightRailToolsV1366" class="comicRightRailToolsV1366" role="tabpanel" aria-labelledby="comicRightRailTabFunctionsV1482"></div>
-      <div id="comicRightRailExternalToolsV1482" class="comicRightRailToolsV1366 comicRightRailExternalToolsV1482" role="tabpanel" aria-labelledby="comicRightRailTabExternalV1482" hidden></div>
+      <div id="comicRightRailExternalToolsV1482" class="comicRightRailToolsV1366 comicRightRailExternalToolsV1482" role="tabpanel" aria-labelledby="comicRightRailTabExternalV1482" hidden>
+        <div class="comicExternalSaveActionsV1507" role="group" aria-label="외부 작품 다운로드 설정">
+          <button class="zoomBtn" type="button" id="comicAutoSaveToggleV1506" title="켜면 공용 이미지폴더 아래 hitomi 또는 MangaDex에 저장 · 끄면 기존 위치 선택">자동저장 OFF</button>
+          <button class="zoomBtn" type="button" id="comicQuickSaveToggleV1506" title="켜면 Hitomi 다운로드 버튼을 누르는 즉시 마지막 저장 설정으로 예약">퀵저장 OFF</button>
+        </div>
+      </div>
     </aside>
     <aside id="videoRightRailV1374" class="is-hidden" aria-label="영상 오른쪽 메뉴·스타일 사이드" aria-hidden="true">
       <div class="videoRightRailHeadV1374">
@@ -29032,6 +29071,7 @@ function writeComicLiteCaptionV1300(cap,display){
 }
 
 function appendWebtoonListChunk(pixiCtx = null) {
+  if(!pixiCtx && (window.ComicHitomiExploreV1483?.active?.() || window.ComicMangaDexLibraryV1466?.active?.()))return;
   const box = pixiCtx?.target || document.getElementById('wtList');
   if (!pixiCtx && !comicVirtualRenderContextV1295 && comicVirtualActiveV1295(box)) {
     comicVirtualScheduleV1295(); return true;
@@ -30500,6 +30540,7 @@ async function quickFindLastIndexForThumb(root, ext, pad, startNum, opts = {}) {
 let isLoadingMore = false;
 
 function maybeAppendMoreWebtoons() {
+  if(window.ComicHitomiExploreV1483?.active?.() || window.ComicMangaDexLibraryV1466?.active?.())return;
   if (comicVirtualActiveV1295()) {
     const state=comicVirtualStateV1295;
     if(comicVirtualNeedsWindowV1407(state))comicVirtualScheduleV1295();
@@ -32240,6 +32281,7 @@ window.ComicNormalResizeV1361={
     rowPitch:comicVirtualStateV1295?.pitch||0})
 };
 function comicVirtualRefreshV1295(force=false) {
+  if(window.ComicHitomiExploreV1483?.active?.() || window.ComicMangaDexLibraryV1466?.active?.())return false;
   if (!comicVirtualActiveV1295()) return false;
   const state=comicVirtualStateV1295;
   if (state.drawing || state.railTransitionV1316 || state.resizeTransitionV1328 ||
@@ -32268,6 +32310,7 @@ function comicVirtualRefreshV1295(force=false) {
   return comicVirtualDrawV1295(state,target,box.scrollTop);
 }
 function comicVirtualScheduleV1295(force=false) {
+  if(window.ComicHitomiExploreV1483?.active?.() || window.ComicMangaDexLibraryV1466?.active?.())return false;
   if (!comicVirtualActiveV1295()) return false;
   const state=comicVirtualStateV1295;
   if (force) state.needsReflow=true;
@@ -32460,6 +32503,8 @@ function renderWebtoonList(forceV1314=false) {
   if(window.ComicMangaDexLibraryV1466?.active?.()){
     window.ComicMangaDexLibraryV1466.render();return;
   }
+  // v1507: Hitomi shares #wtList but manages its own DOM. Local rerenders must not overwrite it.
+  if(window.ComicHitomiExploreV1483?.active?.())return;
 
   // v282: preload 전 임시 빈 RAM으로 렌더/동기화하지 않는다.
   if (!_webtoonListLoaded && typeof preloadWebtoonListFromIndexedDb === 'function') {
@@ -45867,8 +45912,20 @@ const selectOnlyThisFromText = (e) => {
    // v1482: MangaDex 탐색 UI는 오른쪽 '외부' 탭에서만 표시한다.
    // 기존 왼쪽 작가 목록(로컬/등록된 MangaDex 작가)·선택·즐겨찾기는 그대로 둔다.
    railFilterWrapV1090.append(railSearchV1090,pinActionsV1364,railSectionsV1090,railInitialsV1104);
+   // v1511: Rebuilding the local creator rail must NOT clear the external tab.
+   // replaceChildren() removed the v1506 auto/quick buttons and detached Hitomi.
+   // Replace ONLY the prior MangaDex panel, keeping the other controls/handlers.
    const externalSlotV1482=document.getElementById('comicRightRailExternalToolsV1482');
-   if(externalSlotV1482) externalSlotV1482.replaceChildren(mdxAuthorBoxV1465);
+   if(externalSlotV1482){
+     const previousMdxV1511=externalSlotV1482.querySelector('#comicMdxAuthorRailBoxV1465');
+     if(previousMdxV1511&&previousMdxV1511!==mdxAuthorBoxV1465)previousMdxV1511.remove();
+     const hitomiV1511=externalSlotV1482.querySelector('#comicHitomiPanelV1483');
+     externalSlotV1482.insertBefore(mdxAuthorBoxV1465,hitomiV1511||null);
+     // Fixed order: auto-save/quick-save, MangaDex, Hitomi.
+     const saveActionsV1511=externalSlotV1482.querySelector('.comicExternalSaveActionsV1507');
+     if(saveActionsV1511&&externalSlotV1482.firstElementChild!==saveActionsV1511)
+       externalSlotV1482.prepend(saveActionsV1511);
+   }
   syncComicPinIndicatorV1363(railFilterWrapV1090);
   function syncComicRailInitialLayoutV1155(mode){
     const vertical=comicRailIndexDirectionV1155==='vertical';
@@ -45917,7 +45974,7 @@ const selectOnlyThisFromText = (e) => {
   function renderCreatorListV1033(resetScrollV1090=false) {
     const mode = comicCreatorRailModeV1022;
     syncComicPinIndicatorV1363(rail);
-    mdxAuthorBoxV1465.hidden=mode!=='author';
+    mdxAuthorBoxV1465.hidden=false; // v1511: 외부 탭은 왼쪽 작가/그룹/태그 선택과 무관하게 표시
     syncComicRailInitialLayoutV1155(mode);
     for (const [type, btn] of buttons) {
       const active = mode === type;
@@ -45938,13 +45995,17 @@ const selectOnlyThisFromText = (e) => {
       const isFavV1470=name=>{const a=window.ComicMangaDexSavedAuthorsV1469?.fromLabel?.(name);return a?!!a.favorite:isFavAuthor(name);};
       combinedAuthorsV1469.sort((a,b)=>Number(isFavV1470(b))-Number(isFavV1470(a))||a.localeCompare(b,'ko',{numeric:true,sensitivity:'base'}));
     }
-    const baseItems = mode==='folder'?getComicFirstFolderRowsV1132():mode==='bundle'?getComicBundleRowsV1198():mode === 'tag' ? index.tags : mode === 'group' ? index.groups : combinedAuthorsV1469;
+    // v1503: Only explicit Hitomi bookmarks are persisted in an isolated IDB.
+    const hitomiSavedV1503=['author','group','tag'].includes(mode)?(window.ComicHitomiBookmarksV1503?.list?.(mode)||[]):[];
+    const hitomiLabelsV1503=hitomiSavedV1503.map(x=>window.ComicHitomiBookmarksV1503.label(x));
+    const localItemsV1503=mode==='tag'?index.tags:mode==='group'?index.groups:combinedAuthorsV1469;
+    const baseItems=mode==='folder'?getComicFirstFolderRowsV1132():mode==='bundle'?getComicBundleRowsV1198():(hitomiLabelsV1503.length?[...localItemsV1503,...hitomiLabelsV1503].sort((a,b)=>String(a).localeCompare(String(b),'ko',{numeric:true,sensitivity:'base'})):localItemsV1503);
     const search=(comicRailSearchByModeV1090[mode]||'').trim().toLocaleLowerCase();
     const activeSection=comicRailSectionByModeV1090[mode]||'all';
     railSearchV1090.placeholder=(mode==='folder'?'회차 폴더·시리즈':mode==='bundle'?'묶음 작품명':mode==='tag'?'태그':mode==='group'?'그룹':'작가')+' 검색';
     if(railSearchV1090.value!==comicRailSearchByModeV1090[mode])railSearchV1090.value=comicRailSearchByModeV1090[mode]||'';
     railSectionsV1090.replaceChildren();
-    for(const [cat,label] of [['all','전체'],['inner','내부회차'],['fav','★'],['digit','숫자'],['symbol','기호'],['latin','A-Z'],['jp','일본어'],['ko','한글'],['mangadex','MangaDex'],['misc','미분류']].filter(([cat])=>(cat!=='inner'||mode==='folder')&&(cat!=='misc'||(mode!=='author'&&mode!=='bundle'))&&(cat!=='mangadex'||mode==='author'))){
+    for(const [cat,label] of [['all','전체'],['inner','내부회차'],['fav','★'],['digit','숫자'],['symbol','기호'],['latin','A-Z'],['jp','일본어'],['ko','한글'],['mangadex','MangaDex'],['hitomi','Hitomi'],['misc','미분류']].filter(([cat])=>(cat!=='inner'||mode==='folder')&&(cat!=='misc'||(mode!=='author'&&mode!=='bundle'))&&(cat!=='mangadex'||mode==='author')&&(cat!=='hitomi'||['author','group','tag'].includes(mode)))){
       const c=document.createElement('button');c.type='button';c.textContent=label;
       c.className='comicRailSectionBtnV1090';c.classList.toggle('active',activeSection===cat);
       c.title=label+' 목록만 표시';
@@ -45999,6 +46060,8 @@ const selectOnlyThisFromText = (e) => {
         const name=mode==='folder'||mode==='bundle'?entry.name:entry;
         if(search&&!String(name).toLocaleLowerCase().includes(search))return false;
         if(activeSection!=='all'){
+          if(activeSection==='hitomi')return !!window.ComicHitomiBookmarksV1503?.fromLabel?.(mode,name);
+          if(window.ComicHitomiBookmarksV1503?.fromLabel?.(mode,name))return false;
           const categoryMatch=(mode==='folder'||mode==='bundle')
             ? (activeSection==='inner'?!!(entry.kind==='zip-inner'||entry.kind==='fs-inner')
               :activeSection==='fav'?isFavComicFirstFolderV1163(entry.key)
@@ -46089,6 +46152,18 @@ const selectOnlyThisFromText = (e) => {
         });
         return row;
       }
+      const hsaveV1503=window.ComicHitomiBookmarksV1503?.fromLabel?.(mode,name);
+      if(hsaveV1503){
+        const row=document.createElement('div');row.className='wtTagRailRow comicHitomiSavedRowV1503';
+        row.title=hsaveV1503.name+' · Hitomi 검색 / × 버튼으로 레일 등록 해제';
+        const icon=document.createElement('span');icon.textContent='H';icon.className='comicHitomiSavedIconV1503';
+        const txt=document.createElement('span');txt.className='wtTagRailTxt';txt.textContent=name;txt.title='클릭: Hitomi 새 검색';
+        txt.style.cssText='flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;font-size:11px';
+        const del=document.createElement('button');del.type='button';del.className='comicHitomiSavedDeleteV1503';del.textContent='×';del.title='Hitomi '+mode+' 레일 등록 삭제';
+        txt.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();window.ComicHitomiExploreV1483?.open?.(mode,hsaveV1503.name);});
+        del.addEventListener('click',async e=>{e.preventDefault();e.stopPropagation();try{await window.ComicHitomiBookmarksV1503.remove(mode,hsaveV1503.name)}catch(err){alert('Hitomi 레일 삭제 실패: '+String(err.message||err))}});
+        row.append(icon,txt,del);return row;
+      }
       if(mode==='author'){
         const saved=window.ComicMangaDexSavedAuthorsV1469?.fromLabel?.(name);
         if(saved){
@@ -46156,6 +46231,10 @@ const selectOnlyThisFromText = (e) => {
     restoreComicRailVirtualV1008();
   }
 
+  window.__comicHitomiRepaintSavedV1503=()=>{
+    if(!rail.isConnected||!['author','group','tag'].includes(comicCreatorRailModeV1022))return;
+    renderCreatorListV1033();
+  };
   window.__comicMdxRepaintAuthorsV1469=()=>{
     if(!rail.isConnected||comicCreatorRailModeV1022!=='author')return;
     renderCreatorListV1033();
@@ -169878,12 +169957,13 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     catch(e){console.warn('[Install guide reset]',e);return false;}
   };
   const show=()=>{
-    if(document.getElementById('viewerPwaSourceChoiceV1452'))return Promise.resolve();
+    // v1513: Do not match <script id=viewerPwaSourceChoiceV1452>. That false-positive silently cancels the menu.
+    if(document.getElementById('viewerPwaSourceChoiceDialogV1513'))return Promise.resolve();
     let done;
     const closed=new Promise(resolve=>{done=resolve;});
     const layer=document.createElement('div');
     const close=()=>{if(layer.isConnected)layer.remove();done();};
-    layer.id='viewerPwaSourceChoiceV1452';
+    layer.id='viewerPwaSourceChoiceDialogV1513';
     layer.setAttribute('role','dialog');
     layer.setAttribute('aria-modal','true');
     layer.setAttribute('aria-label','웹뷰어 앱 설치 방식 선택');
@@ -169914,7 +169994,7 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
         a.href=url;
         a.target='_blank';
         a.rel='noopener noreferrer';
-        a.addEventListener('click',close);
+        a.addEventListener('click',e=>{if(url===LOCALHOST && typeof window.openViewerLocalhostInstallGuideV1509==='function'){e.preventDefault();close();window.openViewerLocalhostInstallGuideV1509('new');}else{close();}});
       }
       card.append(h,p,a);
       return card;
@@ -170038,13 +170118,13 @@ async function runVideoAvdbsAvwikiBulkMatchV732(){
     const later=document.createElement('button');
     later.type='button';later.className='zoomBtn';later.textContent='나중에';
     later.addEventListener('click',()=>finish(remember.checked));
-    const download=document.createElement('a');
+    const download=document.createElement('button');
+    download.type='button';
     download.className='zoomBtn';
-    download.href=DOWNLOAD;
-    download.textContent='로컬호스트 설치하기';
-    download.title='Windows 로컬호스트 설치 ZIP 다운로드';
+    download.textContent='설치방법 확인';
+    download.title='로컬호스트 설치방법 및 다운로드';
     download.style.cssText='background:#2466b9;color:#fff;border:1px solid #8eb9e8;font-weight:800;padding:7px 13px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center';
-    download.addEventListener('click',()=>finish(remember.checked,'install'));
+    download.addEventListener('click',()=>{finish(remember.checked,'install');window.openViewerLocalhostInstallGuideV1509?.('new');});
     actions.append(later,download);
     footer.append(rememberLabel,actions);
     panel.append(title,sub,points,caveat,installNote,securityNote,footer);
@@ -171325,7 +171405,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1502;
+  const VIEWER_BUILD_V789 = 1513;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -171879,9 +171959,9 @@ try {
     }
     if (!viewerPwaInstallPromptV804) {
       await showViewerPwaNoticeV804(
-        '앱 설치 준비가 아직 되지 않았습니다',
-        '현재 브라우저가 자동 PWA 설치 프롬프트를 제공하지 않았습니다. 이미 설치된 앱이 있으면 Chrome이 이 설치 이벤트를 다시 주지 않을 수 있습니다.',
-        '이미 설치된 앱이 있다면 기존 앱을 실행하면 됩니다. 처음 설치하는 경우에는 manifest.webmanifest와 sw.js가 같은 폴더에 배포되어 있는지 확인하고 새로고침해 주세요.'
+        'Chrome에서 웹뷰어 앱 설치하기',
+        '브라우저가 자동 설치창을 제공하지 않는 상태입니다. Chrome 오른쪽 위 점 세 개(⋮)를 누르고 「전송, 저장 및 공유 → 페이지를 앱으로 설치」를 선택해 주세요. Chrome 버전에 따라 메뉴 이름이 다를 수 있습니다.',
+        '이미 설치된 웹뷰어 앱이 있다면 해당 앱을 실행하세요. 로컬호스트 설치파일이 필요한 경우에는 옆의 「로컬호스트 설치방법」 버튼을 이용하면 됩니다.'
       );
       return;
     }
@@ -172101,7 +172181,7 @@ try {
   // HTML 빌드 번호와 서버 설치 프로그램 버전은 독립적으로 관리한다.
   // 이 값은 새 HTML에 포함된 로컬호스트 최신 권장 버전의 기본값이며,
   // 실제 배포 여부/다운로드 링크는 GitHub version.json localhost 항목으로 검증한다.
-  const RECOMMENDED_SERVER_VERSION_V1462='14.3';
+  const RECOMMENDED_SERVER_VERSION_V1462='14.5';
   const MANIFEST_URL_V1462='https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/version.json';
   const SEEN_KEY_PREFIX_V1462='webviewer_localhost_server_upgrade_seen_v1462_';
   const ALLOWED_PREFIX_V1462='https://github.com/darkmons77-gif/webviewer-data/releases/download/';
@@ -172178,13 +172258,13 @@ try {
     const title=document.createElement('h2');title.textContent='로컬호스트 서버 업데이트가 있습니다';
     title.style.cssText='margin:0 0 12px;font-size:21px;font-weight:850;color:#f1f7ff';
     const detail=document.createElement('div');detail.style.cssText='padding:12px 14px;background:#17365f;border-radius:9px;font-size:15px;font-weight:700';
-    const htmlNeeds=release.viewerLatest>1500;
-    detail.textContent='로컬호스트: '+installed.label+' → v'+release.latest+(htmlNeeds?'\n웹뷰어 HTML: v1500 → v'+release.viewerLatest:'');
+    const htmlNeeds=release.viewerLatest>1509;
+    detail.textContent='로컬호스트: '+installed.label+' → v'+release.latest+(htmlNeeds?'\n웹뷰어 HTML: v1509 → v'+release.viewerLatest:'');
     detail.style.whiteSpace='pre-line';
     const description=document.createElement('div');description.style.cssText='margin-top:13px;color:#c9d7e7;line-height:1.7';
     description.textContent='로컬호스트 서버의 새 버전이 배포됐습니다. 설치 파일을 다시 받아 기존 프로그램 위에 설치하시겠습니까?';
     const note=document.createElement('div');note.style.cssText='margin-top:12px;color:#a7bad0;font-size:12px;line-height:1.65';
-    note.textContent='다운로드한 ZIP의 압축을 풀고 설치 EXE를 실행하세요. 기존 로컬호스트를 삭제할 필요는 없으며, 웹뷰어 목록과 설정은 유지됩니다. 백신 경고가 나오면 파일 검사를 먼저 확인하세요.';
+    note.textContent='기존 로컬호스트 설치 사용자는 먼저 설치방법 안내에 따라 기존 앱·서버를 정리한 뒤 ZIP을 설치하세요. 만화·영상 원본은 삭제하지 마세요. 백신 경고가 나오면 파일 검사를 먼저 확인하세요.';
     const footer=document.createElement('div');footer.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap;margin-top:20px';
     const hideLabel=document.createElement('label');hideLabel.style.cssText='display:flex;gap:6px;align-items:center;font-size:12px;color:#c9d7e7;cursor:pointer';
     const hide=document.createElement('input');hide.type='checkbox';hide.style.cssText='width:15px;height:15px;accent-color:#2466b9';
@@ -172192,7 +172272,7 @@ try {
     const actions=document.createElement('div');actions.style.cssText='display:flex;align-items:center;gap:8px';
     const later=document.createElement('button');later.textContent='나중에';later.type='button';
     later.style.cssText='border:1px solid #6c7786;border-radius:7px;padding:8px 14px;background:#2a3343;color:#fff;cursor:pointer';
-    const install=document.createElement('a');install.href=release.url;install.textContent='v'+release.latest+' 다운로드';
+    const install=document.createElement('button');install.type='button';install.textContent='설치방법 보기';
     install.style.cssText='border:1px solid #8eb9e8;border-radius:7px;padding:8px 14px;background:#2466b9;color:#fff;text-decoration:none;font-weight:800';
     const close=(clickedInstall)=>{
       if(hide.checked){try{localStorage.setItem(SEEN_KEY_PREFIX_V1462+release.latest,'1');}catch(_){}}
@@ -172200,7 +172280,7 @@ try {
       layer.remove();
     };
     later.addEventListener('click',()=>close(false));
-    install.addEventListener('click',()=>close(true));
+    install.addEventListener('click',()=>{close(true);window.openViewerLocalhostInstallGuideV1509?.('existing');});
     layer.addEventListener('click',e=>{if(e.target===layer)close(false);});
     actions.append(later,install);footer.append(hideLabel,actions);
     panel.append(title,detail,description,note,footer);layer.append(panel);document.body.append(layer);
@@ -172210,7 +172290,7 @@ try {
   async function checkV1462(){
     try{
       const [installed,release]=await Promise.all([readInstalledV1462(),readManifestV1462()]);
-      const htmlCurrent=1499;
+      const htmlCurrent=1509;
       const htmlNeeds=release.viewerLatest>htmlCurrent;
       const serverKnown=!!installed.number && !!release.latest;
       const serverNeeds=serverKnown && compareServerVersionsV1498(installed.number,release.latest)<0;
@@ -187270,6 +187350,26 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
         <h3>매칭창 개선</h3>
         <p>작품당 대표 표지를 먼저 보여주고, 회차를 선택하면 해당 회차의 첫 페이지를 미리보기 및 표지로 적용할 수 있습니다. 매칭창은 스크롤바를 숨기면서 휠·터치 스크롤을 지원합니다.</p>
       </div>`
+    },
+    {
+      id:'release-v1509-localhost-install-steps',build:'빌드 1510',
+      title:'🖥️ 웹뷰어 로컬호스트 설치방법',
+      subtitle:'기존 설치 정리 경로 상세 안내 · 처음 설치 · 설치파일 사진',
+      html:`<div class="wv1098Section" style="padding:10px 13px;line-height:1.75">
+        <h3>기존 로컬호스트를 설치한 사용자</h3>
+        <ol style="margin:4px 0 10px;padding-left:20px">
+          <li>PC 재부팅 후 웹뷰어 호스트를 실행하지 않습니다.</li>
+          <li>Chrome의 <code>chrome://apps/</code>에서 기존 웹뷰어 앱을 삭제합니다.</li>
+          <li>바탕화면의 웹뷰어 / WebViewer 아이콘을 삭제합니다.</li>
+          <li>탐색기(윈도우 키+E) → 내 PC → C: → 사용자(Users) → 본인 계정 → AppData → Local로 이동해 기존 웹뷰어 설치 폴더만 삭제합니다. AppData가 안 보이면 탐색기의 보기 메뉴에서 숨긴 항목을 켜세요.</li>
+          <li>새 통합 ZIP을 다운로드·압축 해제해 설치합니다.</li>
+          <li>바탕화면의 <strong>웹뷰어 통합 실행</strong> 아이콘으로 실행합니다.</li>
+        </ol>
+        <h3>처음 설치하는 사용자</h3>
+        <p>설치 ZIP 다운로드 → 압축 해제 → 설치 프로그램 실행 → 바탕화면의 <strong>웹뷰어 통합 실행</strong> 아이콘으로 시작하면 됩니다.</p>
+        <p style="font-size:12px;color:#cfdfef">※ 설치 폴더 정리는 웹뷰어 프로그램의 기존 설치 폴더에 한정하세요. 만화·영상 원본 폴더는 삭제하지 마세요.</p>
+        <button id="viewerOpenInstallGuideInUpdateV1509" type="button" style="background:#276cbf;color:#fff;border:1px solid #90bdec;border-radius:6px;padding:8px 14px;font-weight:800;cursor:pointer">설치방법 자세히 보기 · 다운로드</button>
+      </div>`
     }
   ];
   let current=history.length-1;
@@ -192427,6 +192527,7 @@ if(state.author){
 }
 async function openBrowse(mode,filters={}){
  if(!['recent','updates','random','advanced'].includes(mode))return;
+ window.ComicHitomiExploreV1483?.clear?.();
  if(!onLocalhost()){alert('MangaDex 탐색은 로컬호스트 v8에서 실행해 주세요.');return;}
  if(typeof contentMode!=='undefined'&&contentMode!=='comic')document.getElementById('wtContentComic')?.click?.();
  ++state.epoch;state.author=null;state.browse=true;state.mode=mode;
@@ -192497,7 +192598,8 @@ add.title=existing?'MangaDex 레일에 등록됨':local?'로컬 작가가 이미
 add.onclick=async()=>{add.disabled=true;try{const r=await window.ComicMangaDexSavedAuthorsV1469.add(author);
 add.textContent=r.ok?'✓ 등록됨':r.reason;
 }catch(e){add.textContent='저장 오류';add.title=String(e.message||e);}};
-const line=E('div');line.style.cssText='display:flex;gap:5px;align-items:center';btn.style.flex='1 1 auto';line.append(btn,add);panel.append(line);}const close=E('button','닫기');close.type='button';close.onclick=()=>{shade.remove();clear();};panel.append(close);shade.append(panel);shade.onclick=e=>{if(e.target===shade){shade.remove();clear();}};document.body.append(shade);}async function openAuthor(name){if(!onLocalhost()){alert('MangaDex 작가 검색과 바로보기는 로컬호스트 v8에서 지원합니다.');return;}const input=String(name||'').trim().slice(0,160);if(!input)return;window.__comicMdxAuthorLastV1465=input;const rail=document.getElementById('comicMdxAuthorInputV1465');if(rail)rail.value=input;if(typeof contentMode!=='undefined'&&contentMode!=='comic'){document.getElementById('wtContentComic')?.click?.();}++state.epoch;state.name=input;state.active=true;state.browse=false;state.author=null;window.__comicMdxSyncSavedSelectionV1469?.();state.works=[];state.total=0;state.busy=true;state.status='작가 검색 중…';showList();const epoch=state.epoch;try{const data=await request('author-search?name='+encodeURIComponent(input));if(epoch!==state.epoch)return;const authors=(Array.isArray(data?.data)?data.data:[]).filter(a=>valid(a?.id));state.authors=authors;if(!authors.length){state.busy=false;state.status='일치하는 작가가 없습니다. 레일에서 다른 이름으로 검색하세요.';showList();return;}state.busy=false;if(authors.length===1)void selectAuthor(authors[0]);else chooseAuthor(authors);}catch(e){if(epoch===state.epoch){state.busy=false;state.status='작가 검색 실패: '+String(e.message||e);showList();}}}const readerStore=new Map();const chapterLang=()=>['ko','en','ja'].includes(window.__comicMdxLangV1467)?window.__comicMdxLangV1467:'all';const showChapters=async(item)=>{const id=String(item?.id||'');if(!valid(id))return;document.getElementById('comicMdxChapterDialogV1466')?.remove();const shade=E('div');shade.id='comicMdxChapterDialogV1466';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');const panel=E('div',null,'mdxChaptersPanelV1466');const heading=E('h3',titleOf(item)+' · 회차',null);heading.style.margin='0';const source=E('div');source.style.color='#89c9ff';const label=E('div','회차 불러오는 중…');label.style.color='#b9cde2';const list=E('div',null,'mdxChaptersListV1466');const close=E('button','닫기');close.type='button';const closeDialogV1471=()=>{shade.remove();};close.onclick=closeDialogV1471;const page=E('a','MangaDex 원본 페이지 ↗');page.href='https://mangadex.org/title/'+id;page.target='_blank';page.rel='noopener noreferrer';const langbar=E('div',null,'mdxPopupLangBarV1468');langbar.style.cssText='display:flex;gap:5px;flex-wrap:wrap';for(const code of['ko','en','ja','all']){const b=E('button','['+code+']');b.dataset.lang=code;b.type='button';b.onclick=()=>{window.__comicMdxLangV1467=code;window.__comicMdxRepaintRailV1468?.();window.__comicMdxLiveFilterV1468?.();};langbar.append(b);}const zipbar=E('div',null,'mdxZipToolbarV1471');const zipAll=E('button','전체회차 ZIP');zipAll.type='button';zipAll.title='현재 선택된 회차 언어 전체를 ZIP으로 저장 (회차창을 닫아도 계속)';const zipCancel=E('button','중단','mdxZipCancelV1471');zipCancel.type='button';zipCancel.onclick=()=>window.ComicMangaDexZipV1473?.cancel?.();const optSelectV1473=(title,choices,key)=>{const sel=E('select',null,'mdxZipQualityV1473');sel.title=title;sel.setAttribute('aria-label',title);for(const [value,txt] of choices){const option=E('option',txt);option.value=value;sel.append(option);}const saved=window.__comicMdxZipPrefsV1473||{};if(choices.some(v=>v[0]===String(saved[key]||'')))sel.value=saved[key];sel.onchange=()=>{window.__comicMdxZipPrefsV1473={...(window.__comicMdxZipPrefsV1473||{}),[key]:sel.value};};return sel;};const sourceQuality=optSelectV1473('MangaDex 제공 화질',[['data','고화질'],['data-saver','절약']], 'sourceQuality');const outputFormat=optSelectV1473('ZIP 이미지 저장 확장자',[['webp','WebP'],['jpg','JPG']],'outputFormat');const encodeQuality=optSelectV1473('JPG/WebP 변환 품질',[['60','60%'],['70','70%'],['80','80%'],['90','90%'],['100','100%']],'encodeQuality');const parallel=optSelectV1473('이미지 동시 다운로드 수',[['1','동시 1장'],['2','동시 2장'],['3','동시 3장'],['4','동시 4장']],'parallel');if(!window.__comicMdxZipPrefsV1473){window.__comicMdxZipPrefsV1473={sourceQuality:'data',outputFormat:'webp',encodeQuality:'90',parallel:'4'};}sourceQuality.value=window.__comicMdxZipPrefsV1473.sourceQuality;outputFormat.value=window.__comicMdxZipPrefsV1473.outputFormat;encodeQuality.value=window.__comicMdxZipPrefsV1473.encodeQuality;parallel.value=['1','2','3','4'].includes(String(window.__comicMdxZipPrefsV1473.parallel))?String(window.__comicMdxZipPrefsV1473.parallel):'4';const zipOptsV1473=()=>({sourceQuality:sourceQuality.value,outputFormat:outputFormat.value,encodeQuality:Number(encodeQuality.value),parallel:Number(parallel.value)});const zipStatus=E('span','다운로드 중에도 회차창을 닫고 다른 작품을 볼 수 있습니다.','mdxZipStatusV1471');const reportZipV1471=message=>{if(shade.isConnected)zipStatus.textContent=String(message||'');};zipAll.onclick=()=>{void window.ComicMangaDexZipV1473?.start?.({work:item,lang:chapterLang(),...zipOptsV1473(),onStatus:reportZipV1471});};zipbar.append(zipAll,sourceQuality,outputFormat,encodeQuality,parallel,zipCancel,zipStatus);panel.append(heading,source,langbar,zipbar,page,label,list,close);shade.append(panel);document.body.append(shade);shade.onclick=e=>{if(e.target===shade)closeDialogV1471();};shade.addEventListener('keydown',e=>{if(e.key==='Escape')closeDialogV1471();});let offset=0,total=0,loading=false,readAny=false,error='',cache=[];const filtered=()=>cache.filter(ch=>valid(ch?.id)&&!ch?.attributes?.externalUrl&&(chapterLang()==='all'||String(ch?.attributes?.translatedLanguage||'').toLowerCase()===chapterLang()));const draw=()=>{if(!shade.isConnected)return;const lang=chapterLang();source.textContent='[출처] MangaDex · 회차 언어 ['+lang+']';langbar.querySelectorAll('button').forEach(b=>{const on=b.dataset.lang===lang;b.style.background=on?'#2466b9':'#293c52';b.style.borderColor=on?'#87b8ec':'#59748e';});list.replaceChildren();const shown=filtered();for(const ch of shown){const a=ch.attributes||{};const txt=['Vol.'+String(a.volume||'-'),'Ch.'+String(a.chapter||'-'),String(a.title||''),'['+String(a.translatedLanguage||'?')+']'].join(' ');const b=E('button',txt);b.type='button';b.onclick=()=>void openChapter(ch,item,shade,label);const line=E('div',null,'mdxChapterLineV1471');const zip=E('button','ZIP','mdxSingleZipV1471');zip.type='button';zip.title='이 회차만 ZIP 파일로 저장';zip.onclick=()=>{void window.ComicMangaDexZipV1473?.start?.({work:item,chapter:ch,lang:chapterLang(),...zipOptsV1473(),onStatus:reportZipV1471});};line.append(b,zip);list.append(line);}label.textContent=error?'회차 조회 실패: '+error:'['+lang+'] 회차 '+shown.length+'개 · 전체 '+offset+'/'+total+'개 확인'+(loading?' · 불러오는 중…':'');if(!loading&&(!readAny||offset<total)){const more=E('button','회차 더보기','mdxMoreChaptersV1466');more.type='button';more.onclick=()=>void load();list.append(more);}else if(!loading&&!shown.length&&!error)list.append(E('div','선택한 언어의 회차가 없습니다.'));};const load=async()=>{if(loading)return;loading=true;error='';draw();const startCount=filtered().length;try{for(let scan=0;scan<10;scan++){const data=await request('chapters?id='+encodeURIComponent(id)+'&offset='+offset);if(!shade.isConnected)return;const rows=Array.isArray(data?.data)?data.data:[];readAny=true;total=Number(data?.total)||rows.length;offset+=rows.length;cache.push(...rows);if(!rows.length||offset>=total||filtered().length-startCount>=16||(chapterLang()==='all'&&filtered().length>startCount))break;if(scan<9)await new Promise(r=>setTimeout(r,180));}}catch(e){error=String(e?.message||e);}finally{loading=false;draw();}};window.__comicMdxLiveFilterV1468=()=>{if(!shade.isConnected)return;draw();if(!loading&&offset<total&&filtered().length<16)void load();};void load();};const openChapter=async(ch,work,shade,label)=>{if(!valid(ch?.id))return;label.textContent='페이지 준비 중…';try{const doc=await request('chapter-pages?id='+encodeURIComponent(ch.id));const num=Number(doc?.pages)||0;if(num<1||num>2000)throw Error('읽을 수 있는 페이지가 없습니다.');const key='mdxchapter:'+ch.id;readerStore.set(key,{chapterId:ch.id,title:titleOf(work)+' · '+String(ch?.attributes?.chapter||'')+'화 · [출처] MangaDex',pages:Array.from({length:num},(_,i)=>i)});shade.remove();if(typeof window.ComicMangaDexOpenChapterV1466!=='function')throw Error('공통 만화 뷰어 연결을 찾지 못했습니다.');await window.ComicMangaDexOpenChapterV1466(ch.id);}catch(e){label.textContent='바로보기 실패: '+String(e?.message||e);}};window.ComicMangaDexOnlineV1466={get:key=>readerStore.get(key)};window.ComicMangaDexLibraryV1466={active:()=>state.active,render,clear};const openSaved=author=>{if(!valid(author?.id))return;
+const line=E('div');line.style.cssText='display:flex;gap:5px;align-items:center';btn.style.flex='1 1 auto';line.append(btn,add);panel.append(line);}const close=E('button','닫기');close.type='button';close.onclick=()=>{shade.remove();clear();};panel.append(close);shade.append(panel);shade.onclick=e=>{if(e.target===shade){shade.remove();clear();}};document.body.append(shade);}async function openAuthor(name){window.ComicHitomiExploreV1483?.clear?.();if(!onLocalhost()){alert('MangaDex 작가 검색과 바로보기는 로컬호스트 v8에서 지원합니다.');return;}const input=String(name||'').trim().slice(0,160);if(!input)return;window.__comicMdxAuthorLastV1465=input;const rail=document.getElementById('comicMdxAuthorInputV1465');if(rail)rail.value=input;if(typeof contentMode!=='undefined'&&contentMode!=='comic'){document.getElementById('wtContentComic')?.click?.();}++state.epoch;state.name=input;state.active=true;state.browse=false;state.author=null;window.__comicMdxSyncSavedSelectionV1469?.();state.works=[];state.total=0;state.busy=true;state.status='작가 검색 중…';showList();const epoch=state.epoch;try{const data=await request('author-search?name='+encodeURIComponent(input));if(epoch!==state.epoch)return;const authors=(Array.isArray(data?.data)?data.data:[]).filter(a=>valid(a?.id));state.authors=authors;if(!authors.length){state.busy=false;state.status='일치하는 작가가 없습니다. 레일에서 다른 이름으로 검색하세요.';showList();return;}state.busy=false;if(authors.length===1)void selectAuthor(authors[0]);else chooseAuthor(authors);}catch(e){if(epoch===state.epoch){state.busy=false;state.status='작가 검색 실패: '+String(e.message||e);showList();}}}const readerStore=new Map();const chapterLang=()=>['ko','en','ja'].includes(window.__comicMdxLangV1467)?window.__comicMdxLangV1467:'all';const showChapters=async(item)=>{const id=String(item?.id||'');if(!valid(id))return;document.getElementById('comicMdxChapterDialogV1466')?.remove();const shade=E('div');shade.id='comicMdxChapterDialogV1466';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');const panel=E('div',null,'mdxChaptersPanelV1466');const heading=E('h3',titleOf(item)+' · 회차',null);heading.style.margin='0';const source=E('div');source.style.color='#89c9ff';const label=E('div','회차 불러오는 중…');label.style.color='#b9cde2';const list=E('div',null,'mdxChaptersListV1466');const close=E('button','닫기');close.type='button';const closeDialogV1471=()=>{shade.remove();};close.onclick=closeDialogV1471;const page=E('a','MangaDex 원본 페이지 ↗');page.href='https://mangadex.org/title/'+id;page.target='_blank';page.rel='noopener noreferrer';const langbar=E('div',null,'mdxPopupLangBarV1468');langbar.style.cssText='display:flex;gap:5px;flex-wrap:wrap';for(const code of['ko','en','ja','all']){const b=E('button','['+code+']');b.dataset.lang=code;b.type='button';b.onclick=()=>{window.__comicMdxLangV1467=code;window.__comicMdxRepaintRailV1468?.();window.__comicMdxLiveFilterV1468?.();};langbar.append(b);}const zipbar=E('div',null,'mdxZipToolbarV1471');const zipAll=E('button','전체회차 ZIP');zipAll.type='button';zipAll.title='현재 선택된 회차 언어 전체를 ZIP으로 저장 (회차창을 닫아도 계속)';const zipCancel=E('button','중단','mdxZipCancelV1471');zipCancel.type='button';zipCancel.onclick=()=>window.ComicMangaDexZipV1473?.cancel?.();const optSelectV1473=(title,choices,key)=>{const sel=E('select',null,'mdxZipQualityV1473');sel.title=title;sel.setAttribute('aria-label',title);for(const [value,txt] of choices){const option=E('option',txt);option.value=value;sel.append(option);}const saved=window.__comicMdxZipPrefsV1473||{};if(choices.some(v=>v[0]===String(saved[key]||'')))sel.value=saved[key];sel.onchange=()=>{window.__comicMdxZipPrefsV1473={...(window.__comicMdxZipPrefsV1473||{}),[key]:sel.value};};return sel;};const sourceQuality=optSelectV1473('MangaDex 제공 화질',[['data','고화질'],['data-saver','절약']], 'sourceQuality');const outputFormat=optSelectV1473('ZIP 이미지 저장 확장자',[['webp','WebP'],['jpg','JPG']],'outputFormat');const encodeQuality=optSelectV1473('JPG/WebP 변환 품질',[['60','60%'],['70','70%'],['80','80%'],['90','90%'],['100','100%']],'encodeQuality');const parallel=optSelectV1473('이미지 동시 다운로드 수',[['1','동시 1장'],['2','동시 2장'],['3','동시 3장'],['4','동시 4장']],'parallel');if(!window.__comicMdxZipPrefsV1473){window.__comicMdxZipPrefsV1473={sourceQuality:'data',outputFormat:'webp',encodeQuality:'90',parallel:'4'};}sourceQuality.value=window.__comicMdxZipPrefsV1473.sourceQuality;outputFormat.value=window.__comicMdxZipPrefsV1473.outputFormat;encodeQuality.value=window.__comicMdxZipPrefsV1473.encodeQuality;parallel.value=['1','2','3','4'].includes(String(window.__comicMdxZipPrefsV1473.parallel))?String(window.__comicMdxZipPrefsV1473.parallel):'4';const zipOptsV1473=()=>({sourceQuality:sourceQuality.value,outputFormat:outputFormat.value,encodeQuality:Number(encodeQuality.value),parallel:Number(parallel.value)});const zipStatus=E('span','다운로드 중에도 회차창을 닫고 다른 작품을 볼 수 있습니다.','mdxZipStatusV1471');const reportZipV1471=message=>{if(shade.isConnected)zipStatus.textContent=String(message||'');};zipAll.onclick=()=>{void window.ComicMangaDexZipV1473?.start?.({work:item,lang:chapterLang(),...zipOptsV1473(),onStatus:reportZipV1471});};zipbar.append(zipAll,sourceQuality,outputFormat,encodeQuality,parallel,zipCancel,zipStatus);panel.append(heading,source,langbar,zipbar,page,label,list,close);shade.append(panel);document.body.append(shade);shade.onclick=e=>{if(e.target===shade)closeDialogV1471();};shade.addEventListener('keydown',e=>{if(e.key==='Escape')closeDialogV1471();});let offset=0,total=0,loading=false,readAny=false,error='',cache=[];const filtered=()=>cache.filter(ch=>valid(ch?.id)&&!ch?.attributes?.externalUrl&&(chapterLang()==='all'||String(ch?.attributes?.translatedLanguage||'').toLowerCase()===chapterLang()));const draw=()=>{if(!shade.isConnected)return;const lang=chapterLang();source.textContent='[출처] MangaDex · 회차 언어 ['+lang+']';langbar.querySelectorAll('button').forEach(b=>{const on=b.dataset.lang===lang;b.style.background=on?'#2466b9':'#293c52';b.style.borderColor=on?'#87b8ec':'#59748e';});list.replaceChildren();const shown=filtered();for(const ch of shown){const a=ch.attributes||{};const txt=['Vol.'+String(a.volume||'-'),'Ch.'+String(a.chapter||'-'),String(a.title||''),'['+String(a.translatedLanguage||'?')+']'].join(' ');const b=E('button',txt);b.type='button';b.onclick=()=>void openChapter(ch,item,shade,label);const line=E('div',null,'mdxChapterLineV1471');const zip=E('button','ZIP','mdxSingleZipV1471');zip.type='button';zip.title='이 회차만 ZIP 파일로 저장';zip.onclick=()=>{void window.ComicMangaDexZipV1473?.start?.({work:item,chapter:ch,lang:chapterLang(),...zipOptsV1473(),onStatus:reportZipV1471});};line.append(b,zip);list.append(line);}label.textContent=error?'회차 조회 실패: '+error:'['+lang+'] 회차 '+shown.length+'개 · 전체 '+offset+'/'+total+'개 확인'+(loading?' · 불러오는 중…':'');if(!loading&&(!readAny||offset<total)){const more=E('button','회차 더보기','mdxMoreChaptersV1466');more.type='button';more.onclick=()=>void load();list.append(more);}else if(!loading&&!shown.length&&!error)list.append(E('div','선택한 언어의 회차가 없습니다.'));};const load=async()=>{if(loading)return;loading=true;error='';draw();const startCount=filtered().length;try{for(let scan=0;scan<10;scan++){const data=await request('chapters?id='+encodeURIComponent(id)+'&offset='+offset);if(!shade.isConnected)return;const rows=Array.isArray(data?.data)?data.data:[];readAny=true;total=Number(data?.total)||rows.length;offset+=rows.length;cache.push(...rows);if(!rows.length||offset>=total||filtered().length-startCount>=16||(chapterLang()==='all'&&filtered().length>startCount))break;if(scan<9)await new Promise(r=>setTimeout(r,180));}}catch(e){error=String(e?.message||e);}finally{loading=false;draw();}};window.__comicMdxLiveFilterV1468=()=>{if(!shade.isConnected)return;draw();if(!loading&&offset<total&&filtered().length<16)void load();};void load();};const openChapter=async(ch,work,shade,label)=>{if(!valid(ch?.id))return;label.textContent='페이지 준비 중…';try{const doc=await request('chapter-pages?id='+encodeURIComponent(ch.id));const num=Number(doc?.pages)||0;if(num<1||num>2000)throw Error('읽을 수 있는 페이지가 없습니다.');const key='mdxchapter:'+ch.id;readerStore.set(key,{chapterId:ch.id,title:titleOf(work)+' · '+String(ch?.attributes?.chapter||'')+'화 · [출처] MangaDex',pages:Array.from({length:num},(_,i)=>i)});shade.remove();if(typeof window.ComicMangaDexOpenChapterV1466!=='function')throw Error('공통 만화 뷰어 연결을 찾지 못했습니다.');await window.ComicMangaDexOpenChapterV1466(ch.id);}catch(e){label.textContent='바로보기 실패: '+String(e?.message||e);}};window.ComicMangaDexOnlineV1466={get:key=>readerStore.get(key)};window.ComicMangaDexLibraryV1466={active:()=>state.active,render,clear};const openSaved=author=>{if(!valid(author?.id))return;
+ window.ComicHitomiExploreV1483?.clear?.();
  if(!onLocalhost()){alert('MangaDex 작가는 로컬호스트 서버에서 열 수 있습니다.');return;}
  if(typeof contentMode!=='undefined'&&contentMode!=='comic')document.getElementById('wtContentComic')?.click?.();
  document.getElementById('comicMdxAuthorDialogV1465')?.remove();
@@ -192505,6 +192607,72 @@ const line=E('div');line.style.cssText='display:flex;gap:5px;align-items:center'
  void selectAuthor({id:author.id,attributes:{name:author.name}});
 };
 window.ComicMangaDexAuthorV1465={open:openAuthor,openSaved,openBrowse,current:()=>state.active?state.author?.id:null,refreshBrowseLanguageV1477:lang=>{if(!state.active||!state.browse)return;void openBrowse(state.mode,{...state.browseArgs,listLang:lang});}};})();</script>
+<style id="comicDownloadModesStyleV1506">
+#comicAutoSaveToggleV1506,#comicQuickSaveToggleV1506{white-space:nowrap;font-size:11px!important;padding-left:7px!important;padding-right:7px!important}
+#comicAutoSaveToggleV1506[aria-pressed="true"],#comicQuickSaveToggleV1506[aria-pressed="true"]{background:#2466b9!important;border-color:#91caff!important;color:white!important}
+#comicHitomiDownloadProgressV1501 .htZipQueueV1506{border-top:1px solid #3b5873;margin-top:8px;padding-top:7px;white-space:pre-line;color:#c4dbf0;max-height:100px;overflow:auto}
+#comicHitomiDownloadProgressV1501 .htZipQueueClearV1506{background:#394b61;color:#fff;border:1px solid #64798f;font-size:10px}
+</style>
+<script id="comicDownloadModesV1506">
+(()=>{'use strict';
+ // Config only. Actual files use the pre-existing app-wide image-folder FS handle.
+ const KEY='comic_download_modes_v1506';
+ let saved={auto:false,quick:false};
+ try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');saved.auto=x.auto===true;saved.quick=x.quick===true;}catch(_){}
+ const state={auto:saved.auto,quick:saved.quick};
+ const notify=(s)=>{try{window.showToast?.(s,2600)}catch(_){}};
+ function persist(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){console.warn('[Download modes]',e);}}
+ async function root(){
+  let handle=null;
+  try{handle=window.getVideoPosterRootHandleCachedV872?.()||null;}catch(_){}
+  if(!handle && typeof idbGetComic==='function')handle=await idbGetComic('video_poster_root_handle_v1');
+  if(!handle||typeof handle.getDirectoryHandle!=='function')throw Error('공용 이미지폴더를 먼저 연결해 주세요.');
+  return handle;
+ }
+ async function getDir(name){
+  // Already queued automatic tasks continue even if the switch is turned off.
+  const handle=await root();
+  if(await handle.queryPermission?.({mode:'readwrite'})!=='granted')throw Error('이미지폴더 쓰기 권한이 없습니다. 상단 P(권한)를 눌러 허용해 주세요.');
+  return await handle.getDirectoryHandle(name,{create:true});
+ }
+ async function uniqueFile(dir,basename,ext){
+  // Do not overwrite a prior archive, even when a work is downloaded twice.
+  for(let i=0;i<10000;i++){
+   const name=basename+(i?' ('+i+')':'')+'.'+ext;
+   try{await dir.getFileHandle(name,{create:false});continue;}
+   catch(e){if(e?.name!=='NotFoundError')throw e;}
+   return await dir.getFileHandle(name,{create:true});
+  }
+  throw Error('저장 파일명 중복 한도 초과');
+ }
+ function paint(){
+  const a=document.getElementById('comicAutoSaveToggleV1506'),q=document.getElementById('comicQuickSaveToggleV1506');
+  if(a){a.textContent='자동저장 '+(state.auto?'ON':'OFF');a.setAttribute('aria-pressed',String(state.auto));}
+  if(q){q.textContent='퀵저장 '+(state.quick?'ON':'OFF');q.setAttribute('aria-pressed',String(state.quick));}
+ }
+ async function toggleAuto(){
+  const btn=document.getElementById('comicAutoSaveToggleV1506');if(btn?.disabled)return;
+  if(state.auto){state.auto=false;persist();paint();notify('자동저장 OFF · 기존 저장 위치 선택');return;}
+  if(btn)btn.disabled=true;
+  try{
+   const handle=await root();
+   let permission=await handle.queryPermission?.({mode:'readwrite'});
+   if(permission!=='granted'&&typeof handle.requestPermission==='function')permission=await handle.requestPermission({mode:'readwrite'});
+   if(permission!=='granted')throw Error('쓰기 권한이 필요합니다. 상단 P 버튼으로 허용해 주세요.');
+   state.auto=true;persist();paint();notify('자동저장 ON · 이미지폴더/hitomi · MangaDex');
+  }catch(e){state.auto=false;paint();alert('자동저장을 켤 수 없습니다: '+String(e?.message||e));window.openVideoSharedImageFolderDialogV1438?.();}
+  finally{if(btn)btn.disabled=false;}
+ }
+ function init(){
+  const a=document.getElementById('comicAutoSaveToggleV1506'),q=document.getElementById('comicQuickSaveToggleV1506');
+  if(a&&!a.dataset.boundV1506){a.dataset.boundV1506='1';a.addEventListener('click',()=>void toggleAuto());}
+  if(q&&!q.dataset.boundV1506){q.dataset.boundV1506='1';q.addEventListener('click',()=>{state.quick=!state.quick;persist();paint();notify('Hitomi 퀵저장 '+(state.quick?'ON':'OFF'));});}
+  paint();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+ window.ComicDownloadModesV1506={isAuto:()=>state.auto,isQuick:()=>state.quick,getDir,uniqueFile};
+})();
+</script>
 <script id="comicMdxZipExporterV1473">
 /* v1474 MangaDex ZIP: bounded concurrent image downloads (1-4), ordered ZIP writes, rate limiter and abort; other features v1473 retained. */
 window.ComicMangaDexZipV1473=(()=>{'use strict';
@@ -192561,7 +192729,11 @@ window.ComicMangaDexZipV1473=(()=>{'use strict';
   const sourceQuality=opts?.sourceQuality==='data-saver'?'data-saver':'data';const outputFormat=opts?.outputFormat==='jpg'?'jpg':'webp';const encodeQuality=[60,70,80,90,100].includes(Number(opts?.encodeQuality))?Number(opts.encodeQuality):90;const parallel=[1,2,3,4].includes(Number(opts?.parallel))?Number(opts.parallel):4;const base=nameSafe(Object.values(work.attributes?.title||{})[0]||'MangaDex',65);const single=!!ch;const proposed=base+'_'+(single?'Ch'+nameSafe(ch.attributes?.chapter||'oneshot',15)+'_'+ch.id.slice(0,8):'전체회차_'+lang)+'_'+(sourceQuality==='data'?'HQ':'Saver')+'_'+outputFormat.toUpperCase()+encodeQuality+'.zip';const j={cancelled:false,signal:new AbortController(),onStatus:opts.onStatus,percent:0,done:false};job=j;status(j,'저장 위치 선택 중…');let writer=null;let objectURL=null;try{
    // Must open the picker directly in the click gesture, before other awaits.
    let sink=null;
-   if(typeof window.showSaveFilePicker==='function'){
+   if(window.ComicDownloadModesV1506?.isAuto()){
+     const dir=await window.ComicDownloadModesV1506.getDir('MangaDex');
+     const handle=await window.ComicDownloadModesV1506.uniqueFile(dir,proposed.slice(0,-4),'zip');
+     sink=await handle.createWritable();
+   }else if(typeof window.showSaveFilePicker==='function'){
      const handle=await window.showSaveFilePicker({suggestedName:proposed,types:[{description:'ZIP archive',accept:{'application/zip':['.zip']}}]});
      sink=await handle.createWritable();
    }
@@ -192658,25 +192830,31 @@ window.ComicHitomiZipV1501 = (() => {
  async function convert(bytes,ext,format,quality){if(format==='original')return{bytes,ext};const data=new Blob([bytes],{type:ext==='jpg'?'image/jpeg':ext==='png'?'image/png':ext==='gif'?'image/gif':ext==='avif'?'image/avif':'image/webp'});const bmp=await createImageBitmap(data);let canvas;try{if(!bmp.width||!bmp.height||bmp.width*bmp.height>80000000)throw Error('이미지 크기가 너무 커서 변환할 수 없습니다.');canvas=document.createElement('canvas');canvas.width=bmp.width;canvas.height=bmp.height;const ctx=canvas.getContext('2d',{alpha:format!=='jpg'});if(!ctx)throw Error('이미지 변환을 시작하지 못했습니다.');if(format==='jpg'){ctx.fillStyle='#fff';ctx.fillRect(0,0,bmp.width,bmp.height);}ctx.drawImage(bmp,0,0);const mime=outputMime(format),blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('변환 결과 없음')),mime,quality/100));if(blob.type!==mime)throw Error('이 브라우저에서 '+format.toUpperCase()+' 인코딩을 지원하지 않습니다.');return{bytes:new Uint8Array(await blob.arrayBuffer()),ext:format};}finally{if(canvas){canvas.width=0;canvas.height=0;}bmp.close?.();}}
  const normalPage=(raw,id)=>{if(typeof raw!=='string')return null;try{const u=new URL(raw,location.protocol==='http:'?location.origin:'http://127.0.0.1:18765');if(u.protocol!=='http:'||u.hostname!=='127.0.0.1'||!['18765','18766'].includes(u.port)||u.pathname!==ROOT+'image'||u.searchParams.get('id')!==String(id)||!/^(0|[1-9]\d*)$/.test(u.searchParams.get('p')||''))return null;return u.pathname+u.search;}catch(_){return null;}};
  let job=null,progressUI=null;
- function progress(j,s){if(!progressUI){const box=document.createElement('aside');box.id='comicHitomiDownloadProgressV1501';box.setAttribute('role','status');box.setAttribute('aria-live','polite');box.innerHTML='<div class="htZipHeadV1501"><strong>📦 Hitomi 다운로드</strong><button type="button" class="htZipStopV1501">중단</button><button type="button" class="htZipCloseV1501">×</button></div><div class="htZipTextV1501"></div><progress max="100" value="0"></progress><small>다운로드 중 뷰어를 닫아도 계속 진행 · 웹뷰어 종료 시 중단</small>';box.querySelector('.htZipStopV1501').onclick=cancel;box.querySelector('.htZipCloseV1501').onclick=()=>{if(!job){progressUI?.remove();progressUI=null;}};document.body.append(box);progressUI=box;}progressUI.querySelector('.htZipTextV1501').textContent=s;progressUI.querySelector('progress').value=j?.pct||0;progressUI.querySelector('.htZipStopV1501').hidden=!j||j.done;progressUI.querySelector('.htZipCloseV1501').hidden=!!j&&!j.done;}
+ const waiting=[],queuedIds=new Set();
+ function showQueue(){
+  if(!progressUI)return;
+  const el=progressUI.querySelector('.htZipQueueV1506');
+  if(el){const lines=waiting.slice(0,5).map((x,i)=>(i+1)+'. '+String(x.card.title||'#'+x.card.id).slice(0,68));el.textContent='대기 '+waiting.length+'작품'+(lines.length?'\n'+lines.join('\n'):'');}
+  const clear=progressUI.querySelector('.htZipQueueClearV1506');if(clear)clear.hidden=!waiting.length;
+ }
+ function progress(j,s){if(!progressUI){const box=document.createElement('aside');box.id='comicHitomiDownloadProgressV1501';box.setAttribute('role','status');box.setAttribute('aria-live','polite');box.innerHTML='<div class="htZipHeadV1501"><strong>📦 Hitomi 다운로드</strong><button type="button" class="htZipStopV1501">현재 중단</button><button type="button" class="htZipQueueClearV1506">대기 취소</button><button type="button" class="htZipCloseV1501">×</button></div><div class="htZipTextV1501"></div><progress max="100" value="0"></progress><div class="htZipQueueV1506"></div><small>작품별 순차 다운로드 · 작품 내부 동시 4장 · 웹뷰어 종료 시 대기열 종료</small>';box.querySelector('.htZipStopV1501').onclick=cancel;box.querySelector('.htZipQueueClearV1506').onclick=()=>{for(const task of waiting)queuedIds.delete(String(task.card.id));waiting.length=0;showQueue();};box.querySelector('.htZipCloseV1501').onclick=()=>{if(!job&&!waiting.length){progressUI?.remove();progressUI=null;}};document.body.append(box);progressUI=box;}progressUI.querySelector('.htZipTextV1501').textContent=s;progressUI.querySelector('progress').value=j?.pct||0;progressUI.querySelector('.htZipStopV1501').hidden=!j||j.done;progressUI.querySelector('.htZipCloseV1501').hidden=!!j&&!j.done||!!waiting.length;showQueue();}
  const check=j=>{if(j.cancelled)throw new DOMException('사용자가 중단했습니다.','AbortError');};
  async function get(j,url,binary=false){for(let k=0;k<3;k++){check(j);try{const r=await fetch(url,{cache:'no-store',signal:j.controller.signal});if(!r.ok){if(k<2&&(r.status===429||r.status>=500)){await sleep(800*(k+1));continue;}throw Error('이미지 서버 HTTP '+r.status);}return binary?{bytes:new Uint8Array(await r.arrayBuffer()),mime:r.headers.get('content-type')||''}:r.json();}catch(e){check(j);if(k===2||/이미지 서버 HTTP/.test(String(e?.message||'')))throw e;await sleep(700*(k+1));}}throw Error('네트워크 재시도 실패');}
- function fileBase(card,group){const artist=Array.isArray(card.artists)?card.artists.filter(Boolean).join('+'):'';const prefix=group?('['+clean(group,45)+(artist?'('+clean(artist,55)+')':'')+'] '):(artist?'['+clean(artist,65)+'] ':'');return clean(prefix+String(card.title||'Hitomi')+' ('+card.id+')',170);}
- async function start(card,options){if(job){progress(job,'다른 Hitomi 다운로드가 진행 중입니다. 먼저 완료하거나 중단해주세요.');return;}if(!validID(card?.id))return;const format=['original','jpg','webp'].includes(options.format)?options.format:'original';const output=['zip','cbz','folder'].includes(options.output)?options.output:'zip';const quality=Math.max(50,Math.min(100,Number(options.quality)||90));const base=fileBase(card,options.group),fileName=base+'.'+(output==='cbz'?'cbz':'zip');const j={controller:new AbortController(),cancelled:false,done:false,pct:0};job=j;progress(j,'저장 위치 선택 중…');let writer=null,objectURL=null,folder=null;try{
-  // Both picker APIs must be started synchronously from the user's Save click.
-  let sink=null,pendingHandle=null;
+ function fileBase(card,group){const artist=Array.isArray(card.artists)?card.artists.filter(Boolean).join('+'):'';const prefix=group?('['+clean(group,45)+'('+(artist?clean(artist,55):'미정')+')] '):(artist?'['+clean(artist,65)+'] ':'');return clean(prefix+String(card.title||'Hitomi')+' ('+card.id+')',170);}
+ async function start(card,options,task){if(!validID(card?.id))return;const format=['original','jpg','webp'].includes(options.format)?options.format:'original';const output=['zip','cbz','folder'].includes(options.output)?options.output:'zip';const quality=Math.max(50,Math.min(100,Number(options.quality)||90));const base=fileBase(card,options.group),fileName=base+'.'+(output==='cbz'?'cbz':'zip');const j={controller:new AbortController(),cancelled:false,done:false,pct:0};job=j;progress(j,'저장 위치 선택 중…');let writer=null,objectURL=null,folder=null;try{
+  // In manual mode each waiting task's picker ran at its original click.
+  // In auto mode only the already-authorized shared image folder is accessed.
+  let sink=null,root=null,handle=null;
+  if(task.auto){root=await window.ComicDownloadModesV1506.getDir('hitomi');}
+  else if(task.selection){const chosen=await task.selection;if(chosen.error)throw chosen.error;handle=chosen.handle;}
   if(output==='folder'){
-   if(typeof window.showDirectoryPicker!=='function')throw Error('폴더 저장은 Chrome의 폴더 선택 기능이 필요합니다. ZIP을 선택하세요.');
-   pendingHandle=window.showDirectoryPicker({mode:'readwrite'});
-  }else if(typeof window.showSaveFilePicker==='function'){
-   pendingHandle=window.showSaveFilePicker({suggestedName:fileName,types:[{description:output.toUpperCase()+' archive',accept:{'application/zip':output==='cbz'?['.cbz']:['.zip']}}]});
-  }
-  if(output==='folder'){
-   const root=await pendingHandle;
-   // Create a fresh named subdirectory; never overwrite a previous export.
-   folder=await root.getDirectoryHandle(base.slice(0,100)+'_'+Date.now(),{create:true});
+   if(!root)root=handle;
+   if(!root)throw Error('폴더 저장 위치가 선택되지 않았습니다.');
+   // Never overwrite an existing folder's pages.
+   folder=await root.getDirectoryHandle(base.slice(0,100)+'_'+Date.now()+'_'+Math.floor(Math.random()*100000),{create:true});
   }else {
-   if(pendingHandle){const handle=await pendingHandle;sink=await handle.createWritable();}
+   if(task.auto)handle=await window.ComicDownloadModesV1506.uniqueFile(root,base,output==='cbz'?'cbz':'zip');
+   if(handle)sink=await handle.createWritable();
    writer=new ZipStream(sink);
   }
   progress(j,'본문 이미지 목록 조회 중…');const doc=await get(j,ROOT+'pages?id='+encodeURIComponent(card.id));check(j);
@@ -192685,13 +192863,13 @@ window.ComicHitomiZipV1501 = (() => {
   if(doc.previewOnly||pages.length>2000)throw Error('전체 원본 이미지 정보를 확인할 수 없습니다. 표지만 저장하지 않습니다.');
   if(Number(doc.total)>0&&Number(doc.total)!==pages.length)throw Error('전체 페이지 수와 이미지 주소 수가 다릅니다. 누락 방지를 위해 중단합니다.');
   const total=pages.length;let next=0,lastLaunch=0;const pending=new Map();
-  const queue=()=>{while(next<total&&pending.size<2&&!j.cancelled){const at=next++;const p=(async()=>{const delay=Math.max(0,350-(Date.now()-lastLaunch));if(delay)await sleep(delay);check(j);lastLaunch=Date.now();const v=await get(j,pages[at],true);return v;})();pending.set(at,p.then(v=>({v}),error=>({error})));}};
+  const queue=()=>{while(next<total&&pending.size<4&&!j.cancelled){const at=next++;const p=(async()=>{const delay=Math.max(0,350-(Date.now()-lastLaunch));if(delay)await sleep(delay);check(j);lastLaunch=Date.now();const v=await get(j,pages[at],true);return v;})();pending.set(at,p.then(v=>({v}),error=>({error})));}};
   queue();
   for(let i=0;i<total;i++){
-   check(j);progress(j,`본문 ${i+1} / ${total}장 · ${format==='original'?'원본 유지':format.toUpperCase()+' '+quality+'%'} · 동시 최대 2장`);
+   check(j);progress(j,`본문 ${i+1} / ${total}장 · ${format==='original'?'원본 유지':format.toUpperCase()+' '+quality+'%'} · 동시 최대 4장`);
    const result=await pending.get(i);pending.delete(i);if(result.error)throw Error((i+1)+'페이지: '+String(result.error?.message||result.error));
    const type=detect(result.v.bytes,result.v.mime);if(!type)throw Error((i+1)+'페이지가 이미지 파일이 아닙니다. 완료 처리하지 않습니다.');
-   queue(); // Images bounded to two in-flight requests; convert/write one page at a time.
+   queue(); // Images bounded to four in-flight requests; convert/write one page at a time.
    const converted=await convert(result.v.bytes,type,format,quality);check(j);
    const name=String(i+1).padStart(4,'0')+'.'+converted.ext;
    if(writer)await writer.file(name,converted.bytes);
@@ -192704,7 +192882,43 @@ window.ComicHitomiZipV1501 = (() => {
  finally{if(job===j){job=null;if(progressUI)progress(j,progressUI.querySelector('.htZipTextV1501')?.textContent||'');}}
  }
  function cancel(){if(!job)return;job.cancelled=true;job.controller.abort();}
- function open(card){if(!validID(card?.id))return;const old=document.getElementById('comicHitomiSaveDialogV1501');old?.remove();const shade=document.createElement('div');shade.id='comicHitomiSaveDialogV1501';const box=document.createElement('section');box.className='htZipModalV1501';const title=document.createElement('h3');title.textContent='Hitomi 작품 다운로드';const work=document.createElement('div');work.className='htZipWorkV1501';work.textContent=String(card.title||'작품')+' · #'+card.id;box.append(title,work);
+ function prefs(){let v={};try{v=JSON.parse(localStorage.getItem('comic_hitomi_save_config_v1501')||'{}')||{}}catch(_){}return{format:['original','jpg','webp'].includes(v.format)?v.format:'original',output:['zip','cbz','folder'].includes(v.output)?v.output:'zip',quality:Number.isFinite(Number(v.quality))?Math.max(50,Math.min(100,Number(v.quality))):90};}
+ function groupOf(card){const groups=card.groups||card.group||[];return Array.isArray(groups)?groups.filter(Boolean).join('+'):String(groups||'');}
+ function queueDownload(card,options){
+  if(!validID(card?.id))return false;
+  const id=String(card.id);
+  if(queuedIds.has(id)){if(job)progress(job,'이미 다운로드 중이거나 예약된 작품입니다: #'+id);return false;}
+  const auto=!!window.ComicDownloadModesV1506?.isAuto();
+  if(!auto&&(job||waiting.length)){progress(job,'자동저장 OFF에서는 한 작품씩 다운로드할 수 있습니다. 대기열을 쓰려면 자동저장을 켜주세요.');return false;}
+  if(queuedIds.size>=100){progress(job,'다운로드 대기열은 최대 100개 작품입니다.');return false;}
+  let selection=null;
+  if(!auto){
+   // Start native picker now, not when the queued job later begins.
+   try{
+    if(options.output==='folder'){
+     if(typeof window.showDirectoryPicker!=='function')throw Error('Chrome 폴더 선택 기능이 필요합니다.');
+     selection=window.showDirectoryPicker({mode:'readwrite'});
+    }else if(typeof window.showSaveFilePicker==='function'){
+     const base=fileBase(card,options.group),ext=options.output==='cbz'?'cbz':'zip';
+     selection=window.showSaveFilePicker({suggestedName:base+'.'+ext,types:[{description:ext.toUpperCase()+' archive',accept:{'application/zip':['.'+ext]}}]});
+    }
+   }catch(e){alert('저장 위치 선택 오류: '+String(e?.message||e));return false;}
+   if(selection)selection=Promise.resolve(selection).then(handle=>({handle}),error=>({error}));
+  }
+  queuedIds.add(id);waiting.push({card,options:{...options},auto,selection});
+  if(!job)void runNext();else progress(job,'다운로드 진행 중 · '+waiting.length+'개 작품 예약됨');
+  return true;
+ }
+ async function runNext(){
+  if(job||!waiting.length)return;
+  const task=waiting.shift();showQueue();
+  try{await start(task.card,task.options,task);}
+  catch(e){console.error('[Hitomi Queue]',e);if(progressUI)progress(null,'다운로드 오류: '+String(e?.message||e));}
+  finally{queuedIds.delete(String(task.card.id));showQueue();if(waiting.length)void runNext();}
+ }
+ function open(card){if(!validID(card?.id))return;
+  if(window.ComicDownloadModesV1506?.isQuick())return void queueDownload(card,{...prefs(),group:groupOf(card)});
+  const old=document.getElementById('comicHitomiSaveDialogV1501');old?.remove();const shade=document.createElement('div');shade.id='comicHitomiSaveDialogV1501';const box=document.createElement('section');box.className='htZipModalV1501';const title=document.createElement('h3');title.textContent='Hitomi 작품 다운로드';const work=document.createElement('div');work.className='htZipWorkV1501';work.textContent=String(card.title||'작품')+' · #'+card.id;box.append(title,work);
  const form=document.createElement('div');form.className='htZipOptionsV1501';box.append(form);
  function radios(label,key,values){const field=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent=label;field.append(legend);for(const [value,text] of values){const span=document.createElement('label'),input=document.createElement('input');input.type='radio';input.name=key;input.value=value;span.append(input,document.createTextNode(' '+text));field.append(span);}form.append(field);return field;}
  const source=radios('이미지 형식','hitomi-output-image',[['original','원본 유지'],['jpg','JPG 변환'],['webp','WebP 변환']]);const dest=radios('저장 형식','hitomi-output-kind',[['zip','ZIP'],['cbz','CBZ'],['folder','이미지 폴더']]);
@@ -192713,8 +192927,8 @@ window.ComicHitomiZipV1501 = (() => {
  const qualityRow=document.createElement('div');qualityRow.className='htZipQualityV1501';const qualityLabel=document.createElement('span');const quality=document.createElement('input');quality.type='range';quality.min='50';quality.max='100';quality.step='5';quality.value=String(setting.quality);quality.oninput=()=>{qualityLabel.textContent='변환 품질 '+quality.value+'%';};quality.oninput();qualityRow.append(qualityLabel,quality);form.append(qualityRow);
  const groupRow=document.createElement('label');groupRow.className='htZipGroupV1501';const groupText=document.createElement('span');groupText.textContent='그룹명 (선택 입력)';const group=document.createElement('input');group.type='text';group.maxLength=90;group.placeholder='그룹명이 있으면 자동 입력됩니다';const groups=card.groups||card.group||[];group.value=Array.isArray(groups)?groups.filter(Boolean).join('+'):String(groups||'');groupRow.append(groupText,group);form.append(groupRow);
  const tip=document.createElement('p');tip.className='htZipHintV1501';tip.textContent='원본 유지는 어댑터가 제공한 이미지 파일을 변환 없이 저장합니다. 그룹명이 있는 작품은 자동 입력되며 직접 변경할 수도 있습니다. 페이지 누락 시 완료 처리하지 않습니다.';box.append(tip);
- const buttons=document.createElement('div');buttons.className='htZipActionsV1501';const go=document.createElement('button');go.type='button';go.textContent='다운로드 시작';const close=document.createElement('button');close.type='button';close.textContent='취소';close.onclick=()=>shade.remove();const update=()=>{const fmt=source.querySelector('input:checked')?.value||'original';qualityRow.hidden=fmt==='original';};source.addEventListener('change',update);update();go.onclick=()=>{const fmt=source.querySelector('input:checked')?.value||'original',output=dest.querySelector('input:checked')?.value||'zip',q=Number(quality.value);try{localStorage.setItem('comic_hitomi_save_config_v1501',JSON.stringify({format:fmt,output,quality:q}));}catch(_){}shade.remove();void start(card,{format:fmt,output,quality:q,group:group.value.trim()});};buttons.append(close,go);box.append(buttons);shade.append(box);shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);}
- return {open,cancel,active:()=>!!job,normalPage};
+ const buttons=document.createElement('div');buttons.className='htZipActionsV1501';const go=document.createElement('button');go.type='button';go.textContent='다운로드 시작';const close=document.createElement('button');close.type='button';close.textContent='취소';close.onclick=()=>shade.remove();const update=()=>{const fmt=source.querySelector('input:checked')?.value||'original';qualityRow.hidden=fmt==='original';};source.addEventListener('change',update);update();go.onclick=()=>{const fmt=source.querySelector('input:checked')?.value||'original',output=dest.querySelector('input:checked')?.value||'zip',q=Number(quality.value);try{localStorage.setItem('comic_hitomi_save_config_v1501',JSON.stringify({format:fmt,output,quality:q}));}catch(_){}shade.remove();queueDownload(card,{format:fmt,output,quality:q,group:group.value.trim()});};buttons.append(close,go);box.append(buttons);shade.append(box);shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);}
+ return {open,cancel,active:()=>!!job,queued:()=>waiting.length,normalPage};
 })();
 </script>
 <style id="hitomiExtraSearchV1502">
@@ -192725,11 +192939,151 @@ window.ComicHitomiZipV1501 = (() => {
 #comicHitomiPanelV1483 .hitomiRowV1483{margin-top:3px}
 #comicHitomiPanelV1483 button[aria-pressed="true"]{background:#2466b9;border-color:#9ac6ef;color:#fff;font-weight:bold}
 </style>
+<style id="comicHitomiBookmarkStyleV1503">
+#wtTagRail .comicHitomiSavedRowV1503{display:flex;align-items:center;gap:2px;min-width:0;padding:1px 2px;color:#b8e0ff}
+#wtTagRail .comicHitomiSavedIconV1503{flex:0 0 13px;text-align:center;color:#f3b45d;font-weight:700;font-size:11px}
+#wtTagRail .comicHitomiSavedDeleteV1503{border:0;background:transparent;color:#e6a5a5;padding:0 4px;cursor:pointer;font-size:15px}
+#comicHitomiDialogV1483 .hitomiDetailRowV1503{margin:6px 0;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;line-height:1.4}
+#comicHitomiDialogV1483 .hitomiDetailTokensV1503{display:flex;flex-wrap:wrap;gap:5px}
+#comicHitomiDialogV1483 .hitomiDetailTokenV1503{display:inline-flex;align-items:center;gap:3px;background:#283b50;border:1px solid #46617e;border-radius:5px;padding:2px 4px}
+#comicHitomiDialogV1483 .hitomiDetailSearchV1503{color:#d6ecff;background:transparent;border:0;cursor:pointer;padding:1px 3px;font-size:12px}
+#comicHitomiDialogV1483 .hitomiDetailSearchV1503:hover{text-decoration:underline}
+#comicHitomiDialogV1483 .hitomiDetailSaveV1503{color:#92d5a8;background:#183b32;border:1px solid #3d7152;border-radius:4px;cursor:pointer;padding:0 5px;font-size:12px}
+#comicHitomiDialogV1483 .hitomiDetailSaveV1503:disabled{opacity:.75;cursor:default}
+#comicHitomiDialogV1483 .hitomiDetailHintV1503{font-size:11px;color:#b8cad7;padding:8px 0}
+</style>
+<script id="comicHitomiBookmarksV1503">
+(()=>{'use strict';
+ const dbName='webviewer_hitomi_bookmarks_v1503',store='saved',items=new Map();
+ const norm=v=>String(v||'').normalize('NFKC').trim().replace(/\s+/g,' ');
+ const key=(type,name)=>type+':'+norm(name).toLocaleLowerCase();
+ const types=new Set(['author','group','tag']);
+ function label(x){const value=norm(x.name);return value+' [Hitomi]';}
+ const fromLabel=(mode,labelText)=>{
+  const text=String(labelText||'');if(!text.endsWith(' [Hitomi]'))return null;
+  return items.get(key(mode,text.slice(0,-9)))||null;
+ };
+ const repaint=()=>window.__comicHitomiRepaintSavedV1503?.();
+ const open=()=>new Promise((resolve,reject)=>{
+  if(!indexedDB)return reject(Error('IndexedDB 사용 불가'));
+  const req=indexedDB.open(dbName,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(store))req.result.createObjectStore(store,{keyPath:'key'});};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||Error('Hitomi 저장소 열기 실패'));
+ });
+ const dbReady=open();
+ const ready=dbReady.then(db=>new Promise((resolve,reject)=>{
+  const tx=db.transaction(store,'readonly');const req=tx.objectStore(store).getAll();
+  req.onsuccess=()=>{for(const v of req.result||[]){if(types.has(v.type)&&norm(v.name))items.set(key(v.type,v.name),v);}resolve(true);repaint()};
+  req.onerror=()=>reject(req.error);
+ })).catch(err=>{console.warn('[Hitomi 저장소]',err);return false});
+ async function write(type,name){
+  name=norm(name);if(!types.has(type)||!name)throw Error('저장할 이름이 없습니다.');
+  if(name.length>160)throw Error('이름은 160자까지 저장할 수 있습니다.');
+  if(!(await ready))throw Error('Hitomi IndexedDB가 열리지 않았습니다.');
+  const k=key(type,name);if(items.has(k))return false;
+  const value={key:k,type,name,created:Date.now()};
+  const db=await dbReady;
+  await new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(value);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)});
+  items.set(k,value);repaint();return true;
+ }
+ async function remove(type,name){
+  if(!(await ready))throw Error('IndexedDB에 연결할 수 없습니다.');
+  const k=key(type,name);const db=await dbReady;
+  await new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete(k);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)});
+  items.delete(k);repaint();
+ }
+ const list=type=>Array.from(items.values()).filter(x=>x.type===type).sort((a,b)=>a.name.localeCompare(b.name,'ko',{numeric:true,sensitivity:'base'}));
+ window.ComicHitomiBookmarksV1503={ready,add:write,remove,list,fromLabel,label};
+})();
+</script>
+
+<style id="comicHitomiFavoritesStyleV1505">
+/* v1508: Keep the action fully in Hitomi's 43px caption, beside the source text; never overlap the cover. */
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507 .wtThumbCap .wtComicMetaV1094{box-sizing:border-box;padding-right:23px}
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507>.hitomiFavoriteHeartV1505{
+  position:absolute;right:4px;bottom:22px;z-index:5;
+  display:grid;place-items:center;box-sizing:border-box;
+  width:17px;height:17px;min-width:0;min-height:0;margin:0;padding:0;
+  border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;
+  -webkit-appearance:none;appearance:none;
+  color:#a8bbcd;cursor:pointer;font:400 17px/1 Arial,sans-serif;text-align:center;
+  text-shadow:0 1px 2px #080f19;
+}
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507>.hitomiFavoriteHeartV1505[aria-pressed="true"]{color:#fa7192}
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507>.hitomiFavoriteHeartV1505:hover{color:#fff;background:transparent!important}
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507>.hitomiFavoriteHeartV1505[aria-pressed="true"]:hover{color:#ff9bb3}
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507>.hitomiFavoriteHeartV1505:focus-visible{outline:1px solid #a4c7e7;outline-offset:2px;border-radius:3px}
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507>.hitomiFavoriteHeartV1505:disabled{opacity:.5;cursor:wait}
+</style>
+<script id="comicHitomiFavoritesV1505">
+(()=>{'use strict';
+ // Only gallery IDs are persisted. All display metadata comes from the existing adapter.
+ const DB='webviewer_hitomi_favorites_v1505', STORE='ids';
+ const saved=new Set();
+ const normalize=id=>{const v=String(id??'').trim();return /^\d{1,12}$/.test(v)?String(Number(v)):'';};
+ const open=()=>new Promise((resolve,reject)=>{
+  if(typeof indexedDB==='undefined')return reject(Error('IndexedDB 사용 불가'));
+  const req=indexedDB.open(DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE);};
+  req.onerror=()=>reject(req.error||Error('즐겨찾기 DB 열기 실패'));
+  req.onsuccess=()=>resolve(req.result);
+ });
+ const database=open();
+ const ready=database.then(db=>new Promise((resolve,reject)=>{
+  const tx=db.transaction(STORE,'readonly'),req=tx.objectStore(STORE).getAllKeys();
+  req.onsuccess=()=>{for(const id of req.result||[]){const n=normalize(id);if(n)saved.add(n);}resolve(true)};
+  req.onerror=()=>reject(req.error||Error('즐겨찾기 목록 조회 실패'));
+ })).catch(err=>{console.warn('[Hitomi Favorites]',err);return false});
+ async function toggle(id){
+  id=normalize(id);if(!id)throw Error('작품번호가 올바르지 않습니다.');
+  if(!(await ready))throw Error('IndexedDB 즐겨찾기를 열 수 없습니다.');
+  const db=await database,next=!saved.has(id);
+  await new Promise((resolve,reject)=>{
+   const tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);
+   if(next)store.put(id,id);else store.delete(id);
+   tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||Error('즐겨찾기 저장 실패'));
+   tx.onabort=()=>reject(tx.error||Error('즐겨찾기 저장 중단'));
+  });
+  if(next)saved.add(id);else saved.delete(id);
+  return next;
+ }
+ const list=()=>[...saved].sort((a,b)=>Number(b)-Number(a));
+ window.ComicHitomiFavoritesV1505={ready,has:id=>saved.has(normalize(id)),toggle,list,count:()=>saved.size};
+})();
+</script>
+<style id="comicExternalOwnedStyleV1507">
+#comicRightRailExternalToolsV1482>.comicExternalSaveActionsV1507{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;box-sizing:border-box;width:100%;padding:3px 0 5px;position:sticky;top:0;z-index:12;background:#111a28}
+#comicRightRailExternalToolsV1482>.comicExternalSaveActionsV1507 .zoomBtn{display:block;box-sizing:border-box;width:100%;min-width:0;min-height:24px;padding:2px 1px!important;font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:clip}
+/* v1511: 55/106px rail widths cannot fit two complete labels side by side. */
+#comicRightRailV1366.wtRailNarrowWidthV1366 #comicRightRailExternalToolsV1482>.comicExternalSaveActionsV1507{grid-template-columns:1fr}
+#comicRightRailV1366 #comicRightRailExternalToolsV1482>.comicExternalSaveActionsV1507 button{cursor:pointer}
+
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507 .wtThumbImgWrap{background:#171c24!important}
+/* v1508: Both external sources already request thumbnails (MangaDex size=256, Hitomi smalltn first).
+   CSS cover scales on display without canvas encode, additional fetch, or extra IndexedDB writes. */
+#wtList.comicMdxLibraryV1466>.wtThumbItem>.wtThumbBtn>.wtThumbImgWrap>img.wtThumbImg{
+  display:block;width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:center center!important;
+}
+/* Smaller corner with explicitly left-aligned label (parent cards can inherit center alignment). */
+#wtList.comicMdxLibraryV1466 .hitomiRemoteCardV1507 .hitomiOwnedRibbonV1507{
+  position:absolute;left:0;top:0;z-index:6;display:block;
+  width:66px;height:66px;box-sizing:border-box;margin:0;padding:7px 0 0 8px!important;
+  background:linear-gradient(135deg,#d70f39 0%,#d70f39 49.5%,transparent 50.5%,transparent 100%);
+  clip-path:polygon(0 0,100% 0,0 100%);
+  color:#fff;font:900 10px/14px system-ui,'Malgun Gothic',sans-serif;
+  letter-spacing:-.2px;text-align:left!important;white-space:nowrap;
+  text-shadow:0 1px 2px #4a0018;pointer-events:none;user-select:none;
+}
+</style>
 <script id="comicHitomiExploreV1483">
 (()=>{'use strict';
 const ROOT='/__webviewer_local/hitomi/';
+const favorites=window.ComicHitomiFavoritesV1505;
+const favoriteCards=new Map();
+function rememberFavoriteCard(card){if(!card||!/^\d{1,12}$/.test(String(card.id))||card.__favoriteError)return;const id=String(card.id);favoriteCards.delete(id);favoriteCards.set(id,card);if(favoriteCards.size>256)favoriteCards.delete(favoriteCards.keys().next().value);}
 const make=(tag,txt,cls)=>{const e=document.createElement(tag);if(txt!==null&&txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e};
-const state={mode:'recent',lang:'all',term:'',period:'today',types:[],gender:'none',page:0,offset:null,seed:0,items:[],hasMore:false,active:false,busy:false,epoch:0,snapshot:null,error:''};
+const state={mode:'recent',lang:'all',term:'',period:'today',types:[],gender:'none',page:0,offset:null,seed:0,items:[],hasMore:false,active:false,busy:false,epoch:0,snapshot:null,error:'',favIds:[],favCursor:0,favInitialized:false};
 try{const saved=localStorage.getItem('comic_hitomi_language_v1483');if(['ko','ja','en','all'].includes(saved))state.lang=saved;}catch(_){}
 const panel=make('section',null);panel.id='comicHitomiPanelV1483';window.__comicHitomiPanelV1483=panel;
 panel.append(make('div','Hitomi · 외부 작품 탐색','hitomiTitleV1483'));
@@ -192739,6 +193093,8 @@ const langButtons={};for(const [code,text] of [['ko','한국어'],['ja','일본�
 }
 function syncLang(){for(const [code,b] of Object.entries(langButtons))b.classList.toggle('active',state.lang===code);}
 for(const [mode,text] of [['recent','최근 등록'],['random','무작위']]){const b=make('button',text);b.type='button';b.onclick=()=>void openSearch(mode,'');modeRow.append(b);}
+const favModeButton=make('button','♡ 즐겨찾기');favModeButton.type='button';favModeButton.title='Hitomi 작품번호 즐겨찾기';favModeButton.onclick=()=>void openSearch('favorites','');modeRow.append(favModeButton);
+function syncFavMode(){favModeButton.classList.toggle('active',state.mode==='favorites');favModeButton.setAttribute('aria-pressed',String(state.mode==='favorites'));favModeButton.title='Hitomi 즐겨찾기 '+(favorites?.count?.()||0)+'건';}
 // Popularity rankings are live Hitomi indexes, not local database queries.
 const periodNames={today:'오늘 인기',week:'이번 주 인기',month:'이번 달 인기',year:'올해 인기'};
 const popularButtons={};
@@ -192754,11 +193110,11 @@ const typeLabel=make('span','Type','hitomiCaptionV1502');typeRow.append(typeLabe
 for(const [id,label] of typeDefs){const b=make('button',label);b.type='button';b.dataset.kind=id;typeButtons[id]=b;
  b.onclick=()=>{
   state.types=state.types.includes(id)?state.types.filter(v=>v!==id):[...state.types,id];syncTypes();
-  const mode=state.mode==='popular'?'popular':(['artist','tag'].includes(state.mode)&&state.term?'artist'===state.mode?'artist':'tag':state.types.length?'type':'recent');
-  void openSearch(mode,['artist','tag'].includes(mode)?state.term:'');
+  const mode=state.mode==='popular'?'popular':(['artist','group','tag'].includes(state.mode)&&state.term?state.mode:state.types.length?'type':'recent');
+  void openSearch(mode,['artist','group','tag'].includes(mode)?state.term:'');
  };typeRow.append(b);}
 function syncTypes(){for(const [id,b] of Object.entries(typeButtons)){b.classList.toggle('active',state.types.includes(id));b.setAttribute('aria-pressed',String(state.types.includes(id)));}}
-const searchType=make('select');for(const [key,label] of [['artist','작가'],['tag','태그'],['id','작품번호']]){const o=make('option',label);o.value=key;searchType.append(o);}
+const searchType=make('select');for(const [key,label] of [['artist','작가'],['group','그룹'],['tag','태그'],['id','작품번호']]){const o=make('option',label);o.value=key;searchType.append(o);}
 const termInput=make('input');termInput.type='search';termInput.placeholder='작가 / 태그 / 작품번호';termInput.setAttribute('aria-label','Hitomi 검색어');
 const go=make('button','검색');go.type='button';go.onclick=()=>void openSearch(searchType.value,termInput.value.trim());termInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go.click()}};
 searchRow.append(searchType,termInput,go);
@@ -192796,6 +193152,36 @@ function activate(){let l=list();if(!l)return false;if(!state.active){
   l.style.setProperty('--mdx-cols-v1471',String(Math.max(1,Math.min(20,Number(n)||8))));
   }return true;}
 const numberOk=v=>Number.isSafeInteger(Number(v))&&Number(v)>0;
+// v1507: Compare remote gallery numbers with locally registered manga titles.
+// Use the same (six-to-eight digit) gallery suffix as the established H-link; no disk scan and no per-card linear search.
+let ownedTitlesCacheV1507={entries:null,ids:new Set()};
+let ownedPreloadRequestedV1507=false;
+function localOwnedHitomiIdsV1507(){
+ let entries=[];
+ try{if(typeof wtGetEntriesCached==='function')entries=wtGetEntriesCached(false)||[];}catch(e){console.warn('[Hitomi owned IDs]',e);}
+ if(entries!==ownedTitlesCacheV1507.entries){
+  const ids=new Set(),rx=/\((\d{6,8})\)/g;
+  for(const row of entries){
+   const name=String(row?.display||'');let match;rx.lastIndex=0;
+   while((match=rx.exec(name))!==null){const id=String(Number(match[1]));if(id!=='0')ids.add(id);}
+   // Fallback only when the display does not contain a recognized Hitomi ID.
+   if(!/\(\d{6,8}\)/.test(name)){
+    const value=String(row?.value||'');rx.lastIndex=0;
+    while((match=rx.exec(value))!==null){const id=String(Number(match[1]));if(id!=='0')ids.add(id);}
+   }
+  }
+  ownedTitlesCacheV1507={entries,ids};
+ }
+ if(typeof _webtoonListLoaded!=='undefined'&&!_webtoonListLoaded&&!ownedPreloadRequestedV1507&&typeof preloadWebtoonListFromIndexedDb==='function'){
+  ownedPreloadRequestedV1507=true;
+  Promise.resolve(preloadWebtoonListFromIndexedDb()).then(()=>{
+   ownedTitlesCacheV1507.entries=null;
+   if(state.active)render();
+  }).catch(e=>console.warn('[Hitomi owned preload]',e));
+ }
+ return ownedTitlesCacheV1507.ids;
+}
+window.addEventListener('webtoonlist:changed',()=>{ownedTitlesCacheV1507.entries=null;if(state.active)render();});
 let currentHitomiReader=null;
 async function openReader(card){
  if(currentHitomiReader?.close)currentHitomiReader.close();
@@ -192842,54 +193228,235 @@ async function openReader(card){
  }catch(e){if(closed)return;pages=[coverURL];pageInfo.textContent='표지 미리보기';show(0);notice.textContent='본문 이미지 목록 조회 실패: '+String(e?.message||e)+' · 표지만 표시합니다.';}
 }
 
-function detail(card){document.getElementById('comicHitomiDialogV1483')?.remove();const shade=make('div');shade.id='comicHitomiDialogV1483';const body=make('div',null,'hitomiDialogPanelV1483');
+function detail(card){
+ document.getElementById('comicHitomiDialogV1483')?.remove();
+ const shade=make('div');shade.id='comicHitomiDialogV1483';const body=make('div',null,'hitomiDialogPanelV1483');
+ body.style.maxHeight='min(88vh,850px)';body.style.overflowY='auto';
  const h=make('h3',card.title);h.style.margin='0 0 8px';body.append(h);
- for(const [label,value] of [['작품번호',card.id],['언어',card.language||'미상'],['종류',card.kind||'-'],['작가',(card.artists||[]).join(', ')||'-'],['그룹',(Array.isArray(card.groups)?card.groups.join(', '):card.group)||'서버 응답에 없음'],['페이지',card.pages||0],['등록',card.date||'-'],['태그',(card.tags||[]).slice(0,30).join(', ')||'-']])body.append(make('div',label+' : '+value));
+ const field=(name,value)=>{const r=make('div');r.className='hitomiDetailRowV1503';r.append(make('strong',name+' : '));if(value instanceof Node)r.append(value);else r.append(make('span',String(value??'-')));body.append(r);return r};
+ const saveFeedback=(btn,ok)=>{btn.textContent=ok?'✓ 등록됨':'✓ 이미 등록';btn.disabled=true;};
+ const makePeople=(kind,values)=>{
+  const wrap=make('div',null,'hitomiDetailTokensV1503');
+  const names=Array.isArray(values)?values.filter(x=>typeof x==='string'&&x.trim()):[];
+  if(!names.length)return make('span','-');
+  for(const name of names){
+   const chip=make('span',null,'hitomiDetailTokenV1503');
+   const visible=kind==='tag'?name.replace(/^female:/i,'♀ ').replace(/^male:/i,'♂ '):name;
+   const search=make('button',visible,'hitomiDetailSearchV1503');search.type='button';search.title=name+' Hitomi 새 검색';
+   search.onclick=()=>{shade.remove();currentHitomiReader?.close?.();void openSearch(kind,name)};
+   const add=make('button','＋','hitomiDetailSaveV1503');add.type='button';add.title=name+' [Hitomi] '+({author:'작가',group:'그룹',tag:'태그'}[kind]||kind)+' 레일에 등록';
+   const saved=window.ComicHitomiBookmarksV1503?.list?.(kind)?.some(x=>x.name.toLocaleLowerCase()===name.toLocaleLowerCase());
+   if(saved)saveFeedback(add,false);
+   add.onclick=async()=>{add.disabled=true;try{const created=await window.ComicHitomiBookmarksV1503.add(kind,name);saveFeedback(add,created)}catch(err){add.disabled=false;alert('Hitomi 레일 저장 실패: '+String(err.message||err))}};
+   chip.append(search,add);wrap.append(chip);
+  }
+  return wrap;
+ };
+ field('작품번호',card.id);field('언어',card.language||'미상');field('종류',card.kind||'-');
+ field('작가',makePeople('author',card.artists));
+ field('그룹',makePeople('group',Array.isArray(card.groups)?card.groups:(card.group?[card.group]:[])));
+ field('페이지',card.pages||0);field('등록',card.date||'-');
+ const tags=Array.isArray(card.tags)?card.tags:[];
+ field('태그',makePeople('tag',tags));
+ const tip=make('div','이름 클릭: Hitomi 새 검색 · ＋: 작가/그룹/태그 레일에 등록 · ♀/♂는 태그 성별 구분','hitomiDetailHintV1503');body.append(tip);
  const go=make('a','Hitomi 사이트에서 열기 ↗');go.href='https://hitomi.la/galleries/'+encodeURIComponent(card.id)+'.html';go.target='_blank';go.rel='noopener noreferrer';
  const inside=make('button','웹뷰어에서 보기');inside.type='button';inside.onclick=()=>{shade.remove();void openReader(card)};
- const save=make('button','⬇ 작품 저장');save.type='button';save.onclick=()=>{shade.remove();window.ComicHitomiZipV1501?.open(card)};const close=make('button','닫기');close.type='button';close.onclick=()=>shade.remove();body.append(inside,save,go,close);shade.append(body);shade.onclick=e=>{if(e.target===shade)shade.remove()};document.body.append(shade);
+ const save=make('button','⬇ 작품 저장');save.type='button';save.onclick=()=>{shade.remove();window.ComicHitomiZipV1501?.open(card)};
+ const close=make('button','닫기');close.type='button';close.onclick=()=>shade.remove();
+ body.append(inside,save,go,close);shade.append(body);shade.onclick=e=>{if(e.target===shade)shade.remove()};document.body.append(shade);
 }
-function render(){if(!state.active)return;const l=list();if(!l)return;const scroll=l.scrollTop,frag=document.createDocumentFragment();
- const bar=make('div',null,'mdxLibraryToolbarV1466');const back=make('button','← 내 만화 목록');back.onclick=clear;back.type='button';const name=state.mode==='popular'?periodNames[state.period]:({recent:'최근 등록',random:'무작위',artist:'작가 검색',tag:'태그 검색',id:'작품번호 조회',type:'종류별 검색'}[state.mode]||'Hitomi');
- const title=make('strong',name+' · Hitomi');const mark=make('span','[출처] Hitomi · '+state.lang.toUpperCase()+(state.types.length?' · '+state.types.map(t=>typeDefs.find(v=>v[0]===t)?.[1]||t).join('+'):''));mark.style.color='#9bcfff';const status=make('span',state.busy?'불러오는 중…':state.error||'작품 '+state.items.length+'개','mdxLibraryStatusV1466');bar.append(back,title,mark,status);frag.append(bar);
- for(const card of state.items){if(!numberOk(card.id))continue;const item=make('div',null,'wtThumbItem');item.style.setProperty('--wt-thumb-card-width-v1097','100%');
+
+function render(){if(!state.active)return;const l=list();if(!l)return;const scroll=l.scrollTop,frag=document.createDocumentFragment();const ownedHitomiIdsV1507=localOwnedHitomiIdsV1507();
+ const bar=make('div',null,'mdxLibraryToolbarV1466');const back=make('button','← 내 만화 목록');back.onclick=clear;back.type='button';const name=state.mode==='popular'?periodNames[state.period]:({recent:'최근 등록',random:'무작위',artist:'작가 검색',group:'그룹 검색',tag:'태그 검색',id:'작품번호 조회',type:'종류별 검색',favorites:'즐겨찾기'}[state.mode]||'Hitomi');
+ const title=make('strong',name+' · Hitomi');const mark=make('span','[출처] Hitomi · '+(state.mode==='favorites'?'저장 '+(favorites?.count?.()||0)+'건':state.lang.toUpperCase()+(state.types.length?' · '+state.types.map(t=>typeDefs.find(v=>v[0]===t)?.[1]||t).join('+'):'')));mark.style.color='#9bcfff';const status=make('span',state.busy?'불러오는 중…':state.error||'작품 '+state.items.length+'개','mdxLibraryStatusV1466');bar.append(back,title,mark,status);frag.append(bar);
+ for(const card of state.items){if(!numberOk(card.id))continue;const item=make('div',null,'wtThumbItem hitomiRemoteCardV1507');item.style.setProperty('--wt-thumb-card-width-v1097','100%');
   const btn=make('button',null,'wtThumbBtn');btn.type='button';btn.title=card.title+' · 작품정보';
   const frame=make('div',null,'wtThumbImgWrap'),img=make('img',null,'wtThumbImg');img.loading='lazy';img.decoding='async';img.alt=card.title;
   const fallback=make('div','표지 없음','hitomiNoCoverV1483');fallback.hidden=true;
-  img.onerror=()=>{img.remove();fallback.hidden=false;};img.src=String(card.cover||'');frame.append(img,fallback);
-  const cap=make('div',null,'wtThumbCap');cap.append(make('span','[출처] Hitomi · '+(card.language||'?')+' · '+(card.pages>0?card.pages+'p':''),'wtComicMetaV1094'),make('span',card.title,'wtComicTitleV1094'));btn.append(frame,cap);btn.onclick=()=>void openReader(card);item.style.position='relative';
+  img.onerror=()=>{img.remove();fallback.hidden=false;};frame.append(img,fallback);if(card.cover)img.src=String(card.cover);else{img.remove();fallback.hidden=false;}
+  if(ownedHitomiIdsV1507.has(String(Number(card.id)))){const ribbon=make('span','보유중','hitomiOwnedRibbonV1507');ribbon.title='로컬 만화 목록에서 동일 Hitomi 작품번호를 확인했습니다.';frame.append(ribbon);}
+  const cap=make('div',null,'wtThumbCap');cap.append(make('span','[출처] Hitomi · '+(card.language||'?')+' · '+(card.pages>0?card.pages+'p':''),'wtComicMetaV1094'),make('span',card.title,'wtComicTitleV1094'));btn.append(frame,cap);btn.onclick=()=>{if(card.__favoriteError)void openSearch('id',String(card.id));else void openReader(card)};item.style.position='relative';
+  const heart=make('button',favorites?.has?.(card.id)?'♥':'♡','hitomiFavoriteHeartV1505');heart.type='button';heart.title=favorites?.has?.(card.id)?'Hitomi 즐겨찾기 해제':'Hitomi 즐겨찾기 추가';heart.setAttribute('aria-label',heart.title);heart.setAttribute('aria-pressed',String(!!favorites?.has?.(card.id)));
+  heart.onclick=async e=>{e.preventDefault();e.stopPropagation();heart.disabled=true;try{const isFav=await favorites.toggle(card.id);heart.textContent=isFav?'♥':'♡';heart.title=isFav?'Hitomi 즐겨찾기 해제':'Hitomi 즐겨찾기 추가';heart.setAttribute('aria-label',heart.title);heart.setAttribute('aria-pressed',String(isFav));syncFavMode();if(!isFav&&state.mode==='favorites'){state.items=state.items.filter(c=>String(c.id)!==String(card.id));render();}}catch(err){alert('Hitomi 즐겨찾기 저장 실패: '+String(err?.message||err))}finally{heart.disabled=false;}};
   const inf=make('button','ⓘ');inf.type='button';inf.title='작품 정보';inf.style.cssText='position:absolute;right:4px;top:4px;z-index:2;background:#121b27dd;color:#fff;border:1px solid #76899c;border-radius:50%;cursor:pointer;width:25px;height:25px';inf.onclick=()=>detail(card);
-  const save=make('button','⬇');save.type='button';save.title='이 작품 다운로드';save.style.cssText='position:absolute;right:33px;top:4px;z-index:2;background:#125c83e8;color:#fff;border:1px solid #84bde3;border-radius:5px;cursor:pointer;width:27px;height:25px';save.onclick=()=>window.ComicHitomiZipV1501?.open(card);item.append(btn,save,inf);frag.append(item);
+  const save=make('button','⬇');save.type='button';save.title='이 작품 다운로드';save.style.cssText='position:absolute;right:33px;top:4px;z-index:2;background:#125c83e8;color:#fff;border:1px solid #84bde3;border-radius:5px;cursor:pointer;width:27px;height:25px';save.onclick=()=>window.ComicHitomiZipV1501?.open(card);item.append(btn);if(!card.__favoriteError)item.append(save,inf);item.append(heart);frag.append(item);
  }
  if(state.hasMore||state.busy){const next=make('button',state.busy?'불러오는 중…':'작품 더보기','hitomiMoreV1483');next.disabled=state.busy;next.type='button';next.onclick=()=>void load(true);frag.append(next);}
  if(!state.items.length&&!state.busy)frag.append(make('div',state.error||'검색 결과가 없습니다.'));
  l.replaceChildren(frag);l.scrollTop=scroll;
 }
-async function load(append=false){if(state.busy)return;const epoch=state.epoch;state.busy=true;state.error='';render();
+async function loadFavorites(append=false){
+ if(state.busy)return;
+ const epoch=state.epoch;state.busy=true;state.error='';render();
+ try{
+  if(!(await favorites.ready))throw Error('즐겨찾기 IndexedDB를 열 수 없습니다.');
+  if(epoch!==state.epoch)return;
+  if(!state.favInitialized){state.favIds=favorites.list();state.favCursor=0;state.favInitialized=true;}
+  const batch=state.favIds.slice(state.favCursor,state.favCursor+24);
+  const cards=new Array(batch.length);let index=0,failed=0;
+  const worker=async()=>{while(index<batch.length&&epoch===state.epoch){
+    const i=index++,id=batch[i];
+    if(!favorites.has(id))continue;
+    if(favoriteCards.has(id)){cards[i]=favoriteCards.get(id);continue;}
+    try{
+      const p=new URLSearchParams({mode:'id',id});
+      const r=await fetch(ROOT+'browse?'+p.toString(),{cache:'no-store'});
+      if(!r.ok)throw Error('HTTP '+r.status);
+      const result=await r.json();
+      const card=Array.isArray(result.data)?result.data.find(c=>String(c.id)===id):null;
+      if(!card)throw Error('작품 상세정보 없음');
+      cards[i]=card;rememberFavoriteCard(card);
+    }catch(err){
+      failed++;
+      // Keep its ID visible and favorited even when the upstream CDN is temporarily unavailable.
+      cards[i]={id,title:'#'+id+' · 작품정보 불러오기 실패 (클릭하여 다시 조회)',cover:'',language:'-',pages:0,artists:[],groups:[],tags:[],__favoriteError:true};
+    }
+  }};
+  await Promise.all(Array.from({length:Math.min(4,batch.length)},worker));
+  if(epoch!==state.epoch)return;
+  state.favCursor+=batch.length;state.page++;
+  const current=cards.filter(c=>c&&favorites.has(c.id));
+  state.items=append?[...state.items,...current]:current;
+  state.hasMore=state.favCursor<state.favIds.length;
+  if(failed)state.error=failed+'건 정보 조회 실패 · 작품번호는 즐겨찾기에 유지됩니다.';
+ }catch(err){if(epoch===state.epoch)state.error='즐겨찾기 조회 실패: '+String(err?.message||err);}
+ finally{if(epoch===state.epoch){state.busy=false;render();}}
+}
+async function load(append=false){if(state.mode==='favorites')return loadFavorites(append);if(state.busy)return;const epoch=state.epoch;state.busy=true;state.error='';render();
  const p=new URLSearchParams({mode:state.mode,lang:state.lang,page:String(state.page),limit:'32',seed:String(state.seed)});
- if(state.mode==='id')p.set('id',state.term);else if(state.mode==='artist'||state.mode==='tag')p.set('term',state.term);
+ if(state.mode==='id')p.set('id',state.term);else if(state.mode==='artist'||state.mode==='group'||state.mode==='tag')p.set('term',state.term);
  if(state.mode==='popular')p.set('period',state.period);
  if(state.types.length&&state.mode!=='id')p.set('types',state.types.join(','));
  if(state.mode==='type'&&state.types.length===1)p.set('term',state.types[0]);
  if(Number.isInteger(state.offset)&&state.offset>=0)p.set('offset',String(state.offset));
  try{const r=await fetch(ROOT+'browse?'+p.toString(),{cache:'no-store'});if(!r.ok){let m='HTTP '+r.status;try{const j=await r.json();m=j.error||m;}catch(_){}throw Error(m)}const out=await r.json();if(epoch!==state.epoch)return;
-  const a=Array.isArray(out.data)?out.data:[];state.items=append?[...state.items,...a]:a;state.hasMore=!!out.hasMore;state.page=Number(out.page||0)+1;state.offset=Number.isInteger(Number(out.nextOffset))?Number(out.nextOffset):null;
+  const a=Array.isArray(out.data)?out.data:[];for(const card of a)rememberFavoriteCard(card);state.items=append?[...state.items,...a]:a;state.hasMore=!!out.hasMore;state.page=Number(out.page||0)+1;state.offset=Number.isInteger(Number(out.nextOffset))?Number(out.nextOffset):null;
   if(out.metadataFailed>0)state.error='일부 작품 정보('+out.metadataFailed+'건)를 확인하지 못했습니다.';
  }catch(e){if(epoch===state.epoch)state.error='Hitomi 요청 실패: '+String(e?.message||e)+' · Hitomi_Adapter_v15 실행 및 http://127.0.0.1:18766 연결 확인';}
  finally{if(epoch===state.epoch){state.busy=false;render();}}
 }
-async function openSearch(mode,term){if(!['recent','random','artist','tag','id','popular','type'].includes(mode))return;
+async function openSearch(mode,term){if(mode==='author')mode='artist';if(!['recent','random','artist','group','tag','id','popular','type','favorites'].includes(mode))return;
  if(location.hostname!=='127.0.0.1'||location.port!=='18765'){alert('Hitomi 목록은 127.0.0.1:18765 웹뷰어와 Hitomi 보조 서버 v15가 함께 실행되어야 사용할 수 있습니다.');return;}
- if((mode==='artist'||mode==='tag'||mode==='id')&&!String(term||'').trim()){alert('검색어를 입력하세요.');return;}
+ if((mode==='artist'||mode==='group'||mode==='tag'||mode==='id')&&!String(term||'').trim()){alert('검색어를 입력하세요.');return;}
  if(mode==='id'&&!/^\d{1,12}$/.test(String(term))){alert('작품번호는 숫자로 입력하세요.');return;}
  if(mode==='type'&&!state.types.length){mode='recent';}
  if(typeof contentMode!=='undefined'&&contentMode!=='comic')document.getElementById('wtContentComic')?.click?.();
- if(!activate())return;state.epoch++;state.mode=mode;state.term=String(term||'');syncPopular();syncTypes();state.page=0;state.offset=null;state.seed=Math.floor(Math.random()*2147483647);state.items=[];state.hasMore=false;state.error='';void load();
+ if(!activate())return;
+ if(['artist','group','tag','id'].includes(mode)){
+   searchType.value=mode;
+   const text=String(term||'');
+   if(mode==='tag'){
+     const match=/^(female|male):/i.exec(text);
+     state.gender=match?match[1].toLowerCase():'none';termInput.value=match?text.slice(match[0].length):text;
+   }else termInput.value=text;
+   syncGender();
+ }
+ state.epoch++;state.busy=false;state.mode=mode;state.term=String(term||'');syncPopular();syncTypes();syncFavMode();state.favIds=[];state.favCursor=0;state.favInitialized=false;state.page=0;state.offset=null;state.seed=Math.floor(Math.random()*2147483647);state.items=[];state.hasMore=false;state.error='';void load();
 }
 // Ensure switching back to MangaDex restores the normal list before its own view snapshots it.
 const mdx=window.ComicMangaDexAuthorV1465;if(mdx){for(const key of ['open','openSaved','openBrowse']){if(typeof mdx[key]!=='function')continue;const original=mdx[key];mdx[key]=function(...args){clear();return original.apply(this,args);};}}
+void favorites.ready.then(()=>{syncFavMode();if(state.active)render();});syncFavMode();
 window.ComicHitomiExploreV1483={open:openSearch,clear,active:()=>state.active};
 })();</script>
+<div id="wv1509InstallOverlay" role="dialog" aria-modal="true" aria-label="웹뷰어 로컬호스트 설치방법" aria-hidden="true"><div class="wv1509Panel"><div class="wv1509Head">
+  <div><h2>웹뷰어 로컬호스트 설치방법</h2><p class="wv1509Sub">Windows용 웹뷰어 통합 설치 프로그램 안내</p></div>
+  <button type="button" class="wv1509Close" id="wv1509Close" aria-label="설치 안내 닫기">×</button>
+</div>
+<div class="wv1509Tabs" role="tablist" aria-label="사용자 유형 선택">
+  <button type="button" class="wv1509Tab" id="wv1509TabExisting" role="tab" aria-selected="true" aria-controls="wv1509Existing">기존 설치 사용자</button>
+  <button type="button" class="wv1509Tab" id="wv1509TabNew" role="tab" aria-selected="false" aria-controls="wv1509New">처음 설치하는 사용자</button>
+</div>
+<section id="wv1509Existing" class="wv1509Guide" role="tabpanel" aria-labelledby="wv1509TabExisting">
+<p class="wv1509Lead">이미 웹뷰어 로컬호스트를 설치한 적이 있다면 아래 순서대로 진행하세요.</p>
+<ol class="wv1509Steps">
+<li><strong>컴퓨터를 먼저 재부팅합니다.</strong> 재부팅 후 기존 웹뷰어 호스트나 웹뷰어 앱을 실행하지 마세요.</li>
+<li><strong>크롬에 설치된 웹뷰어 앱을 삭제합니다.</strong> Chrome을 열고, 맨 위 주소를 입력하는 칸에 <code>chrome://apps/</code>를 입력한 다음 키보드의 <strong>Enter</strong>를 누릅니다.</li>
+<li>앱 목록에서 <strong>웹뷰어(WebViewer)</strong>를 찾아 <strong>마우스 오른쪽 버튼</strong>을 누르고 <strong>삭제 / Chrome에서 삭제</strong>를 선택합니다. 확인 창이 나오면 삭제를 진행합니다. <span class="wv1510Muted">(크롬에 웹뷰어 앱이 없으면 이 단계는 건너뛰세요.)</span></li>
+<li><strong>바탕화면</strong>에 있던 기존 <strong>웹뷰어 / WebViewer</strong> 아이콘은 마우스 오른쪽 버튼으로 클릭한 뒤 <strong>삭제</strong>합니다. <span class="wv1510Muted">(옛 아이콘만 삭제하세요.)</span></li>
+<li><strong>윈도우 파일 탐색기를 엽니다.</strong> 키보드에서 <strong>윈도우 로고 키 + E</strong>를 동시에 누르거나, 작업 표시줄의 <strong>노란색 폴더 아이콘</strong>을 클릭합니다.</li>
+<li>탐색기 왼쪽에서 <strong>내 PC → 로컬 디스크(C:) → 사용자(Users) → 본인의 윈도우 사용자 이름이 적힌 폴더</strong> 순서대로 더블 클릭합니다.<br><span class="wv1510Muted">예: 윈도우 로그인 이름이 hong이라면 C: 드라이브의 Users 폴더 안에서 hong 폴더를 선택합니다.</span></li>
+<li><strong>AppData</strong> 폴더를 찾아서 엽니다. <strong>AppData가 안 보이면</strong> 윈도우 11에서는 탐색기 상단 <strong>보기 → 표시 → 숨긴 항목</strong>을 켜세요. 윈도우 10에서는 <strong>보기 탭 → 숨긴 항목</strong>에 체크하세요.</li>
+<li>이어서 <strong>AppData → Local</strong> 폴더를 엽니다. 전체 경로는 <code>C:\Users\사용자이름\AppData\Local</code>입니다. <strong>Local</strong> 폴더 안에서 <strong>WebViewerLocal 또는 WebViewer로 시작하는 기존 웹뷰어 설치 폴더</strong>만 찾아 마우스 오른쪽 버튼을 눌러 삭제합니다. <span class="wv1510Muted">(이름이 비슷해도 웹뷰어 설치 폴더가 아닌 것은 삭제하지 마세요.)</span></li>
+<li>아래 <strong>설치 ZIP 다운로드</strong> 버튼을 누릅니다. 다운로드한 <strong>WebViewerLocalHost_Setup.zip</strong>을 찾아 마우스 오른쪽 버튼 → <strong>모두 압축 풀기</strong>를 선택합니다.</li>
+<li>압축을 푼 새 폴더를 열고, 그 안의 <strong>응용 프로그램(.exe)</strong> 설치파일을 더블 클릭해서 설치를 진행합니다. <span class="wv1510Muted">(정확한 EXE 파일 이름은 배포 버전에 따라 달라질 수 있습니다.)</span></li>
+<li>설치가 끝나면 바탕화면에 새로 생긴 <strong>웹뷰어 통합 실행</strong> 아이콘을 더블 클릭하면 됩니다.</li>
+</ol>
+<div class="wv1509Hint"><strong>중요:</strong> <strong>Local 폴더 전체</strong>를 삭제하는 것이 아닙니다. 이 웹뷰어의 기존 설치 폴더만 지우세요. 만화·영상·음악 원본 폴더는 건드리지 마세요. 기존 브라우저 앱 삭제 또는 설치 폴더 정리로 이전 웹뷰어의 일부 설정과 데이터가 사라질 수 있으니, 중요한 브라우저 저장 데이터가 있다면 먼저 확인해 주세요.</div>
+</section>
+<section id="wv1509New" class="wv1509Guide" role="tabpanel" aria-labelledby="wv1509TabNew" hidden>
+<p class="wv1509Lead">웹뷰어를 처음 설치하는 분은 기존 앱 삭제 없이 아래 과정만 진행하면 됩니다.</p>
+<ol class="wv1509Steps">
+<li>아래 <strong>설치 ZIP 다운로드</strong> 버튼을 눌러 <strong>WebViewerLocalHost_Setup.zip</strong> 파일을 받습니다.</li>
+<li>파일을 다운로드한 곳(보통 <strong>다운로드</strong> 폴더)을 엽니다. ZIP 파일을 <strong>마우스 오른쪽 버튼</strong>으로 누르고 <strong>모두 압축 풀기</strong>를 선택합니다.</li>
+<li>압축을 푼 새 폴더 안에서 <strong>응용 프로그램(.exe)</strong>으로 표시되는 웹뷰어 통합 설치파일을 <strong>더블 클릭</strong>합니다. 설치 화면의 안내에 따라 설치를 완료하세요.</li>
+<li>설치 후 바탕화면에 생긴 <strong>웹뷰어 통합 실행</strong> 아이콘을 더블 클릭하면 웹뷰어가 시작됩니다.</li>
+</ol>
+<div class="wv1509Hint">설치파일은 공식 GitHub Releases에서 받으세요. 윈도우 또는 백신 경고가 나타나면 보안 기능을 끄지 말고 파일 출처와 검사 결과를 확인한 뒤 설치 여부를 판단하세요.</div>
+</section>
+<details class="wv1509FileSample" open><summary>압축을 푼 뒤 보이는 설치파일 예시 (사진)</summary>
+  <div class="wv1510ImageViewport"><a href="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/webviewer-install.webp" target="_blank" rel="noopener noreferrer" title="사진을 새 탭에서 크게 보기"><img loading="lazy" alt="압축 해제 후 설치 EXE 파일과 SHA256 확인문서 및 설치안내 문서가 보이는 예시" src="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/webviewer-install.webp" onerror="this.onerror=null;this.src='data:image/webp;base64,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'"></a></div>
+  <div>사진은 1508 버전의 예시입니다. 현재 배포판은 이름이나 버전이 다를 수 있으며 <strong>응용 프로그램(.exe)</strong> 파일을 실행하면 됩니다.</div>
+</details>
+<div class="wv1509Foot">
+  <a id="wv1509Download" href="https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip" target="_blank" rel="noopener noreferrer">설치 ZIP 다운로드</a>
+  <button type="button" id="wv1509Cancel">닫기</button>
+</div></div></div>
+<script id="viewerLocalhostInstallGuideV1509">
+(()=>{
+  'use strict';
+  const overlay=document.getElementById('wv1509InstallOverlay');
+  if(!overlay)return;
+  // v1512: the legacy player markup may place all late-added dialogs inside
+  // #videoPlayerLayer, which stays display:none when a video is not playing.
+  // A fixed z-index cannot escape a hidden ancestor: move only this dialog
+  // to the body root, without modifying the player or saved user data.
+  if(overlay.parentElement!==document.body)document.body.appendChild(overlay);
+  const existing=overlay.querySelector('#wv1509Existing');
+  const fresh=overlay.querySelector('#wv1509New');
+  const tabExisting=overlay.querySelector('#wv1509TabExisting');
+  const tabFresh=overlay.querySelector('#wv1509TabNew');
+  let lastFocus=null;
+  const select=kind=>{
+    const isNew=kind==='new';
+    existing.hidden=isNew;fresh.hidden=!isNew;
+    tabExisting.setAttribute('aria-selected',String(!isNew));
+    tabFresh.setAttribute('aria-selected',String(isNew));
+  };
+  function close(){
+    if(!overlay.classList.contains('wv1509Open'))return;
+    overlay.classList.remove('wv1509Open');overlay.setAttribute('aria-hidden','true');
+    document.removeEventListener('keydown',onKey,true);
+    try{lastFocus?.focus?.({preventScroll:true});}catch(_){}
+  }
+  function onKey(ev){
+    if(ev.key==='Escape' && overlay.classList.contains('wv1509Open')){
+      ev.preventDefault();ev.stopImmediatePropagation();close();
+    }
+  }
+  function open(kind='existing'){
+    const first=!overlay.classList.contains('wv1509Open');
+    if(first)lastFocus=document.activeElement;
+    select(kind==='new'?'new':'existing');
+    overlay.classList.add('wv1509Open');overlay.setAttribute('aria-hidden','false');
+    document.addEventListener('keydown',onKey,true);
+    overlay.querySelector('.wv1509Panel').scrollTop=0;
+    (kind==='new'?tabFresh:tabExisting).focus();
+  }
+  tabExisting.addEventListener('click',()=>select('existing'));
+  tabFresh.addEventListener('click',()=>select('new'));
+  overlay.querySelector('#wv1509Cancel').addEventListener('click',close);
+  overlay.querySelector('#wv1509Close').addEventListener('click',close);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)close();});
+  document.getElementById('viewerLocalHostInstallBtnV1449')?.addEventListener('click',e=>{
+    e.preventDefault();open('existing');
+  });
+  // Delegation also works when the update-history UI re-renders its innerHTML.
+  document.addEventListener('click',e=>{
+    if(e.target?.closest?.('#viewerOpenInstallGuideInUpdateV1509'))open('existing');
+  });
+  window.openViewerLocalhostInstallGuideV1509=open;
+})();
+</script>
 </body>
 
 
