@@ -171325,7 +171325,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1501;
+  const VIEWER_BUILD_V789 = 1502;
 
 // v893: 화면 두 곳의 "버전 4.1(빌드...)" 표기를 VIEWER_BUILD_V789와 자동 동기화한다.
 // 다음 빌드부터는 위 상수만 올리면 화면 표기도 같이 바뀐다.
@@ -192711,32 +192711,74 @@ window.ComicHitomiZipV1501 = (() => {
  let setting={format:'original',output:'zip',quality:90};try{const v=JSON.parse(localStorage.getItem('comic_hitomi_save_config_v1501')||'{}');if(['original','jpg','webp'].includes(v.format))setting.format=v.format;if(['zip','cbz','folder'].includes(v.output))setting.output=v.output;if(Number.isFinite(v.quality))setting.quality=Math.max(50,Math.min(100,v.quality));}catch(_){}
  (source.querySelector(`input[value="${setting.format}"]`)||source.querySelector('input')).checked=true;(dest.querySelector(`input[value="${setting.output}"]`)||dest.querySelector('input')).checked=true;
  const qualityRow=document.createElement('div');qualityRow.className='htZipQualityV1501';const qualityLabel=document.createElement('span');const quality=document.createElement('input');quality.type='range';quality.min='50';quality.max='100';quality.step='5';quality.value=String(setting.quality);quality.oninput=()=>{qualityLabel.textContent='변환 품질 '+quality.value+'%';};quality.oninput();qualityRow.append(qualityLabel,quality);form.append(qualityRow);
- const groupRow=document.createElement('label');groupRow.className='htZipGroupV1501';const groupText=document.createElement('span');groupText.textContent='그룹명 (선택 입력)';const group=document.createElement('input');group.type='text';group.maxLength=90;group.placeholder='현재 서버 v15는 그룹명을 전달하지 않습니다';const groups=card.groups||card.group||[];group.value=Array.isArray(groups)?groups.filter(Boolean).join('+'):String(groups||'');groupRow.append(groupText,group);form.append(groupRow);
- const tip=document.createElement('p');tip.className='htZipHintV1501';tip.textContent='원본 유지는 어댑터가 제공한 이미지 파일을 변환 없이 저장합니다. 그룹명은 현재 서버에서 제공하지 않으므로 필요한 경우 직접 입력하세요. 페이지 누락 시 완료 처리하지 않습니다.';box.append(tip);
+ const groupRow=document.createElement('label');groupRow.className='htZipGroupV1501';const groupText=document.createElement('span');groupText.textContent='그룹명 (선택 입력)';const group=document.createElement('input');group.type='text';group.maxLength=90;group.placeholder='그룹명이 있으면 자동 입력됩니다';const groups=card.groups||card.group||[];group.value=Array.isArray(groups)?groups.filter(Boolean).join('+'):String(groups||'');groupRow.append(groupText,group);form.append(groupRow);
+ const tip=document.createElement('p');tip.className='htZipHintV1501';tip.textContent='원본 유지는 어댑터가 제공한 이미지 파일을 변환 없이 저장합니다. 그룹명이 있는 작품은 자동 입력되며 직접 변경할 수도 있습니다. 페이지 누락 시 완료 처리하지 않습니다.';box.append(tip);
  const buttons=document.createElement('div');buttons.className='htZipActionsV1501';const go=document.createElement('button');go.type='button';go.textContent='다운로드 시작';const close=document.createElement('button');close.type='button';close.textContent='취소';close.onclick=()=>shade.remove();const update=()=>{const fmt=source.querySelector('input:checked')?.value||'original';qualityRow.hidden=fmt==='original';};source.addEventListener('change',update);update();go.onclick=()=>{const fmt=source.querySelector('input:checked')?.value||'original',output=dest.querySelector('input:checked')?.value||'zip',q=Number(quality.value);try{localStorage.setItem('comic_hitomi_save_config_v1501',JSON.stringify({format:fmt,output,quality:q}));}catch(_){}shade.remove();void start(card,{format:fmt,output,quality:q,group:group.value.trim()});};buttons.append(close,go);box.append(buttons);shade.append(box);shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);}
  return {open,cancel,active:()=>!!job,normalPage};
 })();
 </script>
+<style id="hitomiExtraSearchV1502">
+#comicHitomiPanelV1483 .hitomiCaptionV1502{font-size:10px;color:#b9d9f9;align-self:center;min-width:28px;flex:0 0 auto}
+#comicHitomiPanelV1483 [hidden]{display:none!important}
+#comicHitomiPanelV1483 button[data-kind]{font-size:10px;flex:1 1 27%;white-space:nowrap;padding:3px 2px}
+#comicHitomiPanelV1483 button[data-period]{font-size:10px;flex:1 1 42%;white-space:nowrap;padding:3px 2px}
+#comicHitomiPanelV1483 .hitomiRowV1483{margin-top:3px}
+#comicHitomiPanelV1483 button[aria-pressed="true"]{background:#2466b9;border-color:#9ac6ef;color:#fff;font-weight:bold}
+</style>
 <script id="comicHitomiExploreV1483">
 (()=>{'use strict';
 const ROOT='/__webviewer_local/hitomi/';
 const make=(tag,txt,cls)=>{const e=document.createElement(tag);if(txt!==null&&txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e};
-const state={mode:'recent',lang:'all',term:'',page:0,offset:null,seed:0,items:[],hasMore:false,active:false,busy:false,epoch:0,snapshot:null,error:''};
+const state={mode:'recent',lang:'all',term:'',period:'today',types:[],gender:'none',page:0,offset:null,seed:0,items:[],hasMore:false,active:false,busy:false,epoch:0,snapshot:null,error:''};
 try{const saved=localStorage.getItem('comic_hitomi_language_v1483');if(['ko','ja','en','all'].includes(saved))state.lang=saved;}catch(_){}
 const panel=make('section',null);panel.id='comicHitomiPanelV1483';window.__comicHitomiPanelV1483=panel;
 panel.append(make('div','Hitomi · 외부 작품 탐색','hitomiTitleV1483'));
-const langRow=make('div',null,'hitomiRowV1483'),modeRow=make('div',null,'hitomiRowV1483'),searchRow=make('div',null,'hitomiRowV1483');
+const langRow=make('div',null,'hitomiRowV1483'),modeRow=make('div',null,'hitomiRowV1483'),popularRow=make('div',null,'hitomiRowV1483'),typeRow=make('div',null,'hitomiRowV1483'),searchRow=make('div',null,'hitomiRowV1483'),genderRow=make('div',null,'hitomiRowV1483');
 const langButtons={};for(const [code,text] of [['ko','한국어'],['ja','일본어'],['en','영어'],['all','전체']]){
  const b=make('button',text);b.type='button';b.dataset.lang=code;langButtons[code]=b;b.onclick=()=>{state.lang=code;try{localStorage.setItem('comic_hitomi_language_v1483',code);}catch(_){};syncLang();void openSearch(state.mode,state.term);};langRow.append(b);
 }
 function syncLang(){for(const [code,b] of Object.entries(langButtons))b.classList.toggle('active',state.lang===code);}
 for(const [mode,text] of [['recent','최근 등록'],['random','무작위']]){const b=make('button',text);b.type='button';b.onclick=()=>void openSearch(mode,'');modeRow.append(b);}
+// Popularity rankings are live Hitomi indexes, not local database queries.
+const periodNames={today:'오늘 인기',week:'이번 주 인기',month:'이번 달 인기',year:'올해 인기'};
+const popularButtons={};
+for(const [period,text] of Object.entries(periodNames)){
+ const b=make('button',text);b.type='button';b.dataset.period=period;popularButtons[period]=b;
+ b.onclick=()=>{state.period=period;syncPopular();void openSearch('popular','');};popularRow.append(b);
+}
+function syncPopular(){for(const [code,b] of Object.entries(popularButtons))b.classList.toggle('active',state.mode==='popular'&&state.period===code);}
+// Zero selected types means ALL. Multiple selected types use OR union, filtered on the adapter.
+const typeDefs=[['gamecg','GameCG'],['manga','Manga'],['doujinshi','Doujinshi'],['artistcg','ArtistCG'],['anime','Anime'],['imageset','ImageSet']];
+const typeButtons={};
+const typeLabel=make('span','Type','hitomiCaptionV1502');typeRow.append(typeLabel);
+for(const [id,label] of typeDefs){const b=make('button',label);b.type='button';b.dataset.kind=id;typeButtons[id]=b;
+ b.onclick=()=>{
+  state.types=state.types.includes(id)?state.types.filter(v=>v!==id):[...state.types,id];syncTypes();
+  const mode=state.mode==='popular'?'popular':(['artist','tag'].includes(state.mode)&&state.term?'artist'===state.mode?'artist':'tag':state.types.length?'type':'recent');
+  void openSearch(mode,['artist','tag'].includes(mode)?state.term:'');
+ };typeRow.append(b);}
+function syncTypes(){for(const [id,b] of Object.entries(typeButtons)){b.classList.toggle('active',state.types.includes(id));b.setAttribute('aria-pressed',String(state.types.includes(id)));}}
 const searchType=make('select');for(const [key,label] of [['artist','작가'],['tag','태그'],['id','작품번호']]){const o=make('option',label);o.value=key;searchType.append(o);}
 const termInput=make('input');termInput.type='search';termInput.placeholder='작가 / 태그 / 작품번호';termInput.setAttribute('aria-label','Hitomi 검색어');
 const go=make('button','검색');go.type='button';go.onclick=()=>void openSearch(searchType.value,termInput.value.trim());termInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go.click()}};
 searchRow.append(searchType,termInput,go);
-const foot=make('div','작가/태그는 영문 이름(예: female:...) · 작품번호로 직접 열기 · 원격 CDN 오류는 서버 상태 확인 · 작품 클릭 시 전체 페이지 보기','hitomiFootV1483');
-panel.append(langRow,modeRow,searchRow,foot);syncLang();
+// Male/female/none applies only to a tag query; the user types just "bikini".
+const genderLabel=make('span','태그 분류','hitomiCaptionV1502');genderRow.append(genderLabel);
+const genderButtons={};for(const [id,title] of [['male','남자'],['female','여자'],['none','없음']]){
+ const b=make('button',title);b.type='button';genderButtons[id]=b;
+ b.onclick=()=>{state.gender=id;termInput.value=termInput.value.replace(/^(female|male):/i,'');syncGender();};genderRow.append(b);
+}
+function syncGender(){genderRow.hidden=searchType.value!=='tag';for(const [id,b] of Object.entries(genderButtons)){b.classList.toggle('active',state.gender===id);b.setAttribute('aria-pressed',String(state.gender===id));}}
+searchType.onchange=syncGender;
+function tagTerm(text){const term=String(text||'').trim();if(searchType.value!=='tag'||!term)return term;
+ if(state.gender==='none')return term; // Manually typed female:/male: remains supported.
+ return state.gender+':'+term.replace(/^(female|male):/i,'');
+}
+go.onclick=()=>void openSearch(searchType.value,tagTerm(termInput.value));
+syncGender();syncTypes();
+
+const foot=make('div','태그는 검색어만 입력하고 남자/여자/없음 선택 · Type은 여러 개 선택 가능(미선택=전체) · 원격 CDN 오류는 서버 상태 확인','hitomiFootV1483');
+panel.append(langRow,modeRow,popularRow,typeRow,searchRow,genderRow,foot);syncLang();syncPopular();
 // MangaDex rail is rebuilt when switching local artist/group tabs. Reattach the single panel node (never clone it).
 const mount=()=>{const slot=document.getElementById('comicRightRailExternalToolsV1482');if(slot&&!slot.contains(panel))slot.append(panel)};
 const slot=document.getElementById('comicRightRailExternalToolsV1482');if(slot){new MutationObserver(()=>{if(!slot.contains(panel))queueMicrotask(mount)}).observe(slot,{childList:true});mount();}
@@ -192808,8 +192850,8 @@ function detail(card){document.getElementById('comicHitomiDialogV1483')?.remove(
  const save=make('button','⬇ 작품 저장');save.type='button';save.onclick=()=>{shade.remove();window.ComicHitomiZipV1501?.open(card)};const close=make('button','닫기');close.type='button';close.onclick=()=>shade.remove();body.append(inside,save,go,close);shade.append(body);shade.onclick=e=>{if(e.target===shade)shade.remove()};document.body.append(shade);
 }
 function render(){if(!state.active)return;const l=list();if(!l)return;const scroll=l.scrollTop,frag=document.createDocumentFragment();
- const bar=make('div',null,'mdxLibraryToolbarV1466');const back=make('button','← 내 만화 목록');back.onclick=clear;back.type='button';const name={recent:'최근 등록',random:'무작위',artist:'작가 검색',tag:'태그 검색',id:'작품번호 조회'}[state.mode]||'Hitomi';
- const title=make('strong',name+' · Hitomi');const mark=make('span','[출처] Hitomi · '+state.lang.toUpperCase());mark.style.color='#9bcfff';const status=make('span',state.busy?'불러오는 중…':state.error||'작품 '+state.items.length+'개','mdxLibraryStatusV1466');bar.append(back,title,mark,status);frag.append(bar);
+ const bar=make('div',null,'mdxLibraryToolbarV1466');const back=make('button','← 내 만화 목록');back.onclick=clear;back.type='button';const name=state.mode==='popular'?periodNames[state.period]:({recent:'최근 등록',random:'무작위',artist:'작가 검색',tag:'태그 검색',id:'작품번호 조회',type:'종류별 검색'}[state.mode]||'Hitomi');
+ const title=make('strong',name+' · Hitomi');const mark=make('span','[출처] Hitomi · '+state.lang.toUpperCase()+(state.types.length?' · '+state.types.map(t=>typeDefs.find(v=>v[0]===t)?.[1]||t).join('+'):''));mark.style.color='#9bcfff';const status=make('span',state.busy?'불러오는 중…':state.error||'작품 '+state.items.length+'개','mdxLibraryStatusV1466');bar.append(back,title,mark,status);frag.append(bar);
  for(const card of state.items){if(!numberOk(card.id))continue;const item=make('div',null,'wtThumbItem');item.style.setProperty('--wt-thumb-card-width-v1097','100%');
   const btn=make('button',null,'wtThumbBtn');btn.type='button';btn.title=card.title+' · 작품정보';
   const frame=make('div',null,'wtThumbImgWrap'),img=make('img',null,'wtThumbImg');img.loading='lazy';img.decoding='async';img.alt=card.title;
@@ -192826,6 +192868,9 @@ function render(){if(!state.active)return;const l=list();if(!l)return;const scro
 async function load(append=false){if(state.busy)return;const epoch=state.epoch;state.busy=true;state.error='';render();
  const p=new URLSearchParams({mode:state.mode,lang:state.lang,page:String(state.page),limit:'32',seed:String(state.seed)});
  if(state.mode==='id')p.set('id',state.term);else if(state.mode==='artist'||state.mode==='tag')p.set('term',state.term);
+ if(state.mode==='popular')p.set('period',state.period);
+ if(state.types.length&&state.mode!=='id')p.set('types',state.types.join(','));
+ if(state.mode==='type'&&state.types.length===1)p.set('term',state.types[0]);
  if(Number.isInteger(state.offset)&&state.offset>=0)p.set('offset',String(state.offset));
  try{const r=await fetch(ROOT+'browse?'+p.toString(),{cache:'no-store'});if(!r.ok){let m='HTTP '+r.status;try{const j=await r.json();m=j.error||m;}catch(_){}throw Error(m)}const out=await r.json();if(epoch!==state.epoch)return;
   const a=Array.isArray(out.data)?out.data:[];state.items=append?[...state.items,...a]:a;state.hasMore=!!out.hasMore;state.page=Number(out.page||0)+1;state.offset=Number.isInteger(Number(out.nextOffset))?Number(out.nextOffset):null;
@@ -192833,12 +192878,13 @@ async function load(append=false){if(state.busy)return;const epoch=state.epoch;s
  }catch(e){if(epoch===state.epoch)state.error='Hitomi 요청 실패: '+String(e?.message||e)+' · Hitomi_Adapter_v15 실행 및 http://127.0.0.1:18766 연결 확인';}
  finally{if(epoch===state.epoch){state.busy=false;render();}}
 }
-async function openSearch(mode,term){if(!['recent','random','artist','tag','id'].includes(mode))return;
+async function openSearch(mode,term){if(!['recent','random','artist','tag','id','popular','type'].includes(mode))return;
  if(location.hostname!=='127.0.0.1'||location.port!=='18765'){alert('Hitomi 목록은 127.0.0.1:18765 웹뷰어와 Hitomi 보조 서버 v15가 함께 실행되어야 사용할 수 있습니다.');return;}
  if((mode==='artist'||mode==='tag'||mode==='id')&&!String(term||'').trim()){alert('검색어를 입력하세요.');return;}
  if(mode==='id'&&!/^\d{1,12}$/.test(String(term))){alert('작품번호는 숫자로 입력하세요.');return;}
+ if(mode==='type'&&!state.types.length){mode='recent';}
  if(typeof contentMode!=='undefined'&&contentMode!=='comic')document.getElementById('wtContentComic')?.click?.();
- if(!activate())return;state.epoch++;state.mode=mode;state.term=String(term||'');state.page=0;state.offset=null;state.seed=Math.floor(Math.random()*2147483647);state.items=[];state.hasMore=false;state.error='';void load();
+ if(!activate())return;state.epoch++;state.mode=mode;state.term=String(term||'');syncPopular();syncTypes();state.page=0;state.offset=null;state.seed=Math.floor(Math.random()*2147483647);state.items=[];state.hasMore=false;state.error='';void load();
 }
 // Ensure switching back to MangaDex restores the normal list before its own view snapshots it.
 const mdx=window.ComicMangaDexAuthorV1465;if(mdx){for(const key of ['open','openSaved','openBrowse']){if(typeof mdx[key]!=='function')continue;const original=mdx[key];mdx[key]=function(...args){clear();return original.apply(this,args);};}}
