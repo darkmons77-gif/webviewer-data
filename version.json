@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "updatedAt": "2026-10-26",
+  "updatedAt": "2026-10-31",
   "viewer": {
-    "version": 1538,
+    "version": 1747,
     "url": "https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/index.html"
   },
   "localhost": {
-    "version": "14.6",
+    "version": "14.19",
     "url": "https://github.com/darkmons77-gif/webviewer-data/releases/download/webviewer-localhost-v4/WebViewerLocalHost_Setup.zip"
   },
   "actors": {
