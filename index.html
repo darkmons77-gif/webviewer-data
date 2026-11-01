@@ -1,3 +1,5 @@
+<!-- v1789: Show the saved Hitomi gallery ID in orange immediately before reading-page progress in Recent and Favorites only. -->
+<!-- v1788: Persist Hitomi favorite titles and metadata; restore recent/favorites titles and reuse Hitomi info dialog. -->
 <!-- v1787: close the video player layer before app scripts; hide script/style/template nodes despite duplicate CSS ids. -->
 <!-- v1786: preserve external search results while temporarily filtering owned comics by author/group/tag; restore original remote DOM and scroll on deselect. -->
 <!-- v1785: Fix the actual late-bound multi-tag filter handler and protect owned grid while unified personal list owns #wtList. -->
@@ -25509,13 +25511,6 @@ body.videoDeveloperShareVisibleV1381 #wtList:is(.videoDmmMetaSearchGridMode,.vid
 /* v1534: remove the dark button fill on inactive external download controls. Active blue remains. */
 #comicAutoSaveToggleV1506:not([aria-pressed="true"]),
 #comicQuickSaveToggleV1506:not([aria-pressed="true"]){background:transparent!important;}
-/* v1541: The black rectangle on the wooden bookshelf was the sticky PARENT,
-   not the buttons. Keep sticky positioning, dimensions, and normal-mode fill.
-   The existing OFF=transparent and ON=blue button rules stay unchanged. */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 > .comicExternalSaveActionsV1507 {
-  background:transparent;
-}
 </style>
 <style id="wvQuietWidthAndHeaderStyleV1533">
 /* The WebViewer top button strip (not the in-list comic/video search controls). */
@@ -26469,25 +26464,6 @@ html #wtLayer:has(#wtContentComic.active) #wtTagRail #comicMdxAuthorRailBoxV1465
  button:is(.active,.on,[aria-pressed="true"],[aria-selected="true"]) {
   font-weight:400!important;
 }
-/* [E] 책장 모드 MangaDex만 기존 투명/주황 버튼 규칙의 영향권에 있다.
-   히토미 최근등록 버튼과 동일하게 책장에서도 크기·패딩·배경·활성색 보존. */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #wtTagRail #comicMdxAuthorRailBoxV1465 button {
-  min-height:21px!important;
-  padding:2px 5px!important;
-  border:1px solid transparent!important; /* 비활성 테두리 숨김 */
-  border-radius:4px!important;
-  background:#20334b!important;
-  color:#edf4ff!important;
-  box-shadow:none!important;
-  text-decoration:none!important;
-}
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #wtTagRail #comicMdxAuthorRailBoxV1465 button:is(.active,.on,[aria-pressed="true"],[aria-selected="true"]) {
-  background:#2466b9!important;
-  color:#fff!important;
-  border-color:#9ac6ef!important;
-}
 /* [F · v1551] 자동저장·퀵저장도 11px / 400으로 표시한다.
    기존 2열/좁은 화면 1열, 버튼 높이 24px, ON/OFF 색상, 클릭 기능은 유지. */
 #comicRightRailExternalToolsV1482>.comicExternalSaveActionsV1507 .zoomBtn {
@@ -26507,74 +26483,6 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
  .zoomBtn[aria-pressed="true"] {
   font-weight:400!important;
 }
-/* ========================================================================
-   [책장 모드 MangaDex·Hitomi 비활성 버튼·검색 배경 투명 시작 · v1569]
-   책장 나무 배경을 비활성 버튼과 검색 입력창 뒤에서 보이게 함.
-   활성/선택 상태의 기존 파란색은 유지; 테두리·글꼴·크기·이벤트는 유지.
-   일반 모드와 작품 상세 팝업은 제외한다.
-   ======================================================================== */
-/* 버튼: hover 중이어도 선택되지 않은 버튼만 투명 (책장 모드 한정). */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #wtTagRail #comicMdxAuthorRailBoxV1465
- button:not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])),
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicHitomiPanelV1483
- button:not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])) {
-  background:transparent!important;
-  background-color:transparent!important;
-  background-image:none!important;
-}
-/* MangaDex 작가명 검색 + Hitomi 검색어 입력/검색 종류 선택박스. */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- :is(#comicMdxAuthorInputV1465,#comicHitomiPanelV1483 input,#comicHitomiPanelV1483 select) {
-  background:transparent!important;
-  background-color:transparent!important;
-  background-image:none!important;
-}
-/* ================= [책장 모드 MangaDex·Hitomi 비활성 버튼·검색 배경 투명 끝 · v1569] ================= */
-/* ======================================================================
-   [책장 모드 외부 사이드 비활성 버튼·검색 입력 스타일 보정 시작 · v1570]
-   MangaDex는 왼쪽 #wtTagRail이 아닌 오른쪽 외부 레일 안에 있어
-   v1569의 MangaDex 선택자가 매칭되지 않던 문제를 수정한다.
-   활성 버튼은 기존 색상 유지. 일반 모드 / 대화상자 제외.
-   ====================================================================== */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483)
- button:not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])) {
-  background:transparent!important;
-  background-color:transparent!important;
-  background-image:none!important;
-  box-shadow:none!important;
-}
-/* 버튼이 들어 있는 패널은 기존 테두리와 구성 유지하되 푸른 배경색 제거 */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483) {
-  background:transparent!important;
-  background-image:none!important;
-}
-/* 검색 입력: 투명 배경 + 흰 테두리·입력 글자·placeholder */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorInputV1465,#comicMdxAuthorRailBoxV1465 .mdxBrowseAdvancedV1475>input,#comicHitomiPanelV1483 input) {
-  background:transparent!important;
-  background-image:none!important;
-  border-color:#fff!important;
-  color:#fff!important;
-  -webkit-text-fill-color:#fff!important;
-}
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorInputV1465,#comicMdxAuthorRailBoxV1465 .mdxBrowseAdvancedV1475>input,#comicHitomiPanelV1483 input)::placeholder {
-  color:#fff!important;
-  opacity:1!important;
-  -webkit-text-fill-color:#fff!important;
-}
-/* 검색의 유형 선택박스도 투명 배경 / 흰 테두리·글자로 연결 */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 #comicHitomiPanelV1483 select {
-  background:transparent!important;
-  border-color:#fff!important;
-  color:#fff!important;
-}
-/* ================= [책장 모드 외부 사이드 비활성 버튼·검색 입력 스타일 보정 끝 · v1570] ================= */
 /* ================= [만화 MangaDex·Hitomi 사이드 버튼 CSS 모음 끝 · v1550] ================= */
 </style>
 <style id="comicNormalToolbarSelectV1552">
@@ -176810,7 +176718,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1787;
+  const VIEWER_BUILD_V789 = 1790;
   // Expose the actual HTML build to the separate localhost update checker.
   window.viewerCurrentHtmlBuildV789 = VIEWER_BUILD_V789;
 
@@ -197507,57 +197415,65 @@ window.ComicHitomiZipV1501 = (() => {
 
 <script id="comicHitomiFavoritesV1505">
 (()=>{'use strict';
- // v1613: Preserve Hitomi's existing numeric favorite IDs as keys in the same
- // IndexedDB store. New records also persist their original registration time.
- // Legacy ID-only records remain favorites, but their unknown dates are NOT invented.
- const DB='webviewer_hitomi_favorites_v1505', STORE='ids';
- const saved=new Set(), savedTimes=new Map();
+ // v1788: Save genuine Hitomi metadata alongside existing numeric ID keys.
+ // Old entries and original savedAt values are preserved. No schema upgrade.
+ const DB='webviewer_hitomi_favorites_v1505',STORE='ids';
+ const saved=new Set(),savedTimes=new Map(),savedTitles=new Map(),savedCards=new Map();
  const normalize=id=>{const v=String(id??'').trim();return /^\d{1,12}$/.test(v)?String(Number(v)):'';};
- const timeOf=value=>{
-  if(!value||typeof value!=='object')return 0;
-  const t=Number(value.savedAt);
-  return Number.isSafeInteger(t)&&t>0&&t<=Date.now()+86400000?t:0;
+ const validTitle=(text,id)=>{const t=String(text||'').trim();if(!t||t.length>500||/^hitomi\s*#?\s*\d+$/i.test(t)||/^#?\d+\s*(?:[·:―-].*)?$/i.test(t)||t==='작품'||t==='-')return '';return t.slice(0,300);};
+ const timeOf=value=>{const t=Number(value?.savedAt);return Number.isSafeInteger(t)&&t>0&&t<=Date.now()+86400000?t:0;};
+ const cleanCard=(card,id)=>{
+  if(!card||typeof card!=='object')return null;
+  const title=validTitle(card.title,id);if(!title)return null;
+  const texts=k=>Array.isArray(card[k])?card[k].filter(v=>typeof v==='string').slice(0,80).map(v=>v.slice(0,180)):[];
+  return {id,title,full:Array.isArray(card.artists)&&Array.isArray(card.tags)&&Array.isArray(card.groups),cover:String(card.cover||'').slice(0,600),language:String(card.language||'').slice(0,80),kind:String(card.kind||'').slice(0,100),pages:Number(card.pages)||0,
+   group:String(card.group||'').slice(0,150),artists:texts('artists'),groups:texts('groups'),tags:texts('tags'),date:String(card.date||'').slice(0,80),datePublished:String(card.datePublished||'').slice(0,80)};
  };
- const open=()=>new Promise((resolve,reject)=>{
-  if(typeof indexedDB==='undefined')return reject(Error('IndexedDB 사용 불가'));
-  const req=indexedDB.open(DB,1);
+ const open=()=>new Promise((resolve,reject)=>{if(typeof indexedDB==='undefined')return reject(Error('IndexedDB 사용 불가'));const req=indexedDB.open(DB,1);
   req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE);};
-  req.onerror=()=>reject(req.error||Error('즐겨찾기 DB 열기 실패'));
-  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error||Error('즐겨찾기 DB 열기 실패'));req.onsuccess=()=>resolve(req.result);
  });
  const database=open();
- const ready=database.then(db=>new Promise((resolve,reject)=>{
-  const tx=db.transaction(STORE,'readonly'),req=tx.objectStore(STORE).openCursor();
-  req.onsuccess=()=>{
-   const cursor=req.result;
-   if(!cursor){resolve(true);return;}
-   const n=normalize(cursor.key);
-   if(n){saved.add(n);const at=timeOf(cursor.value);if(at)savedTimes.set(n,at);}
-   cursor.continue();
-  };
+ const ready=database.then(db=>new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readonly'),req=tx.objectStore(STORE).openCursor();
+  req.onsuccess=()=>{const cur=req.result;if(!cur){resolve(true);return;}const id=normalize(cur.key);
+   if(id){saved.add(id);const at=timeOf(cur.value);if(at)savedTimes.set(id,at);
+    const title=validTitle(cur.value?.title,id);if(title)savedTitles.set(id,title);
+    const card=cleanCard(cur.value?.card,id);if(card)savedCards.set(id,card);
+   }cur.continue();};
   req.onerror=()=>reject(req.error||Error('즐겨찾기 목록 조회 실패'));
   tx.onabort=()=>reject(tx.error||Error('즐겨찾기 목록 조회 중단'));
  })).catch(err=>{console.warn('[Hitomi Favorites]',err);return false});
- async function toggle(id){
-  id=normalize(id);if(!id)throw Error('작품번호가 올바르지 않습니다.');
-  if(!(await ready))throw Error('IndexedDB 즐겨찾기를 열 수 없습니다.');
-  const db=await database,next=!saved.has(id),at=Date.now();
-  await new Promise((resolve,reject)=>{
-   const tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);
-   if(next)store.put({savedAt:at},id);else store.delete(id);
-   tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||Error('즐겨찾기 저장 실패'));
-   tx.onabort=()=>reject(tx.error||Error('즐겨찾기 저장 중단'));
+ async function toggle(rawId,card){const id=normalize(rawId);if(!id)throw Error('작품번호가 올바르지 않습니다.');
+  if(!(await ready))throw Error('IndexedDB 즐겨찾기를 열 수 없습니다.');const db=await database,next=!saved.has(id),at=Date.now();
+  const info=cleanCard(card,id),title=info?.title||validTitle(card?.title,id)||'';
+  await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);
+   if(next)store.put({savedAt:at,...(title?{title}:{}),...(info?{card:info}:{})},id);else store.delete(id);
+   tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||Error('즐겨찾기 저장 실패'));tx.onabort=()=>reject(tx.error||Error('즐겨찾기 저장 중단'));
   });
-  if(next){saved.add(id);savedTimes.set(id,at);}
-  else{saved.delete(id);savedTimes.delete(id);}
-  document.dispatchEvent(new CustomEvent('comic-hitomi-favorites-v1613',{detail:{id,added:next}}));
-  return next;
+  if(next){saved.add(id);savedTimes.set(id,at);if(title)savedTitles.set(id,title);if(info)savedCards.set(id,info);}
+  else{saved.delete(id);savedTimes.delete(id);savedTitles.delete(id);savedCards.delete(id);}
+  document.dispatchEvent(new CustomEvent('comic-hitomi-favorites-v1613',{detail:{id,added:next}}));return next;
+ }
+ async function remember(card){const id=normalize(card?.id),info=cleanCard(card,id);if(!id||!info)return false;
+  if(!(await ready)||!saved.has(id))return false;
+  if(savedTitles.get(id)===info.title&&JSON.stringify(savedCards.get(id)||{})===JSON.stringify(info))return true;
+  const db=await database,at=savedTimes.get(id)||0;
+  await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);
+    const req=store.get(id);req.onsuccess=()=>{
+      if(!saved.has(id))return;
+      const original=req.result&&typeof req.result==='object'?req.result:{};
+      store.put({...original,...(at&&!original.savedAt?{savedAt:at}:{}),title:info.title,card:info},id);
+    };
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||Error('작품 정보 저장 실패'));tx.onabort=()=>reject(tx.error||Error('작품 정보 저장 중단'));
+  });
+  if(!saved.has(id))return false;savedTitles.set(id,info.title);savedCards.set(id,info);
+  document.dispatchEvent(new CustomEvent('comic-hitomi-metadata-v1788',{detail:{id,title:info.title,card:info}}));return true;
  }
  const list=()=>[...saved].sort((a,b)=>Number(b)-Number(a));
- window.ComicHitomiFavoritesV1505={ready,has:id=>saved.has(normalize(id)),toggle,list,
-   getSavedAt:id=>savedTimes.get(normalize(id))||0,
-   entries:()=>list().map(id=>({id,savedAt:savedTimes.get(id)||0})),
-   count:()=>saved.size};
+ window.ComicHitomiFavoritesV1505={ready,has:id=>saved.has(normalize(id)),toggle,list,remember,
+  validTitle,getTitle:id=>savedTitles.get(normalize(id))||'',getCard:id=>savedCards.get(normalize(id))||null,
+  getSavedAt:id=>savedTimes.get(normalize(id))||0,
+  entries:()=>list().map(id=>({id,savedAt:savedTimes.get(id)||0,title:savedTitles.get(id)||''})),count:()=>saved.size};
 })();
 </script>
 
@@ -197568,7 +197484,39 @@ window.ComicHitomiZipV1501 = (() => {
 const ROOT='/__webviewer_local/hitomi/';
 const favorites=window.ComicHitomiFavoritesV1505;
 const favoriteCards=new Map();
-function rememberFavoriteCard(card){if(!card||!/^\d{1,12}$/.test(String(card.id))||card.__favoriteError)return;const id=String(card.id);favoriteCards.delete(id);favoriteCards.set(id,card);if(favoriteCards.size>256)favoriteCards.delete(favoriteCards.keys().next().value);}
+function rememberFavoriteCard(card){if(!card||!/^\d{1,12}$/.test(String(card.id))||card.__favoriteError)return;
+ const id=String(card.id);favoriteCards.delete(id);favoriteCards.set(id,card);if(favoriteCards.size>256)favoriteCards.delete(favoriteCards.keys().next().value);
+ void favorites?.remember?.(card).catch(err=>console.warn('[Hitomi favorite metadata]',err));
+}
+
+// v1788: One shared, bounded Hitomi metadata path. Never create fake titles on API failure.
+const detailInFlightV1788=new Map(), detailFailedUntilV1788=new Map(), detailQueueV1788=[];
+let detailWorkingV1788=0;
+function fetchDetailV1788(id){
+ id=String(id||'');if(!/^\d{1,12}$/.test(id))return Promise.reject(Error('잘못된 작품번호'));
+ const stored=favorites?.getCard?.(id);
+ if(favoriteCards.has(id))return Promise.resolve(favoriteCards.get(id));
+ if(stored?.title&&stored.full)return Promise.resolve(stored);
+ if(detailInFlightV1788.has(id))return detailInFlightV1788.get(id);
+ if((detailFailedUntilV1788.get(id)||0)>Date.now())return Promise.reject(Error('잠시 후 작품 정보를 다시 확인하세요.'));
+ let resolveTask,rejectTask;const promise=new Promise((res,rej)=>{resolveTask=res;rejectTask=rej;});
+ detailInFlightV1788.set(id,promise);detailQueueV1788.push({id,resolveTask,rejectTask});pumpDetailV1788();return promise;
+}
+function pumpDetailV1788(){while(detailWorkingV1788<3&&detailQueueV1788.length){
+ const task=detailQueueV1788.shift();detailWorkingV1788++;
+ (async()=>{const p=new URLSearchParams({mode:'id',id:task.id,lang:'all',page:'0',limit:'1'});
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+  try{const response=await fetch(ROOT+'browse?'+p,{cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const data=await response.json(),card=(Array.isArray(data?.data)?data.data:[]).find(x=>String(x?.id)===task.id);
+   if(!card||!favorites?.validTitle?.(card.title,task.id))throw Error('작품 상세정보 없음');
+   rememberFavoriteCard(card);task.resolveTask(card);
+  }catch(e){detailFailedUntilV1788.set(task.id,Date.now()+60000);task.rejectTask(e);}
+  finally{clearTimeout(timer);detailInFlightV1788.delete(task.id);detailWorkingV1788--;pumpDetailV1788();}
+ })();
+}}
+async function openInfoByIdV1788(id){try{const card=await fetchDetailV1788(id);detail(card);}catch(e){alert('Hitomi 작품 정보를 불러오지 못했습니다: '+String(e?.message||e));}}
+
 const make=(tag,txt,cls)=>{const e=document.createElement(tag);if(txt!==null&&txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e};
 // v1519: Readable compact language marker on Hitomi gallery cards; unknown languages unchanged.
 function hitomiLangShortV1519(raw){
@@ -197924,7 +197872,7 @@ function render(){if(!state.active||window.ComicExternalRailReturnV1786?.isSuspe
   if(ownedHitomiIdsV1507.has(String(Number(card.id)))){const ribbon=make('span','보유중','hitomiOwnedRibbonV1507');ribbon.title='로컬 만화 목록에서 동일 Hitomi 작품번호를 확인했습니다.';frame.append(ribbon);}
   const cap=make('div',null,'wtThumbCap');cap.append(make('span','[출처] Hitomi · '+hitomiLangShortV1519(card.language)+' · '+(card.pages>0?card.pages+'p':''),'wtComicMetaV1094'),make('span',card.title,'wtComicTitleV1094'));btn.append(frame,cap);btn.onclick=()=>{if(card.__favoriteError)void openSearch('id',String(card.id));else void openReader(card)};item.style.position='relative';
   const heart=make('button',favorites?.has?.(card.id)?'♥':'♡','hitomiFavoriteHeartV1505');heart.type='button';heart.title=favorites?.has?.(card.id)?'Hitomi 즐겨찾기 해제':'Hitomi 즐겨찾기 추가';heart.setAttribute('aria-label',heart.title);heart.setAttribute('aria-pressed',String(!!favorites?.has?.(card.id)));
-  heart.onclick=async e=>{e.preventDefault();e.stopPropagation();heart.disabled=true;try{const isFav=await favorites.toggle(card.id);heart.textContent=isFav?'♥':'♡';heart.title=isFav?'Hitomi 즐겨찾기 해제':'Hitomi 즐겨찾기 추가';heart.setAttribute('aria-label',heart.title);heart.setAttribute('aria-pressed',String(isFav));syncFavMode();if(!isFav&&state.mode==='favorites'){state.items=state.items.filter(c=>String(c.id)!==String(card.id));render();}}catch(err){alert('Hitomi 즐겨찾기 저장 실패: '+String(err?.message||err))}finally{heart.disabled=false;}};
+  heart.onclick=async e=>{e.preventDefault();e.stopPropagation();heart.disabled=true;try{const isFav=await favorites.toggle(card.id,card);heart.textContent=isFav?'♥':'♡';heart.title=isFav?'Hitomi 즐겨찾기 해제':'Hitomi 즐겨찾기 추가';heart.setAttribute('aria-label',heart.title);heart.setAttribute('aria-pressed',String(isFav));syncFavMode();if(!isFav&&state.mode==='favorites'){state.items=state.items.filter(c=>String(c.id)!==String(card.id));render();}}catch(err){alert('Hitomi 즐겨찾기 저장 실패: '+String(err?.message||err))}finally{heart.disabled=false;}};
   const inf=make('button','ⓘ','hitomiCaptionActionV1519 hitomiCaptionInfoV1519');inf.type='button';inf.title='작품 정보';inf.setAttribute('aria-label','작품 정보');inf.onclick=e=>{e.preventDefault();e.stopPropagation();detail(card);};
   const save=make('button','⬇','hitomiCaptionActionV1519 hitomiCaptionSaveV1519');save.type='button';save.title='이 작품 다운로드';save.setAttribute('aria-label','이 작품 다운로드');save.onclick=e=>{e.preventDefault();e.stopPropagation();window.ComicHitomiZipV1501?.open(card);};item.append(btn);if(!card.__favoriteError)item.append(save,inf);item.append(heart);frag.append(item);
  }
@@ -198071,7 +198019,7 @@ async function openSearch(mode,term,filters=null){if(mode==='author')mode='artis
 // Ensure switching back to MangaDex restores the normal list before its own view snapshots it.
 const mdx=window.ComicMangaDexAuthorV1465;if(mdx){for(const key of ['open','openSaved','openBrowse']){if(typeof mdx[key]!=='function')continue;const original=mdx[key];mdx[key]=function(...args){clear();return original.apply(this,args);};}}
 void favorites.ready.then(()=>{syncFavMode();if(state.active)render();});syncFavMode();
-window.ComicHitomiExploreV1483={open:openSearch,openReader,clear,active:()=>state.active};
+window.ComicHitomiExploreV1483={open:openSearch,openReader,openInfoByIdV1788,fetchDetailV1788,clear,active:()=>state.active};
 
 // v1629: Read-only unified title discovery. No mutation of standalone explorer state.
 window.ComicHitomiExploreV1483.unifiedSearchV1629=async({term,page,signal})=>{
@@ -198616,6 +198564,10 @@ window.ComicHitomiExploreV1483.unifiedOpenV1629=openReader;
   font:700 11px/15px WebViewerNotoCJK,sans-serif;
 }
 .cuActionsV1614 .cuHitomiSaveV1615{font-size:12px}
+.cuActionsV1614 .cuHitomiInfoV1788{display:grid;place-items:center;box-sizing:border-box;flex:0 0 18px;width:18px;height:17px;min-width:18px;min-height:17px;
+ margin:0;padding:0;border:1px solid #52657a;border-radius:3px;background:rgba(18,41,63,.88);color:#b8ddfa;cursor:pointer;font:700 12px/15px WebViewerNotoCJK,sans-serif;}
+.cuActionsV1614 .cuHitomiInfoV1788:hover{background:#20527e;color:#fff;border-color:#80acd1}
+.cuActionsV1614 .cuHitomiInfoV1788:focus-visible{outline:2px solid #9bcfff;outline-offset:2px}
 .cuActionsV1614 :is(.cuNameBtnV1610,.cuHitomiSaveV1615):hover{background:#20527e;color:#fff;border-color:#80acd1}
 .cuActionsV1614 .cuHitomiHeartV1615{
   border:0!important;border-radius:0;background:transparent!important;
@@ -198666,8 +198618,9 @@ window.ComicHitomiExploreV1483.unifiedOpenV1629=openReader;
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 .cuTitleV1610{display:block;color:inherit;font-size:11px;line-height:17px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-height:17px;overflow-wrap:normal;}
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 :is(.cuDetailV1610,.cuTimeV1610){display:block;font-size:10px;line-height:14px;color:#a9bdce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 .cuTimeV1610{padding-right:67px;}
+#wtList.comicInlineRecentHostV1633 .cuRecentCardV1633.cuHitomiEntryV1788 .cuTimeV1610{padding-right:88px;}
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633>.cuActionsV1614{position:absolute;bottom:3px;right:1px;display:flex;gap:2px;margin:0;z-index:3;}
-#wtList.comicInlineRecentHostV1633 .cuRecentCardV1633>.cuActionsV1614 :is(.cuNameBtnV1610,.cuHitomiSaveV1615,.cuHitomiHeartV1615,.cuActionSpacerV1617){flex:0 0 18px;width:18px;height:17px;min-width:18px;min-height:17px;}
+#wtList.comicInlineRecentHostV1633 .cuRecentCardV1633>.cuActionsV1614 :is(.cuNameBtnV1610,.cuHitomiInfoV1788,.cuHitomiSaveV1615,.cuHitomiHeartV1615,.cuActionSpacerV1617){flex:0 0 18px;width:18px;height:17px;min-width:18px;min-height:17px;}
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 :is(.cuRecentOwnedV1633,.cuRecentSourceV1633){position:absolute;top:-1px;left:-1px;z-index:5;display:block;width:67px;height:67px;box-sizing:border-box;padding:7px 0 0 9px;clip-path:polygon(0 0,100% 0,0 100%);background:linear-gradient(135deg,#179953 0%,#179953 49.5%,transparent 50.5%,transparent 100%);color:#fff;font:900 10px/14px WebViewerNotoCJK,sans-serif;letter-spacing:-.2px;white-space:nowrap;text-align:left;pointer-events:none;text-shadow:0 1px 2px #004225;}
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 .cuRecentOwnedV1633{background:linear-gradient(135deg,#d70f39 0%,#d70f39 49.5%,transparent 50.5%,transparent 100%);text-shadow:0 1px 2px #4a0018;}
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 .cuRecentSourceV1633[data-site="mangadex"]{font-size:9px;letter-spacing:-.45px;padding-left:12px;}
@@ -198709,6 +198662,8 @@ window.ComicHitomiExploreV1483.unifiedOpenV1629=openReader;
 #wtList.comicInlineRecentHostV1633 .cuRecentCardV1633 .cuLatestEpisodeV1649{
   color:#ff9500;font-weight:800;
 }
+/* v1789: Only Hitomi Recent/Favorites progress receives an orange gallery ID. */
+.cuDetailV1610 .cuHitomiGalleryIdV1789{color:#ff9500;font-weight:700;}
 </style>
 
 <script id="comicExternalReadProgressV1612">
@@ -198788,6 +198743,13 @@ window.ComicExternalReadProgressV1612=(()=>{'use strict';
       if(row.site==='툰코')row.workData=window.WVToonkorPortableURLsV1777?.storeWork?.(row.workData)||row.workData;
       else row.workData=window.WVExternalCoverBaseV1778?.storeWork?.(row.site,row.workData)||row.workData;
     }else if(cached.get(key)?.workData)row.workData=cached.get(key).workData;
+    if(row.site==='Hitomi'){
+      const real=window.ComicHitomiFavoritesV1505?.validTitle?.(row.workTitle,row.workId);
+      const old=cached.get(key);
+      if(!real){const previous=window.ComicHitomiFavoritesV1505?.getTitle?.(row.workId)||window.ComicHitomiFavoritesV1505?.validTitle?.(old?.workTitle,row.workId);
+        if(previous){row.workTitle=previous;row.workData={...(row.workData||{}),id:row.workId,title:previous};}
+      }
+    }
     cached.set(key,row);queued.set(key,row);if(!timer)timer=setTimeout(()=>{void flush();},450);return true;
   }
   const present=row=>{if(!row?.workData)return row;const w=row.site==='툰코'?(window.WVToonkorPortableURLsV1777?.showWork?.(row.workData)||row.workData):(window.WVExternalCoverBaseV1778?.showWork?.(row.site,row.workData)||row.workData);return {...row,workData:w};};
@@ -198838,9 +198800,22 @@ window.ComicExternalReadProgressV1612=(()=>{'use strict';
     }).catch(e=>console.warn('[최근 최신화 갱신 v1755]',e));
     return true;
   }
+  async function enrichHitomi(card){
+    const id=String(card?.id||'');const title=window.ComicHitomiFavoritesV1505?.validTitle?.(card?.title,id);
+    if(!/^\d{1,12}$/.test(id)||!title)return false;
+    const prev=await get('Hitomi',id);if(!prev)return false;
+    const same=prev.workTitle===title&&prev.workData?.title===title;
+    if(same)return true;
+    const key=keyOf('Hitomi',id);
+    const updated={...prev,workTitle:title,workData:{...(prev.workData||{}),id,title,
+       cover:String(card.cover||prev.workData?.cover||'').slice(0,600),pages:Number(card.pages)||Number(prev.workData?.pages)||0,
+       group:String(card.group||prev.workData?.group||'').slice(0,150),groups:Array.isArray(card.groups)?card.groups.slice(0,15):prev.workData?.groups||[]}};
+    cached.set(key,updated);queued.set(key,updated);if(!timer)timer=setTimeout(()=>{void flush();},450);
+    document.dispatchEvent(new CustomEvent('comic-hitomi-metadata-v1788',{detail:{id,title,card}}));return true;
+  }
   window.addEventListener('pagehide',()=>{void flush();});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')void flush();});
-  return {mark,get,list,flush,keyOf,rememberLatest,getLatest,listLatest};
+  return {mark,get,list,flush,keyOf,rememberLatest,getLatest,listLatest,enrichHitomi};
 })();
 </script>
 
@@ -198918,13 +198893,23 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
  function setRecentDetailV1649(detail,value){
    if(!detail)return;
    const label=String(value??'');
+   // v1789: The gallery ID is already stored; no metadata request or new DB field.
+   // This element is attached only to Hitomi Recent/Favorites details.
+   const galleryId=String(detail.dataset.hitomiGalleryIdV1789||'');
+   const prefix=[];
+   if(/^\d{1,12}$/.test(galleryId)){
+     const idLabel=document.createElement('span');
+     idLabel.className='cuHitomiGalleryIdV1789';
+     idLabel.textContent='#'+galleryId;
+     prefix.push(idLabel,document.createTextNode(' '));
+   }
    const match=/^최신\s+\d+(?:\.\d+)?화(?=\s|·|$)/u.exec(label);
-   if(!match){detail.textContent=label;detail.title=label;return;}
+   if(!match){detail.replaceChildren(...prefix,document.createTextNode(label));detail.title=(prefix.length?'#'+galleryId+' ':'')+label;return;}
    const latest=document.createElement('span');
    latest.className='cuLatestEpisodeV1649';
    latest.textContent=match[0];
-   detail.replaceChildren(latest,document.createTextNode(label.slice(match[0].length)));
-   detail.title=label;
+   detail.replaceChildren(...prefix,latest,document.createTextNode(label.slice(match[0].length)));
+   detail.title=(prefix.length?'#'+galleryId+' ':'')+label;
  }
  const recentLocalProgressV1635=new Map();
  let recentLocalObserverV1635=null;
@@ -199038,7 +199023,7 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
        setRecentDetailV1649(detail,favoriteProgressTextV1650(row,row.page,row.pageCount));
      }).catch(error=>{
        console.warn('[즐겨찾기 외부 만화 읽음 위치 v1650]',row.site,row.id,error);
-       if(card.isConnected&&detail.isConnected)detail.textContent='읽은 위치 확인 불가';
+       if(card.isConnected&&detail.isConnected)setRecentDetailV1649(detail,'읽은 위치 확인 불가');
      });
    };
    observeUnifiedProgressV1650(card,run);
@@ -199119,7 +199104,7 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
    }).filter(Boolean);
  };
  const hitomiRows=async()=>{try{const f=window.ComicHitomiFavoritesV1505;if(!f)return[];await f.ready;
-   return f.list().map(id=>({site:'Hitomi',id,title:'Hitomi #'+id,savedAt:Number(f.getSavedAt?.(id))||0,image:'/__webviewer_local/hitomi/cover?id='+encodeURIComponent(id),data:{id}}));
+   return f.list().map(id=>({site:'Hitomi',id,title:f.getTitle?.(id)||'Hitomi #'+id,savedAt:Number(f.getSavedAt?.(id))||0,image:'/__webviewer_local/hitomi/cover?id='+encodeURIComponent(id),data:f.getCard?.(id)||{id}}));
  }catch(e){console.warn('[히토미 즐겨찾기 목록]',e);return[];}};
    const recentRows=async()=>{
     await window.ComicRecentV1090?.ready;
@@ -199140,7 +199125,11 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
         r.site==='MangaDex'?{id:r.workId,attributes:{title:{ko:r.workTitle||r.workId}},relationships:[]}
          :r.site==='Hitomi'?{id:r.workId,title:r.workTitle||'Hitomi #'+r.workId}
          :{id:r.workId,name:r.workTitle||r.workId});
-      return {site:r.site,id:r.workId,title:String(r.workTitle||fav?.title||data.name||data.title||r.workId),
+      const preferredTitle=r.site==='Hitomi'
+        ?(window.ComicHitomiFavoritesV1505?.validTitle?.(r.workTitle,r.workId)||window.ComicHitomiFavoritesV1505?.validTitle?.(r.workData?.title,r.workId)||window.ComicHitomiFavoritesV1505?.getTitle?.(r.workId)||'Hitomi #'+r.workId)
+        :String(r.workTitle||fav?.title||data.name||data.title||r.workId);
+      if(r.site==='Hitomi')data.title=preferredTitle;
+      return {site:r.site,id:r.workId,title:preferredTitle,
         image:fav?.image||'',data,progress:r,savedAt:Number(r.updatedAt)||0,
         chapter:r.chapterTitle||'',page:Number(r.page)||1,pageCount:Number(r.pageCount)||1,latestChapter:Math.max(Number(r.latestChapter)||0,Number(newest.get(r.site+':'+r.workId))||0)};
     })].sort((a,b)=>(b.savedAt||0)-(a.savedAt||0)||(a.legacyPosition??9999)-(b.legacyPosition??9999));
@@ -199600,7 +199589,7 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
       }else if(row.site==='Hitomi'){
         const api=window.ComicHitomiFavoritesV1505;
         if(!api||!(await api.ready))throw Error('Hitomi 즐겨찾기 DB를 열 수 없습니다.');
-        active=!!(await api.toggle(row.id));
+        active=!!(await api.toggle(row.id,row.data));
       }else{
         const api=window.ComicExternalFavoritesV1584;
         if(!api||!(await api.ready))throw Error('외부 만화 즐겨찾기 DB를 열 수 없습니다.');
@@ -199618,7 +199607,7 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
   const hasFavorite=row=>row.site==='내 만화'?(!!(typeof getWtBookmarksMap==='function'&&getWtBookmarksMap()?.[row.id]))
     :row.site==='Hitomi'?!!window.ComicHitomiFavoritesV1505?.has?.(row.id)
     :!!window.ComicExternalFavoritesV1584?.has?.(row.site,row.id);
-  function card(row){const item=E('article','cuCardV1610'+(inlineRecentV1633?' cuRecentCardV1633':''));if((kind==='recent'||kind==='favorites')&&row.site!=='내 만화'){item.dataset.recentWorkV1639=String(row.id);item.dataset.recentSiteV1639=row.site;item.dataset.recentFlagV1639='1';}const a=E('button','cuCoverV1610');a.type='button';a.title='회차가 있는 작품은 회차 목록, 단일 작품은 뷰어 열기';a.dataset.openActionV1756='chapters';
+  function card(row){const item=E('article','cuCardV1610'+(inlineRecentV1633?' cuRecentCardV1633':''));if((kind==='recent'||kind==='favorites')&&row.site!=='내 만화'){item.dataset.recentWorkV1639=String(row.id);item.dataset.recentSiteV1639=row.site;item.dataset.recentFlagV1639='1';}const a=E('button','cuCoverV1610');a.type='button';a.title=row.site==='Hitomi'&&kind!=='downloads'?'Hitomi 작품 정보보기':'회차가 있는 작품은 회차 목록, 단일 작품은 뷰어 열기';a.dataset.openActionV1756='chapters';
    if(kind==='downloads')a.title='저장된 ZIP/CBZ·이미지폴더를 로컬 뷰어로 열기';
    const img=E('img');img.loading='lazy';img.decoding='async';img.alt='';
    const placeholder=E('span','cuPlaceholderV1610','표지 없음');
@@ -199673,9 +199662,11 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
         cap.append(localProgressDetailV1635);
       }else{
         const detail=E('span','cuDetailV1610');
+        // v1789: Apply only in the two personal lists, never Downloads or other sites.
+        if(row.site==='Hitomi'&&/^\d{1,12}$/.test(String(row.id)))detail.dataset.hitomiGalleryIdV1789=String(row.id);
         if(kind==='favorites'){
           externalFavoriteDetailV1650=detail;
-          detail.textContent='마지막 읽은 페이지 확인 중…';
+          setRecentDetailV1649(detail,'마지막 읽은 페이지 확인 중…');
         }else setRecentDetailV1649(detail,recentPageTextV1636(row,row.page||1,row.pageCount||1));
         cap.append(detail);
       }
@@ -199690,6 +199681,20 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
     }
    const date=E('small','cuTimeV1610',row.savedAt?new Date(row.savedAt).toLocaleString('ko-KR'):(row.site==='Hitomi'&&kind==='favorites'?'등록 시간 기록 없음':''));cap.append(date);
        a.onclick=()=>{if(canOpen)void (kind==='downloads'?openDownloadedV1651(actionRow):openSite(actionRow,'chapters'));};
+    if(row.site==='Hitomi'&&kind!=='downloads'){
+      item.classList.add('cuHitomiEntryV1788');item.dataset.hitomiIdV1788=String(row.id);
+      const ask=()=>void window.ComicHitomiExploreV1483?.openInfoByIdV1788?.(row.id);
+      a.onclick=ask;
+      // Fetch title in the background only for an actually mounted card.
+      if(!window.ComicHitomiFavoritesV1505?.validTitle?.(row.title,row.id)){
+        void window.ComicHitomiExploreV1483?.fetchDetailV1788?.(row.id).then(meta=>{
+          if(kind==='recent')void window.ComicExternalReadProgressV1612?.enrichHitomi?.(meta);
+          // The real metadata may have been in RAM without a new IndexedDB write.
+          document.dispatchEvent(new CustomEvent('comic-hitomi-metadata-v1788',
+            {detail:{id:String(row.id),title:meta.title,card:meta}}));
+        }).catch(()=>{});
+      }
+    }
     const actions=E('div','cuActionsV1614');
     // v1617: reliable metadata is required to resume/download/favorite a file-only row.
     // Records from the disk scan have names but no work identity; do not fake an action.
@@ -199701,6 +199706,11 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
     titleBtn.title=canOpen?(kind==='downloads'?'저장파일을 로컬 뷰어로 열기 (없으면 원본 작품)':'보기 · 마지막 읽은 회차와 페이지로 이동 (기록 없으면 회차 목록)'):'파일 접근 권한이나 작품 정보 없음';titleBtn.dataset.openActionV1756='resume';
     titleBtn.setAttribute('aria-label',titleBtn.title);titleBtn.disabled=!canOpen;
     titleBtn.onclick=()=>{if(canOpen)void (kind==='downloads'?openDownloadedV1651(actionRow):openSite(actionRow,'resume'));};actions.append(titleBtn);
+    if(kind!=='downloads'&&row.site==='Hitomi'){
+      const info=E('button','cuHitomiInfoV1788','ⓘ');info.type='button';info.title='Hitomi 작품 정보';info.setAttribute('aria-label','Hitomi 작품 정보');
+      info.onclick=e=>{e.preventDefault();e.stopPropagation();void window.ComicHitomiExploreV1483?.openInfoByIdV1788?.(row.id);};
+      actions.append(info);
+    }
     if(kind!=='downloads'&&row.site!=='내 만화'){
       const save=E('button','hitomiCaptionActionV1519 cuHitomiSaveV1615','⬇');
       save.type='button';save.title='이 작품 다운로드';save.setAttribute('aria-label',save.title);
@@ -199718,6 +199728,17 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
     if(externalFavoriteDetailV1650)mountFavoriteExternalProgressV1650(row,item,externalFavoriteDetailV1650);
     return item;
  }
+ document.addEventListener('comic-hitomi-metadata-v1788',event=>{
+   const {id,title,card:meta}=event.detail||{};
+   if(!id||!title||!screen)return;
+   for(const row of entries){if(row.site!=='Hitomi'||String(row.id)!==String(id))continue;
+     row.title=title;row.data={...(row.data||{}),...(meta||{}),id,title};
+   }
+   for(const item of screen.querySelectorAll('.cuHitomiEntryV1788')){
+     if(item.dataset.hitomiIdV1788!==String(id))continue;
+     const el=item.querySelector('.cuTitleV1610');if(el){el.textContent=title;el.title=title;}
+   }
+ });
  document.addEventListener('comic-external-latest-v1639',event=>{
    if(!['recent','favorites'].includes(kind)||!screen)return;
    const {site,workId,latestChapter}=event.detail||{};
@@ -199987,7 +200008,7 @@ window.ComicUnifiedLibraryV1610=(()=>{'use strict';
 #wtList.comicUnifiedResultsV1629 .unifiedSearchStatusV1629{font-size:11px;flex-wrap:wrap;white-space:normal}
 #wtList.comicUnifiedResultsV1629 .unifiedSearchErrorV1629{color:#ffc2ad}
 #wtList.comicUnifiedResultsV1629 .unifiedLoadingV1629{grid-column:1 / -1;text-align:center;padding:9px 3px;font-size:11px}
-html:has(#wtList.wtShelfThemeOnV1217) #comicUnifiedTitleSearchV1629{background:transparent}
+
 
 </style>
 <script id="comicUnifiedTitleSearchV1629">
@@ -200170,7 +200191,7 @@ html:has(#wtList.wtShelfThemeOnV1217) #comicUnifiedTitleSearchV1629{background:t
    const favSite=labels[site];const favId=site==='newtoki'?String(item?.id||''):id;const favHas=()=>site==='local'?isWtBookmarked(id):site==='hitomi'?favorites?.has?.(id):favorites?.has?.(favSite,favId);
    const heart=E('button',favHas()?'♥':'♡','unifiedHeartV1630');heart.type='button';heart.title='즐겨찾기 추가/해제';heart.setAttribute('aria-pressed',String(!!favHas()));
    heart.onclick=async e=>{e.preventDefault();e.stopPropagation();heart.disabled=true;try{
-     const on=site==='local'?toggleWtBookmark(id):site==='hitomi'?await favorites.toggle(id):await favorites.toggle(favSite,favId,item,name);
+     const on=site==='local'?toggleWtBookmark(id):site==='hitomi'?await favorites.toggle(id,item):await favorites.toggle(favSite,favId,item,name);
      heart.textContent=on?'♥':'♡';heart.setAttribute('aria-pressed',String(on));
    }catch(err){alert('즐겨찾기 변경 실패: '+String(err?.message||err))}finally{heart.disabled=false;}};
    // Marumaru has a site-specific downloader; do not route it through MangaDex.
@@ -204031,19 +204052,6 @@ window.ComicIliltoonV1578.unifiedOpenV1629=detail;
 #comicIliltoonToolsV1578 small,#comicToonkorToolsV1588 .toonkorRailHelpV1588{
   font-size:10px;line-height:1.45;color:#b7c9d9;opacity:.78;margin:0;overflow-wrap:anywhere;
 }
-/* Bookshelf follows the Hitomi transparent inactive controls and transparent frame. */
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicIliltoonToolsV1578,#comicToonkorToolsV1588){
-  background:transparent!important;background-image:none!important;
-}
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicIliltoonToolsV1578,#comicToonkorToolsV1588)
- button:not(:is(.active,.on,[aria-pressed="true"],[aria-selected="true"])){
-  background:transparent!important;background-color:transparent!important;background-image:none!important;
-}
-html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active)
- #comicRightRailExternalToolsV1482 :is(#comicIliltoonToolsV1578,#comicToonkorToolsV1588)
- :is(select,input){background:transparent!important;background-color:transparent!important;}
 </style>
 <style id="comicExternalRailsToonkorV1605">
 /* All external author/tag/group saved rows share [yellow][white][name][source]. */
@@ -207354,6 +207362,113 @@ body:not(.videoDeveloperShareVisibleV1381) #comicMissavRailV1743 {display:none!i
 .missavDetailActionsV1750{display:flex;justify-content:flex-end;gap:10px;padding-top:12px;flex-wrap:wrap}
 @media(max-width:600px){.missavDetailInfoV1750 img{width:70px}.missavDetailHeadV1750 strong{font-size:12px}.missavDetailPaneV1750{padding:8px}}
 </style>
+<style id="comicShelfExternalTabPaletteV1790">
+/* ============================================================================
+   v1790 · 책장모드 전용 외부탭 팔레트 (독립 관리 영역)
+   - 일반모드와 공통 버튼 높이/간격/글꼴/배치는 기존 사이트 CSS 그대로 사용
+   - 오직 책장모드 + 만화탭 + 오른쪽 외부 도구(#comicRightRailExternalToolsV1482)
+   - 아래 변수/규칙만 수정하면 6개 사이트의 기본·hover·선택 상태가 함께 변경
+   - 통합검색 체크 사이트, 검색 입력·선택상자·주소검사 입력 포함
+   - 정보보기 팝업/회차/뷰어/가상 리스트/영상 탭은 이 규칙의 범위 밖
+   ============================================================================ */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 {
+  --wv-ext-shelf-idle-bg-v1790: transparent;
+  --wv-ext-shelf-idle-text-v1790: #edf4ff;
+  --wv-ext-shelf-active-bg-v1790: #2466b9;
+  --wv-ext-shelf-active-text-v1790: #ffffff;
+  --wv-ext-shelf-active-border-v1790: #9ac6ef;
+  --wv-ext-shelf-input-border-v1790: #ffffff;
+}
+/* 여섯 사이트와 통합검색 패널의 나무 배경 노출. 기존 패널 테두리/배치 유지. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666,#comicUnifiedTitleSearchV1629,#comicAddressProbeV1780) {
+  background:transparent!important;
+  background-image:none!important;
+}
+/* 사이트 버튼·뉴토끼 외부링크: 미선택/hover는 같은 투명 표면. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])):hover,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])):focus-visible {
+  background:var(--wv-ext-shelf-idle-bg-v1790)!important;
+  background-image:none!important;
+  color:var(--wv-ext-shelf-idle-text-v1790)!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+/* 선택 직후 hover/focus를 포함하여 활성 상태가 파랑으로 계속 유지된다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]):hover,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"]):focus-visible {
+  background:var(--wv-ext-shelf-active-bg-v1790)!important;
+  background-image:none!important;
+  color:var(--wv-ext-shelf-active-text-v1790)!important;
+  border-color:var(--wv-ext-shelf-active-border-v1790)!important;
+  box-shadow:none!important;
+}
+/* 누르는 순간(:active)에도 동일한 파란 선택색을 짧게 보여 준다. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a):not(:disabled):active {
+  background:var(--wv-ext-shelf-active-bg-v1790)!important;
+  background-image:none!important;
+  color:var(--wv-ext-shelf-active-text-v1790)!important;
+  border-color:var(--wv-ext-shelf-active-border-v1790)!important;
+}
+/* 통합검색의 사이트 선택(라벨 + 체크박스)은 버튼이 아니므로 별도로 처리. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicUnifiedTitleSearchV1629 .unifiedSiteV1629:not(:has(input:checked)),
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicUnifiedTitleSearchV1629 .unifiedSiteV1629:not(:has(input:checked)):hover {
+  background:var(--wv-ext-shelf-idle-bg-v1790)!important;
+  color:var(--wv-ext-shelf-idle-text-v1790)!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicUnifiedTitleSearchV1629 .unifiedSiteV1629:has(input:checked) {
+  background:var(--wv-ext-shelf-active-bg-v1790)!important;
+  color:var(--wv-ext-shelf-active-text-v1790)!important;
+}
+/* 통합검색 실행 및 주소검사 실행은 선택 토글이 아닌 실행 버튼: 기존 파랑 유지. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicUnifiedTitleSearchV1629 #unifiedGoV1629,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicAddressProbeV1780 button:not(:disabled) {
+  background:var(--wv-ext-shelf-active-bg-v1790)!important;
+  color:var(--wv-ext-shelf-active-text-v1790)!important;
+}
+/* 입력상자/드롭다운: 책장 위에서 투명한 바탕과 흰 테두리로 공통 표시.
+   체크박스/라디오의 사용자 선택 상태는 건드리지 않음. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666,#comicUnifiedTitleSearchV1629,#comicAddressProbeV1780) :is(select,input:not([type="checkbox"]):not([type="radio"])) {
+  background:transparent!important;
+  background-image:none!important;
+  color:#ffffff!important;
+  border-color:var(--wv-ext-shelf-input-border-v1790)!important;
+  -webkit-text-fill-color:#ffffff!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666,#comicUnifiedTitleSearchV1629,#comicAddressProbeV1780) input:not([type="checkbox"]):not([type="radio"])::placeholder {
+  color:#ffffff!important;
+  opacity:1!important;
+  -webkit-text-fill-color:#ffffff!important;
+}
+/* 기본 OS 드롭다운을 펼쳤을 때 흰 글자가 흰 배경에 묻히지 않도록 지정. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666,#comicUnifiedTitleSearchV1629,#comicAddressProbeV1780) select option {
+  background:#292b30;
+  color:#f5f7fc;
+}
+/* 키보드 포커스는 활성 여부와 무관하게 보이고, 비활성/로딩 opacity 유지. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 :is(#comicMdxAuthorRailBoxV1465,#comicHitomiPanelV1483,#comicIliltoonToolsV1578,#comicToonkorToolsV1588,#comicNewtokiRailV1721,#comicMarumaruRailV1666) :is(button,a,input,select):focus-visible,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicUnifiedTitleSearchV1629 :is(button,input):focus-visible,
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 #comicAddressProbeV1780 :is(button,select):focus-visible {
+  outline:2px solid #9bcfff!important;
+  outline-offset:1px;
+}
+/* 공통 토글의 ON/OFF 상태는 원형 유지, 검은 직사각형 배경만 제거. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #comicRightRailExternalToolsV1482 > .comicExternalSaveActionsV1507 {
+  background:transparent;
+}
+/* 예전 MangaDex 작가 패널이 왼쪽 레일에 있는 경우의 기존 책장 스타일 보존. */
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail #comicMdxAuthorRailBoxV1465 button:not(:is(.active,.on,.selected,.is-active,[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"])){
+  background:transparent!important;
+  background-image:none!important;
+}
+html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.active) #wtTagRail #comicMdxAuthorRailBoxV1465 :is(input,select) {
+  background:transparent!important;
+  background-image:none!important;
+}
+/* ============================================================================ */
+</style>
+
 <script id="comicMissavScriptV1743">
 (()=>{'use strict';
   const DIAG_API='http://127.0.0.1:18769/__webviewer_local/missav/diagnostics';
