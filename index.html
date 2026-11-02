@@ -1,3 +1,12 @@
+<!-- v1853 Ililtoon chapter merge: confirm/proceed/edit and manual order -->
+<!-- v1852 Ililtoon merge naming priority: preserve original patterns or prompt for renumbering -->
+<!-- v1851: Ililtoon chapter folders flattened, ordered and repairable after v1850 merge -->
+<!-- v1850: Ililtoon existing-chapter folder/flat-name ID detection and safe recovery check; built 1850 -->
+<!-- v1849: Display Ililtoon title search now detects selection archives WORK_TITLE_선택2-5_4회차_[일일툰] and WORK_TITLE_선택_N회차_[일일툰], searching only WORK_TITLE. Build 1849. -->
+<!-- v1848: Ililtoon chapter dialog supports multi/range selection and a single archive with per-chapter folders; existing single/all downloads and Display merge remain. Actual build 1848. -->
+<!-- v1847: Ililtoon search, episode selection and verified archive merge are integrated into the owned-comic Display editor. -->
+<!-- v1846: Ililtoon owned-comic title matching recognizes saved chapter archive pattern TITLE_CHAPTER_ID_[SITE], using the full decoded filename and preserving numbered titles. Actual build 1846. -->
+<!-- v1845: Owned comic card matching now offers Ililtoon title search (chapter/volume suffix excluded, editable query); existing MangaDex covers and Hitomi group matching preserved. Actual build 1845. -->
 <!-- v1844: Restyled post-1747 (1807 and latest) update notices to original v1747 sections; latest Ichigo integration featured prominently. Actual build 1844. No reader, storage, connector or server changes. -->
 <!-- v1843: Corrected build indicator and amended integrated update announcement for builds 1808–1841; appended after 1807 in one-time notice history. No functionality, data, or server modifications. -->
 <!-- v1841: Ichigo translated-image encoding now shares Hitomi ordinary image format/quality preferences (including QuickSave, local manga, Display merge); removed hardcoded WebP 98%. -->
@@ -27129,6 +27138,25 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
 .ililEpisodeLineV1581>button:first-child{flex:1 1 auto;min-width:0}
 .ililDialogV1578 .ililZipSingleV1581{flex:0 0 37px;align-items:center;justify-content:center;padding:4px 5px;font-size:11px;background:#255f7d}
 .ililDialogV1578 .ililZipAllV1581{display:block;margin:3px 0 10px;background:#1f5d83}
+/* v1848: selection stays in Ililtoon chapter dialog; never opens a second catalog view. */
+.ililZipActionsV1848{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 10px}
+.ililDialogV1578 .ililZipActionsV1848 .ililZipAllV1581{margin:0}
+.ililDialogV1578 .ililZipPartV1848{background:#286b9a;border-color:#73b9ea;font-weight:650}
+.ililSelectIntroV1848{color:#bbccdf;line-height:1.6;margin:3px 0 10px}
+.ililSelectToolbarV1848{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:9px 0;padding:8px;background:#192d43;border:1px solid #385574;border-radius:6px}
+.ililSelectToolbarV1848 label{display:flex;gap:4px;align-items:center;color:#e3edfb;white-space:nowrap}
+.ililSelectToolbarV1848 input[type=number]{width:58px;min-width:0;box-sizing:border-box;color:#f2f6ff;background:#0d1b2c;border:1px solid #587ba2;border-radius:4px;padding:5px;font-size:12px}
+.ililSelectStatusV1848{font-size:12px;color:#bddaf7;white-space:pre-wrap}
+.ililSelectListV1848{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:5px;align-content:start}
+.ililSelectItemV1848{display:flex;gap:8px;align-items:center;min-width:0;padding:7px 9px;background:#192d43;border:1px solid #334d68;border-radius:5px;cursor:pointer;line-height:1.45}
+.ililSelectItemV1848:has(input:checked){border-color:#64b2f4;background:#1d4567}
+.ililSelectItemV1848 input{accent-color:#56aef5;flex:0 0 auto;width:15px;height:15px}
+.ililSelectItemV1848 .ililSelectNameV1848{min-width:0;overflow-wrap:anywhere}
+.ililSelectItemV1848 .ililSelectNumberV1848{font-variant-numeric:tabular-nums;color:#a7c8e6;flex:0 0 auto;min-width:28px}
+.ililSelectFooterV1848{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:9px 0 3px;padding-top:9px;border-top:1px solid #405873}
+.ililSelectFooterV1848 .ililSelectSaveV1848{background:#206cab;border-color:#7dc6fb;font-weight:750}
+.ililSelectFooterV1848 button:disabled{opacity:.45;cursor:default}
+
 #ililDownloadStatusV1581{position:fixed;z-index:2147483646;right:16px;bottom:16px;max-width:min(95vw,590px);min-width:270px;padding:10px 12px;border:1px solid #6594b8;border-radius:7px;background:#101f30;color:#e4f1ff;box-shadow:0 8px 35px #0009;font:12px/1.5 var(--webviewer-ui-font-v1545,sans-serif);overflow-wrap:anywhere}
 .ililDownloadHeadV1581{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .ililDownloadHeadV1581 strong{flex:1;min-width:0}
@@ -28705,6 +28733,42 @@ html body:not(.comicOwnedTranslateEnabledV1838):not(.hide-dels) #wtList .wtThumb
           <button type="button" id="wtHitomiSeriesMoreV1797" class="zoomBtn" hidden>다음 결과 더 보기</button>
           <span>이미지: 뷰어 · 텍스트: 번호 선택 (등록번호 제외)</span>
         </div>
+      </div>
+    </section>
+
+
+    <!-- v1855: Keep all five external title searches INSIDE owned-comic Display; Ililtoon archive merge unchanged. -->
+    <section id="wtIlilDisplayMergeV1847" hidden aria-label="외부 만화 제목 검색 및 보유 ZIP 회차 병합">
+      <div class="wtIlilMergeHeadV1847"><strong>외부 만화 · 제목 검색 / 회차 보기</strong><span>6개 사이트 검색 · 회차/히토미 작품 병합</span></div>
+      <div class="wtIlilMergeBarV1847">
+        <label for="wtIlilMergeSiteV1855" class="wtIlilMergeSiteLabelV1855">검색 사이트</label>
+        <select id="wtIlilMergeSiteV1855" aria-label="검색할 외부 만화 사이트">
+          <option value="ililtoon">일일툰</option>
+          <option value="marumaru">마루마루</option>
+          <option value="toonkor">툰코</option>
+          <option value="newtoki">뉴토끼</option>
+          <option value="mangadex">MangaDex</option>
+          <option value="hitomi">Hitomi</option>
+          <option value="all">전체 사이트</option>
+        </select>
+        <input type="search" id="wtIlilMergeQueryV1847" maxlength="100" placeholder="작품 제목으로 검색" aria-label="외부 만화 작품 제목 검색">
+        <button type="button" class="zoomBtn" id="wtIlilMergeSearchV1847">검색</button>
+        <button type="button" class="zoomBtn" id="wtIlilMergeResetV1847">검색 초기화</button>
+        <button type="button" class="zoomBtn" id="wtIlilMergeFixFoldersV1851" hidden title="이미 병합된 회차의 중첩 폴더를 정리합니다">회차 폴더 정리</button>
+      </div>
+      <div id="wtIlilMergeStatusV1847" role="status" aria-live="polite">작품 제목을 확인하고 검색하세요.</div>
+      <div id="wtIlilMergeResultsV1847" class="wtIlilMergeResultsV1847"></div>
+      <button type="button" class="zoomBtn" id="wtIlilMergeMoreV1847" hidden>검색 결과 더 보기</button>
+      <div id="wtIlilMergeChaptersBoxV1847" hidden>
+        <div class="wtIlilMergeChapterHeadV1847"><strong id="wtIlilMergeWorkV1847"></strong><span id="wtIlilMergeCountV1847"></span></div>
+        <div class="wtIlilMergeChapterActionsV1847">
+          <button type="button" class="zoomBtn" id="wtIlilMergePickAllV1847">전체 회차 선택</button>
+          <button type="button" class="zoomBtn" id="wtIlilMergeUnpickV1847">선택 해제</button>
+          <button type="button" class="zoomBtn" id="wtIlilMergeNextV1847" hidden>이전 회차 더 보기</button>
+          <button type="button" class="zoomBtn" id="wtIlilMergeApplyV1847" disabled>선택 회차 병합 (0)</button>
+        </div>
+        <div id="wtIlilMergeChaptersV1847" class="wtIlilMergeChaptersV1847"></div>
+        <div class="wtIlilMergeHelpV1847" id="wtIlilMergeHelpV1847">기존 ZIP 폴더의 사이트·회차 ID를 검사하고 선택한 회차를 안전하게 병합합니다.</div>
       </div>
     </section>
 
@@ -44715,7 +44779,7 @@ cap.addEventListener('click', (e) => {
       if(!comicScanPreviewV1023?.active && (isFsdir || isZipComic)) {
         const match=document.createElement('button');
         match.type='button';match.className='comicMangaDexMatchBtnV1464 comicOwnedCaptionMatchV1587';
-        match.textContent='매칭';match.title='히토미 번호가 있는 ZIP·CBZ는 Hitomi 작가·그룹 또는 MangaDex 표지 매칭 선택';
+        match.textContent='매칭';match.title='표지 매칭(MangaDex/Hitomi) · 일일툰 검색·회차 병합은 Display에서 실행';
         wrap.classList.add('comicOwnedHasMatchV1587');
         match.addEventListener('click',event=>{
           event.preventDefault();event.stopPropagation();
@@ -63085,6 +63149,7 @@ function openWtDisplayEditDialog(display, value, capEl = null, afterSave = null)
 layer.style.display = 'block';
 renderComicLiteDetailsV1300(__wtDisplayEditState);
 renderWtHitomiExtraSeriesV1796(__wtDisplayEditState);
+window.ComicIliltoonDisplayV1847?.open?.(__wtDisplayEditState);
 renderDisplayTagButtons();
 renderDisplayPathReplaceUI();
 void prepareWtRealRenameButtonV1804(__wtDisplayEditState);
@@ -63096,7 +63161,7 @@ setTimeout(() => {
 }
 
 function closeWtDisplayEditDialog() {
-  if(__wtDisplayEditState?.renamingV1804||__wtDisplayEditState?.zipMoveBusyV1812||__wtDisplayEditState?.zipMoveCleanupBusyV1813||__wtDisplayEditState?.hitomiMergeBusyV1819)return;
+  if(__wtDisplayEditState?.renamingV1804||__wtDisplayEditState?.zipMoveBusyV1812||__wtDisplayEditState?.zipMoveCleanupBusyV1813||__wtDisplayEditState?.hitomiMergeBusyV1819||__wtDisplayEditState?.ililMergeBusyV1847)return;
   try{window.WebViewerZipMovePreflightV1811?.close?.(__wtDisplayEditState);}catch(_){} // a rename must not be interrupted by an outside click / Escape
   const layer = document.getElementById('wtDisplayEditLayer');
   if (layer) layer.style.display = 'none';
@@ -63107,11 +63172,12 @@ function closeWtDisplayEditDialog() {
     extra.__hitomiSeriesCancelV1797=null;
     extra.hidden=true;
   }
+  window.ComicIliltoonDisplayV1847?.close?.();
   __wtDisplayEditState = null;
 }
 
 function saveWtDisplayEditDialog() {
-  if(__wtDisplayEditState?.renamingV1804||__wtDisplayEditState?.zipMoveBusyV1812||__wtDisplayEditState?.zipMoveCleanupBusyV1813||__wtDisplayEditState?.hitomiMergeBusyV1819)return;
+  if(__wtDisplayEditState?.renamingV1804||__wtDisplayEditState?.zipMoveBusyV1812||__wtDisplayEditState?.zipMoveCleanupBusyV1813||__wtDisplayEditState?.hitomiMergeBusyV1819||__wtDisplayEditState?.ililMergeBusyV1847)return;
   const st = __wtDisplayEditState;
   const inp = document.getElementById('wtDisplayEditInput');
   if (!st || !inp) return;
@@ -178022,7 +178088,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 1844;
+  const VIEWER_BUILD_V789 = 1858;
   // Expose the actual HTML build to the separate localhost update checker.
   window.viewerCurrentHtmlBuildV789 = VIEWER_BUILD_V789;
 
@@ -199496,7 +199562,7 @@ window.ComicMangaDexZipV1473=(()=>{'use strict';
  function imageExt(data,mime){const m=String(mime).toLowerCase();if(data[0]===0xff&&data[1]===0xd8)return 'jpg';if(data[0]===137&&data[1]===80&&data[2]===78&&data[3]===71)return 'png';if(String.fromCharCode(...data.slice(0,4))==='RIFF'&&String.fromCharCode(...data.slice(8,12))==='WEBP')return 'webp';if(String.fromCharCode(...data.slice(0,3))==='GIF')return 'gif';if(m.includes('avif')||String.fromCharCode(...data.slice(4,12)).includes('avif'))return 'avif';return '';}
  async function transcodeV1473(bytes,mime,format,quality){const type=String(mime||'').split(';')[0].trim()||'application/octet-stream';const blob=new Blob([bytes],{type});const bmp=await createImageBitmap(blob);let canvas;try{if(!bmp.width||!bmp.height||bmp.width*bmp.height>80000000)throw Error('이미지 크기가 너무 커서 변환할 수 없습니다.');canvas=document.createElement('canvas');canvas.width=bmp.width;canvas.height=bmp.height;const wantJpg=format==='jpg';const ctx=canvas.getContext('2d',{alpha:!wantJpg});if(!ctx)throw Error('이미지 변환 캔버스를 만들 수 없습니다.');if(wantJpg){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,bmp.width,bmp.height);}ctx.drawImage(bmp,0,0);const target=wantJpg?'image/jpeg':'image/webp';const out=await new Promise((resolve,reject)=>canvas.toBlob(v=>v?resolve(v):reject(Error('이미지 변환 결과가 비어 있습니다.')),target,quality/100));if(out.type!==target)throw Error('현재 브라우저가 '+format.toUpperCase()+' 인코딩을 지원하지 않습니다.');return new Uint8Array(await out.arrayBuffer());}finally{if(canvas){canvas.width=0;canvas.height=0;}bmp.close?.();}}
  function chapterFolder(c,i){const a=c.attributes||{};return String(i+1).padStart(4,'0')+'_Vol'+nameSafe(a.volume||'-',12)+'_Ch'+nameSafe(a.chapter||'-',12)+'_['+nameSafe(a.translatedLanguage||'-',8)+']_'+String(c.id).slice(0,8)+'/';}
- async function exportZip(opts){if(job){opts?.onStatus?.('ZIP 다운로드가 이미 진행 중입니다. 상단 진행창에서 확인하세요.');return;}const work=opts?.work,ch=opts?.chapter,lang=['ko','en','ja','all'].includes(opts?.lang)?opts.lang:'all';if(!UUID.test(String(work?.id||''))||ch&&!UUID.test(String(ch?.id||'')))return;
+ async function exportZip(opts){if(job){if(opts?.mergeV1856)throw Error('MangaDex ZIP 다운로드가 이미 진행 중입니다.');opts?.onStatus?.('ZIP 다운로드가 이미 진행 중입니다. 상단 진행창에서 확인하세요.');return;}const work=opts?.work,ch=opts?.chapter,lang=['ko','en','ja','all'].includes(opts?.lang)?opts.lang:'all';if(!UUID.test(String(work?.id||''))||ch&&!UUID.test(String(ch?.id||'')))return;
   const sourceQuality=opts?.sourceQuality==='data-saver'?'data-saver':'data';const outputFormat=opts?.outputFormat==='jpg'?'jpg':'webp';const encodeQuality=[60,70,80,90,100].includes(Number(opts?.encodeQuality))?Number(opts.encodeQuality):90;const parallel='all';const base=nameSafe(Object.values(work.attributes?.title||{})[0]||'MangaDex',65);const single=!!ch;const proposed=base+'_'+(single?'Ch'+nameSafe(ch.attributes?.chapter||'oneshot',15)+'_'+ch.id.slice(0,8):'전체회차_'+lang)+'_'+(sourceQuality==='data'?'HQ':'Saver')+'_'+outputFormat.toUpperCase()+encodeQuality+'.zip';let persistedFileName=proposed;const j={cancelled:false,signal:new AbortController(),onStatus:opts.onStatus,percent:0,done:false};job=j;status(j,'저장 위치 선택 중…');let writer=null;let objectURL=null;try{
    // Must open the picker directly in the click gesture, before other awaits.
    let sink=null;
@@ -199511,7 +199577,7 @@ window.ComicMangaDexZipV1473=(()=>{'use strict';
      sink=await handle.createWritable();
    }
    writer=new ZipStream(sink);
-   status(j,'회차 목록 준비 중…');const chapters=single?[ch]:await allChapters(j,work.id,lang);check(j);if(!chapters.length)throw Error('선택한 언어로 내려받을 수 있는 회차가 없습니다.');status(j,chapters.length+'개 회차 다운로드 시작');let pagesSaved=0;const failedPages=[];
+   status(j,'회차 목록 준비 중…');const chapters=opts.mergeV1856?opts.chapters:(single?[ch]:await allChapters(j,work.id,lang));check(j);if(!chapters.length)throw Error('선택한 언어로 내려받을 수 있는 회차가 없습니다.');status(j,chapters.length+'개 회차 다운로드 시작');let pagesSaved=0;const failedPages=[];
    for(let ci=0;ci<chapters.length;ci++){check(j);const c=chapters[ci];const meta=await get(j,'chapter-pages?id='+encodeURIComponent(c.id));const count=Number(meta?.pages);if(!Number.isInteger(count)||count<1||count>2000)throw Error((ci+1)+'번째 회차에서 읽을 수 있는 페이지가 없습니다.');const dir=single?'':chapterFolder(c,ci);
      // v1710: dispatch all page image requests at once. Failed images are omitted;
      // the ZIP still writes successful pages in the original reading order.
@@ -199538,10 +199604,11 @@ window.ComicMangaDexZipV1473=(()=>{'use strict';
      }
      await wait(300);
    }
-   check(j);if(!pagesSaved)throw Error('이미지 전부 실패해 저장할 파일이 없습니다.');status(j,'ZIP 파일 목차 마무리 중…');const blob=await writer.finish();check(j);if(blob){objectURL=URL.createObjectURL(blob);const a=document.createElement('a');a.href=objectURL;a.download=proposed;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(objectURL),60000);}
+   check(j);if(!pagesSaved)throw Error('이미지 전부 실패해 저장할 파일이 없습니다.');if(opts.mergeV1856&&failedPages.length)throw Error('MangaDex 이미지 누락 '+failedPages.length+'장: '+failedPages.slice(0,4).join(', '));status(j,'ZIP 파일 목차 마무리 중…');const blob=await writer.finish();check(j);if(blob){objectURL=URL.createObjectURL(blob);const a=document.createElement('a');a.href=objectURL;a.download=proposed;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(objectURL),60000);}
    j.percent=100;j.done=true;j.success=true;status(j,'ZIP 완료 · '+chapters.length+'회차 / '+pagesSaved+'장 · '+(sourceQuality==='data'?'고화질':'절약')+' · '+outputFormat.toUpperCase()+' '+encodeQuality+'% · 동시 '+parallel+'장');
+   if(opts.mergeV1856)return {chapters:chapters.length,images:pagesSaved,file:await (await opts.preselectedHandle).getFile()};
    void window.ComicUnifiedLibraryV1610?.record({site:'MangaDex',id:work.id,title:base,chapter:ch?.attributes?.title||ch?.attributes?.chapter||'',fileName:persistedFileName,output:'zip',count:pagesSaved,work:{id:work.id,attributes:work.attributes,relationships:work.relationships||[]},auto:!!window.ComicDownloadModesV1506?.isAuto()});
-  }catch(e){if(writer)await writer.abort();j.done=true;if(e?.name==='AbortError'||j.cancelled){status(j,'ZIP 작업을 중단했습니다.');}else status(j,'ZIP 실패: '+String(e?.message||e));}
+  }catch(e){if(writer)await writer.abort();j.done=true;if(opts.mergeV1856)throw e;if(e?.name==='AbortError'||j.cancelled){status(j,'ZIP 작업을 중단했습니다.');}else status(j,'ZIP 실패: '+String(e?.message||e));}
   finally{if(job===j){job=null;if(view)updateBar(j,view.querySelector('.mdxZipGlobalTextV1472').textContent);
     if(j.success)setTimeout(()=>{if(!job&&!waiting.length&&j.success){const el=document.querySelector('#comicMdxZipGlobalV1472');if(el)el.remove();view=null;}},1300);
   }}
@@ -199577,7 +199644,7 @@ window.ComicMangaDexZipV1473=(()=>{'use strict';
  function clearQueue(){for(const task of waiting){queuedIds.delete(task.key);task.opts.preselectedHandle?.catch?.(()=>{});}
   waiting.length=0;
   updateBar(job,job?'현재 다운로드 유지 · 대기열 취소':'대기열 취소 완료');}
- return {start:queuedStart,cancel:()=>{if(job){job.cancelled=true;job.signal.abort();}},clearQueue,queued:()=>waiting.length,active:()=>!!job};
+ return {start:queuedStart,cancel:()=>{if(job){job.cancelled=true;job.signal.abort();}},clearQueue,queued:()=>waiting.length,active:()=>!!job,downloadForDisplayMergeV1856:async({work,episodes,handle,onProgress})=>exportZip({work,chapters:episodes,mergeV1856:true,preselectedHandle:handle,outputFormat:'webp',encodeQuality:90,sourceQuality:'data',onStatus:onProgress})};
 })();
 
 </script>
@@ -201507,16 +201574,93 @@ window.ComicHitomiExploreV1483.unifiedOpenV1629=openReader;
    return {outer,body,close};
  }
  const singleButtonV1809=(label,act)=>{const btn=dom1809('button',label);btn.type='button';btn.style.cssText='padding:5px 10px;min-height:27px;background:#244567;border:1px solid #627e9e;border-radius:5px;color:#edf4ff;cursor:pointer;';if(act)btn.onclick=act;return btn;};
+ // v1846: Previously downloaded general-comic archives use
+ //   WORK_TITLE_CHAPTER_TITLE_EPISODE_ID_[SITE].zip/.cbz
+ // The first underscore is the title delimiter in this *verified* save pattern.
+ // Prefer the full ZIP/CBZ filename from the indexed key: display labels can be
+ // shortened or carry separate author/event metadata, including an ellipsis.
+ // Do not split ordinary titles containing underscores unless the save pattern
+ // ends in an episode identifier plus a bracketed site name.
+ function ililSavedWorkTitleV1846(value,display){
+   const raw=String(value||'');
+   let filename='';
+   const matched=/^zipcomic:@[^/]+\/(.+)$/iu.exec(raw);
+   if(matched){
+     let decodedPath=matched[1];
+     try{decodedPath=decodeURIComponent(decodedPath);}catch(_){}
+     filename=decodedPath.replace(/\\/g,'/').split('/').at(-1)||'';
+   }
+   const candidates=[filename,String(display||'')];
+   for(const candidate of candidates){
+     const basename=String(candidate||'').trim().replace(/\.(?:zip|cbz)$/iu,'').trim();
+     // Example: 나는 공부를 하고 싶을 뿐인데!_나는 공부를 하고 ... 1화_1831286_[일일툰]
+     // v1849: Ililtoon selected-chapter multi-folder archives use
+     //   작품명_선택2-5_4회차_[일일툰] or 작품명_선택_4회차_[일일툰].
+     // Take the text before the exact saved-name suffix, not before arbitrary
+     // underscores: an ordinary title may itself contain underscores.
+     const match=/^(.+?)_선택(?:\d{1,6}\s*[-~～〜]\s*\d{1,6})?_\d{1,6}회차_\[일일툰\](?:\s*\(\d+\))?$/iu.exec(basename)
+       || /^(.+?)_.+?_(?:\d{3,14})_\[[^\]\[\/\r\n]{1,40}\](?:\s*\(\d+\))?$/iu.exec(basename)
+       || /^(.+?)_전체회차_\[[^\]\[\/\r\n]{1,40}\](?:\s*\(\d+\))?$/iu.exec(basename);
+     if(!match)continue;
+     const work=match[1].replace(/^(?:\[[^\]\r\n]{1,80}\]\s*)+(?=\S)/u,'').trim();
+     if(work)return work.slice(0,100);
+   }
+   return '';
+ }
+ // v1845: Build a conservative Ililtoon query from the local work's title.
+ // Only trim a chapter/volume suffix; never remove numbers inside the actual title
+ // (e.g. "7황자는...", "20세기 소년", "3월의 라이온"). The user can edit the query.
+ function ililQueryFromOwnedV1845(value,display){
+   const savedTitle=ililSavedWorkTitleV1846(value,display);
+   if(savedTitle)return savedTitle;
+   let title=String(display||'').trim();
+   try{
+     const parsed=typeof getComicCreatorPartsV1022==='function'?getComicCreatorPartsV1022(display):null;
+     if(String(parsed?.title||'').trim())title=String(parsed.title).trim();
+   }catch(_){}
+   if(!title){
+     let path=String(value||'').split('/').at(-1)||'';
+     try{path=decodeURIComponent(path);}catch(_){}
+     title=path;
+   }
+   title=title.replace(/\.(?:zip|cbz)$/iu,'').trim();
+   // Some older entries have their group/author tags still in the title field.
+   title=title.replace(/^(?:\[[^\]\r\n]{1,80}\]\s*)+(?=\S)/u,'').trim()||title;
+   const before=title;
+   const patterns=[
+     // 첫 회차 표기부터 뒤를 잘라냄: "열혈강호 680화", "제12권", "1~100화", "1화~3화"
+     /(?:^|[\s_·])(?:제\s*)?\d{1,5}(?:\.\d{1,2})?\s*(?:화|회|권|편|장)(?=$|[\s_·([{~～〜\-–—]|\d)/iu,
+     /(?:^|[\s_·])(?:제\s*)?\d{1,5}(?:\.\d{1,2})?\s*(?:[-~～〜–—]|부터)\s*(?:제\s*)?\d{1,5}(?:\.\d{1,2})?\s*(?:화|회|권|편|장|부)?(?=$|[\s_·([{\-])/iu,
+     /(?:^|[\s_·])(?:vol(?:ume)?|ch(?:apter)?|episode|ep)\.?\s*#?\s*\d{1,5}(?=$|[\s_·([{\-])/iu,
+     /(?:^|[\s_·])(?:완결|최종화|마지막화)(?=$|[\s_·([{\-])/iu
+   ];
+   let cut=title.length;
+   for(const re of patterns){const m=re.exec(title);if(m && m.index>0)cut=Math.min(cut,m.index);}
+   if(cut<title.length)title=title.slice(0,cut).trim();
+   // "제목 (01~50)" / "제목 [101화]" and zero-padded final numbering.
+   title=title.replace(/\s*[([{]\s*(?:제\s*)?\d{1,5}(?:\s*[-~～〜–—]\s*\d{1,5})?\s*(?:화|회|권|편|장)?\s*[)\]}]\s*$/u,'').trim();
+   title=title.replace(/[\s_·-]+0\d{1,4}\s*$/u,'').trim();
+   title=title.replace(/[\s_·-]+(?:\d{3,5})\s*$/u,'').trim();
+   // Non-destructive fallback if the filename is itself a chapter label.
+   return (title||before).slice(0,100);
+ }
  function chooseSingleV1809(value,display){
    const hit=idFromZipV1809(value);
-   if(!hit){window.ComicMangaDexMatchV1464?.open?.(value,display);return;}
    const {body}=makeSingleDialogV1809('작품 개별 매칭');
-   const info=dom1809('p','히토미 작품번호 '+hit.id+'가 있는 ZIP·CBZ입니다. 원하는 매칭 방식을 선택하세요.');body.append(info);
-   const actions=dom1809('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:10px';
-   actions.append(singleButtonV1809('Hitomi 작가·그룹 매칭',()=>void openSingleV1809(value,display)),
-     singleButtonV1809('MangaDex 표지 매칭',()=>{closeSingleV1809();window.ComicMangaDexMatchV1464?.open?.(value,display);}));
+   const info=dom1809('p',hit
+     ? '히토미 작품번호 '+hit.id+'가 있는 ZIP·CBZ입니다. 원하는 매칭 방식을 선택하세요.'
+     : '작품번호가 없는 만화입니다. MangaDex 표지를 매칭할 수 있습니다. 일일툰 검색과 회차 병합은 Display에서 이용하세요.');
+   info.style.cssText='color:#c5d4e6;margin:0 0 12px';body.append(info);
+   const actions=dom1809('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px';
+   if(hit)actions.append(singleButtonV1809('Hitomi 작가·그룹 매칭',()=>void openSingleV1809(value,display)));
+   actions.append(singleButtonV1809('MangaDex 표지 매칭',()=>{
+     closeSingleV1809();window.ComicMangaDexMatchV1464?.open?.(value,display);
+   }));
    body.append(actions);
+
  }
+ // Developer diagnostics/test hook: pure title extraction; no background searches.
+ window.ComicOwnedIliltoonTitleV1845=Object.freeze({clean:ililQueryFromOwnedV1845});
  async function openSingleV1809(value,display){
    const hit=idFromZipV1809(value);
    if(!hit){window.ComicMangaDexMatchV1464?.open?.(value,display);return;}
@@ -204856,6 +205000,7 @@ window.ComicMarumaruZipV1688=(()=>{'use strict';
       if(!pageCount){const why=safe(chapter.name)+' (정상 이미지 없음)';skippedChapters.push(why);diagLogV1711(job,'회차 제외',why);continue;}done++;
     }
     if(!total)throw Error('정상 이미지가 확인된 회차가 없습니다. ZIP을 만들지 않았습니다. 제외된 회차: '+skippedChapters.slice(0,4).join(' / '));
+    if(opts.mergeV1856&&(done!==episodes.length||skippedChapters.length||failedPages.length))throw Error('마루마루 선택 회차의 이미지가 누락되었습니다. 회차 제외 '+skippedChapters.length+'건 · 이미지 누락 '+failedPages.length+'장. 병합을 중단합니다.');
     if(skippedChapters.length){
       const note='WebViewer 마루마루 일부 회차 제외\n전체 회차의 완성본이 아닙니다.\n'+
         '완료된 회차: '+done+'개 / 총 '+episodes.length+'개\n저장된 이미지: '+total+'장\n'+
@@ -204865,8 +205010,10 @@ window.ComicMarumaruZipV1688=(()=>{'use strict';
     }
     const finishStartedV1711=tickV1711();if(writer){const blob=await writer.finish();if(blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=base+(skippedChapters.length?'_PARTIAL':'')+'.'+opts.output;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}}
     diagLogV1711(job,'ZIP 최종 저장','전체 '+total+'장 · 완료 '+done+'개 회차',tickV1711()-finishStartedV1711);complete=true;if(job.diagnostic)job.diagnostic.skippedChapters=skippedChapters.length;message((skippedChapters.length?'부분 완료':'완료')+' · '+done+'개 회차 · 성공 '+total+'장 · 이미지 제외 '+failedPages.length+'장 · 회차 제외 '+skippedChapters.length+'개'+(failedPages.length?' ('+failedPages.slice(0,12).join(', ')+')':''));
+    if(opts.mergeV1856)return {chapters:done,images:total,file:await handle.getFile()};
     if(!skippedChapters.length)void window.ComicUnifiedLibraryV1610?.record?.({site:'마루마루',id:work.key,title:work.name,chapter:opts.episode?.name||'',fileName:opts.output==='folder'?folder?.name||base:handle?.name||base+'.'+opts.output,output:opts.output,count:total,auto:!!opts.auto,work});
    }catch(err){
+     if(opts.mergeV1856){if(writer&&!writer.closed)await writer.abort();throw err;}
      const stopped=err?.name==='AbortError',reason=String(err?.message||err);
      // A late 502/404 during chapter discovery must not destroy 1..128
      // images already downloaded.  A partial archive gets an explicit note
@@ -204922,7 +205069,7 @@ window.ComicMarumaruZipV1688=(()=>{'use strict';
    const hint=document.createElement('p');hint.className='htZipHintV1501';hint.textContent='18769 연결기 사용 · 원본/JPG/WebP(실제 형식 판별) · 실패 시 받은 이미지 부분 저장';box.append(hint);
    const actions=document.createElement('div');actions.className='htZipActionsV1501';const cancel=document.createElement('button');cancel.textContent='취소';cancel.onclick=()=>shade.remove();const go=document.createElement('button');go.textContent='다운로드 시작';const selected=f=>f.querySelector('input:checked')?.value;format.onchange=()=>qr.hidden=selected(format)==='original';format.onchange();go.onclick=()=>{const p={format:selected(format),output:selected(output),quality:Number(quality.value),group:group.value.trim()};savePrefs(p);shade.remove();enqueue(input,p)};actions.append(cancel,go);box.append(actions);shade.append(box);shade.onclick=e=>{if(e.target===shade)shade.remove()};document.body.append(shade);return true;
  }
- return {open,start:enqueue,prefs,cancel:()=>{queue.length=0;if(active)active.controller.abort()},queued:()=>queue.length,active:()=>!!active,diagnosticTextV1711,saveDiagnosticV1711};
+ return {open,start:enqueue,prefs,cancel:()=>{queue.length=0;if(active)active.controller.abort()},queued:()=>queue.length,active:()=>!!active,diagnosticTextV1711,saveDiagnosticV1711,downloadForDisplayMergeV1856:async({work,episodes,handle,onProgress})=>{if(active)throw Error('마루마루 저장 작업 진행 중');const clean=asWork(work);if(!validWork(clean))throw Error('마루마루 작품 정보가 올바르지 않습니다.');onProgress?.('마루마루 이미지 다운로드 시작');return perform({work:clean,episodes,output:'zip',format:'original',quality:90,selection:Promise.resolve({handle}),auto:false,mergeV1856:true});}};
 })();
 </script>
 <style id="comicMarumaruEpisodeReaderV1673">
@@ -207831,7 +207978,11 @@ async function openFavorites(){
       area.replaceChildren(info,E('p',page+'페이지 · '+eps.length+'개 회차'));
       const saveAll=E('button','⬇ 전체회차 ZIP 저장','ililZipAllV1581');saveAll.type='button';saveAll.title='전체 회차 ZIP/CBZ 저장 · 자동저장/퀵저장 설정 연동';
       saveAll.onclick=()=>void window.ComicIliltoonZipV1582?.open?.({work});
-      area.append(saveAll);
+      // v1848: Both bulk actions share the established Ililtoon archive saver.
+      const saveSelected=E('button','☑ 선택 회차 저장','ililZipAllV1581 ililZipPartV1848');
+      saveSelected.type='button';saveSelected.title='원하는 회차만 체크하거나 2~5 범위를 지정해 하나의 ZIP/CBZ로 저장';
+      saveSelected.onclick=()=>void selectEpisodesForSaveV1848(work);
+      const zipActions=E('div',null,'ililZipActionsV1848');zipActions.append(saveAll,saveSelected);area.append(zipActions);
       if(!eps.length){area.append(E('p','회차 목록을 찾을 수 없습니다. 페이지 구조나 접근 권한을 확인해 주세요.'));return;}
       const list=E('div',null,'ililEpisodesV1578');for(let i=0;i<eps.length;i++){
         const ep=eps[i],b=E('button',null);b.type='button';b.title=ep.title; // full title always available on hover
@@ -207845,6 +207996,92 @@ async function openFavorites(){
       }area.append(list);
       const nav=E('div',null,'ililDetailPagerV1578');if(page>1){const prev=E('button','← 이전 페이지');prev.onclick=()=>void detail(work,page-1);nav.append(prev);}if(eps.length>=30){const next=E('button','다음 페이지 →');next.onclick=()=>void detail(work,page+1);nav.append(next);}area.append(nav);
     }catch(e){area.textContent=String(e.message||e);}
+  }
+  // v1848: Select arbitrary episodes or an inclusive oldest-first range;
+  // the downloader receives exact source chapter IDs and writes one archive.
+  async function selectEpisodesForSaveV1848(work){
+    $('#ililSelectiveSaveShadeV1848')?.remove();
+    const box=shade('ililSelectiveSaveShadeV1848');
+    dialogHead(box,work.name+' · 선택 회차 저장',()=>$('#ililSelectiveSaveShadeV1848')?.remove());
+    const area=E('div',null,'ililDialogContentV1578 ililSelectContentV1848');box.append(area);
+    const intro=E('p','회차를 체크하거나 목록 번호로 범위를 선택하세요. 번호는 첫 회차부터 1, 2, 3… 순서이며 특별편·권도 하나의 항목으로 셉니다.','ililSelectIntroV1848');
+    const status=E('div','회차 목록 수집 중…','ililSelectStatusV1848');
+    area.append(intro,status);
+    try{
+      const raw=await entireEpisodeListV1646(work,(count,page)=>{
+        if(box.isConnected)status.textContent='회차 목록 수집 중 · '+count+'개 · 원본 '+page+'페이지';
+      });
+      if(!box.isConnected)return;
+      const list=oldestFirstEntriesV1647(raw).filter(ep=>/^\d{1,14}$/.test(String(ep.id||'')));
+      if(!list.length)throw Error('선택 가능한 회차가 없습니다.');
+      const complete=!!episodeListIndexV1646.get(cacheKey(work))?.complete;
+      if(!complete)throw Error('회차 목록을 끝까지 확인하지 못했습니다. 불완전한 범위 저장을 방지하려면 다시 시도해 주세요.');
+      const picked=new Set();let group=0;const size=100;
+      const toolbar=E('div',null,'ililSelectToolbarV1848');
+      const min=E('input');min.type='number';min.min='1';min.max=String(list.length);min.value='1';min.setAttribute('aria-label','범위 시작 번호');
+      const max=E('input');max.type='number';max.min='1';max.max=String(list.length);max.value=String(Math.min(5,list.length));max.setAttribute('aria-label','범위 끝 번호');
+      const from=E('label','시작');from.append(min);
+      const to=E('label','끝');to.append(max);
+      const pickRange=E('button','범위 선택');pickRange.type='button';
+      const pickAll=E('button','전체 선택');pickAll.type='button';
+      const unpick=E('button','선택 해제');unpick.type='button';
+      toolbar.append(from,to,pickRange,pickAll,unpick);
+      const pager=E('div',null,'ililSelectToolbarV1848');
+      const prev=E('button','← 이전 100개');prev.type='button';
+      const next=E('button','다음 100개 →');next.type='button';
+      const pages=E('span',null,'ililSelectStatusV1848');pager.append(prev,pages,next);
+      const choices=E('div',null,'ililSelectListV1848');
+      const footer=E('div',null,'ililSelectFooterV1848');
+      const total=E('strong','선택 0 / '+list.length+'개','ililSelectStatusV1848');
+      const save=E('button','선택한 회차 ZIP/CBZ 저장 (0)','ililSelectSaveV1848');save.type='button';save.disabled=true;
+      const dismiss=E('button','취소');dismiss.type='button';dismiss.onclick=()=>box.parentElement?.remove();
+      footer.append(total,save,dismiss);area.append(toolbar,pager,choices,footer);
+      status.textContent='전체 '+list.length+'개 회차 · 선택한 회차는 회차별 폴더로 저장됩니다.';
+      function updateCount(){
+        total.textContent='선택 '+picked.size+' / '+list.length+'개';
+        save.textContent='선택한 '+picked.size+'개 회차 저장';save.disabled=!picked.size;
+      }
+      function render(){
+        const start=group*size,end=Math.min(start+size,list.length);
+        pages.textContent=(start+1)+'~'+end+' / '+list.length+'회차';
+        prev.disabled=group===0;next.disabled=end>=list.length;
+        const fragment=document.createDocumentFragment();
+        for(let i=start;i<end;i++){
+          const ep=list[i];const row=E('label',null,'ililSelectItemV1848');
+          const check=E('input');check.type='checkbox';check.checked=picked.has(ep.id);
+          check.setAttribute('aria-label',(i+1)+'번 '+String(ep.title||''));
+          check.onchange=()=>{if(check.checked)picked.add(ep.id);else picked.delete(ep.id);updateCount();};
+          const num=E('span',String(i+1)+'.','ililSelectNumberV1848');
+          const title=E('span',String(ep.title||'회차 '+(i+1)),'ililSelectNameV1848');
+          row.title=String(ep.title||'');row.append(check,num,title);fragment.append(row);
+        }
+        choices.replaceChildren(fragment);updateCount();
+      }
+      prev.onclick=()=>{if(group>0){group--;render();}};
+      next.onclick=()=>{if((group+1)*size<list.length){group++;render();}};
+      pickRange.onclick=()=>{
+        const a=Number(min.value),b=Number(max.value);
+        if(!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<a||b>list.length){
+          status.textContent='시작과 끝 번호를 1~'+list.length+' 사이에서 올바르게 지정하세요.';return;
+        }
+        for(let i=a-1;i<b;i++)picked.add(list[i].id);
+        group=Math.floor((a-1)/size);status.textContent=a+'~'+b+'번 선택 완료 · 다른 범위도 추가할 수 있습니다.';render();
+      };
+      pickAll.onclick=()=>{for(const ep of list)picked.add(ep.id);render();};
+      unpick.onclick=()=>{picked.clear();render();};
+      save.onclick=()=>{
+        if(!picked.size)return;
+        const chosen=list.filter(ep=>picked.has(ep.id)).map(ep=>({id:ep.id,title:ep.title}));
+        // Selection preserves the original site IDs. The normal Ililtoon save
+        // dialog still controls auto save, quick save, image conversion and type.
+        const indexes=list.flatMap((ep,i)=>picked.has(ep.id)?[i+1]:[]);
+        const contiguous=indexes.length===indexes[indexes.length-1]-indexes[0]+1;
+        const label=contiguous?'선택'+indexes[0]+'-'+indexes[indexes.length-1]+'_'+chosen.length+'회차':'선택_'+chosen.length+'회차';
+        const ok=window.ComicIliltoonZipV1582?.open?.({work,episodes:chosen,selectionLabel:label});
+        if(ok!==false)box.parentElement?.remove();
+      };
+      render();
+    }catch(error){if(box.isConnected)status.textContent='선택 회차 목록 조회 실패: '+String(error?.message||error);}
   }
   async function reader(work,ep,page,index){
     const epoch=++readerEpoch;
@@ -209674,7 +209911,7 @@ window.ComicToonkorZipV1605=(()=>{'use strict';
       const lookup=correction?null:await api.fetchEpisodeImagesV1718(ch.path);
       const pages=correction?correction.urls.slice():lookup.urls;
       if(!pages.length)throw Error('회차 '+ch.title+' 이미지가 없습니다.');
-      const dir=String(c+1).padStart(4,'0')+'_'+safe(ch.title,60)+'/';
+      const dir=String(c+1).padStart(4,'0')+'_'+safe(ch.title,60)+(opts.mergeV1856?'_'+String(ch.path||'').split('/').filter(Boolean).pop()+'_[툰코]':'')+'/';
       // v1710: Start every image request of this chapter together, then write
       // fulfilled pages in original order. Omit failed pages instead of aborting ZIP.
       const results=await window.ComicExternalZipAllV1710.fetch(pages,
@@ -209709,11 +209946,12 @@ window.ComicToonkorZipV1605=(()=>{'use strict';
         results[i]=null;
       }
     }
-    if(!num)throw Error('모든 이미지가 실패했습니다. 저장할 ZIP이 없습니다.');
+    if(!num)throw Error('모든 이미지가 실패했습니다. 저장할 ZIP이 없습니다.');if(opts.mergeV1856&&failedPages.length)throw Error('툰코 이미지 '+failedPages.length+'장 누락, 병합하지 않습니다.');
     if(writer){const blob=await writer.finish();if(blob){const ref=URL.createObjectURL(blob);const a=document.createElement('a');a.href=ref;a.download=baseName+'.'+opts.output;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(ref),60000);}}
     job.success=true;message('완료 · '+chapters.length+'개 회차 · 성공 '+num+'장 · 제외 '+failedPages.length+'장'+(failedPages.length?' ('+failedPages.slice(0,12).join(', ')+')':''));
+    if(opts.mergeV1856)return {chapters:chapters.length,images:num,file:await handle.getFile()};
     void window.ComicUnifiedLibraryV1610?.record({site:'툰코',id:String(opts.work.id||opts.work.path),title:opts.work.name,chapter:opts.episode?.title||'',fileName:opts.output==='folder'?folder?.name||baseName:handle?.name||baseName+'.'+opts.output,output:opts.output,count:num,auto:!!opts.auto,work:opts.work});
-  }catch(e){if(writer)await writer.abort();message(e?.name==='AbortError'?'다운로드 중단':'저장 실패: '+String(e.message||e));}
+  }catch(e){if(writer)await writer.abort();if(opts.mergeV1856)throw e;message(e?.name==='AbortError'?'다운로드 중단':'저장 실패: '+String(e.message||e));}
   finally{active=null;
     if(job.success)setTimeout(()=>{if(!active&&!waiting.length&&job.success){panel?.remove();panel=null;}},1300);
   }
@@ -209744,7 +209982,7 @@ window.ComicToonkorZipV1605=(()=>{'use strict';
    go.onclick=()=>{const p={format:selected(fm),output:selected(out),quality:+quality.value,group:group.value.trim()};savePrefs(p);shade.remove();enqueue(opts,p);};
    buttons.append(cancel,go);box.append(buttons);shade.append(box);shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);return true;
  }
- return {open,start:enqueue,cancel:()=>{waiting.length=0;if(active){active.stop=true;active.controller.abort();}},queued:()=>waiting.length,active:()=>!!active,prefs};
+ return {open,start:enqueue,cancel:()=>{waiting.length=0;if(active){active.stop=true;active.controller.abort();}},queued:()=>waiting.length,active:()=>!!active,prefs,downloadForDisplayMergeV1856:async({work,episodes,handle,onProgress})=>{if(active)throw Error('툰코 저장 작업 진행 중');onProgress?.('툰코 이미지 다운로드 시작');return perform({work,episodes,output:'zip',format:'original',quality:90,selection:Promise.resolve({handle}),auto:false,mergeV1856:true});}};
 })();
 </script>
 <script id="comicNewtokiZipV1725">
@@ -209855,7 +210093,7 @@ window.ComicNewtokiZipV1725=(()=>{'use strict';
     let sink=null;if(handle)sink=await handle.createWritable();writer=new ZipStream(sink);
    }
    message(opts.episode?'개별 회차 이미지 확인 중…':'전체 작품 회차 목록 확인 중…');
-   const chapters=opts.episode?[opts.episode]:await api.fetchCompleteEpisodesV1725(opts.work);
+   const chapters=opts.episode?[opts.episode]:(opts.episodes||await api.fetchCompleteEpisodesV1725(opts.work));
    if(!chapters.length||chapters.length>10000)throw Error('저장할 회차가 없거나 너무 많습니다.');
    chapterCount=chapters.length;
    // Save oldest-first with chapter name, preserving original page ordering.
@@ -209865,7 +210103,7 @@ window.ComicNewtokiZipV1725=(()=>{'use strict';
     message('회차 '+which+'/'+chapters.length+' · '+normalizeChapterTitle(opts.work,ch)+' 이미지 URL 확인');
     const pages=await api.chapterImagesV1725(opts.work,ch);
     if(!pages.length)throw Error(ch.title+': 이미지 URL이 없습니다.');
-    const dirname=String(which).padStart(4,'0')+'_'+safe(normalizeChapterTitle(opts.work,ch),55)+'/';
+    const dirname=String(which).padStart(4,'0')+'_'+safe(normalizeChapterTitle(opts.work,ch),55)+(opts.mergeV1856?'_'+String(ch.path||'').split('/').filter(Boolean).pop()+'_[뉴토끼]':'')+'/';
     // At most 4 in-flight images: no 100-page RAM spike while writing ZIP.
     for(let start=0;start<pages.length;start+=4){
      if(job.stop)throw new DOMException('중단','AbortError');
@@ -209888,9 +210126,11 @@ window.ComicNewtokiZipV1725=(()=>{'use strict';
    if(writer){const blob=await writer.finish();if(blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=baseName+'.'+opts.output;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}}
    complete=true;
    message('저장 완료 · '+chapterCount+'개 회차 · '+saved+'장');
+   if(opts.mergeV1856)return {chapters:chapterCount,images:saved,file:await handle.getFile()};
    void window.ComicUnifiedLibraryV1610?.record?.({site:'뉴토끼',id:String(opts.work.id),title:opts.work.name,chapter:opts.episode?normalizeChapterTitle(opts.work,opts.episode):'',fileName:opts.output==='folder'?folder?.name||baseName:handle?.name||baseName+'.'+opts.output,output:opts.output,count:saved,auto:!!opts.auto,work:opts.work});
   }catch(e){
    if(writer)await writer.abort();
+   if(opts.mergeV1856)throw e;
    // Never insert a partial save into the completed downloads ledger.
    message(e?.name==='AbortError'?'사용자 요청으로 저장 중단':'저장 실패 (완료 기록 없음): '+String(e?.message||e));
   }finally{active=null;if(complete)setTimeout(()=>{if(!active&&!waiting.length){panel?.remove();panel=null;}},2000);}
@@ -209921,7 +210161,7 @@ window.ComicNewtokiZipV1725=(()=>{'use strict';
    go.onclick=()=>{const p={format:selected(fm),output:selected(out),quality:+quality.value,group:group.value.trim()};savePrefs(p);shade.remove();enqueue(opts,p);};
    buttons.append(cancel,go);box.append(buttons);shade.append(box);shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);return true;
  }
- return {open,start:enqueue,normalizeChapterTitle,cancel:()=>{waiting.length=0;if(active){active.stop=true;active.controller.abort();}},queued:()=>waiting.length,active:()=>!!active,prefs};
+ return {open,start:enqueue,normalizeChapterTitle,cancel:()=>{waiting.length=0;if(active){active.stop=true;active.controller.abort();}},queued:()=>waiting.length,active:()=>!!active,prefs,downloadForDisplayMergeV1856:async({work,episodes,handle,onProgress})=>{if(active)throw Error('뉴토끼 저장 작업 진행 중');onProgress?.('뉴토끼 이미지 다운로드 시작');return perform({work,episodes:episodes.slice().reverse(),output:'zip',format:'original',quality:90,selection:Promise.resolve({handle}),auto:false,mergeV1856:true});}};
 })();
 
 </script>
@@ -209965,7 +210205,8 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
     group:String(v.group??saved.group??'').slice(0,90).trim()
  };}
  const filenameBase=(opts)=>{const w=opts.work,ep=opts.episode,group=safe(opts.group||'',50);
-   return (opts.group?'['+group+'] ':'')+safe(w.name,90)+'_'+(ep?safe(ep.title,38)+'_'+ep.id:'전체회차')+'_[일일툰]';
+   const label=ep?safe(ep.title,38)+'_'+ep.id:(Array.isArray(opts.episodes)&&opts.episodes.length?safe(opts.selectionLabel||('선택_'+opts.episodes.length+'회차'),48):'전체회차');
+   return (opts.group?'['+group+'] ':'')+safe(w.name,90)+'_'+label+'_[일일툰]';
  };
  async function convertedImage(image,format,quality){
    if(format==='original')return {bytes:image.data,kind:image.kind};
@@ -210027,6 +210268,7 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
  }
  async function perform(opts){
    const work=opts?.work,episode=opts?.episode;
+   const selected=Array.isArray(opts?.episodes)&&opts.episodes.length>0;
    if(active){progress('다른 일일툰 ZIP 저장이 진행 중입니다.');return;}
    if(!work?.id||!work?.name)return;
    const output=opts.output,fmt=opts.format,quality=opts.quality;
@@ -210056,12 +210298,13 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
        if(handle)sink=await handle.createWritable();
        writer=new ZipStream(sink);
      }
-     const chapters=episode?[episode]:await allEpisodes(j,work);
-     if(chapters.length>9999)throw Error('전체 회차 수가 너무 많습니다.');
+     const chapters=episode?[episode]:selected?opts.episodes:await allEpisodes(j,work);
+     if(!chapters.length||chapters.length>9999)throw Error('저장할 회차가 없거나 너무 많습니다.');
+     if(selected&&(new Set(chapters.map(ch=>String(ch?.id||''))).size!==chapters.length||chapters.some(ch=>!/^\d{1,14}$/.test(String(ch?.id||'')))))throw Error('선택한 회차 식별값에 중복 또는 오류가 있습니다.');
      let imagesDone=0;const failedPages=[];
      for(let index=0;index<chapters.length;index++){
        const ch=chapters[index];cancelled(j);
-       progress((episode?'개별회차':'전체회차')+' '+(index+1)+'/'+chapters.length+' · '+ch.title+' 이미지 목록 조회');
+       progress((episode?'개별회차':selected?'선택회차':'전체회차')+' '+(index+1)+'/'+chapters.length+' · '+ch.title+' 이미지 목록 조회');
        const doc=await getDoc(j,{mode:'reader',term:work.name,id:work.id,chapter:ch.id});
        const pages=window.ComicIliltoonV1578.parseReader(doc);
        if(!pages.length)throw Error('회차 '+ch.title+'의 페이지 목록을 가져오지 못했습니다. ZIP 완료하지 않음');
@@ -210087,12 +210330,13 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
        }
        await wait(250);
      }
+     if(selected&&failedPages.length)throw Error('선택한 회차에 이미지 '+failedPages.length+'장 누락이 있어 저장을 완료하지 않았습니다.');
      if(!imagesDone)throw Error('모든 이미지가 실패했습니다. ZIP을 저장하지 않습니다.');
      cancelled(j);
      if(writer){progress('ZIP 중앙목차 작성 중…');const blob=await writer.finish();
        if(blob){link=URL.createObjectURL(blob);const a=document.createElement('a');a.download=file;a.href=link;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(link),60000);}}
      j.success=true;active=null;progress('완료 · '+chapters.length+'개 회차 · '+imagesDone+'장 · '+(output==='folder'?'이미지 폴더':file)+(fmt==='original'?' · 원본 유지':' · '+fmt.toUpperCase()+' '+quality+'%')+' · 제외 '+failedPages.length+'장'+(failedPages.length?' ('+failedPages.slice(0,12).join(', ')+')':''));
-     void window.ComicUnifiedLibraryV1610?.record({site:'일일툰',id:String(work.id),title:work.name,chapter:episode?.title||'',fileName:output==='folder'?folder?.name||base:handle?.name||file,output,count:imagesDone,auto:!!opts.auto,work});
+     void window.ComicUnifiedLibraryV1610?.record({site:'일일툰',id:String(work.id),title:work.name,chapter:episode?.title||(selected?opts.selectionLabel||('선택 '+chapters.length+'회차'):''),fileName:output==='folder'?folder?.name||base:handle?.name||file,output,count:imagesDone,auto:!!opts.auto,work});
      setTimeout(()=>{if(!active&&!waiting.length&&j.success){panel?.remove();panel=null;}},1300);
    }catch(e){if(writer)await writer.abort();active=null;progress(e?.name==='AbortError'?'일일툰 다운로드가 중단되었습니다.':'저장 실패: '+String(e?.message||e)+(folder?' · 새로 만든 폴더에 일부 이미지가 남아 있을 수 있습니다.':''));}
  }
@@ -210100,7 +210344,7 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
  function enqueue(opts,setting){
    if(!opts?.work?.id||!opts?.work?.name)return false;
    const choices=normalizeOpts(setting),output=choices.output;
-   const key=String(opts.work.id)+':'+String(opts.episode?.id||'ALL');
+   const key=String(opts.work.id)+':'+(opts.episode?.id|| (Array.isArray(opts.episodes)&&opts.episodes.length?'SELECT:'+opts.episodes.map(ch=>String(ch.id)).join(','):'ALL'));
    if(queuedKeys.has(key)){progress('이미 저장 중이거나 예약된 회차입니다.');return false;}
    const auto=!!window.ComicDownloadModesV1506?.isAuto();
    // Manual pickers are opened at enqueue time, so queued tasks retain a valid FileSystem handle.
@@ -210138,8 +210382,8 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
    document.getElementById('ililSaveDialogV1583')?.remove();
    const shade=document.createElement('div');shade.id='ililSaveDialogV1583';
    const box=document.createElement('section');box.className='htZipModalV1501';
-   const heading=document.createElement('h3');heading.textContent=opts.episode?'일일툰 회차 다운로드':'일일툰 작품 다운로드';
-   const work=document.createElement('div');work.className='htZipWorkV1501';work.textContent=opts.work.name+(opts.episode?' · '+opts.episode.title:' · 전체회차')+' · #'+opts.work.id;
+   const heading=document.createElement('h3');heading.textContent=opts.episode?'일일툰 회차 다운로드':Array.isArray(opts.episodes)&&opts.episodes.length?'일일툰 선택 회차 다운로드':'일일툰 작품 다운로드';
+   const work=document.createElement('div');work.className='htZipWorkV1501';work.textContent=opts.work.name+(opts.episode?' · '+opts.episode.title:Array.isArray(opts.episodes)&&opts.episodes.length?' · 선택 '+opts.episodes.length+'개 회차':' · 전체회차')+' · #'+opts.work.id;
    box.append(heading,work);
    const form=document.createElement('div');form.className='htZipOptionsV1501';box.append(form);
    const radios=(legendText,name,values)=>{
@@ -210170,7 +210414,45 @@ window.ComicIliltoonZipV1582=(()=>{'use strict';
    actions.append(close,go);box.append(actions);shade.append(box);
    shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);
  }
- return {open,start:enqueue,cancel,cancelCurrent,clearQueue,active:()=>!!active,queued:()=>waiting.length,format:currentFormat,prefs};
+
+ // v1847: Display merge uses an isolated job and an already-created temporary ZIP
+ // handle. Do not enqueue a public download or let partially-failed chapters merge.
+ let displayMergeDownloadingV1847=false;
+ async function downloadForDisplayMergeV1847({work,episodes,handle,onProgress}){
+   if(displayMergeDownloadingV1847||active)throw Error('다른 일일툰 다운로드/병합이 진행 중입니다.');
+   if(!work?.id||!work?.name||!Array.isArray(episodes)||!episodes.length||!handle)throw Error('병합용 작품·회차·임시 파일이 유효하지 않습니다.');
+   displayMergeDownloadingV1847=true;
+   const j={cancelled:false,controller:new AbortController()};
+   const report=message=>{try{onProgress?.(message);}catch(_){}};
+   let writer=null;
+   try{
+     const opt=prefs();writer=new ZipStream(await handle.createWritable({keepExistingData:false}));
+     let imageCount=0;
+     for(let i=0;i<episodes.length;i++){
+       const ch=episodes[i];if(!/^\d{1,14}$/.test(String(ch?.id||'')))throw Error('잘못된 일일툰 회차 식별값');
+       report('일일툰 회차 '+(i+1)+'/'+episodes.length+' · '+String(ch.title||'')+' 이미지 목록 확인');
+       const doc=await getDoc(j,{mode:'reader',term:work.name,id:work.id,chapter:ch.id});
+       const pages=window.ComicIliltoonV1578?.parseReader?.(doc)||[];
+       if(!pages.length)throw Error(String(ch.title||ch.id)+'의 이미지 목록이 비었습니다. 원본 변경 없음');
+       const results=await window.ComicExternalZipAllV1710.fetch(pages,url=>remoteImage(j,url),()=>cancelled(j),
+         (n,total,failed)=>{if(n===total||n%5===0)report('회차 '+(i+1)+'/'+episodes.length+' · '+n+'/'+total+'장 · 실패 '+failed);});
+       if(results.length!==pages.length||results.some(r=>!r?.ok))
+         throw Error(String(ch.title||ch.id)+' 회차 이미지 누락이 있어 병합을 취소했습니다.');
+       const folder=String(i+1).padStart(4,'0')+'_'+safe(ch.title,58)+'_'+ch.id+'_[일일툰]/';
+       for(let n=0;n<results.length;n++){
+         const converted=await convertedImage(results[n].value,opt.format,opt.quality);
+         await writer.file(folder+String(n+1).padStart(4,'0')+'.'+converted.kind,converted.bytes);
+         results[n]=null;imageCount++;
+       }
+     }
+     if(!imageCount)throw Error('병합할 이미지가 없습니다.');
+     await writer.finish();writer=null;
+     return {file:await handle.getFile(),images:imageCount,chapters:episodes.length};
+   }catch(e){if(writer)await writer.abort();throw e;}
+   finally{displayMergeDownloadingV1847=false;}
+ }
+
+ return {open,start:enqueue,cancel,cancelCurrent,clearQueue,active:()=>!!active,queued:()=>waiting.length,format:currentFormat,prefs,downloadForDisplayMergeV1847,displayMergeBusyV1847:()=>displayMergeDownloadingV1847};
 })();
 window.ComicIliltoonZipV1581=window.ComicIliltoonZipV1582;
 
@@ -211810,6 +212092,67 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
 })();
 </script>
 
+<style id="wvIlilMergeOrderCssV1853">
+.wvIlilOrderShadeV1853{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:14px;box-sizing:border-box;font-family:var(--webviewer-ui-font-v1545,WebViewerNotoCJK,sans-serif);color:#eaf3ff}
+.wvIlilOrderPanelV1853{box-sizing:border-box;width:min(840px,97vw);height:min(83vh,820px);display:flex;flex-direction:column;min-height:240px;overflow:hidden;border:1px solid #6488af;border-radius:10px;background:#19283c;box-shadow:0 18px 55px #000c}
+.wvIlilOrderHeadV1853{padding:15px 18px 10px;flex:none;border-bottom:1px solid #405872}
+.wvIlilOrderHeadV1853 strong{font-size:16px;color:#ecf7ff}.wvIlilOrderHeadV1853 p{margin:6px 0 0;font-size:12px;line-height:1.5;color:#bcd5ea}
+.wvIlilOrderBodyV1853{padding:12px 18px;min-height:0;flex:1;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.wvIlilOrderHelpV1853{flex:none;margin:0;color:#d4e8fa;line-height:1.6;white-space:pre-wrap;font-size:12px}
+.wvIlilOrderReviewV1853,.wvIlilOrderListV1853{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;border:1px solid #415e7c;border-radius:5px;background:#122238;padding:6px}
+.wvIlilOrderCompareHeadV1854,.wvIlilOrderReviewRowV1854{display:grid;grid-template-columns:86px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
+.wvIlilOrderCompareHeadV1854{position:sticky;top:0;z-index:1;padding:6px 8px;background:#16283d;border-bottom:1px solid #36516e;font-size:11px;font-weight:700;color:#d9ecff}
+.wvIlilOrderReviewRowV1854{margin:0;padding:8px;border-bottom:1px solid #304b66;color:#c9def1}
+.wvIlilOrderReviewBadgeV1854{font-size:11px;font-weight:700;color:#b8d8f4;padding-top:3px}
+.wvIlilOrderCompareCellV1854{min-width:0;display:flex;flex-direction:column;gap:4px}
+.wvIlilOrderCompareLabelV1854{font-size:10px;color:#90b5d7;letter-spacing:.02em}
+.wvIlilOrderCompareValueV1854{font-size:11px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap;color:#e7f4ff}
+.wvIlilOrderRowV1853{display:flex;align-items:flex-start;gap:7px;margin:3px 0;padding:7px 8px;background:#233952;border:1px solid #3f5f7e;border-radius:5px;cursor:grab;user-select:none}
+.wvIlilOrderRowV1853[data-selected="true"]{border-color:#78b5f4;background:#304d70}
+.wvIlilOrderRowV1853.wvIlilOverV1853{border-top:3px solid #76bafb}.wvIlilOrderRowV1853.wvIlilDraggingV1853{opacity:.45}
+.wvIlilOrderGripV1853{font-size:20px;color:#b4cfe7;padding-top:10px}.wvIlilOrderSeqV1853{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;padding-top:10px}
+.wvIlilOrderNamesV1853{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-width:0;gap:10px;flex:1}
+.wvIlilOrderSourceV1853,.wvIlilOrderTargetV1853{min-width:0;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}
+.wvIlilOrderCellLabelV1854{font-size:10px;color:#90b5d7;letter-spacing:.02em}
+.wvIlilOrderCellValueV1854{font-size:11px;line-height:1.5;white-space:pre-wrap;color:#e7f4ff}
+.wvIlilOrderToolsV1853,.wvIlilOrderFootV1853{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.wvIlilOrderToolsV1853{flex:none}.wvIlilOrderMoveLabelV1853{font-size:11px;color:#c6deee;margin-right:5px}
+.wvIlilOrderToolsV1853 input{box-sizing:border-box;width:75px;min-height:30px;border:1px solid #718ba6;border-radius:4px;background:#0f2033;color:#fff;padding:4px;font:12px inherit}
+.wvIlilOrderFootV1853{justify-content:flex-end;flex:none;padding:11px 18px;border-top:1px solid #405872}
+.wvIlilOrderToolsV1853 button,.wvIlilOrderFootV1853 button{min-height:31px;border:1px solid #668aaa;border-radius:5px;background:#2b435b;color:#eef6ff;padding:5px 12px;cursor:pointer;font:12px var(--webviewer-ui-font-v1545,sans-serif)}
+.wvIlilOrderToolsV1853 button:hover,.wvIlilOrderFootV1853 button:hover{filter:brightness(1.18)}
+.wvIlilOrderToolsV1853 button:disabled{opacity:.4;cursor:default}.wvIlilOrderFootV1853 .wvIlilOrderPrimaryV1853{background:#2372ba;border-color:#85bffa;font-weight:700}
+@media(max-width:600px){.wvIlilOrderShadeV1853{padding:6px}.wvIlilOrderPanelV1853{width:100%;height:94vh}.wvIlilOrderBodyV1853{padding:9px}.wvIlilOrderHeadV1853,.wvIlilOrderFootV1853{padding:10px}.wvIlilOrderCompareHeadV1854,.wvIlilOrderReviewRowV1854{grid-template-columns:68px minmax(0,1fr) minmax(0,1fr);gap:6px}.wvIlilOrderNamesV1853{grid-template-columns:1fr;gap:8px}}
+</style>
+<style id="wtIlilDisplayMergeStyleV1847">
+#wtIlilDisplayMergeV1847{margin:10px 0;border:1px solid #466680;border-radius:7px;padding:10px;background:rgba(28,52,74,.35);color:#e9f3ff;font:12px/1.5 var(--webviewer-ui-font-v1545,sans-serif)}
+#wtIlilDisplayMergeV1847[hidden],#wtIlilMergeChaptersBoxV1847[hidden],#wtIlilMergeMoreV1847[hidden],#wtIlilMergeNextV1847[hidden],#wtIlilMergeFixFoldersV1851[hidden]{display:none!important}
+.wtIlilMergeHeadV1847{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:8px}
+.wtIlilMergeHeadV1847 strong{font-size:13px;color:#eaf5ff}.wtIlilMergeHeadV1847 span{color:#a7bfd5;font-size:11px}
+.wtIlilMergeBarV1847{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#wtIlilMergeQueryV1847{flex:1 1 200px;min-width:120px;min-height:29px;box-sizing:border-box;padding:5px 9px;background:#111e2e;border:1px solid #5a7793;border-radius:5px;color:#f4f8ff;font-size:12px}
+#wtIlilMergeStatusV1847{color:#aec9dd;font-size:11px;margin:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.wtIlilMergeResultsV1847{display:grid;grid-template-columns:repeat(auto-fill,130px);justify-content:start;align-content:start;gap:10px;max-height:390px;min-height:155px;overflow-y:auto;overscroll-behavior:contain;border:1px solid #3b4e60;border-radius:6px;background:rgba(0,0,0,.18);padding:5px;scrollbar-width:none}
+.wtIlilMergeResultsV1847::-webkit-scrollbar{display:none}
+.wtIlilMergeResultV1847{display:flex;flex-direction:column;align-items:stretch;gap:3px;box-sizing:border-box;width:130px;min-width:0;text-align:left;background:#192434;color:#eaf5ff;border:2px solid #40536a;border-radius:5px;padding:3px;cursor:pointer;font:11px/1.3 var(--webviewer-ui-font-v1545,sans-serif)}
+.wtIlilMergeResultV1847:hover{border-color:#84b5ed}
+.wtIlilMergeResultV1847[data-selected="true"]{border-color:#ffba58;background:#4d3820}
+.wtIlilMergeResultV1847 img,.wtIlilMergeCoverV1856{width:120px;height:168px;max-width:100%;object-fit:cover;background:#101923;flex:none;border-radius:3px;display:block}
+.wtIlilMergeCoverV1856{display:flex;align-items:center;justify-content:center;color:#899aaa}
+.wtIlilMergeResultInfoV1855{display:flex;flex-direction:column;gap:3px;min-width:0}
+.wtIlilMergeResultInfoV1855 span:last-child{font-size:11px;line-height:1.4;min-height:28px;max-height:42px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.wtIlilMergeResultSiteV1855{font-size:10px!important;color:#97cdfc;line-height:1.2}
+.wtIlilMergeBarV1847 #wtIlilMergeSiteV1855{box-sizing:border-box;min-height:29px;max-width:150px;background:#111e2e;color:#eef6ff;border:1px solid #5a7793;border-radius:5px;padding:4px;font-size:12px}
+.wtIlilMergeSiteLabelV1855{font-size:11px;color:#b8d6ed;white-space:nowrap}
+.wtIlilMergeChapterHeadV1847{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:10px 0 6px;color:#d4e5f7}
+.wtIlilMergeChapterHeadV1847 span{color:#91b8d3;font-size:11px}
+.wtIlilMergeChapterActionsV1847{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+#wtIlilMergeApplyV1847{background:#23628d;color:#fff}#wtIlilMergeApplyV1847:disabled{opacity:.5}
+.wtIlilMergeChaptersV1847{max-height:235px;overflow:auto;background:#142538;border-radius:5px;border:1px solid #3d5670;padding:4px;display:flex;flex-direction:column;gap:2px}
+.wtIlilMergeChapterV1847{display:flex;gap:7px;align-items:center;padding:4px 7px;cursor:pointer;border-radius:4px;white-space:normal;font-size:11px}
+.wtIlilMergeChapterV1847:hover{background:#304864}.wtIlilMergeChapterV1847[data-existing="true"]{opacity:.6;color:#9bbcce}.wtIlilMergeChapterV1847 input{flex:none;accent-color:#2989d6}
+.wtIlilMergeHelpV1847{margin-top:6px;color:#aabfd2;font-size:10px}
+</style>
 <style id="wtHitomiMergeCssV1819">
 #wtHitomiMergeApplyV1819{background:#285a82;color:#f4fbff}
 #wtHitomiMergeApplyV1819:disabled{opacity:.45}
@@ -212043,7 +212386,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
    });
  }
  async function merge(st,id,onlineCard=null){
-   if(busy||imageDeleteBusyV1835||st.hitomiMergeBusyV1819)return;
+   if(busy||imageDeleteBusyV1835||ililDisplayMergeBusyV1847||st.hitomiMergeBusyV1819||st.ililMergeBusyV1847)return;
    const online=!!onlineCard;
    const chosen=online?null:candidateFor(id,st.oldValue),current=sourceValues().find(r=>r.value===st.oldValue);
    if((!online&&!chosen)||!current||!/^zipcomic:@/.test(st.oldValue))throw Error('병합할 대표 ZIP 또는 병합 대상 작품을 찾지 못했습니다.');
@@ -212204,7 +212547,7 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
  // the same compressed-byte verification used by merge.
  let imageDeleteBusyV1835=false;
  async function deleteSelectedZipImagesV1835(value,selectedNumbers,progress,expectedViewerNames){
-   if(imageDeleteBusyV1835||busy)throw Error('다른 ZIP 병합·삭제 작업이 실행 중입니다.');
+   if(imageDeleteBusyV1835||busy||ililDisplayMergeBusyV1847)throw Error('다른 ZIP 병합·삭제 작업이 실행 중입니다.');
    if(!/^zipcomic:@/i.test(String(value||'')))throw Error('등록된 ZIP/CBZ만 내부 페이지를 삭제할 수 있습니다.');
    imageDeleteBusyV1835=true;
    let parent=null,temp=null,safety=null,overwriting=false,restored=false,done=false;
@@ -212293,11 +212636,939 @@ html #wtLayer:has(#wtBox > #wtList.wtShelfThemeOnV1217):has(#wtContentComic.acti
      imageDeleteBusyV1835=false;
    }
  }
+
+ // v1847: Add selected Ililtoon chapters to the current Display ZIP/CBZ.
+ // Reuse the v1819 compressed-byte verification and transactional replacement.
+ let ililDisplayMergeBusyV1847=false;
+ // v1850: A multi-chapter archive made by our Ililtoon selected-save UI
+ // contains folders such as "0001_나는 공부를 ... 1화_1831286/0001.webp".
+ // Earlier builds searched only "_ID_[일일툰]/" and missed these folders.
+ // Don't treat the parent "일일툰_WORKID/" as a chapter ID, either.
+ const ililChapterIdsV1847=(entries,archiveValue='')=>{
+   const ids=new Set();
+   for(const e of entries){
+     const path=String(e.name||'').replace(/\\/g,'/');
+     if(!IMAGE.test(path))continue;
+     for(const folder of path.split('/').slice(0,-1)){
+       // Selected/whole-chapter archives produced by WebViewer:
+       //   0001_회차명_1831286[/]    or    0001_회차명_1831286_[일일툰][/]
+       // Display's own previous merges also preserve this nested format.
+       let m=/^\d{3,6}_[^/]+?_([0-9]{3,14})(?:_\[일일툰\])?$/u.exec(folder);
+       // Older downloads may use a tagged folder without a sequence prefix.
+       if(!m)m=/^[^/]+?_([0-9]{3,14})_\[일일툰\]$/u.exec(folder);
+       // v1852: unnumbered, untagged chapter folders ("작품명 2화_1831347")
+       // are also valid when an explicit chapter label precedes the ID.
+       if(!m&&/\d+(?:\.\d+)?\s*(?:화|회|話|권)/u.test(folder))
+         m=/^(?:\d{3,6}_)?[^/]+?_([0-9]{3,14})(?:_\[일일툰\])?$/u.exec(folder);
+       if(m)ids.add(m[1]);
+     }
+   }
+   // A single-chapter archive may contain flat images. In that case the
+   // tagged ZIP/CBZ *filename* supplies the chapter ID.
+   const base=String(archiveValue||'').split('/').at(-1)?.replace(/\.(?:zip|cbz)$/i,'')||'';
+   const one=/_([0-9]{3,14})_\[일일툰\](?:\s*\(\d+\))?$/u.exec(base);
+   if(one)ids.add(one[1]);
+   return ids;
+ };
+ async function existingIlilChapterIdsV1847(value){
+   const info=await zip().findFile(value);
+   return [...ililChapterIdsV1847(await parseZip(await info.handle.getFile()),value)];
+ }
+ // v1851: All chapters live as sibling folders at ZIP root, ordered oldest to newest.
+ // This also recognizes the erroneous 1850 `일일툰_<workID>/` outer folder.
+ const ililFolderInfoV1851=(name,taggedArchive=false)=>{
+   const parts=String(name||'').replace(/\\/g,'/').split('/');
+   if(parts.length<2)return null;
+   const outer=parts.length>=3&&/^일일툰_[0-9]{2,14}$/u.test(parts[0]);
+   const folder=parts[outer?1:0];
+   const rel=parts.slice(outer?2:1).join('/');
+   if(!rel||rel.includes('../'))return null;
+   const m=/^(\d{3,6})_(.+)_([0-9]{3,14})(?:_\[일일툰\])?$/u.exec(folder);
+   if(!m)return null;
+   if(!outer&&!taggedArchive&&!folder.endsWith('_[일일툰]'))return null;
+   // Numeric chapter order is preferable to list/download order, which is often newest-first.
+   const hits=[...m[2].matchAll(/(\d{1,5}(?:\.\d+)?)\s*(?:화|회|話)/gu)];
+   const chapter=hits.length?Number(hits[hits.length-1][1]):null;
+   return {folder,rel,outer,id:m[3],chapter,originalPrefix:Number(m[1]),label:m[2],tail:folder.slice(m[1].length+1)};
+ };
+ const ililArchiveNameV1851=value=>/_\[일일툰\](?:\s*\(\d+\))?\.(?:zip|cbz)$/iu.test(String(value||''));
+ function normalizeIlilFolderPlanV1851(entries,archiveValue){
+   const tagged=ililArchiveNameV1851(archiveValue);
+   const groups=new Map(),records=[];
+   for(let i=0;i<entries.length;i++){
+     const row=entries[i],info=IMAGE.test(row.name)?ililFolderInfoV1851(row.name,tagged):null;
+     records.push({entry:row,oldName:row.name,info,index:i});
+     if(info){
+       let g=groups.get(info.id);
+       if(!g){g={...info,firstIndex:i};groups.set(info.id,g);}
+       else if(g.folder!==info.folder)throw Error('한 회차의 폴더명이 서로 달라 안전하게 정리할 수 없습니다: '+info.id);
+     }
+   }
+   const ordered=[...groups.values()].sort((a,b)=>{
+     if(a.chapter!==null&&b.chapter!==null&&a.chapter!==b.chapter)return a.chapter-b.chapter;
+     // Ililtoon chapter IDs normally increase with publication; when chapter labels
+     // are ambiguous use the stable ID order rather than reverse download indices.
+     const ai=BigInt(a.id),bi=BigInt(b.id);
+     return ai<bi?-1:ai>bi?1:a.firstIndex-b.firstIndex;
+   });
+   const numbering=new Map(ordered.map((g,i)=>[g.id,String(i+1).padStart(Math.max(4,String(ordered.length).length),'0')+'_'+g.tail]));
+   const moved=records.map(r=>{
+     if(!r.info)return {entry:r.entry,name:r.oldName};
+     return {entry:r.entry,name:numbering.get(r.info.id)+'/'+r.info.rel};
+   });
+   const seen=new Set();for(const r of moved){const key=r.name.toLowerCase();if(seen.has(key))throw Error('회차 폴더를 정리하면 중복 파일명이 생깁니다: '+r.name);seen.add(key);}
+   // Keep non-chapter entries intact, but write named chapters in chronological order.
+   const rank=new Map(ordered.map((g,i)=>[g.id,i]));
+   const output=records.map((r,i)=>({name:moved[i].name,entry:r.entry,rank:r.info?rank.get(r.info.id):null,prior:i}));
+   output.sort((a,b)=>a.rank===null&&b.rank===null?a.prior-b.prior:a.rank===null?-1:b.rank===null?1:a.rank-b.rank||a.name.localeCompare(b.name,'ko'));
+   const changed=records.reduce((n,r,i)=>n+Number(r.oldName!==moved[i].name),0);
+   const nested=records.filter(r=>r.info?.outer).length;
+   return {plan:output.map(({entry,name})=>({entry,name})),chapters:ordered.length,changed,nested};
+ }
+ async function ililFolderRepairStatusV1851(value){
+   const info=await zip().findFile(value);
+   const old=await info.handle.getFile();
+   const rows=await parseZip(old);
+   return (({changed,nested,chapters})=>({changed,nested,chapters}))(normalizeIlilFolderPlanV1851(rows,info.rel));
+ }
+ async function repairIlilChapterFoldersV1851(value,onProgress){
+   if(busy||imageDeleteBusyV1835||ililDisplayMergeBusyV1847)throw Error('다른 ZIP 수정 작업이 진행 중입니다.');
+   ililDisplayMergeBusyV1847=true;
+   let parent=null,built=null,recovery=null,overwriting=false,success=false,restored=false;
+   const report=t=>{try{onProgress?.(t)}catch(_){}};
+   try{
+     const info=await zip().findFile(value);
+     await perms(info.root);parent=await parentOf(info);
+     const old=await info.handle.getFile(),oldEntries=await parseZip(old);
+     const oldImages=await zip().central(old);
+     if(!oldImages.length||oldImages.length!==oldEntries.filter(e=>IMAGE.test(e.name)).length)throw Error('원본 이미지 수가 맞지 않습니다.');
+     if(new Set(oldEntries.map(e=>e.name.toLowerCase())).size!==oldEntries.length)throw Error('기존 ZIP에 중복된 항목이 있습니다.');
+     const normalized=normalizeIlilFolderPlanV1851(oldEntries,info.rel);
+     if(!normalized.changed)return {changed:0,chapters:normalized.chapters,total:oldImages.length};
+     report('회차 '+normalized.chapters+'개 · 이미지 '+normalized.changed+'개의 폴더 경로 정리 중…');
+     built=await tempFile(parent.dir,'ililtoon_folder_fix');
+     const writer=new Writer(await built.handle.createWritable({keepExistingData:false}));
+     try{for(const p of normalized.plan)await writer.add(p.entry,p.name);await writer.finish();}
+     catch(e){await writer.abort();throw e;}
+     const merged=await built.handle.getFile();
+     report('정리된 ZIP의 압축 데이터 검증 중…');await verifyArchive(merged,normalized.plan);
+     const fresh=await info.handle.getFile();
+     if(fresh.size!==old.size||fresh.lastModified!==old.lastModified)throw Error('정리 중 원본 ZIP이 변경되었습니다. 작업 중단');
+     recovery=await tempFile(parent.dir,'ililtoon_folder_restore');
+     await writeCopy(recovery.handle,old);await compareFiles(old,await recovery.handle.getFile());
+     report('검증 완료 · 원본에 회차 폴더 정리 적용 중…');
+     overwriting=true;await writeCopy(info.handle,merged);
+     await compareFiles(merged,await info.handle.getFile());
+     const pages=await zip().central(await info.handle.getFile());
+     if(pages.length!==oldImages.length)throw Error('정리 후 이미지 수가 맞지 않습니다.');
+     success=true;
+     try{zip().forgetCachedV1205(k=>String(k).includes(value));}catch(_){}
+     try{await zip().rescanExactV1085(value);}catch(e){console.warn('[v1851 rescan]',e);}
+     try{invalidateComicListQueryV1000();invalidateComicRailStructureV1318();renderWebtoonList(true);}catch(e){console.warn('[v1851 repaint]',e);}
+     window.dispatchEvent(new Event('webtoonlist:changed'));
+     report('폴더 정리 완료 · '+normalized.chapters+'회차 · 총 '+pages.length+'장 (이미지 화질 변경 없음)');
+     return {changed:normalized.changed,chapters:normalized.chapters,total:pages.length};
+   }catch(e){
+     if(overwriting&&recovery&&!success){
+       const info=await zip().findFile(value);let intact=false;
+       try{await compareFiles(await recovery.handle.getFile(),await info.handle.getFile());intact=true;restored=true;}catch(_){}
+       if(!intact){try{report('오류 발생 · 원본 복원 중…');await writeCopy(info.handle,await recovery.handle.getFile());
+         await compareFiles(await recovery.handle.getFile(),await info.handle.getFile());restored=true;}
+         catch(re){recovery=null;throw Error(String(e?.message||e)+'\n원본 복원 실패: '+String(re?.message||re)+' (임시 복원본 보존)');}}
+     }
+     throw e;
+   }finally{
+     if(parent){for(const f of [built])if(f)try{await parent.dir.removeEntry(f.name);}catch(_){}
+       if(recovery&&(success||restored||!overwriting))try{await parent.dir.removeEntry(recovery.name);}catch(_){} }
+     ililDisplayMergeBusyV1847=false;
+   }
+ }
+
+ // v1852: Choose naming based on the existing chapter folders. Never silently
+ // rename existing user folders when the same style can be followed.
+ const safeIlilTitleV1852=(s,n=58)=>String(s||'').replace(/[\\/:*?"<>|\x00-\x1f\x7f]/g,' ').replace(/\s+/g,' ').trim().slice(0,n)||'회차';
+ function ililGroupInfoV1852(folder){
+   const pref=/^(\d{3,6})_(.+)$/u.exec(folder);
+   const body=pref?pref[2]:folder;
+   const m=/^(.+?)_([0-9]{3,14})(_\[일일툰\])?$/u.exec(body);
+   const title=m?m[1]:body;
+   const chapters=[...title.matchAll(/(\d{1,5}(?:\.\d+)?)\s*(?:화|회|話|권)(?![가-힣])/gu)];
+   const chapter=chapters.length?Number(chapters[chapters.length-1][1]):null;
+   return {folder,prefix:pref?Number(pref[1]):null,width:pref?pref[1].length:0,
+     body,title,id:m?.[2]||null,tag:!!m?.[3],chapter:Number.isFinite(chapter)?chapter:null};
+ }
+ function ililChapterGroupsV1852(entries,side){
+   const map=new Map(),loose=[];
+   for(const entry of entries){
+     if(!IMAGE.test(entry.name))continue;
+     const parts=String(entry.name).replace(/\\/g,'/').split('/');
+     const nested=parts.length>2&&/^일일툰_\d{2,14}$/u.test(parts[0]);
+     const folder=parts[nested?1:0],relative=parts.slice(nested?2:1).join('/');
+     if(!relative){loose.push(entry);continue;}
+     const path=parts.slice(0,nested?2:1).join('/');
+     let g=map.get(path);
+     if(!g){g={...ililGroupInfoV1852(folder),path,nested,side,entries:[],first:map.size};map.set(path,g);}
+     g.entries.push({entry,relative});
+   }
+   return {groups:[...map.values()],loose};
+ }
+ const ililGroupComparatorV1852=(a,b)=>{
+   if(a.chapter!==null&&b.chapter!==null&&a.chapter!==b.chapter)return a.chapter-b.chapter;
+   if(a.prefix!==null&&b.prefix!==null&&a.prefix!==b.prefix)return a.prefix-b.prefix;
+   if(a.id&&b.id){const x=BigInt(a.id),y=BigInt(b.id);if(x!==y)return x<y?-1:1;}
+   return a.first-b.first;
+ };
+ function planIlilChapterNamesV1852(oldEntries,additional,archiveValue,optionV1853=null){
+   const old=ililChapterGroupsV1852(oldEntries,'old'),add=ililChapterGroupsV1852(additional,'new');
+   if(add.loose.length||!add.groups.length||add.groups.some(g=>!g.id))throw Error('신규 회차 ZIP 폴더를 해석하지 못했습니다. 원본을 변경하지 않습니다.');
+   if(new Set(add.groups.map(g=>g.id)).size!==add.groups.length)throw Error('새 회차 ID가 중복되었습니다.');
+   const originals=old.groups,news=add.groups,sortedOld=[...originals].sort(ililGroupComparatorV1852),sortedNew=[...news].sort(ililGroupComparatorV1852);
+   const validOld=originals.length&&old.loose.length===0&&originals.every(g=>!g.nested&&g.id&&g.chapter!==null);
+   const commonPrefix=validOld&&originals.every(g=>Number(g.prefix!==null)===Number(originals[0].prefix!==null));
+   const commonWidth=commonPrefix&&originals.every(g=>g.width===originals[0].width);
+   const commonTag=validOld&&originals.every(g=>g.tag===originals[0].tag);
+   const allNewNumbers=sortedNew.every(g=>g.chapter!==null&&Number.isFinite(g.chapter));
+   const oldNumbersUnique=new Set(originals.map(g=>g.chapter)).size===originals.length;
+   const newNumbersUnique=new Set(news.map(g=>g.chapter)).size===news.length;
+   const existingNamesUnique=new Set(oldEntries.map(e=>e.name.toLowerCase())).size===oldEntries.length;
+   if(!existingNamesUnique)throw Error('기존 ZIP에 중복된 파일 경로가 있습니다. 병합을 중단합니다.');
+   const prefixOn=!!(originals[0]?.prefix!==null);
+   const width=originals[0]?.width||4;
+   // v1853: preserve deliberately edited ZIP order on later merges, even if
+   // specials and numeric chapter labels aren't in natural chapter order.
+   const orderedPrefixes=originals.map(g=>g.prefix).sort((a,b)=>a-b);
+   const validSeries=prefixOn&&orderedPrefixes.every((v,i)=>v===i+1);
+   const maxOld=sortedOld.length?sortedOld[sortedOld.length-1].chapter:null;
+   const appendOnly=allNewNumbers&&newNumbersUnique&&news.every(g=>g.chapter>maxOld);
+   const canAuto=!!(validOld&&commonPrefix&&commonWidth&&commonTag&&oldNumbersUnique&&allNewNumbers&&newNumbersUnique&&
+     !news.some(g=>originals.some(o=>o.chapter===g.chapter||o.id===g.id))&&(!prefixOn||(validSeries&&appendOnly)));
+   let mode,reason='';
+   if(canAuto){mode='automatic';reason='기존 폴더명의 순번·회차·ID·사이트 표기 규칙을 그대로 적용합니다.';}
+   else if(originals.length&&old.loose.length===0&&originals.every(g=>g.chapter!==null)&&allNewNumbers&&
+      new Set([...originals,...news].map(g=>g.chapter)).size===originals.length+news.length){
+     mode='confirm';reason='기존 이름 규칙을 그대로 따라갈 수 없어 회차 순서대로 순번을 다시 부여해야 합니다.';
+   }else{
+     mode='preserve';reason='기존 회차 순서 또는 규칙을 확정할 수 없어 기존 폴더를 유지하고 신규 회차만 별도로 추가합니다.';
+   }
+   const rename=new Map(),order=[];
+   if(optionV1853?.strategy==='manual'){
+     const all=[...originals,...news];
+     const byKey=new Map(all.map(g=>[g.side==='old'?'old:'+g.path:'newid:'+g.id,g]));
+     const requested=optionV1853.order;
+     if(!Array.isArray(requested)||requested.length!==all.length||new Set(requested).size!==all.length||requested.some(key=>!byKey.has(key)))
+       throw Error('순서 변경 대상과 실제 ZIP 회차 목록이 다릅니다. 병합을 중단합니다.');
+     const digits=Math.max(4,String(all.length).length);
+     for(let i=0;i<requested.length;i++){
+       const g=byKey.get(requested[i]);
+       const suffix=g.side==='old'?g.body:g.title+'_'+g.id+'_[일일툰]';
+       rename.set(g.side+':'+g.path,String(i+1).padStart(digits,'0')+'_'+suffix);
+       order.push(g);
+     }
+     mode='manual';reason='직접 정렬한 순서대로 회차 폴더의 앞자리 순번을 붙입니다.';
+   }else if(optionV1853?.strategy==='preserve'){
+     for(const g of originals)rename.set('old:'+g.path,g.path);
+     for(const g of news)rename.set('new:'+g.path,g.title+'_'+g.id+'_[일일툰]');
+     order.push(...originals,...sortedNew);
+     mode='preserve';reason='기존 회차 폴더명을 바꾸지 않고 새 회차를 추가합니다.';
+   }else if(mode==='automatic'){
+     for(const g of originals)rename.set('old:'+g.path,g.folder);
+     const existingNumber=sortedOld.length;
+     for(let i=0;i<sortedNew.length;i++){
+       const g=sortedNew[i],tail=g.title+'_'+g.id+(originals[0].tag?'_[일일툰]':'');
+       rename.set('new:'+g.path,(prefixOn?String(existingNumber+i+1).padStart(width,'0')+'_':'')+tail);
+     }
+     order.push(...[...originals,...news].sort(ililGroupComparatorV1852));
+   }else if(mode==='confirm'){
+     const all=[...originals,...news].sort(ililGroupComparatorV1852);
+     const w=Math.max(4,String(all.length).length);
+     all.forEach((g,i)=>{
+       const suffix=g.side==='old'?g.body:g.title+'_'+g.id+(originals.length&&originals.every(x=>x.tag)?'_[일일툰]':'');
+       rename.set(g.side+':'+g.path,String(i+1).padStart(w,'0')+'_'+suffix);
+     });
+     order.push(...all);
+   }else{
+     for(const g of originals)rename.set('old:'+g.path,g.path);
+     for(const g of news)rename.set('new:'+g.path,g.title+'_'+g.id+'_[일일툰]');
+     order.push(...originals,...sortedNew);
+   }
+   const changes=order.map(g=>({source:g.side==='old'?'기존':'신규',key:g.side==='old'?'old:'+g.path:'newid:'+g.id,from:g.path,to:rename.get(g.side+':'+g.path),suffix:g.side==='old'?g.body:g.title+'_'+g.id+'_[일일툰]',id:g.id,chapter:g.chapter}));
+   const changedExisting=changes.filter(c=>c.source==='기존'&&c.from!==c.to);
+   const owner=new Map();
+   for(const c of changes){const key=c.to.toLowerCase();if(owner.has(key))throw Error('병합할 폴더 이름이 충돌합니다: '+c.to);owner.set(key,c);}
+   const ranked=new Map(order.map((g,i)=>[g.side+':'+g.path,i]));
+   const rows=[];for(const e of oldEntries){const oldGroup=originals.find(g=>g.entries.some(row=>row.entry===e));
+     const rel=oldGroup?.entries.find(row=>row.entry===e)?.relative;
+     rows.push({entry:e,name:oldGroup?(rename.get('old:'+oldGroup.path)+'/'+rel):e.name,
+       rank:oldGroup?ranked.get('old:'+oldGroup.path):null,source:'old'});
+   }
+   for(const g of news)for(const row of g.entries)rows.push({entry:row.entry,name:rename.get('new:'+g.path)+'/'+row.relative,
+     rank:ranked.get('new:'+g.path),source:'new'});
+   const seen=new Set();for(const p of rows){const key=p.name.toLowerCase();if(seen.has(key))throw Error('압축파일에 동일한 이미지 경로가 생깁니다: '+p.name);seen.add(key);}
+   rows.sort((a,b)=>a.rank===null&&b.rank===null?0:a.rank===null?-1:b.rank===null?1:a.rank-b.rank||a.name.localeCompare(b.name,'ko'));
+   return {mode,reason,changes,changedExisting,plan:rows.map(({entry,name})=>({entry,name})),
+     fingerprint:changes.map(c=>c.source+'|'+c.from+'|'+c.to).sort().join('\n')};
+ }
+ // Preflight reads only the original central directory; it never writes a file.
+ async function preflightIlilNamesV1852(value,selection){
+   const info=await zip().findFile(value),file=await info.handle.getFile();
+   const original=await parseZip(file);
+   const chosen=[...new Map(selection.filter(ep=>/^\d{1,14}$/.test(String(ep?.id||''))).map(ep=>[String(ep.id),ep])).values()];
+   const known=ililChapterIdsV1847(original,value);
+   const remaining=chosen.filter(ep=>!known.has(String(ep.id)));
+   if(!remaining.length)throw Error('새로 병합할 회차가 없습니다.');
+   const simulated=remaining.map((ep,i)=>({name:String(i+1).padStart(4,'0')+'_'+safeIlilTitleV1852(ep.title,58)+'_'+ep.id+'_[일일툰]/0001.webp'}));
+   const preview=planIlilChapterNamesV1852(original,simulated,info.rel);
+   return {mode:preview.mode,reason:preview.reason,changes:preview.changes,changedExisting:preview.changedExisting.length,
+     fingerprint:preview.fingerprint,filesize:file.size,modified:file.lastModified,count:remaining.length};
+ }
+
+ async function appendIlilEpisodesV1847(st,work,selection,onProgress,approvedV1852){
+   if(busy||imageDeleteBusyV1835||ililDisplayMergeBusyV1847)throw Error('다른 ZIP 수정 작업이 진행 중입니다.');
+   if(!st||!/^zipcomic:@/i.test(String(st.oldValue||'')))throw Error('보유 ZIP/CBZ에서만 병합할 수 있습니다.');
+   if(window.WebViewerZipMoveFinalizeV1813?.isPending?.(st.oldValue)||st.zipMoveBusyV1812||st.renamingV1804)
+      throw Error('대상 작품의 파일 이동·이름 변경 작업이 진행 중입니다.');
+   if(!work?.id||!work?.name||!Array.isArray(selection)||!selection.length)throw Error('병합할 일일툰 회차를 선택해 주세요.');
+   ililDisplayMergeBusyV1847=true;st.ililMergeBusyV1847=true;
+   const report=message=>{try{onProgress?.(message);}catch(_){}};
+   let parent=null,download=null,built=null,recovery=null,overwriting=false,success=false,restored=false;
+   try{
+     const info=await zip().findFile(st.oldValue);
+     await perms(info.root);
+     parent=await parentOf(info);
+     const old=await info.handle.getFile();
+     const oldEntries=await parseZip(old);const oldImages=await zip().central(old);
+     if(!approvedV1852||old.size!==approvedV1852.filesize||old.lastModified!==approvedV1852.modified)
+       throw Error('병합 확인 이후 원본 ZIP이 변경되었습니다. 다시 확인하세요.');
+     if(!oldImages.length||oldEntries.filter(x=>IMAGE.test(x.name)).length!==oldImages.length)
+       throw Error('원본 ZIP의 페이지 목록이 올바르지 않습니다.');
+     if(new Set(oldEntries.map(e=>e.name.toLowerCase())).size!==oldEntries.length)
+       throw Error('원본 ZIP 내부에 중복 파일명이 있습니다.');
+     const existing=ililChapterIdsV1847(oldEntries,st.oldValue);
+     const chosen=[...new Map(selection.filter(e=>e&&/^\d{1,14}$/.test(String(e.id))).map(e=>[String(e.id),{id:String(e.id),title:String(e.title||e.id)}])).values()];
+     const remaining=chosen.filter(ep=>!existing.has(ep.id));
+     if(!remaining.length)throw Error('선택한 회차는 이미 ZIP에 들어 있습니다. 새로 병합할 회차가 없습니다.');
+     if(remaining.length>500)throw Error('한 번에 병합 가능한 회차는 500개까지입니다.');
+     report('기존 회차 '+existing.size+'개 감지 · 신규 '+remaining.length+'개 다운로드 준비');
+     download=await tempFile(parent.dir,'ililtoon_chapters');
+     const completed=await window.ComicIliltoonZipV1582?.downloadForDisplayMergeV1847?.({work,episodes:remaining,handle:download.handle,onProgress:report});
+     if(!completed?.file||completed.chapters!==remaining.length||!completed.images)
+       throw Error('일일툰 병합용 다운로드가 완전하지 않습니다.');
+     const bEntries=await parseZip(completed.file),bImages=await zip().central(completed.file);
+     if(bImages.length!==completed.images||bEntries.filter(e=>IMAGE.test(e.name)).length!==completed.images)
+       throw Error('임시 회차 ZIP의 다운로드 장수가 일치하지 않습니다.');
+     if(oldImages.length+completed.images>65000)throw Error('병합 후 이미지 수 제한 65000장을 초과합니다.');
+     // v1851: New pages are sibling chapter folders, never nested in
+     // an extra `일일툰_<workId>/` directory. Normalize old v1850 output too.
+     if(bEntries.some(e=>!IMAGE.test(e.name)))throw Error('다운로드 ZIP에 예상치 않은 비이미지 항목이 있습니다.');
+     const folderPlanV1852=planIlilChapterNamesV1852(oldEntries,bEntries,info.rel);
+     if(folderPlanV1852.mode!==approvedV1852.mode||folderPlanV1852.fingerprint!==approvedV1852.fingerprint)
+       throw Error('다운로드한 회차 폴더와 사전 확인한 폴더명이 다릅니다. 안전을 위해 병합하지 않았습니다.');
+     const effectivePlanV1853=approvedV1852.choiceV1853
+       ?planIlilChapterNamesV1852(oldEntries,bEntries,info.rel,approvedV1852.choiceV1853)
+       :folderPlanV1852;
+     const mergedPlan=effectivePlanV1853.plan;
+     if(mergedPlan.length>65000)throw Error('합본 항목 수 제한 65000개 초과');
+     report('대표 ZIP 유지 + 신규 회차 '+remaining.length+'개 · 병합 파일 작성 중…');
+     built=await tempFile(parent.dir,'ililtoon_merged');
+     const writer=new Writer(await built.handle.createWritable({keepExistingData:false}));
+     try{for(let i=0;i<mergedPlan.length;i++){await writer.add(mergedPlan[i].entry,mergedPlan[i].name);
+       if((i+1)%20===0||i+1===mergedPlan.length)report('압축 데이터 병합 '+(i+1)+'/'+mergedPlan.length+' 항목');}
+       await writer.finish();}catch(e){await writer.abort();throw e;}
+     const merged=await built.handle.getFile();
+     report('새 ZIP 전체 이미지 압축 데이터 검증 중…');
+     await verifyArchive(merged,mergedPlan);
+     const fresh=await info.handle.getFile();
+     if(fresh.size!==old.size||fresh.lastModified!==old.lastModified)
+       throw Error('병합 중 원본 ZIP이 변경되었습니다. 병합을 중단합니다.');
+     report('원본 보호용 임시 사본 검증 중…');
+     recovery=await tempFile(parent.dir,'ililtoon_restore');
+     await writeCopy(recovery.handle,old);await compareFiles(old,await recovery.handle.getFile());
+     report('새 ZIP 검증 완료 · 원본 ZIP에 적용 중…');
+     overwriting=true;await writeCopy(info.handle,merged);
+     await compareFiles(merged,await info.handle.getFile());
+     const newPages=await zip().central(await info.handle.getFile());
+     if(newPages.length!==oldImages.length+completed.images)throw Error('최종 ZIP의 이미지 수 검증 실패');
+     success=true;
+     try{zip().forgetCachedV1205(k=>String(k).includes(st.oldValue));}catch(_){}
+     try{await zip().rescanExactV1085(st.oldValue);}catch(e){console.warn('[v1847 rescan]',e);}
+     try{invalidateComicListQueryV1000();invalidateComicRailStructureV1318();renderWebtoonList(true);}catch(e){console.warn('[v1847 repaint]',e);}
+     report('병합 완료 · 신규 '+remaining.length+'개 회차 · '+completed.images+'장 추가 · 총 '+newPages.length+'장');
+     window.dispatchEvent(new Event('webtoonlist:changed'));
+     return {chapters:remaining.length,skipped:chosen.length-remaining.length,added:completed.images,total:newPages.length};
+   }catch(e){
+     if(overwriting&&recovery&&!success){
+       // File System Access File snapshots become invalid when the underlying
+       // archive changes on disk. Never use the old pre-overwrite File for
+       // verification or recovery; get fresh snapshots from both handles.
+       const target=(await zip().findFile(st.oldValue)).handle;
+       let originalIntact=false;
+       try{
+         await compareFiles(await recovery.handle.getFile(),await target.getFile());
+         originalIntact=true;restored=true;
+         report('병합 실패 · 기존 원본 ZIP은 변경되지 않았습니다.');
+       }catch(_){}
+       if(!originalIntact){
+         try{
+           report('오류 발생 · 검증된 복원본으로 원본 ZIP 복구 중…');
+           await writeCopy(target,await recovery.handle.getFile());
+           await compareFiles(await recovery.handle.getFile(),await target.getFile());
+           restored=true;report('원본 ZIP 복원 확인 완료');
+         }catch(re){
+           recovery=null; // Keep the on-disk verified recovery file!
+           throw Error(String(e?.message||e)+'\n원본 자동 복원 실패. 원본 폴더의 .__wv_merge1819_ililtoon_restore_...zip 파일을 보존했습니다: '+String(re?.message||re));
+         }
+       }
+     }
+     throw e;
+   }finally{
+     if(parent){for(const tmp of [download,built])if(tmp)try{await parent.dir.removeEntry(tmp.name);}catch(_){ }
+       if(recovery&&(success||restored||!overwriting))try{await parent.dir.removeEntry(recovery.name);}catch(_){ }}
+     ililDisplayMergeBusyV1847=false;st.ililMergeBusyV1847=false;
+   }
+ }
+
+ // v1856: Strict selected-chapter download and verified ZIP append for four
+ // additional providers. No partial download is ever committed to the owned ZIP.
+ const EXTERNAL_SITE_V1856=Object.freeze({marumaru:{label:'마루마루',api:'ComicMarumaruZipV1688'},toonkor:{label:'툰코',api:'ComicToonkorZipV1605'},newtoki:{label:'뉴토끼',api:'ComicNewtokiZipV1725'},mangadex:{label:'MangaDex',api:'ComicMangaDexZipV1473'}});
+ const externalSafeV1856=safeIlilTitleV1852;
+ const externalIdV1856=(site,id)=>site==='mangadex'?String(id||''):String(id||'').split(/[/?#]/).filter(Boolean).pop()||'';
+ function chapterFolderIdV1856(name,site){
+   const label=EXTERNAL_SITE_V1856[site]?.label;
+   if(!label)return '';
+   const parts=String(name).split('/'),folder=parts.length>1?parts[0]:'';
+   if(!folder||!folder.includes('_['+label+']'))return '';
+   const before=folder.slice(0,folder.lastIndexOf('_['+label+']'));
+   const token=before.split('_').pop();
+   return /^(?:\d{1,14}|[a-f0-9]{8,40}|[a-f0-9]{8}-[a-f0-9-]{12,37})$/i.test(token)?token:'';
+ }
+ function externalKnownIdsV1856(entries,site){const result=new Set();for(const e of entries){const id=chapterFolderIdV1856(e.name,site);if(id)result.add(id);}return result;}
+ async function existingExternalIdsV1856(value,site){const info=await zip().findFile(value);return externalKnownIdsV1856(await parseZip(await info.handle.getFile()),site);}
+ function nameInfoV1856(folder){const m=/^(\d{3,6})_(.+)$/u.exec(folder);const title=m?m[2]:folder;const all=[...title.matchAll(/(\d{1,6}(?:\.\d+)?)\s*(?:화|회|話|권|Ch\.?)(?![가-힣])/giu)];return {prefix:m?Number(m[1]):null,width:m?.[1]?.length||0,chapter:all.length?Number(all[all.length-1][1]):null};}
+ function orderedExternalV1856(episodes){const ch=e=>{const xs=[...String(e.title||e.name||('Ch.'+String(e.attributes?.chapter||''))).matchAll(/(\d{1,6}(?:\.\d+)?)\s*(?:화|회|話|권|Ch\.?)/giu)];return xs.length?Number(xs[xs.length-1][1]):null;};return [...episodes].sort((a,b)=>{const x=ch(a),y=ch(b);return x!==null&&y!==null&&x!==y?x-y:String(a.id).localeCompare(String(b.id),'en');});}
+ function externalGroupsV1856(entries){const map=new Map(),loose=[];for(const entry of entries){const p=entry.name.split('/');if(p.length<2){loose.push(entry);continue;}const folder=p[0];if(!map.has(folder))map.set(folder,{folder,entries:[]});map.get(folder).entries.push({entry,rel:p.slice(1).join('/')});}return {groups:[...map.values()],loose};}
+ function externalPlanV1856(oldEntries,selected,site,newEntries=null,choice=null){
+   const meta=EXTERNAL_SITE_V1856[site];if(!meta)throw Error('지원하지 않는 병합 사이트');
+   const old=externalGroupsV1856(oldEntries),newGroups=newEntries?externalGroupsV1856(newEntries):null;
+   if(newEntries&&(newGroups.loose.length||newGroups.groups.length!==selected.length))throw Error('사이트 ZIP 회차 폴더 수가 선택한 회차와 일치하지 않습니다.');
+   const currentFolders=old.groups.map(g=>({...g,...nameInfoV1856(g.folder)}));
+   const allNumbered=currentFolders.length&&currentFolders.every(g=>g.prefix!==null)&&new Set(currentFolders.map(g=>g.prefix)).size===currentFolders.length;
+   const existingSorted=[...currentFolders].sort((a,b)=>(a.prefix??0)-(b.prefix??0));
+   const sequential=allNumbered&&existingSorted.every((g,i)=>g.prefix===i+1);
+   const styles=allNumbered?new Set(currentFolders.map(g=>g.width)).size===1:true;
+   const sorted=orderedExternalV1856(selected);
+   // Only automatically append at the end when numbered folder convention is certain
+   // and new chapters are numerically after the last known existing chapter.
+   const nums=sorted.map(e=>{const k=nameInfoV1856(String(e.title||e.name||''));return k.chapter;});
+   const knownOld=currentFolders.map(g=>g.chapter).filter(x=>x!==null);
+   const appendOnly=knownOld.length===currentFolders.length&&nums.every(x=>x!==null&&x>Math.max(...knownOld));
+   const auto=!!(sequential&&styles&&appendOnly);
+   const numW=Math.max(4,existingSorted[0]?.width||4,String(old.groups.length+sorted.length).length);
+   const news=sorted.map((ep,i)=>{const id=externalIdV1856(site,ep.id),suffix=externalSafeV1856(ep.title||ep.name||'회차',75)+'_'+id+'_['+meta.label+']';return {key:'n:'+id,source:'신규',id,from:'(신규) '+String(ep.title||ep.name||id),suffix,folder:(auto?String(old.groups.length+i+1).padStart(numW,'0')+'_':'')+suffix};});
+   const olds=old.groups.map(g=>({key:'o:'+g.folder,source:'기존',id:null,from:g.folder,suffix:g.folder.replace(/^\d{3,6}_/u,''),folder:g.folder,old:g}));
+   const candidates=[...olds,...news];const changes=candidates.map(g=>({key:g.key,source:g.source,from:g.from,suffix:g.suffix,to:g.folder,id:g.id}));
+   let ordered=candidates;
+   if(choice?.strategy==='manual'){
+     const map=new Map(candidates.map(c=>[c.key,c]));if(!Array.isArray(choice.order)||choice.order.length!==candidates.length||new Set(choice.order).size!==candidates.length||choice.order.some(k=>!map.has(k)))throw Error('사용자 회차 순서가 ZIP 파일과 다릅니다.');
+     ordered=choice.order.map(k=>map.get(k));
+   }
+   const rename=new Map();ordered.forEach((g,i)=>{const dest=choice?.strategy==='manual'?String(i+1).padStart(Math.max(4,String(ordered.length).length),'0')+'_'+g.suffix:g.folder;rename.set(g.key,dest);});
+   const seen=new Set();const result=[];
+   for(const e of oldEntries){const folder=e.name.split('/')[0],name=rename.has('o:'+folder)?rename.get('o:'+folder)+e.name.slice(folder.length):e.name;const k=name.toLowerCase();if(seen.has(k))throw Error('ZIP 중복 경로: '+name);seen.add(k);result.push({entry:e,name});}
+   if(newEntries){const groups=newGroups.groups;const byId=new Map(news.map((g,i)=>[g.id,g]));
+     for(let i=0;i<groups.length;i++){const group=groups[i],g=news[i];if(!g)throw Error('다운로드 회차 순서 불일치');const folder=rename.get(g.key);for(const row of group.entries){const name=folder+'/'+row.rel,k=name.toLowerCase();if(seen.has(k))throw Error('ZIP 신규 경로 중복: '+name);seen.add(k);result.push({entry:row.entry,name});}}
+   }
+   if(choice?.strategy==='manual'){const rank=new Map(ordered.map((g,i)=>[rename.get(g.key),i]));result.sort((a,b)=>{const i=rank.get(a.name.split('/')[0]),j=rank.get(b.name.split('/')[0]);return i===undefined&&j===undefined?0:i===undefined?-1:j===undefined?1:i-j||a.name.localeCompare(b.name,'ko');});}
+   return {mode:auto?'automatic':'confirm',changes:changes.map(c=>({...c,to:rename.get(c.key)})),plan:result,selected:sorted,oldCount:old.groups.length};
+ }
+ async function externalPreflightV1856(value,episodes,site){const info=await zip().findFile(value),file=await info.handle.getFile(),entries=await parseZip(file);
+   const known=externalKnownIdsV1856(entries,site);const filtered=episodes.filter(e=>!known.has(externalIdV1856(site,e.id)));
+   if(!filtered.length)throw Error('선택한 회차가 이미 ZIP에 있습니다.');
+   const pre=externalPlanV1856(entries,filtered,site);
+   return {...pre,filesize:file.size,modified:file.lastModified,episodes:filtered.map(e=>String(e.id))};
+ }
+ async function externalAppendV1856(st,work,selected,site,report=()=>{},approved){
+   if(busy||imageDeleteBusyV1835||ililDisplayMergeBusyV1847)throw Error('다른 ZIP 수정 작업이 진행 중입니다.');
+   if(!/^zipcomic:@/i.test(String(st?.oldValue||'')))throw Error('보유 ZIP/CBZ 파일만 병합할 수 있습니다.');
+   const meta=EXTERNAL_SITE_V1856[site],adapter=window[meta?.api];if(!adapter?.downloadForDisplayMergeV1856)throw Error('사이트 병합 저장 엔진이 준비되지 않았습니다.');
+   if(!approved||!selected.length||selected.length>500)throw Error('회차 선택 및 확인이 필요합니다. (최대 500개)');
+   ililDisplayMergeBusyV1847=true;st.ililMergeBusyV1847=true;
+   let parent=null,download=null,built=null,recovery=null,overwriting=false,success=false,restored=false;
+   try{
+     const info=await zip().findFile(st.oldValue);await perms(info.root);parent=await parentOf(info);
+     const old=await info.handle.getFile(),oldEntries=await parseZip(old),oldPages=await zip().central(old);
+     if(old.size!==approved.filesize||old.lastModified!==approved.modified)throw Error('확인 이후 원본 ZIP이 변경되었습니다. 다시 확인하세요.');
+     if(!oldPages.length||oldEntries.filter(e=>IMAGE.test(e.name)).length!==oldPages.length)throw Error('보유 ZIP 이미지 목록 검증에 실패했습니다.');
+     const known=externalKnownIdsV1856(oldEntries,site),remaining=orderedExternalV1856(selected.filter(e=>!known.has(externalIdV1856(site,e.id))));
+     if(remaining.length!==approved.episodes.length||remaining.some((e,i)=>String(e.id)!==approved.episodes[i]))throw Error('선택한 회차 목록이 사전 확인과 달라졌습니다.');
+     report(meta.label+' 신규 '+remaining.length+'개 회차 이미지 수집 중…');
+     download=await tempFile(parent.dir,'external_'+site+'_chapters');
+     const response=await adapter.downloadForDisplayMergeV1856({work,episodes:remaining,handle:download.handle,onProgress:report});
+     if(!response||response.chapters!==remaining.length||!response.images)throw Error('다운로드한 회차 일부가 누락되었습니다. 병합을 중단합니다.');
+     const newFile=await download.handle.getFile(),newEntries=await parseZip(newFile),newPages=await zip().central(newFile);
+     if(newPages.length!==response.images||newEntries.some(e=>!IMAGE.test(e.name)))throw Error('다운로드 ZIP이 불완전합니다.');
+     if(oldPages.length+newPages.length>65000)throw Error('최종 이미지 수가 65000장을 초과합니다.');
+     const decision=approved.choiceV1853||null;
+     const plan=externalPlanV1856(oldEntries,remaining,site,newEntries,decision);
+     if(plan.plan.length>65000)throw Error('병합 ZIP 항목 제한 초과');
+     report('임시 ZIP 작성 중…');built=await tempFile(parent.dir,'external_'+site+'_merged');
+     const writer=new Writer(await built.handle.createWritable({keepExistingData:false}));
+     try{for(let i=0;i<plan.plan.length;i++){const row=plan.plan[i];await writer.add(row.entry,row.name);if((i+1)%20===0)report('이미지 압축 데이터 '+(i+1)+'/'+plan.plan.length);}await writer.finish();}
+     catch(e){await writer.abort();throw e;}
+     const merged=await built.handle.getFile();report('병합 ZIP 전체 데이터 무결성 검사 중…');await verifyArchive(merged,plan.plan);
+     const fresh=await info.handle.getFile();if(fresh.size!==old.size||fresh.lastModified!==old.lastModified)throw Error('다운로드 도중 원본 ZIP이 변경되어 병합하지 않았습니다.');
+     recovery=await tempFile(parent.dir,'external_'+site+'_restore');await writeCopy(recovery.handle,old);await compareFiles(old,await recovery.handle.getFile());
+     report('검증 완료 · ZIP 적용 중…');overwriting=true;await writeCopy(info.handle,merged);await compareFiles(merged,await info.handle.getFile());
+     const pages=await zip().central(await info.handle.getFile());if(pages.length!==oldPages.length+newPages.length)throw Error('최종 이미지 개수가 맞지 않습니다.');
+     success=true;try{zip().forgetCachedV1205(k=>String(k).includes(st.oldValue));}catch(_){}
+     try{await zip().rescanExactV1085(st.oldValue);}catch(e){console.warn('[v1856 rescan]',e);}
+     try{invalidateComicListQueryV1000();invalidateComicRailStructureV1318();renderWebtoonList(true);}catch(e){console.warn('[v1856 repaint]',e);}
+     window.dispatchEvent(new Event('webtoonlist:changed'));
+     return {chapters:remaining.length,added:newPages.length,total:pages.length};
+   }catch(e){if(overwriting&&recovery&&!success){const target=(await zip().findFile(st.oldValue)).handle;let intact=false;
+       try{await compareFiles(await recovery.handle.getFile(),await target.getFile());intact=true;restored=true;}catch(_){}
+       if(!intact){try{report('원본 복원 중…');await writeCopy(target,await recovery.handle.getFile());await compareFiles(await recovery.handle.getFile(),await target.getFile());restored=true;}
+         catch(re){recovery=null;throw Error(String(e?.message||e)+'\n원본 복원 실패. 임시 복원본을 보존했습니다: '+String(re?.message||re));}}}
+     throw e;
+   }finally{if(parent){for(const temp of [download,built])if(temp)try{await parent.dir.removeEntry(temp.name);}catch(_){}
+       if(recovery&&(success||restored||!overwriting))try{await parent.dir.removeEntry(recovery.name);}catch(_){}}
+     ililDisplayMergeBusyV1847=false;st.ililMergeBusyV1847=false;}
+ }
+ window.ComicIliltoonDisplayAppendV1847={append:appendIlilEpisodesV1847,externalKnownIdsV1856:existingExternalIdsV1856,externalPreflightV1856,externalAppendV1856,preflightV1852:preflightIlilNamesV1852,existingIds:existingIlilChapterIdsV1847,folderRepairStatusV1851:ililFolderRepairStatusV1851,repairFoldersV1851:repairIlilChapterFoldersV1851,isBusy:()=>ililDisplayMergeBusyV1847};
+
  window.ComicZipDeletePagesV1835={apply:deleteSelectedZipImagesV1835,isBusy:()=>imageDeleteBusyV1835};
 
  window.ComicHitomiMergeV1819={candidateFor,select,clear,isBusy:()=>busy,run:(st,id,card)=>merge(st,id,card)};
 })();
 
+</script>
+
+
+<script id="wtIlilDisplayMergeJsV1847">
+(()=>{'use strict';
+ const get=id=>document.getElementById(id);
+ let epoch=0,activeSt=null,work=null,episodes=[],selected=new Set(),knownIds=new Set(),resultItems=[],resultPage=0,resultHasMore=false,episodePage=0,moreEpisodes=true,busy=false;
+ const SOURCES_V1855=Object.freeze({ililtoon:['일일툰',()=>window.ComicIliltoonV1578],marumaru:['마루마루',()=>window.ComicMarumaruV1666],toonkor:['툰코',()=>window.ComicToonkorV1588],newtoki:['뉴토끼',()=>window.ComicNewtokiV1721],mangadex:['MangaDex',()=>window.ComicMangaDexAuthorV1465],hitomi:['Hitomi',()=>window.ComicHitomiExploreV1483]});
+ const SITE_IDS_V1855=Object.keys(SOURCES_V1855);
+ let sourcePagesV1855=new Map(),activeSourceV1855='ililtoon';
+ // v1858: generation check and AbortController cancel searches when Display closes or switches.
+ let searchGenerationV1857=0,searchBusyV1857=false,searchControllerV1858=null;
+ const cancelSearchV1858=()=>{if(searchControllerV1858){try{searchControllerV1858.abort();}catch(_){ }searchControllerV1858=null;}searchGenerationV1857++;searchBusyV1857=false;for(const id of ['wtIlilMergeSearchV1847','wtIlilMergeMoreV1847']){const b=get(id);if(b)b.disabled=false;}};
+ const siteNameV1855=site=>SOURCES_V1855[site]?.[0]||site;
+ const normV1855=(site,raw)=>{
+   const adapter=SOURCES_V1855[site]?.[1]?.(),id=String(raw?.id||raw?.key||raw?.path||'');
+   if(!id)return null;
+   const name=site==='mangadex'?String(adapter?.unifiedTitleV1629?.(raw)||raw?.attributes?.title?.ko||raw?.attributes?.title?.en||'제목 없음'):
+     String(raw?.name||raw?.title||raw?.attributes?.title||'제목 없음');
+   const cover=site==='mangadex'?String(adapter?.unifiedCoverV1629?.(raw)||''):String(raw?.cover||raw?.coverUrl||raw?.poster||'');
+   return {site,id,key:site+':'+(raw?.kind||'')+':'+id,name,cover,raw};
+ };
+ const siteOptionsV1855=()=>{const x=get('wtIlilMergeSiteV1855')?.value||'ililtoon';return x==='all'?SITE_IDS_V1855:[x];};
+ const api=()=>window.ComicIliltoonV1578;
+ const current=()=>!!activeSt&&typeof __wtDisplayEditState!=='undefined'&&__wtDisplayEditState===activeSt&&get('wtIlilDisplayMergeV1847')&&!get('wtIlilDisplayMergeV1847').hidden;
+ const status=text=>{const el=get('wtIlilMergeStatusV1847');if(el)el.textContent=String(text||'');};
+ const safeTitle=st=>window.ComicOwnedIliltoonTitleV1845?.clean?.(st.oldValue,st.oldDisplay)||String(st.oldDisplay||'').slice(0,100);
+ const chapterKeyV1856=(site,id)=>site==='mangadex'?String(id||''):String(id||'').split(/[/?#]/).filter(Boolean).pop()||'';
+ const button=(text,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b;};
+ function syncSelection(){
+   get('wtIlilMergeApplyV1847').hidden=false;get('wtIlilMergePickAllV1847').hidden=false;get('wtIlilMergeUnpickV1847').hidden=false;
+   get('wtIlilMergeApplyV1847').disabled=busy||selected.size===0;
+   const hitomi=activeSourceV1855==='hitomi';
+   get('wtIlilMergeApplyV1847').textContent=hitomi?'선택 히토미 작품 병합 ('+selected.size+')':'선택 회차 병합 ('+selected.size+')';
+   get('wtIlilMergePickAllV1847').textContent=hitomi?'작품 전체 선택':'전체 회차 선택';
+   get('wtIlilMergeCountV1847').textContent=hitomi?'히토미 작품 1개 · 병합 선택 '+selected.size+'개':'표시 '+episodes.length+'회차 · 병합 선택 '+selected.size+'개';
+ }
+ function renderChapters(){const list=get('wtIlilMergeChaptersV1847');list.replaceChildren();
+   for(const ep of episodes){const exists=knownIds.has(chapterKeyV1856(activeSourceV1855,ep.id));
+     const row=document.createElement('label');row.className='wtIlilMergeChapterV1847';row.dataset.existing=String(exists);
+     const check=document.createElement('input');check.type='checkbox';check.disabled=busy||exists;check.checked=selected.has(String(ep.id));
+     check.onchange=()=>{if(check.checked)selected.add(String(ep.id));else selected.delete(String(ep.id));syncSelection();};row.append(check);
+     const name=document.createElement('span');name.textContent=String(ep.title||'회차')+(ep.id?' · #'+String(ep.id):'')+(exists?' · 이미 병합됨':'');row.append(name);list.append(row);
+   }
+   get('wtIlilMergeNextV1847').hidden=activeSourceV1855==='hitomi'||!moreEpisodes||episodePage>=100;
+   syncSelection();
+ }
+ async function loadEpisodePage(){if(!current()||!work||busy||!moreEpisodes||activeSourceV1855==='hitomi')return;
+   const token=epoch,site=activeSourceV1855;busy=true;
+   status(siteNameV1855(site)+' 회차 '+(episodePage+1)+'페이지 조회 중…');get('wtIlilMergeNextV1847').disabled=true;
+   try{
+     let rows=[];
+     if(site==='ililtoon'){
+       rows=await api()?.getEpisodePage?.(work,episodePage+1);
+     }else if(site==='mangadex'){
+       const id=String(work.raw?.id||work.id),offset=episodePage*100;
+       const r=await fetch('/__webviewer_local/mangadex/chapters?id='+encodeURIComponent(id)+'&offset='+offset,{cache:'no-store'});
+       if(!r.ok)throw Error('MangaDex 회차 요청 HTTP '+r.status);
+       const j=await r.json();
+       rows=(Array.isArray(j?.data)?j.data:[]).filter(x=>x?.id&&!x.attributes?.externalUrl).map(x=>({id:String(x.id),raw:x,title:('['+String(x.attributes?.translatedLanguage||'기타')+'] '+(x.attributes?.volume?'Vol.'+x.attributes.volume+' ':'')+(x.attributes?.chapter?'Ch.'+x.attributes.chapter+' ':'')+String(x.attributes?.title||'')).trim()}));
+       moreEpisodes=offset+Math.min(100,Array.isArray(j?.data)?j.data.length:0)<Number(j?.total||0)&&offset+100<10000;
+     }else if(site==='marumaru'){
+       const chapters=await window.ComicMarumaruV1666?.getChaptersV1688?.(work.raw);
+       rows=(chapters||[]).map(ch=>({...ch,id:String(ch.path||ch.id||''),title:String(ch.name||ch.title||'회차')}));
+       moreEpisodes=false;
+     }else if(site==='toonkor'){
+       const data=await window.ComicToonkorV1588?.fetchCompleteDetailV1717?.(work.raw.path);
+       rows=(data?.episodes||[]).map(ch=>({...ch,id:String(ch.path||''),title:String(ch.title||ch.name||'회차')}));
+       moreEpisodes=false;
+     }else if(site==='newtoki'){
+       const chapters=await window.ComicNewtokiV1721?.fetchCompleteEpisodesV1725?.(work.raw);
+       rows=(chapters||[]).map(ch=>({...ch,id:String(ch.path||ch.id||''),title:String(ch.title||ch.name||'회차')}));
+       moreEpisodes=false;
+     }
+     if(token!==epoch||!current()||site!==activeSourceV1855)return;
+     const seen=new Set(episodes.map(e=>String(e.id)));let added=0;
+     for(const e of rows||[])if(e?.id&&!seen.has(String(e.id))){episodes.push(e);seen.add(String(e.id));added++;}
+     episodePage++;
+     if(site==='ililtoon')moreEpisodes=episodePage<100&&Array.isArray(rows)&&rows.length>=30&&added>0;
+     status(siteNameV1855(site)+' · 회차 '+episodes.length+'개 조회됨 · 원하는 회차를 선택해 병합하세요.');
+   }catch(e){if(token===epoch)status(siteNameV1855(site)+' 회차 조회 실패: '+String(e?.message||e));}
+   finally{if(token===epoch){busy=false;get('wtIlilMergeNextV1847').disabled=false;renderChapters();}}
+ }
+ async function selectWork(item){if(!current()||busy)return;epoch++;const token=epoch;
+   work=item;activeSourceV1855=item.site;episodes=[];selected.clear();episodePage=0;moreEpisodes=true;knownIds=new Set();
+   get('wtIlilMergeChaptersBoxV1847').hidden=false;
+   get('wtIlilMergeWorkV1847').textContent=siteNameV1855(item.site)+' · '+item.name+(item.site==='hitomi'?' · 작품 전체':' · 회차');
+   const help=get('wtIlilMergeHelpV1847');if(help)help.textContent=item.site==='hitomi'?'히토미는 회차가 없습니다. 작품 전체를 선택하면 기존 Display의 일반 병합 / Ichigo 번역 병합을 이용합니다.':'선택 회차를 임시 ZIP으로 받으며 기존 회차 ID를 비교해 중복을 제외하고 검증 후 병합합니다.';
+   for(const b of get('wtIlilMergeResultsV1847').children)b.dataset.selected=b.dataset.workKey===item.key?'true':'false';
+   if(item.site==='hitomi'){
+     moreEpisodes=false;episodes=[{id:item.id,title:'히토미 작품 전체 · #'+item.id}];
+     const hitomiDb=window.WVHitomiExtraSeriesV1796;
+     const original=hitomiDb?.originalIds?.(activeSt.oldDisplay,activeSt.oldValue)||new Set();
+     const extra=hitomiDb?.get?.(activeSt.oldValue)||[];
+     if(original.has(String(item.id))||extra.some(id=>String(id)===String(item.id))){knownIds.add(String(item.id));status('이미 대표 ZIP에 연결된 히토미 작품입니다.');}
+     else{selected.add(String(item.id));status('히토미 #'+item.id+' 선택 완료 · 작품 전체를 원본 또는 Ichigo 번역으로 병합할 수 있습니다.');}
+     renderChapters();return;
+   }
+   renderChapters();
+   {
+     status('보유 ZIP의 '+siteNameV1855(item.site)+' 회차 식별 중…');busy=true;
+     try{const ids=item.site==='ililtoon'?await window.ComicIliltoonDisplayAppendV1847?.existingIds(activeSt.oldValue):await window.ComicIliltoonDisplayAppendV1847?.externalKnownIdsV1856(activeSt.oldValue,item.site);
+       if(token!==epoch||!current())return;knownIds=new Set(ids||[]);
+       status(knownIds.size?'기존 '+siteNameV1855(item.site)+' 회차 '+knownIds.size+'개 확인 · 온라인 회차 조회 중…':'기존 ZIP에서 이 사이트의 회차 ID를 확인하지 못했습니다. 중복을 주의하세요.');
+     }catch(e){if(token===epoch)status('기존 회차 확인 실패: '+String(e?.message||e));return;}
+     finally{if(token===epoch)busy=false;}
+   }
+   await loadEpisodePage();
+ }
+ function renderWorks(){const target=get('wtIlilMergeResultsV1847');
+   if(!resultItems.length){target.replaceChildren();get('wtIlilMergeMoreV1847').hidden=true;return;}
+   const rendered=new Set(Array.from(target.children,x=>x.dataset.workKey));
+   const fragment=document.createDocumentFragment();
+   for(const item of resultItems){if(rendered.has(item.key))continue;rendered.add(item.key);
+     const b=button('',()=>{void selectWork(item);});b.className='wtIlilMergeResultV1847';b.dataset.workKey=item.key;
+     b.dataset.selected=work?.key===item.key?'true':'false';
+     if(item.cover||item.site==='hitomi'){const img=document.createElement('img');img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';img.alt=item.name+' 표지';
+       if(item.site==='hitomi'){
+         try{if(window.ComicExternalPosterCacheV1516?.mount)window.ComicExternalPosterCacheV1516.mount(img,'Hitomi',String(item.id),item.cover,{metadataCoverMissing:!item.cover});
+           else img.src=item.cover||'/__webviewer_local/hitomi/cover?id='+encodeURIComponent(item.id);}
+         catch(_){img.src=item.cover||'/__webviewer_local/hitomi/cover?id='+encodeURIComponent(item.id);}
+       }else{img.src=item.cover;if(item.site==='newtoki')try{window.ComicNewtokiV1721?.mountPosterV1733?.(img,item.raw);}catch(_){ }}
+       b.append(img);}else{const placeholder=document.createElement('span');placeholder.className='wtIlilMergeCoverV1856';placeholder.textContent='표지 없음';b.append(placeholder);}
+     const detail=document.createElement('span');detail.className='wtIlilMergeResultInfoV1855';
+     const source=document.createElement('span');source.className='wtIlilMergeResultSiteV1855';source.textContent=siteNameV1855(item.site);
+     const name=document.createElement('span');name.textContent=item.name;
+     detail.append(source,name);b.append(detail);fragment.append(b);
+   }
+   if(fragment.childNodes.length)target.append(fragment);
+   get('wtIlilMergeMoreV1847').hidden=searchBusyV1857||!resultHasMore;
+ }
+ // v1858: six-site streaming results with request abort on Display close; Hitomi is a single gallery, not chapters.
+ // Searching and chapter/ZIP operations have separate busy flags, so users can select
+ // a returned work while other sites continue searching.
+ async function search(next=false){if(!current()||busy||searchBusyV1857)return;
+   if(location.origin!=='http://127.0.0.1:18765'){status('외부 만화 제목 검색은 로컬호스트 127.0.0.1:18765에서 지원합니다.');return;}
+   const term=String(get('wtIlilMergeQueryV1847').value||'').trim();if(!term){status('검색할 제목을 입력하세요.');return;}
+   const sites=siteOptionsV1855();
+   if(!next){epoch++;work=null;episodes=[];selected.clear();knownIds.clear();resultItems=[];sourcePagesV1855=new Map(sites.map(site=>[site,{page:0,more:true}]));resultHasMore=false;
+     get('wtIlilMergeChaptersBoxV1847').hidden=true;renderChapters();renderWorks();}
+   const pending=sites.filter(site=>sourcePagesV1855.get(site)?.more);
+   if(!pending.length){status('추가 검색 결과가 없습니다.');return;}
+   const token=++searchGenerationV1857,st=activeSt;
+   const controller=new AbortController();searchControllerV1858=controller;
+   searchBusyV1857=true;
+   const searchButton=get('wtIlilMergeSearchV1847'),moreButton=get('wtIlilMergeMoreV1847');
+   searchButton.disabled=true;moreButton.disabled=true;moreButton.hidden=true;
+   const existing=new Set(resultItems.map(item=>item.key));
+   const errors=[],completed=[],total=pending.length;let added=0,done=0;
+   const active=()=>token===searchGenerationV1857&&activeSt===st&&current();
+   const progress=()=>{if(!active()||work)return;
+     const remaining=pending.filter(site=>!completed.includes(site));
+     status((done<total?'검색 중':'검색 완료')+' ('+done+'/'+total+'사이트) · 결과 '+resultItems.length+'개 · 이번 '+added+'개 추가'
+       +(completed.length?'\n완료: '+completed.map(siteNameV1855).join(' · '):'')
+       +(remaining.length?'\n검색 중: '+remaining.map(siteNameV1855).join(' · '):'')
+       +(errors.length?'\n일부 검색 오류: '+errors.join(' / '):'')
+       +'\n검색된 작품은 바로 선택해서 회차를 확인할 수 있습니다.');
+   };
+   progress();
+   try{
+     await Promise.all(pending.map(async site=>{
+       try{
+         const adapter=SOURCES_V1855[site]?.[1]?.(),pager=sourcePagesV1855.get(site),fn=adapter?.unifiedSearchV1629;
+         if(typeof fn!=='function')throw Error(siteNameV1855(site)+' 검색 함수가 준비되지 않았습니다.');
+         const data=await fn({term,page:pager.page,signal:controller.signal});
+         if(!data||!Array.isArray(data.items))throw Error('검색 결과 형식이 올바르지 않습니다.');
+         if(!active())return;
+         for(const raw of data.items){const item=normV1855(site,raw);if(item&&!existing.has(item.key)){
+           resultItems.push(item);existing.add(item.key);added++;
+         }}
+         pager.page++;
+         pager.more=!!data.hasMore&&pager.page<100;
+         if(data.warning)errors.push(siteNameV1855(site)+': '+String(data.warning));
+       }catch(e){if(!active())return;
+         if(controller.signal.aborted||e?.name==='AbortError')return;
+         errors.push(siteNameV1855(site)+': '+String(e?.message||e));
+         const pager=sourcePagesV1855.get(site);if(pager)pager.more=false;
+       }finally{
+         if(!active())return;
+         completed.push(site);done++;
+         resultHasMore=sites.some(x=>sourcePagesV1855.get(x)?.more);
+         // Append only newly arrived works: existing poster elements and scroll positions stay intact.
+         renderWorks();progress();
+       }
+     }));
+   }finally{
+     if(token===searchGenerationV1857){
+       if(searchControllerV1858===controller)searchControllerV1858=null;
+       searchBusyV1857=false;
+       searchButton.disabled=false;moreButton.disabled=false;
+       if(active()){
+         resultHasMore=sites.some(site=>sourcePagesV1855.get(site)?.more);
+         renderWorks();progress();
+       }
+     }
+   }
+ }
+ async function pickAll(){if(!current()||!work||busy)return;
+   if(activeSourceV1855==='hitomi'){if(!knownIds.has(String(work.id)))selected.add(String(work.id));renderChapters();return;}
+   const token=epoch;
+   while(moreEpisodes&&episodePage<100){const before=episodePage;await loadEpisodePage();if(epoch!==token||!current()||episodePage===before)break;}
+   if(token!==epoch||!current())return;
+   for(const ep of episodes){if(selected.size>=500)break;if(!knownIds.has(chapterKeyV1856(activeSourceV1855,ep.id)))selected.add(String(ep.id));}
+   renderChapters();status(siteNameV1855(activeSourceV1855)+' · 신규 회차 '+selected.size+'개 선택 · 기존 회차 '+knownIds.size+'개 제외'+(episodes.length>500?' · 한 번에 최대 500회차까지 병합 가능':''));
+ }
+ // v1854: Custom three-way confirmation and user-controlled folder ordering with side-by-side compare rows.
+ // The dialog never writes files; only an explicitly approved plan reaches append().
+ function mergeDialogV1853(preview,title){
+   return new Promise(resolve=>{
+     const layer=document.createElement('div');layer.className='wvIlilOrderShadeV1853';
+     layer.setAttribute('role','presentation');
+     const panel=document.createElement('section');panel.className='wvIlilOrderPanelV1853';
+     panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','일일툰 회차 병합 순서 확인');
+     const head=document.createElement('div');head.className='wvIlilOrderHeadV1853';
+     const titleEl=document.createElement('strong');titleEl.textContent=siteNameV1855(activeSourceV1855)+' 회차 병합 확인';
+     const hint=document.createElement('p');hint.textContent='기존 폴더명 규칙을 확정하지 못했습니다. 기존 이름을 유지하거나, 직접 회차 순서를 정할 수 있습니다.';
+     const summary=document.createElement('p');summary.className='wvIlilOrderInfoV1853';summary.textContent=title+' · 기존 '+preview.changes.filter(x=>x.source==='기존').length+'개 / 신규 '+preview.changes.filter(x=>x.source==='신규').length+'개';
+     head.append(titleEl,hint,summary);
+     const body=document.createElement('div');body.className='wvIlilOrderBodyV1853';
+     const foot=document.createElement('div');foot.className='wvIlilOrderFootV1853';
+     const act=(label,kind,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;if(kind)b.className=kind;b.onclick=fn;return b;};
+     let ended=false,editor=false,items=[],chosen=null,dragId=null;
+     function finish(answer){if(ended)return;ended=true;document.removeEventListener('keydown',onKey,true);layer.remove();resolve(answer);}
+     const onKey=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(editor)showDecision();else finish(null);}};
+     const before=()=>{body.replaceChildren();foot.replaceChildren();};
+     const move=(id,dest)=>{const index=items.findIndex(r=>r.key===id);if(index<0||dest<0||dest>=items.length||index===dest)return;
+       const [item]=items.splice(index,1);items.splice(dest,0,item);chosen=id;renderRows();};
+     const labelOf=(c)=>c.source==='기존'?'기존':'신규';
+     const makeCell=(label,value)=>{const cell=document.createElement('div');cell.className='wvIlilOrderCompareCellV1854';const lab=document.createElement('span');lab.className='wvIlilOrderCompareLabelV1854';lab.textContent=label;const val=document.createElement('span');val.className='wvIlilOrderCompareValueV1854';val.textContent=value;cell.append(lab,val);return cell;};
+     const buildTargetName=(c,index)=>String(index+1).padStart(Math.max(4,String((items&&items.length)||preview.changes.length||0).length),'0')+'_'+c.suffix;
+     const buildDecisionTarget=(c)=>c.source==='기존'?c.from:c.suffix;
+     function appendCompareHead(container,left='기존 제목',right='수정 제목'){const head=document.createElement('div');head.className='wvIlilOrderCompareHeadV1854';head.append(document.createElement('span'),Object.assign(document.createElement('span'),{textContent:left}),Object.assign(document.createElement('span'),{textContent:right}));container.append(head);}
+     function renderRows(){
+       const previousScroll=list.scrollTop;
+       list.replaceChildren();const width=Math.max(4,String(items.length).length);
+       items.forEach((c,i)=>{
+         const row=document.createElement('div');row.className='wvIlilOrderRowV1853';row.draggable=true;row.dataset.selected=String(chosen===c.key);row.dataset.id=c.key;
+         const grip=document.createElement('span');grip.className='wvIlilOrderGripV1853';grip.textContent='⠿';grip.title='드래그하여 순서 이동';
+         const seq=document.createElement('span');seq.className='wvIlilOrderSeqV1853';seq.textContent=String(i+1).padStart(width,'0');
+         const detail=document.createElement('div');detail.className='wvIlilOrderNamesV1853';
+         const source=document.createElement('div');source.className='wvIlilOrderSourceV1853';
+         const sourceLab=document.createElement('span');sourceLab.className='wvIlilOrderCellLabelV1854';sourceLab.textContent='기존 제목';
+         const sourceVal=document.createElement('span');sourceVal.className='wvIlilOrderCellValueV1854';sourceVal.textContent=labelOf(c)+' · '+c.from;
+         source.append(sourceLab,sourceVal);
+         const target=document.createElement('div');target.className='wvIlilOrderTargetV1853';
+         const targetLab=document.createElement('span');targetLab.className='wvIlilOrderCellLabelV1854';targetLab.textContent='수정 제목';
+         const targetVal=document.createElement('span');targetVal.className='wvIlilOrderCellValueV1854';targetVal.textContent=buildTargetName(c,i);
+         target.append(targetLab,targetVal);
+         detail.append(source,target);row.append(grip,seq,detail);
+         row.onclick=()=>{chosen=c.key;renderRows();};
+         row.ondragstart=e=>{dragId=c.key;chosen=c.key;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',c.key);row.classList.add('wvIlilDraggingV1853');};
+         row.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move';row.classList.add('wvIlilOverV1853');};
+         row.ondragleave=()=>row.classList.remove('wvIlilOverV1853');
+         row.ondrop=e=>{e.preventDefault();row.classList.remove('wvIlilOverV1853');const from=dragId||e.dataTransfer.getData('text/plain');move(from,items.findIndex(x=>x.key===c.key));};
+         row.ondragend=()=>{dragId=null;row.classList.remove('wvIlilDraggingV1853');document.querySelectorAll('.wvIlilOverV1853').forEach(x=>x.classList.remove('wvIlilOverV1853'));};
+         list.append(row);
+       });
+       const pos=items.findIndex(x=>x.key===chosen);up.disabled=pos<=0;down.disabled=pos<0||pos===items.length-1;
+       moveLabel.textContent=pos>=0?'선택 '+(pos+1)+' / '+items.length:'회차를 선택하세요';
+       if(pos>=0)number.value=String(pos+1);
+       list.scrollTop=previousScroll;
+     }
+     let list,up,down,number,moveLabel;
+     function showEditor(){editor=true;before();items=preview.changes.map(c=>({...c}));chosen=items[0]?.key||null;
+       const help=document.createElement('p');help.className='wvIlilOrderHelpV1853';help.textContent='회차를 선택한 뒤 위/아래 버튼이나 이동할 순번을 사용하세요. 마우스 드래그로도 순서를 바꿀 수 있습니다. 최종 순서에 따라 0001_부터 번호가 붙습니다.';
+       list=document.createElement('div');list.className='wvIlilOrderListV1853';list.setAttribute('role','list');
+       const tools=document.createElement('div');tools.className='wvIlilOrderToolsV1853';
+       moveLabel=document.createElement('span');moveLabel.className='wvIlilOrderMoveLabelV1853';
+       up=act('↑ 위로','',()=>{const i=items.findIndex(x=>x.key===chosen);move(chosen,i-1);});
+       down=act('↓ 아래로','',()=>{const i=items.findIndex(x=>x.key===chosen);move(chosen,i+1);});
+       number=document.createElement('input');number.type='number';number.min='1';number.max=String(items.length);number.step='1';number.setAttribute('aria-label','이동할 순서번호');number.title='선택한 회차를 이동할 순번';
+       const jump=act('번호 이동','',()=>{const n=Number(number.value);if(!Number.isInteger(n)||n<1||n>items.length){number.focus();return;}move(chosen,n-1);});
+       number.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();jump.click();}};
+       const reset=act('순서 초기화','',()=>{items=preview.changes.map(c=>({...c}));chosen=items[0]?.key||null;renderRows();});
+       tools.append(moveLabel,up,down,number,jump,reset);body.append(help);appendCompareHead(body);body.append(list,tools);renderRows();
+       foot.append(act('취소','',()=>finish(null)),act('이전','',showDecision),act('이 순서로 병합','wvIlilOrderPrimaryV1853',()=>finish({strategy:'manual',order:items.map(x=>x.key)})));
+     }
+     function showDecision(){editor=false;before();
+       const notice=document.createElement('p');notice.className='wvIlilOrderHelpV1853';notice.textContent='진행: 기존 회차의 폴더명은 바꾸지 않고 새 회차만 추가합니다.\n변경: 기존·신규 전체 회차의 정렬 순서를 직접 조정하고 번호를 붙입니다.';
+       const changes=document.createElement('div');changes.className='wvIlilOrderReviewV1853';
+       appendCompareHead(changes,'기존 제목','적용할 제목');
+       for(const c of preview.changes){const row=document.createElement('div');row.className='wvIlilOrderReviewRowV1854';
+         const badge=document.createElement('span');badge.className='wvIlilOrderReviewBadgeV1854';badge.textContent='['+labelOf(c)+']';
+         row.append(badge,makeCell('기존 제목',c.from),makeCell('적용할 제목',buildDecisionTarget(c)));
+         changes.append(row);
+       }
+       body.append(notice,changes);
+       foot.append(act('취소','',()=>finish(null)),act('진행','',()=>finish({strategy:'preserve'})),act('변경','wvIlilOrderPrimaryV1853',showEditor));
+     }
+     panel.append(head,body,foot);layer.append(panel);document.body.append(layer);
+     document.addEventListener('keydown',onKey,true);showDecision();foot.querySelector('button')?.focus({preventScroll:true});
+   });
+ }
+
+ async function applyExternalV1856(){
+   const st=activeSt,item=work,site=activeSourceV1855,api=window.ComicIliltoonDisplayAppendV1847;
+   const wanted=episodes.filter(ep=>selected.has(String(ep.id))&&!knownIds.has(chapterKeyV1856(activeSourceV1855,ep.id)));
+   if(!wanted.length){status('병합할 신규 회차가 없습니다.');return;}
+   busy=true;syncSelection();
+   try{
+     status('기존 ZIP 폴더명과 회차 중복 확인 중…');
+     const preview=await api.externalPreflightV1856(st.oldValue,wanted,site);
+     if(!current()||st!==activeSt||item!==work)return;
+     if(preview.mode==='automatic'){
+       const text=preview.changes.filter(c=>c.source==='신규').slice(0,15).map(c=>'  '+c.to).join('\n');
+       const ok=await window.WVInternalDialogV1834.confirm(siteNameV1855(site)+' · 자동 회차 병합',
+         '보유 ZIP: '+st.oldDisplay+'\n신규 '+preview.episodes.length+'회차\n기존 폴더 이름 유지 + 신규 회차 추가\n'+text+'\n\n완전한 이미지만 병합합니다. 진행할까요?');
+       if(!ok)return;
+     }else{
+       const answer=await mergeDialogV1853(preview,st.oldDisplay);
+       if(!answer)return;
+       preview.choiceV1853=answer;
+     }
+     if(!current()||st!==activeSt||item!==work)return;
+     busy=true;st.ililMergeBusyV1847=true;
+     const selectedEpisodes=preview.selected.map(e=>site==='mangadex'?{...e.raw,title:e.title,id:e.id}:e);
+     const r=await api.externalAppendV1856(st,item.raw,selectedEpisodes,site,status,preview);
+     for(const e of wanted){knownIds.add(chapterKeyV1856(site,e.id));selected.delete(String(e.id));}
+     status(siteNameV1855(site)+' 병합 완료 · '+r.chapters+'회차 · '+r.added+'장 추가');
+     void window.WVInternalDialogV1834.info('회차 병합 완료',siteNameV1855(site)+' '+r.chapters+'회차 / '+r.added+'장 추가 · ZIP 검증 완료');
+   }catch(e){status(siteNameV1855(site)+' 병합 중단: '+String(e?.message||e));void window.WVInternalDialogV1834.error(siteNameV1855(site)+' 병합 실패',String(e?.message||e));}
+   finally{busy=false;st.ililMergeBusyV1847=false;renderChapters();}
+ }
+ async function apply(){if(!current()||busy||!selected.size||!work)return;
+   if(activeSourceV1855==='hitomi'){
+     const st=activeSt,item=work;
+     if(!selected.has(String(item.id))||knownIds.has(String(item.id)))return;
+     const service=window.ComicHitomiMergeV1819;
+     if(typeof service?.run!=='function'){status('히토미 병합 엔진을 찾을 수 없습니다.');return;}
+     if(service.isBusy?.()||st.hitomiMergeBusyV1819){status('이미 히토미 병합 중입니다.');return;}
+     busy=true;syncSelection();
+     try{const ownedCandidate=service.candidateFor?.(String(item.id),st.oldValue)||null;
+       status('히토미 #'+item.id+(ownedCandidate?' · 기존 보유 작품 병합 시작':' · 일반 저장 / Ichigo 번역 선택창을 확인하세요.'));
+       // An existing local B uses the original v1819 local merge; an online
+       // gallery uses its original/Ichigo verified download-merge chooser.
+       await service.run(st,String(item.id),ownedCandidate?null:{...item.raw,id:String(item.id)});
+       if(current()&&activeSt===st&&work===item){
+         const linked=window.WVHitomiExtraSeriesV1796?.get?.(st.oldValue)||[];
+         if(linked.some(id=>String(id)===String(item.id))){knownIds.add(String(item.id));selected.delete(String(item.id));status('히토미 #'+item.id+' 병합 완료 · 대표 ZIP에 작품번호 연결 확인');}
+         else status('히토미 병합 창에서 완료·취소 또는 오류 상태를 확인하세요.');
+       }
+     }catch(e){if(current())status('히토미 병합 실패: '+String(e?.message||e));}
+     finally{busy=false;if(current())renderChapters();}
+     return;
+   }
+   if(activeSourceV1855!=='ililtoon')return applyExternalV1856();
+   const st=activeSt,chosen=episodes.filter(e=>selected.has(String(e.id))&&!knownIds.has(String(e.id)));
+   if(!chosen.length){status('신규 병합할 회차가 없습니다.');return;}
+   const thisWork=work;
+   busy=true;syncSelection();
+   try{
+     status('기존 ZIP의 폴더명 규칙을 분석하는 중…');
+     const preview=await window.ComicIliltoonDisplayAppendV1847.preflightV1852(st.oldValue,chosen);
+     if(!current()||st!==activeSt||work!==thisWork)return;
+     let choiceV1853=null;
+     if(preview.mode==='automatic'){
+       const newNames=preview.changes.filter(c=>c.source==='신규').slice(0,16).map(c=>'  '+c.to).join('\n');
+       const ok=await window.WVInternalDialogV1834.confirm('일일툰 회차 병합 · 기존 규칙 자동 적용',
+         '대상: '+st.oldDisplay+'\n일일툰: '+thisWork.name+'\n신규 '+preview.count+'회차\n\n'
+         +'기존 폴더명은 유지하며 새 회차만 동일 규칙으로 저장합니다.\n'+newNames
+         +'\n\n검증된 ZIP만 적용합니다. 진행할까요?');
+       if(!ok)return;
+     }else{
+       choiceV1853=await mergeDialogV1853(preview,st.oldDisplay);
+       if(!choiceV1853)return;
+     }
+     if(!current()||st!==activeSt||work!==thisWork)return;
+     preview.choiceV1853=choiceV1853;
+     st.ililMergeBusyV1847=true;status('폴더명 확인 완료 · 새 회차 다운로드 및 병합 시작');
+     const result=await window.ComicIliltoonDisplayAppendV1847.append(st,thisWork,chosen,status,preview);
+     if(!result)throw Error('ZIP 병합 결과를 받지 못했습니다.');
+     for(const e of chosen){knownIds.add(String(e.id));selected.delete(String(e.id));}
+     status('병합 완료 · '+result.chapters+'회차 / '+result.added+'장 추가 · 기존 '+result.skipped+'회차 제외');
+     void window.WVInternalDialogV1834.info('일일툰 병합 완료',
+       '추가한 회차: '+result.chapters+'개\n추가 이미지: '+result.added+'장\n총 이미지: '+result.total+'장\n검증된 ZIP을 적용했습니다.');
+   }catch(e){status('병합 중단: '+String(e?.message||e));void window.WVInternalDialogV1834.error('일일툰 병합 실패',String(e?.message||e));}
+   finally{busy=false;st.ililMergeBusyV1847=false;renderChapters();}
+ }
+ async function refreshFolderFixV1851(st){
+   const token=epoch,btn=get('wtIlilMergeFixFoldersV1851');
+   btn.hidden=true;btn.disabled=false;
+   try{const result=await window.ComicIliltoonDisplayAppendV1847?.folderRepairStatusV1851?.(st.oldValue);
+     if(token!==epoch||!current()||st!==activeSt)return;
+     btn.hidden=!(result?.nested>0);btn.title=result?.nested>0
+       ?'현재 ZIP에서 잘못 중첩된 회차 이미지 '+result.nested+'장을 최상위 회차 폴더로 정리'
+       :'병합된 중첩 폴더 없음';
+   }catch(e){console.warn('[v1851 folder status]',e);}
+ }
+ async function repairFoldersV1851(){
+   if(!current()||busy)return;
+   const st=activeSt,btn=get('wtIlilMergeFixFoldersV1851');busy=true;syncSelection();
+   const ok=await window.WVInternalDialogV1834.confirm('일일툰 회차 폴더 정리',
+     '기존 병합에서 만들어진 일일툰_작품ID 중첩 폴더를 없애고, 모든 회차를 ZIP 최상위에 1화·2화·3화 순으로 정리합니다.\n이미지 데이터는 다시 인코딩하지 않으며 임시 ZIP을 검증한 후 변경합니다. 진행할까요?');
+   if(!ok||!current()||st!==activeSt){busy=false;renderChapters();return;}
+   btn.disabled=true;st.ililMergeBusyV1847=true;
+   try{const result=await window.ComicIliltoonDisplayAppendV1847.repairFoldersV1851(st.oldValue,status);
+     if(!result)throw Error('정리 결과가 없습니다.');
+     btn.hidden=true;
+     status('회차 폴더 정리 완료 · '+result.chapters+'개 회차 · '+result.total+'장');
+     void window.WVInternalDialogV1834.info('일일툰 회차 폴더 정리 완료',
+       '회차 '+result.chapters+'개를 ZIP 최상위에 정리했습니다.\n총 이미지 '+result.total+'장 · 이미지 화질 변경 없음');
+   }catch(e){status('회차 폴더 정리 실패: '+String(e?.message||e));
+     void window.WVInternalDialogV1834.error('회차 폴더 정리 실패',String(e?.message||e));}
+   finally{busy=false;st.ililMergeBusyV1847=false;btn.disabled=false;renderChapters();}
+ }
+
+ function open(st){const sec=get('wtIlilDisplayMergeV1847');if(!sec)return;epoch++;cancelSearchV1858();activeSt=st;work=null;episodes=[];selected.clear();knownIds.clear();resultItems=[];sourcePagesV1855=new Map();resultPage=0;resultHasMore=false;episodePage=0;moreEpisodes=true;busy=false;activeSourceV1855='ililtoon';
+   sec.hidden=!/^zipcomic:@/i.test(String(st?.oldValue||''));
+   if(sec.hidden)return;
+   get('wtIlilMergeQueryV1847').value=safeTitle(st);get('wtIlilMergeChaptersBoxV1847').hidden=true;renderWorks();renderChapters();
+   status('6개 사이트 제목 검색 · 5개 사이트는 회차 선택 병합, 히토미는 작품 전체 병합을 지원합니다.');
+   void refreshFolderFixV1851(st);
+ }
+ function close(){epoch++;cancelSearchV1858();activeSt=null;work=null;resultItems=[];episodes=[];selected.clear();}
+ const bind=()=>{if(!get('wtIlilMergeSearchV1847'))return;
+   get('wtIlilMergeSearchV1847').onclick=()=>void search(false);
+   get('wtIlilMergeMoreV1847').onclick=()=>void search(true);
+   get('wtIlilMergeQueryV1847').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();void search(false);}};
+   get('wtIlilMergeResetV1847').onclick=()=>{if(!busy){epoch++;cancelSearchV1858();get('wtIlilMergeSearchV1847').disabled=false;get('wtIlilMergeMoreV1847').disabled=false;work=null;episodes=[];selected.clear();knownIds.clear();resultItems=[];sourcePagesV1855=new Map();resultHasMore=false;activeSourceV1855='ililtoon';get('wtIlilMergeChaptersBoxV1847').hidden=true;renderWorks();status('검색 초기화');}};
+   get('wtIlilMergeSiteV1855').onchange=()=>{if(!busy){epoch++;cancelSearchV1858();get('wtIlilMergeSearchV1847').disabled=false;get('wtIlilMergeMoreV1847').disabled=false;work=null;episodes=[];selected.clear();knownIds.clear();resultItems=[];sourcePagesV1855=new Map();resultHasMore=false;activeSourceV1855='ililtoon';get('wtIlilMergeChaptersBoxV1847').hidden=true;renderWorks();status(siteNameV1855(get('wtIlilMergeSiteV1855').value)+' 검색 준비 · 검색 버튼을 눌러 주세요.');}};
+   get('wtIlilMergeNextV1847').onclick=()=>void loadEpisodePage();
+   get('wtIlilMergePickAllV1847').onclick=()=>void pickAll();
+   get('wtIlilMergeUnpickV1847').onclick=()=>{if(!busy){selected.clear();renderChapters();}};
+   get('wtIlilMergeApplyV1847').onclick=()=>void apply();
+   get('wtIlilMergeFixFoldersV1851').onclick=()=>void repairFoldersV1851();
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+ window.ComicIliltoonDisplayV1847=Object.freeze({open,close});
+})();
 </script>
 
 <!-- v1748 MissAV catalogue: user-visible Chrome/Edge human verification and explicit DOM import; v1746 diagnostics retained -->
