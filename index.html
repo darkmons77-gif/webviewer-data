@@ -1,3 +1,6 @@
+<!-- v2285: Owned comic Story/Art sorting breaks ties using the other original 0-5 star rating (same direction, unrated last); all stored scores, 100pt poster display and other sorting unchanged. -->
+<!-- v2284: Poster-only 100-point rating reverses major/minor components for Art sorting; keep Story as major in all other sorts. Existing 0-5 ratings and ranking/filter data unchanged. -->
+<!-- v2283 build label fix: update VIEWER_BUILD_V789 to 2283; preserve v2282 major-release notice history. -->
 <!-- v2283: User-selectable comic poster top-right rating display (existing Story or Story 0-9 + Art 0-10 => /100); original stored 0-5 half-star ratings, dialog, sort/filter and all other rating outputs unchanged. -->
 <!-- v2282: Prominently announce the Toonkor guidance-image fix in yellow at the top of the release notice. Preserve 2037 typography, downloads, and prior fixes. -->
 <!-- v2281: Restore exact 2037 update notice section/typography; simplify public fast/safe mode description to one sentence and remove per-site internals/daily-100 warning. -->
@@ -44590,16 +44593,19 @@ const ComicPosterRatingModeV2283=(()=>{
   let mode='original';
   try{mode=ViewerCacheManager.storage.getItem(KEY)==='hundred'?'hundred':'original';}catch(_){}
   const clamp=(x,low,high)=>Math.max(low,Math.min(high,Number(x)||0));
-  const hundred=(story,art)=>{
-    // Story: unscored and 0.5 star both map to 0; 1 star -> 1, 5 -> 9.
-    const storyDigit=clamp(Math.round(clamp(story,0,5)*2)-1,0,9);
-    // Art: unscored -> 0; 0.5 star -> 1, 5 stars -> 10.
-    const artDigit=clamp(Math.round(clamp(art,0,5)*2),0,10);
-    return storyDigit*10+artDigit;
+  const hundred=(story,art,sortMode)=>{
+    // v2284: This changes only the displayed poster number, NOT the stored ratings
+    // or sorting order. The leading digit maps 0.5 stars to 0 and 5 stars to 9;
+    // the trailing component maps 0.5 stars to 1 and 5 stars to 10.
+    const major=sortMode==='style'?art:story;
+    const minor=sortMode==='style'?story:art;
+    const majorDigit=clamp(Math.round(clamp(major,0,5)*2)-1,0,9);
+    const minorDigit=clamp(Math.round(clamp(minor,0,5)*2),0,10);
+    return majorDigit*10+minorDigit;
   };
   function format(story,art){
     const st=Number(story)||0,ar=Number(art)||0;
-    if(mode==='hundred')return st>0||ar>0?String(hundred(st,ar)):'';
+    if(mode==='hundred')return st>0||ar>0?String(hundred(st,ar,wtSortMode)):'';
     return st>0?String(st):'';
   }
   function refreshVisible(){
@@ -44617,7 +44623,7 @@ const ComicPosterRatingModeV2283=(()=>{
     refreshVisible();
     document.dispatchEvent(new Event('comic-poster-rating-mode-v2283'));
   }
-  const api=Object.freeze({get:()=>mode,set,format,hundred});
+  const api=Object.freeze({get:()=>mode,set,format,hundred,refreshVisible});
   window.ComicPosterRatingModeV2283=api;
   return api;
 })();
@@ -60735,14 +60741,28 @@ function sortWebtoonEntriesByRating(entries, mode, desc = true) {
     if (aHas !== bHas) return aHas ? -1 : 1;
 
     if (sa !== sb) return (sb - sa) * dir;
+    // v2285: This alternate rating sorter must follow the same tie rule.
+    if (mode === 'story' || mode === 'style') {
+      const secondaryMode = mode === 'story' ? 'style' : 'story';
+      const ta = getWebtoonSortScore(av, secondaryMode, ratingMap);
+      const tb = getWebtoonSortScore(bv, secondaryMode, ratingMap);
+      if ((ta > 0) !== (tb > 0)) return ta > 0 ? -1 : 1;
+      if (ta !== tb) return (tb - ta) * dir;
+    }
 
     return String(a.display || '').localeCompare(String(b.display || ''), 'ko');
   });
 }
 function setWtSortMode(mode) {
+  const previousSortV2284=wtSortMode;
   wtSortMode = mode || 'none';
   if (wtSortMode === 'pageTotal') void ComicLocalPageSortV1186.prepare();
   renderWebtoonList();
+  // v2284: Sort mode also selects which rating component is leading ONLY in
+  // 100-point poster display. Refresh mounted cards even if virtual DOM is reused.
+  if ((previousSortV2284==='style') !== (wtSortMode==='style')) {
+    window.ComicPosterRatingModeV2283?.refreshVisible?.();
+  }
 }
 document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('wtSortSel');
@@ -60821,13 +60841,21 @@ function sortWebtoonEntries(list) {
   const mode = wtSortMode;
   // v1000: comparator가 작품별 rating/pageTotal을 수십만 번 재조회하던 낭비 제거.
   const scores = new Map();
+  // v2285: Story/Art 정렬에서 주 점수가 같을 때만 반대쪽 별점으로 동점 해소.
+  // 원본 0~5 점수를 한 번만 읽고 작품별로 캐시한다. 100점 표시 설정과 무관하다.
+  const secondaryScoresV2285 = (mode === 'story' || mode === 'style') ? new Map() : null;
   const scoreFor = it => {
     const key = String(it?.value || '');
     if (scores.has(key)) return scores.get(key);
     let score = 0;
     switch (mode) {
-      case 'story':       score = getStoryRating(key); break;
-      case 'style':       score = getStyleRating(key); break;
+      case 'story':
+      case 'style': {
+        const ratings = getWebtoonRatingsForValue(key);
+        score = mode === 'story' ? ratings.story : ratings.style;
+        secondaryScoresV2285.set(key, mode === 'story' ? ratings.style : ratings.story);
+        break;
+      }
       case 'ratingTotal': score = getRatingTotal(key); break;
       case 'pageTotal':   score = getPageTotalForValue(key); break;
       case 'aiArt':       score = getAiArtRating(key); break;
@@ -60840,6 +60868,13 @@ function sortWebtoonEntries(list) {
     const va = scoreFor(a), vb = scoreFor(b);
     if ((va > 0) !== (vb > 0)) return va > 0 ? -1 : 1;
     if (va !== vb) return (va > vb ? 1 : -1) * dir;
+    if (secondaryScoresV2285) {
+      const ta = secondaryScoresV2285.get(String(a?.value || '')) || 0;
+      const tb = secondaryScoresV2285.get(String(b?.value || '')) || 0;
+      // 주 점수가 같은 그룹에서만 보조 별점 정렬. 보조 별점이 없는 작품은 뒤로.
+      if ((ta > 0) !== (tb > 0)) return ta > 0 ? -1 : 1;
+      if (ta !== tb) return (ta > tb ? 1 : -1) * dir;
+    }
     return String(a.display).localeCompare(String(b.display), 'ko');
   });
 }
@@ -182370,7 +182405,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 2282;
+  const VIEWER_BUILD_V789 = 2285;
   // Expose the actual HTML build to the separate localhost update checker.
   window.viewerCurrentHtmlBuildV789 = VIEWER_BUILD_V789;
 
@@ -215883,7 +215918,7 @@ for(const [heading,buttons] of groups){
     ratingChoicesV2283.setAttribute('aria-label','내 보유만화 포스터 상단 평점 표시 방식');
     for(const [mode,label,help] of [
       ['original','기존','별 아래에 기존 스토리 평점을 0~5점 그대로 표시'],
-      ['hundred','100점환산','스토리 0~9점과 그림체 0~10점 조합을 0~100점으로 표시 · 기존 별점 데이터 유지']
+      ['hundred','100점환산','기본·스토리순: 스토리 0~9 ×10 + 그림체 0~10 / 그림체순: 그림체 0~9 ×10 + 스토리 0~10 · 기존 별점 데이터 유지']
     ]){
       const choice=document.createElement('button');
       choice.type='button';
