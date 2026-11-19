@@ -1,3 +1,4 @@
+<!-- v2283: User-selectable comic poster top-right rating display (existing Story or Story 0-9 + Art 0-10 => /100); original stored 0-5 half-star ratings, dialog, sort/filter and all other rating outputs unchanged. -->
 <!-- v2282: Prominently announce the Toonkor guidance-image fix in yellow at the top of the release notice. Preserve 2037 typography, downloads, and prior fixes. -->
 <!-- v2281: Restore exact 2037 update notice section/typography; simplify public fast/safe mode description to one sentence and remove per-site internals/daily-100 warning. -->
 <!-- v2280: 2037-style full-width update notice; 1.5-second side panels; direct-download mode/risk help. HTML-only; server 14.202 unchanged. -->
@@ -44582,6 +44583,44 @@ function applyWtFilterNow(term) {
 // 공통: 클릭(열기) 핸들러 생성
 // v2076: one document-level dismiss listener, no listener-per-card document scan.
 // A small hover surface works for mice; click pins/unpins for touch or keyboard.
+// v2283: Presentation-only mode for the ONE rating number on locally owned comic
+// poster upper-right. Never changes original half-star values or rating comparisons.
+const ComicPosterRatingModeV2283=(()=>{
+  const KEY='comic_poster_rating_display_v2283';
+  let mode='original';
+  try{mode=ViewerCacheManager.storage.getItem(KEY)==='hundred'?'hundred':'original';}catch(_){}
+  const clamp=(x,low,high)=>Math.max(low,Math.min(high,Number(x)||0));
+  const hundred=(story,art)=>{
+    // Story: unscored and 0.5 star both map to 0; 1 star -> 1, 5 -> 9.
+    const storyDigit=clamp(Math.round(clamp(story,0,5)*2)-1,0,9);
+    // Art: unscored -> 0; 0.5 star -> 1, 5 stars -> 10.
+    const artDigit=clamp(Math.round(clamp(art,0,5)*2),0,10);
+    return storyDigit*10+artDigit;
+  };
+  function format(story,art){
+    const st=Number(story)||0,ar=Number(art)||0;
+    if(mode==='hundred')return st>0||ar>0?String(hundred(st,ar)):'';
+    return st>0?String(st):'';
+  }
+  function refreshVisible(){
+    // Only the top-right number of already mounted owned comic poster cards.
+    document.querySelectorAll('#wtList .comicOwnedRatingTriggerV2076').forEach(trigger=>{
+      const number=trigger.querySelector('.comicOwnedRatingNumberV2077');
+      if(number)number.textContent=format(trigger.dataset.comicStoryV2283,trigger.dataset.comicArtV2283);
+    });
+  }
+  function set(next){
+    const selected=next==='hundred'?'hundred':'original';
+    if(mode===selected)return;
+    mode=selected;
+    try{ViewerCacheManager.storage.setItem(KEY,mode);}catch(_){}
+    refreshVisible();
+    document.dispatchEvent(new Event('comic-poster-rating-mode-v2283'));
+  }
+  const api=Object.freeze({get:()=>mode,set,format,hundred});
+  window.ComicPosterRatingModeV2283=api;
+  return api;
+})();
 const ComicOwnedRatingMenuV2076 = (() => {
   let pinned = null;
   // v2078: a short grace period bridges the star/popover gap and permits
@@ -45356,7 +45395,10 @@ btn.addEventListener('click', e => {
     const rated = story > 0 || art > 0;
     comicRatingTriggerV2076.classList.toggle('has-rating-v2077',rated);
     comicRatingGlyphV2077.textContent = rated ? '★' : '☆';
-    comicRatingNumberV2077.textContent = story > 0 ? String(story) : '';
+    // v2283: display-only; both original 0-5 star values remain untouched.
+    comicRatingTriggerV2076.dataset.comicStoryV2283=String(story);
+    comicRatingTriggerV2076.dataset.comicArtV2283=String(art);
+    comicRatingNumberV2077.textContent=ComicPosterRatingModeV2283.format(story,art);
     comicRatingTriggerV2076.title = rated
       ? `Story ${story || '미평가'} · Art ${art || '미평가'} (클릭하여 변경)`
       : '평점 없음 · 클릭하여 Story/Art 평점 설정';
@@ -215828,6 +215870,46 @@ for(const [heading,buttons] of groups){
   // shared/video style panel. One canonical v1997 click handler synchronizes
   // all choices (Function popup, Options and this sidebar).
   if(heading==='화면 · 읽기'){
+    // v2283: This switch changes ONLY the poster's top-right rating number.
+    const ratingSectionV2283=document.createElement('section');
+    ratingSectionV2283.className='comicRightRailSectionV1366';
+    ratingSectionV2283.id='comicPosterRatingSectionV2283';
+    const ratingTitleV2283=document.createElement('div');
+    ratingTitleV2283.className='comicRightRailSectionHeadV1366';
+    ratingTitleV2283.textContent='평점방식 · 포스터 상단';
+    const ratingChoicesV2283=document.createElement('div');
+    ratingChoicesV2283.className='comicRightRailGridV1366';
+    ratingChoicesV2283.setAttribute('role','group');
+    ratingChoicesV2283.setAttribute('aria-label','내 보유만화 포스터 상단 평점 표시 방식');
+    for(const [mode,label,help] of [
+      ['original','기존','별 아래에 기존 스토리 평점을 0~5점 그대로 표시'],
+      ['hundred','100점환산','스토리 0~9점과 그림체 0~10점 조합을 0~100점으로 표시 · 기존 별점 데이터 유지']
+    ]){
+      const choice=document.createElement('button');
+      choice.type='button';
+      choice.className='comicRightRailProxyV1366';
+      choice.dataset.posterRatingModeV2283=mode;
+      choice.textContent=label;
+      choice.title=help;
+      choice.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
+        window.ComicPosterRatingModeV2283?.set(mode);
+        syncRatingChoicesV2283();
+      });
+      ratingChoicesV2283.appendChild(choice);
+    }
+    function syncRatingChoicesV2283(){
+      const current=window.ComicPosterRatingModeV2283?.get()||'original';
+      ratingChoicesV2283.querySelectorAll('button').forEach(choice=>{
+        const on=choice.dataset.posterRatingModeV2283===current;
+        choice.classList.toggle('active',on);
+        choice.setAttribute('aria-pressed',String(on));
+      });
+    }
+    document.addEventListener('comic-poster-rating-mode-v2283',syncRatingChoicesV2283);
+    ratingSectionV2283.append(ratingTitleV2283,ratingChoicesV2283);
+    list.appendChild(ratingSectionV2283);
+    syncRatingChoicesV2283();
     const scrollSection=document.createElement('section');
     scrollSection.className='comicRightRailSectionV1366';
     scrollSection.id='comicRightScrollSectionV1998';
