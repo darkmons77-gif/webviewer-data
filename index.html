@@ -23148,6 +23148,13 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 
 #comicZipLightboxV984 .zipBookNoteV1226{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);z-index:8;color:#f4eddc;background:#111a;padding:3px 11px;border-radius:5px;font:12px/1.5 WebViewerNotoCJK,sans-serif;pointer-events:none;text-align:center;white-space:nowrap}
 </style>
+<style id="comicHorizontalSplitCssV2502">
+#comicZipLightboxV984 .zipHorizontalSplitV2502{display:inline-flex;align-items:center;gap:1px;flex:0 0 auto;padding:2px;background:#222936;border:1px solid #647286;border-radius:6px;white-space:nowrap}
+#comicZipLightboxV984 .zipHorizontalSplitV2502[hidden]{display:none!important}
+#comicZipLightboxV984 .zipHorizontalSplitV2502 button{border:0;background:transparent;color:#cbd5e1;cursor:pointer;border-radius:4px;padding:3px 6px;font:600 12px/1.4 WebViewerNotoCJK,sans-serif;max-width:none;min-width:25px}
+#comicZipLightboxV984 .zipHorizontalSplitV2502 button[aria-pressed="true"]{background:#1673cb;color:#fff}
+#comicZipLightboxV984 .zipHorizontalSplitV2502 button:focus-visible{outline:2px solid #d0e8ff;outline-offset:1px}
+</style>
 <style id="comicZipLightboxStyleV984">
 
 
@@ -23378,6 +23385,19 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 .wtThumbImgWrap .comicReadProgressV1090{position:absolute;left:2px;bottom:2px;z-index:5;font:700 11px/1.2 WebViewerNotoCJK,sans-serif;background:#102a40e8;color:#fff;padding:2px 4px;border:1px solid #b9d8f4a8;border-radius:3px;pointer-events:none;}
 @media(max-width:690px){#comicZipLightboxV984 #zipLastPageV988{width:166px;}#comicZipLightboxV984 #zipLastPageV988 .zipResumeCardV1090 img{height:75px;}}
 </style>
+<style id="comicEditGuideStyleV2503">
+#comicZipLightboxV984 .zipEditGuideV2503{border:1px solid #5e9fc7;border-radius:5px;background:#18334b;color:#ccecff;white-space:nowrap;padding:4px 9px;font:600 12px/1.4 WebViewerNotoCJK,sans-serif;cursor:pointer;}
+#comicZipLightboxV984 .zipEditGuideV2503[aria-pressed="true"]{background:#177cc7;color:white;border-color:#b3e0ff;}
+#comicZipLightboxV984 .zipEditGuideV2503[hidden]{display:none!important}
+#comicZipLightboxV984 .zipEditGuideV2503:disabled{opacity:.6;cursor:wait}
+/* v2505: The two page filters sit immediately to the right of 펼침. */
+#comicZipLightboxV984 .zipReadModesV986 .zipEditGuideV2503,
+#comicZipLightboxV984 .zipReadModesV986 .zipFavGuideV2505{border:1px solid #52677d;border-radius:4px;background:transparent;color:#cbd5e1;padding:3px 7px;font:600 12px/1.4 WebViewerNotoCJK,sans-serif;white-space:nowrap;cursor:pointer;}
+#comicZipLightboxV984 .zipReadModesV986 .zipEditGuideV2503[aria-pressed="true"]{background:#1673cb;border-color:#96d6ff;color:#fff;}
+#comicZipLightboxV984 .zipReadModesV986 .zipFavGuideV2505[aria-pressed="true"]{background:#bd4171;border-color:#ffb6d0;color:#fff;}
+#comicZipLightboxV984 .zipReadModesV986 .zipFavGuideV2505[hidden]{display:none!important;}
+#comicZipLightboxV984 .zipReadModesV986 .zipFavGuideV2505:disabled{opacity:.6;cursor:wait;}
+</style>
 <style id="comicHeartStyleV1148">
 /* v1149: 좌표는 이미지의 화면상 실제 표시 영역을 계산해 JS가 지정한다. */
 .comicPageHeartV1148{display:flex;align-items:center;justify-content:center;position:absolute;left:0;top:0;right:auto;bottom:auto;box-sizing:border-box;width:20px;height:20px;padding:0;border:1px solid rgba(240,245,255,.65);border-radius:50%;background:rgba(13,17,27,.68);color:#fff;z-index:20025;box-shadow:0 1px 4px #000a;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;}
@@ -23399,19 +23419,35 @@ body.music-tab-active-v968 #wtPanelBody > #muArtistRailV971 { display:flex; }
 #comicZipLightboxV984>:is(.comicPageCoverV1215,.comicPageDeleteV2276){position:absolute;z-index:10;}
 #comicZipLightboxV984 .zipVerticalPageV986>:is(.comicPageCoverV1215,.comicPageDeleteV2276){position:absolute;z-index:3;}
 
+/* v2503: edit selection is a virtual page list, never an archive rewrite. */
+.comicPageEditV2503{position:absolute;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:20px;height:20px;padding:0;border:1px solid #7fadc7;border-radius:50%;background:rgba(13,43,67,.90);color:#eff9ff;font:700 16px/1 WebViewerNotoCJK,sans-serif;white-space:nowrap;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;z-index:20025;}
+.comicPageEditV2503[aria-pressed="true"]{background:#1584cd;border-color:#bbe9ff;color:#fff;}
+.comicPageEditV2503:is(:hover,:focus-visible){background:#24618c;outline-color:#80b9ff;}
+.comicPageEditV2503[aria-pressed="true"]:hover{background:#0968b2;}
+.comicPageEditV2503:disabled{opacity:.45;cursor:wait;}
+.comicPageEditV2503[hidden]{display:none!important;}
+#comicZipLightboxV984 > .comicPageEditV2503{z-index:10;}
 /* v2466: Keep per-image cover/delete/favorite controls hidden until the pointer
    approaches their actual corner. Reveal on viewer opening for 1.5 seconds. */
-#comicZipLightboxV984 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276),
-#comicZipLightboxV984 .zipVerticalPageV986 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276),
+#comicZipLightboxV984 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503),
+#comicZipLightboxV984 .zipVerticalPageV986 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503),
 #imgLightboxOverlay > .comicPageHeartV1148{
   opacity:0;pointer-events:none;transition:opacity .16s ease;
 }
-#comicZipLightboxV984:is(.comicPageToolsBootV2466,.comicPageToolsHoverV2466) > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276),
-#comicZipLightboxV984 .zipVerticalPageV986:is(.comicPageToolsBootV2466,.comicPageToolsHoverV2466) > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276),
+#comicZipLightboxV984:is(.comicPageToolsBootV2466,.comicPageToolsHoverV2466) > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503),
+#comicZipLightboxV984 .zipVerticalPageV986:is(.comicPageToolsBootV2466,.comicPageToolsHoverV2466) > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503),
 #imgLightboxOverlay:is(.comicPageToolsBootV2466,.comicPageToolsHoverV2466) > .comicPageHeartV1148,
-#comicZipLightboxV984 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276):focus-visible,
-#comicZipLightboxV984 .zipVerticalPageV986 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276):focus-visible,
+#comicZipLightboxV984 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503):focus-visible,
+#comicZipLightboxV984 .zipVerticalPageV986 > :is(.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503):focus-visible,
 #imgLightboxOverlay > .comicPageHeartV1148:focus-visible{
+  opacity:1;pointer-events:auto;
+}
+/* v2504: Keep SELECTED edit check and favorite heart visible even when the
+   ordinary controls auto-hide. Unselected controls retain hover behavior. */
+#comicZipLightboxV984 > .comicPageEditV2503[aria-pressed="true"],
+#comicZipLightboxV984 > .comicPageHeartV1148[aria-pressed="true"],
+#comicZipLightboxV984 .zipVerticalPageV986 > .comicPageHeartV1148[aria-pressed="true"],
+#imgLightboxOverlay > .comicPageHeartV1148[aria-pressed="true"]{
   opacity:1;pointer-events:auto;
 }
 </style>
@@ -182097,7 +182133,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 2501;
+  const VIEWER_BUILD_V789 = 2511;
   // Expose the actual HTML build to the separate localhost update checker.
   window.viewerCurrentHtmlBuildV789 = VIEWER_BUILD_V789;
 
@@ -189725,6 +189761,28 @@ function makeCoverButtonV1215(page){
   b.dataset.page=String(page);b.textContent='표지';b.title=page+'페이지를 이 작품의 표지로 저장';
   b.setAttribute('aria-label',b.title);b.hidden=true;return b;
 }
+function makeEditButtonV2503(page){
+  const b=document.createElement('button');b.type='button';b.className='comicPageEditV2503';
+  b.dataset.page=String(page);b.textContent='+';b.setAttribute('aria-pressed','false');
+  b.title=page+'페이지 편집본에 추가 (Alt)';b.setAttribute('aria-label',b.title);b.hidden=true;
+  return b;
+}
+// v2504: The edit check occupies the heart's ORIGINAL corner. Shift the
+// heart/cover/delete one 25px slot to the left, preserving their order.
+function placeEditButtonV2503(button,heart){
+  if(!button)return;
+  if(!heart||heart.hidden){button.hidden=true;return;}
+  const originalLeft=Number.parseFloat(heart.style.left)||0;
+  button.style.left=originalLeft+'px';button.style.top=heart.style.top;
+  button.style.right='auto';button.style.bottom='auto';button.hidden=false;
+  heart.style.left=Math.max(0,originalLeft-25)+'px';
+}
+function paintEditV2503(b,saved,page,ready){
+  if(!b)return;
+  b.dataset.page=String(page);b.setAttribute('aria-pressed',String(!!saved));
+  b.textContent=saved?'✓':'+';b.disabled=!ready;
+  b.title=page+'페이지 편집본 '+(saved?'제거':'추가')+' (Alt)';b.setAttribute('aria-label',b.title);
+}
 function makeDeleteButtonV2276(page){
   const b=document.createElement('button');b.type='button';b.className='comicPageDeleteV2276';
   b.dataset.page=String(page);b.textContent='삭제';
@@ -189785,7 +189843,7 @@ function comicHeartPlaceV1149(button,img,parent){
 function comicPageToolsHoverAtV2466(scope,clientX,clientY){
   if(!scope)return false;
   const buttons=Array.from(scope.children).filter(b=>
-    b.matches?.('.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276')&&
+    b.matches?.('.comicPageHeartV1148,.comicPageCoverV1215,.comicPageDeleteV2276,.comicPageEditV2503')&&
     !b.hidden&&b.getClientRects().length);
   if(!buttons.length)return false;
   let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity;
@@ -189866,13 +189924,15 @@ function initAbsolute(){
   update();
 }
 // 압축파일 및 비압축 이미지폴더는 작품의 기존 value 전체를 IDB 키로 사용한다.
-function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCover,onDeletePage}){
+function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCover,onDeletePage,onEditTogglePage,isEditSelected,isEditReady,isEditAvailable}){
   const key='comic_page_heart_v1148:'+String(value);
   let closed=false,ready=false,marked=new Set(),writeChain=Promise.resolve(),currentPage=1,verticalMode=false;
   const floating=makeHeart(1);floating.hidden=true;cover.appendChild(floating);
   const floatingCoverV1215=makeCoverButtonV1215(1);cover.appendChild(floatingCoverV1215);
   const floatingDeleteV2276=typeof onDeletePage==='function'?makeDeleteButtonV2276(1):null;
   if(floatingDeleteV2276)cover.appendChild(floatingDeleteV2276);
+  const floatingEditV2503=typeof onEditTogglePage==='function'?makeEditButtonV2503(1):null;
+  if(floatingEditV2503)cover.appendChild(floatingEditV2503);
   const coverWriteBusyV1215=new Set();
   let bootStartedV2466=false,bootTimerV2466=null,hoverScopeV2466=null;
   const beginBootV2466=()=>{
@@ -189917,12 +189977,24 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
     if(closed)return;
     if(!verticalMode){
       comicHeartPlaceV1149(floating,image,cover);
+      if(floatingEditV2503){
+        if(isEditAvailable?.())placeEditButtonV2503(floatingEditV2503,floating);
+        else floatingEditV2503.hidden=true;
+      }
       placeCoverButtonV1215(floatingCoverV1215,floating);
       placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);
     }
     for(const wrapper of verticalView.querySelectorAll('.zipVerticalPageV986.is-loaded'))placeVertical(wrapper);
   }
-  const onImageLoad=()=>{if(!verticalMode&&!closed){comicHeartPlaceV1149(floating,image,cover);placeCoverButtonV1215(floatingCoverV1215,floating);placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);beginBootV2466();}};
+  const onImageLoad=()=>{if(!verticalMode&&!closed){
+    comicHeartPlaceV1149(floating,image,cover);
+    if(floatingEditV2503){
+      if(isEditAvailable?.())placeEditButtonV2503(floatingEditV2503,floating);
+      else floatingEditV2503.hidden=true;
+    }
+    placeCoverButtonV1215(floatingCoverV1215,floating);
+    placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);
+    beginBootV2466();}};
   image.addEventListener('load',onImageLoad);
   if(image.complete&&image.naturalWidth>0)requestAnimationFrame(onImageLoad);
   window.addEventListener('resize',relayout);
@@ -189934,6 +190006,7 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
     floatingCoverV1215.dataset.page=String(currentPage);
     floatingCoverV1215.title=currentPage+'페이지를 이 작품의 표지로 저장';
     if(floatingDeleteV2276){floatingDeleteV2276.dataset.page=String(currentPage);floatingDeleteV2276.title=currentPage+'페이지를 삭제 대상으로 선택 (삭제 편집창 열기)';}
+    if(floatingEditV2503)paintEditV2503(floatingEditV2503,!!isEditSelected?.(currentPage),currentPage,!!isEditReady?.());
     const list=verticalView.querySelectorAll('.zipVerticalPageV986>.comicPageHeartV1148');
     for(const b of list){b.disabled=!ready;paint(b,marked.has(Number(b.dataset.page)),Number(b.dataset.page));}
     relayout();
@@ -189977,6 +190050,21 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
       window.showToast?.('삭제 편집을 열지 못했습니다: '+String(err?.message||err),3000);
     });}catch(err){console.warn('[comic delete shortcut v2276]',err);}
   },true);
+  if(floatingEditV2503){
+    cover.addEventListener('click',function clickEditV2503(e){
+      const b=e.target.closest?.('.comicPageEditV2503');
+      if(!b||!cover.contains(b))return;
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      const page=Number(b.dataset.page);
+      if(closed||!isEditAvailable?.()||!isEditReady?.()||!Number.isSafeInteger(page)||page<1)return;
+      void Promise.resolve().then(()=>onEditTogglePage(page)).catch(err=>{
+        console.warn('[comic edit page v2503]',err);
+        window.showToast?.('편집본 저장 실패: '+String(err?.message||err),3500);
+      }).finally(()=>{if(!closed)render();});
+    },true);
+    floatingEditV2503.addEventListener('pointerdown',e=>e.stopPropagation(),true);
+    floatingEditV2503.addEventListener('pointerup',e=>e.stopPropagation(),true);
+  }
   cover.addEventListener('click',function clickHeart(e){
     const b=e.target.closest?.('.comicPageHeartV1148');
     if(!b||!cover.contains(b))return;
@@ -190015,8 +190103,14 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
     try{onFavoritesChange?.([...marked].sort((a,b)=>a-b),'load');}catch(e){console.warn('[comic favorites panel v1150]',e);}
   }).catch(e=>{console.warn('[comic heart v1148] 복원 실패',e);if(!closed){floating.title='즐겨찾기 저장소 연결 실패';floating.disabled=true;}});
   return {
-    syncPage(page){currentPage=page;paint(floating,marked.has(page),page);floating.disabled=!ready;floatingCoverV1215.dataset.page=String(page);floatingCoverV1215.title=page+'페이지를 이 작품의 표지로 저장';if(floatingDeleteV2276){floatingDeleteV2276.dataset.page=String(page);floatingDeleteV2276.title=page+'페이지를 삭제 대상으로 선택 (삭제 편집창 열기)';}},
-    setVertical(on){verticalMode=!!on;floating.hidden=verticalMode;floatingCoverV1215.hidden=verticalMode;if(floatingDeleteV2276)floatingDeleteV2276.hidden=verticalMode;if(!verticalMode){comicHeartPlaceV1149(floating,image,cover);placeCoverButtonV1215(floatingCoverV1215,floating);placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);}},
+    syncPage(page){currentPage=page;paint(floating,marked.has(page),page);floating.disabled=!ready;floatingCoverV1215.dataset.page=String(page);floatingCoverV1215.title=page+'페이지를 이 작품의 표지로 저장';if(floatingDeleteV2276){floatingDeleteV2276.dataset.page=String(page);floatingDeleteV2276.title=page+'페이지를 삭제 대상으로 선택 (삭제 편집창 열기)';}if(floatingEditV2503)paintEditV2503(floatingEditV2503,!!isEditSelected?.(page),page,!!isEditReady?.());},
+    setVertical(on){verticalMode=!!on;floating.hidden=verticalMode;floatingCoverV1215.hidden=verticalMode;if(floatingDeleteV2276)floatingDeleteV2276.hidden=verticalMode;if(floatingEditV2503)floatingEditV2503.hidden=verticalMode||!isEditAvailable?.();if(!verticalMode){
+      comicHeartPlaceV1149(floating,image,cover);
+      if(floatingEditV2503&&isEditAvailable?.())placeEditButtonV2503(floatingEditV2503,floating);
+      placeCoverButtonV1215(floatingCoverV1215,floating);
+      placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);
+    }},
+    refreshEdit(){if(!closed){if(floatingEditV2503)paintEditV2503(floatingEditV2503,!!isEditSelected?.(currentPage),currentPage,!!isEditReady?.());relayout();}},
     addVertical,placeVertical,relayout,togglePage:toggle,
     destroy(){closed=true;clearTimeout(bootTimerV2466);clearHoverV2466();cover.removeEventListener('pointermove',pointerMoveV2466);cover.removeEventListener('pointerleave',clearHoverV2466);image.removeEventListener('load',onImageLoad);window.removeEventListener('resize',relayout);window.removeEventListener('comic-guide-mode-v1148',relayout);window.removeEventListener('storage',relayout);},
     loaded
@@ -192243,6 +192337,48 @@ async function openLightbox(value, fileJumpV1005=null){
   spreadOptsV1226.append(spreadEffectV1233,spreadOrderV1226,spreadInputV1226,spreadSpeedV1270);
   horizontalBtnV986.textContent='가로';horizontalBtnV986.title='한 장씩 넘겨 보기 (A)';
   verticalBtnV986.textContent='세로';verticalBtnV986.title='아래로 이어서 스크롤 보기 (S)';
+  // v2502: Only wide pages in the horizontal reader are split in two.
+  // The arrows choose the READING order (left arrow: right half first).
+  const H_SPLIT_KEY_V2502='comic_horizontal_half_order_v2502';
+  let splitOrderV2502='off',lastSplitOrderV2502='ltr',splitHalfV2502=0;
+  try{
+    const saved=ViewerCacheManager.storage.getItem(H_SPLIT_KEY_V2502);
+    if(saved==='ltr'||saved==='rtl'){splitOrderV2502=saved;lastSplitOrderV2502=saved;}
+  }catch(_){}
+  const splitGroupV2502=document.createElement('span');splitGroupV2502.className='zipHorizontalSplitV2502';
+  splitGroupV2502.setAttribute('role','group');splitGroupV2502.setAttribute('aria-label','가로로 긴 이미지 절반 나눠 보기');
+  const splitRTLBtnV2502=document.createElement('button');splitRTLBtnV2502.type='button';
+  splitRTLBtnV2502.textContent='←';splitRTLBtnV2502.title='오른쪽 절반부터 보기 · 오른쪽 → 왼쪽';
+  splitRTLBtnV2502.setAttribute('aria-label','나눔: 오른쪽 절반부터 보기');
+  const splitToggleBtnV2502=document.createElement('button');splitToggleBtnV2502.type='button';
+  splitToggleBtnV2502.textContent='나눔';splitToggleBtnV2502.title='가로로 긴 이미지만 좌우 반으로 나눔 · 다시 누르면 해제';
+  splitToggleBtnV2502.setAttribute('aria-label','가로 이미지 절반 나눔 켜기 또는 끄기');
+  const splitLTRBtnV2502=document.createElement('button');splitLTRBtnV2502.type='button';
+  splitLTRBtnV2502.textContent='→';splitLTRBtnV2502.title='왼쪽 절반부터 보기 · 왼쪽 → 오른쪽';
+  splitLTRBtnV2502.setAttribute('aria-label','나눔: 왼쪽 절반부터 보기');
+  splitGroupV2502.append(splitRTLBtnV2502,splitToggleBtnV2502,splitLTRBtnV2502);
+  const editGuideBtnV2503=document.createElement('button');
+  editGuideBtnV2503.type='button';editGuideBtnV2503.textContent='편집';
+  editGuideBtnV2503.className='zipEditGuideV2503';
+  editGuideBtnV2503.title='선택한 페이지로만 감상 · 현재 페이지는 아래 + 또는 Alt로 추가/제거';
+  editGuideBtnV2503.setAttribute('aria-pressed','false');
+  editGuideBtnV2503.hidden=true;
+  // v2505: The favorite-page reader reuses the EXISTING comic-page heart IndexedDB.
+  // It does not create a second favorite list or alter the stored favorites.
+  const favGuideBtnV2505=document.createElement('button');
+  favGuideBtnV2505.type='button';favGuideBtnV2505.textContent='즐찾';
+  favGuideBtnV2505.className='zipFavGuideV2505';
+  favGuideBtnV2505.title='즐겨찾기한 페이지만 원본 순서대로 보기 · 다시 누르면 전체 보기';
+  favGuideBtnV2505.setAttribute('aria-pressed','false');
+  favGuideBtnV2505.hidden=true;
+  // v2506: Character extraction is an opt-in editor; no image processing
+  // runs during normal comic reading.
+  const characterGuideV2506=document.createElement('button');
+  characterGuideV2506.type='button';characterGuideV2506.textContent='캐릭터';
+  characterGuideV2506.className='zipCharacterGuideV2506';
+  characterGuideV2506.title='현재 페이지에서 캐릭터 윤곽 추출 · 추가/제거 보정 · 투명 PNG 저장';
+  characterGuideV2506.hidden=true;
+
   const directionPinV1720=document.createElement('button');
   directionPinV1720.type='button';directionPinV1720.className='zipDirectionPinV1720';
   directionPinV1720.textContent='고정';
@@ -192250,7 +192386,7 @@ async function openLightbox(value, fileJumpV1005=null){
   directionPinV1720.setAttribute('aria-pressed','false');directionPinV1720.disabled=true;
   const canPinDirectionV1720=!isRemoteV1466&&!savedDownloadV1651 && (!!parse(value)||isFolderV992);
   directionPinV1720.hidden=!canPinDirectionV1720;
-  directionGroupV986.append(horizontalBtnV986,verticalBtnV986,cutsceneBtnV2395,spreadBtnV1226,directionPinV1720);
+  directionGroupV986.append(horizontalBtnV986,verticalBtnV986,cutsceneBtnV2395,spreadBtnV1226,editGuideBtnV2503,favGuideBtnV2505,characterGuideV2506,directionPinV1720);
   // v1076: ZIP·CBZ 및 로컬 이미지폴더 세로보기만 720px에서 80px 단위로 변경.
   // 작품별이 아닌 공통 사용자 설정으로 저장하며, 가로보기·절대경로 만화에 영향 없음.
   const VERTICAL_SIZE_KEY_V1076='comic_local_vertical_image_width_v1076';
@@ -192595,7 +192731,7 @@ async function openLightbox(value, fileJumpV1005=null){
   toolsRowV987.append(pageJumpBoxV987);
   if(chapterSelectV1177)toolsRowV987.append(chapterSelectV1177);
   if(chapterRangeSelectV1645)toolsRowV987.append(chapterRangeSelectV1645);
-  toolsRowV987.append(folderSelectV987,directionGroupV986,spreadOptsV1226,sizeGroupV1076,autoScrollGroupV1193,autoPageGroupV1194,modeSelect,pinLabelV1086);
+  toolsRowV987.append(folderSelectV987,directionGroupV986,splitGroupV2502,spreadOptsV1226,sizeGroupV1076,autoScrollGroupV1193,autoPageGroupV1194,modeSelect,pinLabelV1086);
   if(isNewtokiV1724&&remoteDataV1466?.work&&remoteDataV1466?.chapterId){
     const btn=document.createElement('button');btn.type='button';btn.textContent='⬇ 회차 저장';
     btn.title='지금 보고 있는 뉴토끼 회차를 ZIP/CBZ/이미지 폴더로 저장';
@@ -193757,9 +193893,107 @@ async function openLightbox(value, fileJumpV1005=null){
 
   // v1150: 우측 즐겨찾기 패널은 v1148의 같은 작품별 IDB 페이지 Set을 사용한다.
   // 썸네일은 패널에 보이는 페이지부터 2개씩 읽으며, 원본 ZIP 전체를 압축 해제하지 않는다.
+  // v2503: Virtual edit is ONLY a list of original page numbers in IndexedDB.
+  // It never changes ZIP, CBZ, source images, or page favorite records.
+  const editKeyV2503='comic_edit_pages_v2503:'+String(value);
+  let editPagesV2503=new Set(),editReadyV2503=false,editActiveV2503=false;
+  // v2505: Favorite-only and edit-only are mutually exclusive page filters.
+  let favPagesV2505=new Set(),favReadyV2505=false,favActiveV2505=false;
+  let editSaveQueueV2503=Promise.resolve();
+  const editSortedV2503=()=>[...editPagesV2503].filter(p=>p>=1&&p<=pages.length).sort((a,b)=>a-b);
+  const favSortedV2505=()=>[...favPagesV2505].filter(p=>p>=1&&p<=pages.length).sort((a,b)=>a-b);
+  const filteredPagesV2505=()=>editActiveV2503?editSortedV2503():(favActiveV2505?favSortedV2505():null);
+  const editIsLastV2503=()=>{
+    const list=filteredPagesV2505();
+    return list?(!list.length||list.indexOf(idx+1)>=list.length-1):idx>=pages.length-1;
+  };
+  const editLabelV2503=pageIndex=>{
+    const plain=pageLabelV985(pageIndex);
+    const list=filteredPagesV2505();
+    if(!list)return plain;
+    const position=list.indexOf(pageIndex+1);
+    return plain+' · '+(favActiveV2505?'즐찾 ':'편집 ')+(position>=0?position+1:'?')+'/'+list.length;
+  };
+  function editRefreshV2503(){
+    if(destroyed)return;
+    const horizontal=readDirectionV986==='horizontal';
+    editGuideBtnV2503.hidden=!horizontal;
+    editGuideBtnV2503.disabled=!editReadyV2503;
+    editGuideBtnV2503.setAttribute('aria-pressed',String(editActiveV2503));
+    editGuideBtnV2503.title='편집 '+editSortedV2503().length+'페이지 · '+(editActiveV2503?'원본 전체로 돌아가기':'선택한 페이지만 보기')+' · 아래 + / Alt로 추가·제거';
+    favGuideBtnV2505.hidden=!horizontal;
+    characterGuideV2506.hidden=!horizontal;
+    favGuideBtnV2505.disabled=!favReadyV2505;
+    favGuideBtnV2505.setAttribute('aria-pressed',String(favActiveV2505));
+    favGuideBtnV2505.title='즐겨찾기 '+favSortedV2505().length+'페이지 · '+(favActiveV2505?'원본 전체로 돌아가기':'즐겨찾기 페이지만 보기')+' · 하트로 페이지 추가·제거';
+    heartManagerV1148?.refreshEdit?.();
+    if(horizontal)paintSplitV2502();
+  }
+  async function editTogglePageV2503(page){
+    if(!editReadyV2503||destroyed||readDirectionV986!=='horizontal')return;
+    if(!Number.isInteger(page)||page<1||page>pages.length)return;
+    const had=editPagesV2503.has(page);
+    if(had)editPagesV2503.delete(page);else editPagesV2503.add(page);
+    // Preserve on-disk order even when Alt is pressed several times quickly.
+    const snapshot=editSortedV2503();
+    editSaveQueueV2503=editSaveQueueV2503.catch(()=>{}).then(()=>idbPutComic(editKeyV2503,snapshot));
+    void editSaveQueueV2503.catch(e=>{console.warn('[comic edit v2503] IndexedDB save',e);window.showToast?.('편집본 페이지 저장 실패: '+String(e?.message||e),3200);});
+    const list=editSortedV2503();
+    if(editActiveV2503&&had&&idx+1===page){
+      if(!list.length){editActiveV2503=false;stopAutoPageV1194();}
+      else{
+        const target=list.find(p=>p>page)||list[list.length-1];
+        if(target!==page)void go(target-1);
+      }
+    }
+    editRefreshV2503();
+    window.showToast?.(page+'페이지 편집본 '+(had?'제거':'추가')+' · '+snapshot.length+'장',1600);
+  }
+  editGuideBtnV2503.addEventListener('click',()=>{
+    if(destroyed||readDirectionV986!=='horizontal'||!editReadyV2503)return;
+    const list=editSortedV2503(),activate=!editActiveV2503;
+    if(activate&&!list.length){window.showToast?.('편집 페이지가 없습니다. 아래 + 또는 Alt로 페이지를 추가하세요.',2800);return;}
+    stopAutoPageV1194();
+    editActiveV2503=activate;
+    if(activate)favActiveV2505=false;
+    editRefreshV2503();
+    if(activate)void go(list[0]-1);
+    else {setPageLabelV986(idx,true);paintSplitV2502();}
+  });
+  characterGuideV2506.addEventListener('click',()=>{
+    if(destroyed||readDirectionV986!=='horizontal')return;
+    stopAutoPageV1194();
+    const sourceImg=image?.naturalWidth?image:cover?.querySelector('img');
+    if(!sourceImg?.naturalWidth){window.showToast?.('현재 페이지 이미지가 로딩된 후 캐릭터 기능을 사용하세요.',2600);return;}
+    const workTitle=String(value||'만화').split('/').pop().replace(/\.(zip|cbz)$/i,'');
+    window.ComicCharacterCutoutV2506?.open({image:sourceImg,page:idx+1,title:workTitle});
+  });
+  favGuideBtnV2505.addEventListener('click',()=>{
+    if(destroyed||readDirectionV986!=='horizontal'||!favReadyV2505)return;
+    const list=favSortedV2505(),activate=!favActiveV2505;
+    if(activate&&!list.length){window.showToast?.('즐겨찾기한 페이지가 없습니다. 하트로 페이지를 등록하세요.',2800);return;}
+    stopAutoPageV1194();
+    favActiveV2505=activate;
+    if(activate)editActiveV2503=false;
+    editRefreshV2503();
+    if(activate)void go(list[0]-1);
+    else {setPageLabelV986(idx,true);paintSplitV2502();}
+  });
+  void idbGetComic(editKeyV2503).then(rows=>{
+    if(destroyed)return;
+    editPagesV2503=new Set((Array.isArray(rows)?rows:[]).filter(n=>Number.isSafeInteger(n)&&n>=1&&n<=pages.length));
+    editReadyV2503=true;editRefreshV2503();
+  }).catch(e=>{
+    console.warn('[comic edit v2503] IndexedDB load',e);
+    if(!destroyed){editReadyV2503=false;editGuideBtnV2503.title='편집본 저장소 연결 실패';}
+  });
   let onLocalFavoritesV1150=()=>{};
   const heartManagerV1148=window.ComicHeartV1148?.attachLocal?.({
     cover,verticalView:verticalViewV986,value,image,
+    isEditSelected:page=>editPagesV2503.has(page),
+    isEditReady:()=>editReadyV2503,
+    isEditAvailable:()=>readDirectionV986==='horizontal',
+    onEditTogglePage:editTogglePageV2503,
     onFavoritesChange:(items,reason)=>onLocalFavoritesV1150(items,reason),
     onDeletePage:deleteEditV1835?(page=>deleteEditV1835.openForPage(page)):undefined,
     onSetCover:async(page)=>{
@@ -193814,6 +194048,17 @@ async function openLightbox(value, fileJumpV1005=null){
   }
   function localFavoritesChangedV1150(list,reason){
     const nums=[...new Set((Array.isArray(list)?list:[]).filter(p=>Number.isInteger(p)&&p>=1&&p<=pages.length))].sort((a,b)=>a-b);
+    favPagesV2505=new Set(nums);favReadyV2505=true;
+    if(favActiveV2505){
+      if(!nums.length){favActiveV2505=false;stopAutoPageV1194();}
+      else if(!favPagesV2505.has(idx+1)){
+        stopAutoPageV1194();
+        // An un-favorited current page cannot remain in favorite-only mode.
+        const next=nums.find(p=>p>idx+1)||nums[nums.length-1];
+        if(next!==idx+1)void go(next-1);
+      }
+    }
+    editRefreshV2503();
     if(reason==='toggle')favManuallyClosedV1150=false;
     const visible=!!nums.length&&!favManuallyClosedV1150;
     cover.classList.toggle('zipHasFavoritesV1150',visible);
@@ -194116,7 +194361,7 @@ async function openLightbox(value, fileJumpV1005=null){
   function queueNextAutoPageV1194(epoch){
     if(!autoPageEligibleV1256(epoch))return;
     if(!sceneAutoplayModeV2396()&&
-       (readDirectionV986==='horizontal'?idx>=pages.length-1:!hasNextSpreadV1256())){
+       (readDirectionV986==='horizontal'?(editIsLastV2503()&&(!splitIsActiveV2502()||splitHalfV2502!==0)):!hasNextSpreadV1256())){
       stopAutoPageV1194();return;
     }
     if(autoPageTimerV1194)clearTimeout(autoPageTimerV1194);
@@ -194139,10 +194384,10 @@ async function openLightbox(value, fileJumpV1005=null){
           if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;
         }
       }else{
-        const target=idx+1;
-        const ok=await go(target,true);
+        const beforePageV2502=idx,beforeHalfV2502=splitHalfV2502;
+        const ok=await horizontalStepV2502(1,true,true);
         if(!autoPageEligibleV1256(epoch))return;
-        if(!ok||idx!==target){stopAutoPageV1194();return;}
+        if(!ok||(idx===beforePageV2502&&splitHalfV2502===beforeHalfV2502)){stopAutoPageV1194();return;}
         try{if(typeof image.decode==='function')await image.decode();
           else if(!image.complete||!image.naturalWidth)throw Error('이미지 미완료');
         }catch(_){if(autoPageEligibleV1256(epoch))stopAutoPageV1194();return;}
@@ -194204,7 +194449,7 @@ async function openLightbox(value, fileJumpV1005=null){
        !(['horizontal','spread'].includes(readDirectionV986)||sceneAutoplayModeV2396())||
        document.visibilityState==='hidden')return;
     if(!sceneAutoplayModeV2396()&&
-       (readDirectionV986==='horizontal'?idx>=pages.length-1:!hasNextSpreadV1256()))return;
+       (readDirectionV986==='horizontal'?(editIsLastV2503()&&(!splitIsActiveV2502()||splitHalfV2502!==0)):!hasNextSpreadV1256()))return;
     stopAutoScrollV1193();autoPageRunningV1194=true;
     const epoch=++autoPageEpochV1194;
     refreshAutoPageV1194();
@@ -194241,14 +194486,14 @@ async function openLightbox(value, fileJumpV1005=null){
     autoPageIntervalV1194.dispatchEvent(new Event('change'));
   }
   async function nudgeAutoPageV1213(delta){
-    if(!autoPageRunningV1194){void go(idx+delta);return;}
+    if(!autoPageRunningV1194){void horizontalStepV2502(delta);return;}
     const epoch=++autoPageEpochV1194;
     if(autoPageTimerV1194){clearTimeout(autoPageTimerV1194);autoPageTimerV1194=0;}
-    const target=Math.max(0,Math.min(pages.length-1,idx+delta));
+    const beforePageV2502=idx,beforeHalfV2502=splitHalfV2502;
     try{
-      const ok=await go(target,false,true);
+      const ok=await horizontalStepV2502(delta,false,true);
       if(!autoPageEligibleV1256(epoch))return;
-      if(!ok||idx!==target){stopAutoPageV1194();return;}
+      if(!ok||(idx===beforePageV2502&&splitHalfV2502===beforeHalfV2502)){stopAutoPageV1194();return;}
       if(typeof image.decode==='function')await image.decode();
       else if(!image.complete||!image.naturalWidth)throw Error('이미지 미완료');
       if(autoPageEligibleV1256(epoch))queueNextAutoPageV1194(epoch);
@@ -194347,6 +194592,73 @@ async function openLightbox(value, fileJumpV1005=null){
     verticalViewV986.scrollTop=oldScroll;
     if(verticalIOV986){for(let i=start;i<end;i++)verticalIOV986.observe(verticalItemsV986[i]);}
   }
+  // v2502: Show the original bitmap at native resolution; the viewport crops
+  // either half with object-fit:cover (no canvas, re-encode, or new blob).
+  const splitIsWideV2502=()=>image.complete&&image.naturalWidth>0&&image.naturalHeight>0&&
+    image.naturalWidth/image.naturalHeight>=1.18;
+  const splitIsActiveV2502=()=>readDirectionV986==='horizontal'&&splitOrderV2502!=='off'&&splitIsWideV2502();
+  function paintSplitV2502(){
+    if(destroyed)return;
+    const active=splitIsActiveV2502();
+    if(active){
+      const ratio=(image.naturalWidth/2)/image.naturalHeight;
+      const maxW=Math.max(1,window.innerWidth-8),maxH=Math.max(1,window.innerHeight-8);
+      const w=Math.min(maxW,maxH*ratio),h=w/ratio;
+      image.style.width=w+'px';image.style.height=h+'px';
+      image.style.objectFit='cover';
+      const leftHalf=splitOrderV2502==='ltr'?splitHalfV2502===0:splitHalfV2502===1;
+      image.style.objectPosition=leftHalf?'left center':'right center';
+      const suffix=(leftHalf?'왼쪽':'오른쪽')+' '+(splitHalfV2502+1)+'/2';
+      counter.textContent=editLabelV2503(idx)+' · '+suffix;
+      badge.textContent=editLabelV2503(idx)+' · '+suffix;
+    }else{
+      image.style.width='';image.style.height='';
+      image.style.objectFit='';image.style.objectPosition='';
+      if(readDirectionV986==='horizontal'){
+        counter.textContent=editLabelV2503(idx);badge.textContent=editLabelV2503(idx);
+      }
+    }
+    splitGroupV2502.hidden=readDirectionV986!=='horizontal';
+    splitRTLBtnV2502.setAttribute('aria-pressed',String(readDirectionV986==='horizontal'&&splitOrderV2502==='rtl'));
+    splitToggleBtnV2502.setAttribute('aria-pressed',String(readDirectionV986==='horizontal'&&splitOrderV2502!=='off'));
+    splitLTRBtnV2502.setAttribute('aria-pressed',String(readDirectionV986==='horizontal'&&splitOrderV2502==='ltr'));
+    splitToggleBtnV2502.title=splitOrderV2502==='off'?'가로로 긴 이미지 두 절반으로 나눠 보기':
+      (!splitIsWideV2502()?'현재 이미지는 가로로 길지 않아 원본 한 장 표시 (다음 가로 이미지는 자동 나눔)':'나눔 해제 · 원래 한 장으로 보기');
+  }
+  function changeSplitModeV2502(mode){
+    if(destroyed)return;
+    if(mode!=='off'&&mode!=='ltr'&&mode!=='rtl')return;
+    if(mode!=='off')lastSplitOrderV2502=mode;
+    splitOrderV2502=mode;splitHalfV2502=0;
+    try{ViewerCacheManager.storage.setItem(H_SPLIT_KEY_V2502,mode);}catch(_){}
+    if(autoPageRunningV1194)stopAutoPageV1194();
+    paintSplitV2502();
+  }
+  splitRTLBtnV2502.onclick=()=>changeSplitModeV2502('rtl');
+  splitLTRBtnV2502.onclick=()=>changeSplitModeV2502('ltr');
+  splitToggleBtnV2502.onclick=()=>changeSplitModeV2502(splitOrderV2502==='off'?lastSplitOrderV2502:'off');
+  image.addEventListener('load',paintSplitV2502);
+  const onSplitResizeV2502=()=>{if(!destroyed&&readDirectionV986==='horizontal')paintSplitV2502();};
+  window.addEventListener('resize',onSplitResizeV2502);
+  // Every reader command travels through this same logical half-page step.
+  // A previous/next page is fetched only after both halves are visited.
+  async function horizontalStepV2502(delta,fromAuto=false,preserveAuto=false){
+    if(destroyed||readDirectionV986!=='horizontal')return false;
+    if(!fromAuto&&!preserveAuto)stopAutoPageV1194();
+    if(splitIsActiveV2502()){
+      if(delta>0&&splitHalfV2502===0){splitHalfV2502=1;pageTouchedV1184=true;paintSplitV2502();return true;}
+      if(delta<0&&splitHalfV2502===1){splitHalfV2502=0;pageTouchedV1184=true;paintSplitV2502();return true;}
+    }
+    let target=Math.max(0,Math.min(pages.length-1,idx+(delta>0?1:-1)));
+    const filteredV2505=filteredPagesV2505();
+    if(filteredV2505){
+      const next=delta>0?filteredV2505.find(p=>p>idx+1):filteredV2505.slice().reverse().find(p=>p<idx+1);
+      if(!next)return false;
+      target=next-1;
+    }
+    if(target===idx)return false;
+    return go(target,fromAuto,preserveAuto,delta<0?1:0);
+  }
   function syncDirectionButtonsV986(){
     const pageDownModeV2395=window.ComicVerticalPageDownModeV2287?.get?.()||'original';
     // v2442: Background/margin settings never determine the reading mode.
@@ -194358,6 +194670,10 @@ async function openLightbox(value, fileJumpV1005=null){
     cutsceneBtnV2395.setAttribute('aria-pressed',String(cutsceneActiveV2395&&pageDownModeV2395==='scene1'));
     spreadBtnV1226.setAttribute('aria-pressed',String(readDirectionV986==='spread'));
     spreadOptsV1226.hidden=readDirectionV986!=='spread';
+    paintSplitV2502();
+    editGuideBtnV2503.hidden=readDirectionV986!=='horizontal';
+    favGuideBtnV2505.hidden=readDirectionV986!=='horizontal';
+    characterGuideV2506.hidden=readDirectionV986!=='horizontal';
     // 크기 조절은 세로 연속보기에서만 노출한다. 가로/절대경로 보기의 UI는 그대로 둔다.
     const vertical=readDirectionV986==='vertical';
     sizeGroupV1076.hidden=!vertical;
@@ -194382,7 +194698,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(nextIdxV1184!==idx)pageTouchedV1184=true;
     idx=nextIdxV1184;
     deleteEditV1835?.refresh?.();
-    const label=pageLabelV985(idx);
+    const label=editLabelV2503(idx);
     counter.textContent=label;badge.textContent=label;
     resolutionLabelV1834.textContent='해상도 · 확인 중';
     requestAnimationFrame(updateImageResolutionV1834);
@@ -195509,7 +195825,7 @@ async function openLightbox(value, fileJumpV1005=null){
       return;
     }
     stopAutoPageV1194();
-    readDirectionV986=direction;syncDirectionButtonsV986();
+    readDirectionV986=direction;if(direction!=='horizontal'){editActiveV2503=false;favActiveV2505=false;}syncDirectionButtonsV986();editRefreshV2503();
     if(direction!=='horizontal')clearHorizontalAheadV1573();
     heartManagerV1148?.setVertical(direction==='vertical');
     if(direction==='vertical'){
@@ -195634,7 +195950,7 @@ async function openLightbox(value, fileJumpV1005=null){
     }).finally(()=>{boundaryChapterBusyV1761=false;});
     return true;
   }
-  async function go(n,fromAutoPageV1194=false,preserveAutoPageV1213=false){
+  async function go(n,fromAutoPageV1194=false,preserveAutoPageV1213=false,newHalfV2502=0){
     // v2399: Manual navigation in a vertical reader must preserve autoplay.
     // Horizontal/spread keep their established stop/resume rules.
     const keepVerticalAutoV2399=readDirectionV986==='vertical'&&
@@ -195644,7 +195960,17 @@ async function openLightbox(value, fileJumpV1005=null){
     window.__comicBalanceV1024?.activity();
     if(destroyed)return false;
     if(n>=pages.length&&!fromAutoPageV1194&&!preserveAutoPageV1213&&nextChapterAtBoundaryV1761())return true;
-    const to=Math.min(pages.length-1,Math.max(0,n));
+    let to=Math.min(pages.length-1,Math.max(0,n));
+    if(readDirectionV986==='horizontal'){
+      const list=filteredPagesV2505();
+      if(list){
+        if(!list.length){editActiveV2503=false;favActiveV2505=false;editRefreshV2503();}
+        else if(!list.includes(to+1)){
+          const nearest=list.reduce((best,p)=>Math.abs(p-(to+1))<Math.abs(best-(to+1))?p:best,list[0]);
+          to=nearest-1;
+        }
+      }
+    }
     if(readDirectionV986==='vertical'){
       setPageLabelV986(to,true);
       if(verticalVirtualV1191){
@@ -195657,6 +195983,8 @@ async function openLightbox(value, fileJumpV1005=null){
       if(wrapper){verticalViewV986.scrollTop=wrapper.offsetTop;scheduleVerticalLoadV986(to);trimVerticalV986();}
       return;
     }
+    const changedPageV2502=to!==idx;
+    if(readDirectionV986==='horizontal'&&changedPageV2502)splitHalfV2502=newHalfV2502;
     setPageLabelV986(readDirectionV986==='spread'?spreadBaseV1226(to):to,true);
     if(readDirectionV986==='spread')return showSpreadV1226(to);
     const mine=++seq;
@@ -195723,7 +196051,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(Math.abs(wheelSumV995)<WHEEL_LIMIT_V995)return;
     const step=wheelSumV995>0?1:-1;
     wheelSumV995=0;lastWheelTurnV995=now;
-    void go(idx+step);
+    void horizontalStepV2502(step);
   },{passive:false});
 
   let touchStartV995=null;
@@ -195753,7 +196081,7 @@ async function openLightbox(value, fileJumpV1005=null){
     // 터치 종료 직후 발생하는 synthetic click에서 페이지가 두 번 넘어가는 것을 방지.
     suppressClickUntilV995=performance.now()+400;
     if(event.cancelable)event.preventDefault();
-    void go(idx+(dx<0?1:-1));
+    void horizontalStepV2502(dx<0?1:-1);
   },{passive:false});
   image.addEventListener('touchcancel',()=>{touchStartV995=null;},{passive:true});
 
@@ -195836,6 +196164,7 @@ async function openLightbox(value, fileJumpV1005=null){
     destroyed=true;seq++;
     edgePanelCleanupV2072();
     clearHorizontalAheadV1573();
+    window.removeEventListener('resize',onSplitResizeV2502);
     window.removeEventListener('comic-guide-mode-v1148',onGuideChangeV1148);
     window.removeEventListener('storage',onGuideChangeV1148);
     heartManagerV1148?.destroy();
@@ -195856,9 +196185,28 @@ async function openLightbox(value, fileJumpV1005=null){
     if(!isRemoteV1466&&!savedDownloadV1651)window.ComicReadProgressV1090?.update(value,idx+1);
     lastPreviewTokenV988++;
     window.removeEventListener('keydown',keyHandler,true);
+    window.removeEventListener('keyup',editAltKeyUpV2503,true);
+    window.removeEventListener('blur',editAltBlurV2503);
+  }
+  let editAltArmedV2503=false;
+  const editAltBlurV2503=()=>{editAltArmedV2503=false;};
+  function editAltKeyUpV2503(e){
+    if(e.key!=='Alt')return;
+    const armed=editAltArmedV2503;editAltArmedV2503=false;
+    if(!armed||destroyed||!cover.isConnected||document.hidden||readDirectionV986!=='horizontal'||
+       window.WebViewerPortalCoverV1806?.isActive?.()||e.ctrlKey||e.metaKey||e.shiftKey)return;
+    const focus=document.activeElement;
+    if(['INPUT','SELECT','TEXTAREA'].includes(focus?.tagName)||focus?.isContentEditable||focus?.closest?.('[contenteditable="true"]'))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    void editTogglePageV2503(idx+1);
   }
   function keyHandler(e){
     if(destroyed||!cover.isConnected)return;
+    if(editAltArmedV2503&&e.key!=='Alt')editAltArmedV2503=false;
+    if(e.key==='Alt'&&readDirectionV986==='horizontal'&&!e.repeat&&!e.ctrlKey&&!e.shiftKey&&!e.metaKey&&!e.isComposing){
+      // Horizontal edit owns bare Alt. Do not also trigger stale cutscene Alt capture.
+      editAltArmedV2503=true;e.preventDefault();e.stopImmediatePropagation();return;
+    }
     if(e.key==='Escape'){destroy();e.preventDefault();e.stopPropagation();return;}
     // 자동 실행 중 선택창에 포커스가 있어도 ↑/↓ 단축키를 동일하게 적용한다.
     // 다른 입력창 및 선택창의 방향키는 가로채지 않는다.
@@ -195925,7 +196273,7 @@ async function openLightbox(value, fileJumpV1005=null){
               void turnSpreadV1226(forward?1:-1);
             }else if(readDirectionV986==='vertical'){
               manualVerticalPageV2399(forward?1:-1);
-            }else void go(idx+(forward?1:-1));
+            }else void horizontalStepV2502(forward?1:-1);
             return;
           }
           case 'q':case 'w':{
@@ -195994,8 +196342,8 @@ async function openLightbox(value, fileJumpV1005=null){
       const sign=e.key==='ArrowRight'?1:-1;
       void turnSpreadV1226(sign*(spreadOrderV1226.value==='rtl'?-1:1));e.preventDefault();e.stopImmediatePropagation();return;
     }
-    if(e.key==='ArrowRight'){void go(idx+1);e.preventDefault();e.stopPropagation();}
-    if(e.key==='ArrowLeft'){void go(idx-1);e.preventDefault();e.stopPropagation();}
+    if(e.key==='ArrowRight'){void horizontalStepV2502(1);e.preventDefault();e.stopPropagation();}
+    if(e.key==='ArrowLeft'){void horizontalStepV2502(-1);e.preventDefault();e.stopPropagation();}
   }
   // v1170: 오래된 문서 capture 핸들러보다 먼저 Shift+방향키를 처리한다.
   // 열린 ZIP/fsdir 뷰어에만 반응하므로 다른 탭의 단축키는 바꾸지 않는다.
@@ -196006,10 +196354,12 @@ async function openLightbox(value, fileJumpV1005=null){
   if(isToonkorV1588)window.ComicToonkorReaderCloseV1588=destroy;
   if(isNewtokiV1724)window.ComicNewtokiReaderCloseV1724=destroy;
   window.addEventListener('keydown',keyHandler,true);
+  window.addEventListener('keyup',editAltKeyUpV2503,true);
+  window.addEventListener('blur',editAltBlurV2503);
   back.onclick=()=>readDirectionV986==='spread'?void turnSpreadV1226(-1):
-    readDirectionV986==='vertical'?manualVerticalPageV2399(-1):void go(idx-1);
+    readDirectionV986==='vertical'?manualVerticalPageV2399(-1):void horizontalStepV2502(-1);
   next.onclick=()=>readDirectionV986==='spread'?void turnSpreadV1226(1):
-    readDirectionV986==='vertical'?manualVerticalPageV2399(1):void go(idx+1);
+    readDirectionV986==='vertical'?manualVerticalPageV2399(1):void horizontalStepV2502(1);
   close.onclick=destroy;
   const jumpToInputV987=()=>{
     const n=Number(pageInputV987.value);
@@ -196073,11 +196423,12 @@ async function openLightbox(value, fileJumpV1005=null){
     if(readDirectionV986!=='horizontal')return;
     if(!image.naturalWidth||!image.naturalHeight)return;
     const r=image.getBoundingClientRect();
+    if(splitIsActiveV2502()){void horizontalStepV2502(e.clientX<r.left+r.width/2?-1:1);return;}
     const scale=Math.min(r.width/image.naturalWidth,r.height/image.naturalHeight);
     const w=image.naturalWidth*scale,h=image.naturalHeight*scale;
     const l=r.left+(r.width-w)/2,t=r.top+(r.height-h)/2;
     if(e.clientX<l||e.clientX>l+w||e.clientY<t||e.clientY>t+h){destroy();return;}
-    void go(idx+(e.clientX<r.left+r.width/2?-1:1));
+    void horizontalStepV2502(e.clientX<r.left+r.width/2?-1:1);
   };
   verticalViewV986.addEventListener('click',e=>{
     if(readDirectionV986!=='vertical')return;
@@ -200580,6 +200931,40 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
     <p style="font-size:12px;color:#bdd1e7">※ 최신 버전으로 재설치해도 오류가 지속된다면 접속 환경이나 해당 사이트의 변경 사항 등이 원인일 수 있습니다. 동일한 오류 화면과 버전 정보를 함께 보내주세요.</p>
   </div>
 </template>
+<!-- v2511: Emergency browser notice only; v2510 functional code retained. -->
+<style id="wv2511EmergencyNoticeStyle">
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] .wv1098Dialog{background:#390d13!important;color:#fff4f4!important;border:2px solid #ef4444!important;box-shadow:0 18px 80px #000b,0 0 24px #ef444455!important;max-width:min(94vw,760px)}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] :is(.wv1098Head,.wv1098Foot,.wv1107Nav){background:#861d28!important;border-color:#e76b75!important;color:#fff!important}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] .wv1098Section{background:#50151d!important;border-color:#a94750!important;color:#fff4f4!important}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] :is(.wv1098Title,.wv1098Subtitle,.wv1098FootInfo,.wv1098Section h3,.wv1098Tag){color:#fff!important}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] .wv1098Tag{background:#b91c1c!important;border-color:#ffb4b4!important}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] .wv1098Section strong{color:#ffe49d!important}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] :is(.wv1098Close,.wv1107Nav button){background:#b91c1c!important;border-color:#ff9b9b!important;color:#fff!important}
+#wv1098NoticeOverlay[data-update-id="release-v2511-browser-permission-emergency"] code{display:inline-block;background:#27090e;color:#fff;padding:3px 8px;border-radius:5px;user-select:all;overflow-wrap:anywhere}
+</style>
+<template id="wv2511BrowserEmergencyNotice">
+  <div class="wv1098Section" style="line-height:1.8">
+    <h3 style="font-size:19px">⚠ 긴급공지 — 크로미움 계열 브라우저 권한 오류</h3>
+    <p>2026년 11월 25일, 일부 Chrome(크롬) 및 Microsoft Edge(엣지)에서 브라우저 업데이트 이후 로컬 폴더 접근 권한 오류로 웹뷰어가 정상적으로 작동하지 않는 문제가 확인되었습니다.</p>
+    <p>기존 만화·영상 폴더 접근, 신규 폴더 등록 및 권한 확인 등이 실패할 수 있습니다. <strong>웹뷰어 재설치나 초기화를 하기 전에 브라우저부터 업데이트해 주세요.</strong></p>
+    <p>Chrome 158.0.8127.38에서 문제가 발생했으며, <strong>158.0.8127.89로 업데이트하고 재시작한 뒤 Windows 10 환경에서 정상 작동을 확인했습니다.</strong></p>
+  </div>
+  <div class="wv1098Section" style="line-height:1.8">
+    <h3>① Google Chrome(크롬) 버전 확인 및 업데이트</h3>
+    <ol><li>일반 Chrome 창을 열고 주소창에 <code>chrome://settings/help</code> 를 입력한 뒤 Enter를 누릅니다.</li><li>또는 오른쪽 위 ⋮ → 도움말 → Chrome 정보를 선택합니다.</li><li>현재 버전을 확인하고 자동 업데이트가 완료될 때까지 기다립니다.</li><li><strong>다시 시작</strong> 버튼을 누른 뒤 웹뷰어를 다시 실행합니다.</li></ol>
+    <p><strong>정상 확인 버전: 158.0.8127.89</strong> (또는 이후 최신 버전 권장)</p>
+  </div>
+  <div class="wv1098Section" style="line-height:1.8">
+    <h3>② Microsoft Edge(엣지) 버전 확인 및 업데이트</h3>
+    <ol><li>일반 Edge 창을 열고 주소창에 <code>edge://settings/help</code> 를 입력한 뒤 Enter를 누릅니다.</li><li>또는 오른쪽 위 … → 도움말 및 피드백 → Microsoft Edge 정보를 선택합니다.</li><li>현재 버전을 확인하고 최신 업데이트를 설치합니다.</li><li><strong>다시 시작</strong> 후 웹뷰어를 다시 실행합니다.</li></ol>
+    <p>Edge 158.0.4370.33에서도 동일 증상이 확인되었습니다. Edge의 해결 버전은 아직 직접 확인하지 못했으므로 최신 업데이트 후에도 문제가 지속되면 정상 확인된 Chrome을 이용해 주세요.</p>
+  </div>
+  <div class="wv1098Section" style="line-height:1.8">
+    <h3>③ 기존 사용자 주의사항</h3>
+    <p><strong>웹뷰어 초기화, 브라우저 사이트 데이터 삭제, 폴더 삭제 및 서버 재설치는 하지 않으셔도 됩니다.</strong> 브라우저 업데이트와 재시작을 먼저 진행해 주세요.</p>
+    <p>최신 브라우저에서도 오류가 지속되면 브라우저 버전과 오류 증상을 건의하기로 알려주세요. 이번 웹뷰어 업데이트는 긴급공지 전달용입니다.</p>
+  </div>
+</template>
 <script id="wv1098NoticeScript">
 (()=>{
   'use strict';
@@ -200798,6 +201183,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'✨ 웹뷰어 2501 · 웹툰 컷씬 핵심 업데이트',
       subtitle:'컷씬 소개 이미지 · 컷 자동 분할 · 컷씬제외 · Alt 저장 · 만화·영상 백업·복원 · 서버 14.204',
       html:document.getElementById('wv2500MajorUpdateNotice')?.innerHTML||''
+    },
+    {
+      id:'release-v2511-browser-permission-emergency',build:'긴급공지',
+      title:'⚠ 긴급공지 — 브라우저 권한 오류',
+      subtitle:'2026년 11월 25일 · Chrome / Edge 업데이트 필수 확인',
+      html:document.getElementById('wv2511BrowserEmergencyNotice')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -250979,3 +251370,599 @@ aside h2{font-size:13px;margin:0 0 8px}#wvImageTestSummaryV2459{font-size:12px;w
 })();
 </script>
 
+
+<style id="comicCharacterStyleV2506">
+/* v2506: Character cutout editor — isolated from existing comic toolbar */
+#comicZipLightboxV984 .zipReadModesV986 .zipCharacterGuideV2506{border:1px solid #52677d;border-radius:4px;background:transparent;color:#cbd5e1;padding:3px 7px;font:600 12px/1.4 WebViewerNotoCJK,sans-serif;white-space:nowrap;cursor:pointer;}
+#comicZipLightboxV984 .zipReadModesV986 .zipCharacterGuideV2506:hover{border-color:#81c9fb;color:#fff;background:#25466b;}
+#comicZipLightboxV984 .zipReadModesV986 .zipCharacterGuideV2506[hidden]{display:none!important;}
+#comicCharacterEditorV2506{position:fixed;inset:0;z-index:2147483639;display:flex;justify-content:center;align-items:center;padding:14px;box-sizing:border-box;background:rgba(4,9,20,.93);color:#f0f4fa;font-family:WebViewerNotoCJK,'Noto Sans KR',Arial,sans-serif;}
+#comicCharacterEditorV2506 *{box-sizing:border-box;}
+#comicCharacterEditorV2506 .charPanelV2506{width:min(1300px,98vw);height:min(940px,96vh);min-height:400px;display:flex;flex-direction:column;gap:8px;border:1px solid #375570;border-radius:12px;background:#101b2a;box-shadow:0 10px 60px #000a;overflow:hidden;}
+#comicCharacterEditorV2506 .charHeaderV2506{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#192b42;padding:9px 15px;border-bottom:1px solid #3b5470;}
+#comicCharacterEditorV2506 .charHeaderV2506 strong{font-size:17px;}
+#comicCharacterEditorV2506 button{background:#263f5a;color:#eef4ff;border:1px solid #526a85;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit;min-height:34px;padding:6px 10px;}
+#comicCharacterEditorV2506 button:hover:not(:disabled){background:#375a80;}
+#comicCharacterEditorV2506 button:disabled{opacity:.42;cursor:not-allowed;}
+#comicCharacterEditorV2506 .charCloseV2506{background:#7d3345;font-size:18px;padding:2px 12px;}
+#comicCharacterEditorV2506 .charToolsV2506{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:5px 11px;}
+#comicCharacterEditorV2506 .charModeV2506[aria-pressed="true"]{background:#176da0;border-color:#64ceff;color:white;}
+#comicCharacterEditorV2506 button[data-action="confirm"]{background:#1f705c;border-color:#4ea994;}
+#comicCharacterEditorV2506 button[data-action="save"]{background:#225b9c;border-color:#61a4ef;font-weight:bold;}
+#comicCharacterEditorV2506 .charZoomTextV2509{font-size:12px;min-width:36px;text-align:center;color:#f4d674;font-weight:700;}
+#comicCharacterEditorV2506 button[data-action="whole-image"],#comicCharacterEditorV2506 button[data-action="fit"],#comicCharacterEditorV2506 button[data-action^="zoom-"]{background:#334b67;}
+#comicCharacterEditorV2506 .charBrushWrapV2506{display:flex;align-items:center;gap:7px;padding:0 8px;white-space:nowrap;font-size:12px;}
+#comicCharacterEditorV2506 .charBrushWrapV2506 input{width:95px;accent-color:#3cbeff;}
+#comicCharacterEditorV2506 .charScrollerV2506{flex:1;min-height:110px;overflow:auto;text-align:center;background:#0c1521;scrollbar-color:#506983 #121d2b;padding:12px;}
+#comicCharacterEditorV2506 .charStageV2506{position:relative;max-width:none;margin:0 auto;line-height:0;background-color:#fff;background-image:linear-gradient(45deg,#d0d0d0 25%,transparent 25%),linear-gradient(-45deg,#d0d0d0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#d0d0d0 75%),linear-gradient(-45deg,transparent 75%,#d0d0d0 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;}
+#comicCharacterEditorV2506 .charStageV2506 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+#comicCharacterEditorV2506 .charMaskV2506{touch-action:none;cursor:crosshair;}
+#comicCharacterEditorV2506 .charFooterV2506{padding:5px 13px 11px;border-top:1px solid #375570;}
+#comicCharacterEditorV2506 .charFooterV2506 p{margin:2px 0;font-size:12px;color:#c4d3e4;}
+#comicCharacterEditorV2506 .charStatusV2506{min-height:20px;font-size:12px;line-height:1.45;color:#8fd8ff;white-space:normal;overflow-wrap:anywhere;}
+@media(max-width:760px){#comicCharacterEditorV2506{padding:4px;}#comicCharacterEditorV2506 .charPanelV2506{width:100vw;height:98vh;}#comicCharacterEditorV2506 .charToolsV2506{gap:4px;}#comicCharacterEditorV2506 button{font-size:11px;padding:5px 7px;}#comicCharacterEditorV2506 .charBrushWrapV2506 input{width:68px;}}
+
+</style>
+<script id="comicCharacterScriptV2506">
+/* WebViewer HTML 2510 — Original IS-Net character cutout only.
+ * Preserve fit / zoom / whole image and high-contrast editable mask.
+ * Interactive SAM mode and all of its model loading logic are removed.
+ */
+(()=>{
+  'use strict';
+  if(window.ComicCharacterCutoutV2506)return;
+  // v2508: Semantic anime-character segmentation replaces unavailable OpenCV.js GrabCut.
+  // The model runs in a dedicated module worker; no pixels are uploaded to a server.
+  // First run requires a large (~176MB) model download, clearly reported in the UI.
+  const AI_MODEL_V2508='BritishWerewolf/IS-Net-Anime';
+  const AI_LIB_V2508='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
+  const AI_MAX_SIDE_V2508=768;
+  const AI_TOTAL_TIMEOUT_V2508=180000;
+  let editor=null;
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const statusText=(s,msg)=>{s.status.textContent=msg;};
+  const WORKER_SOURCE_V2508=`
+  let segmenter=null;
+  let modelLoading=null;
+  self.onmessage=async function(ev){
+    const m=ev.data||{};
+    if(m.type!=='analyze')return;
+    const tell=(state,message)=>self.postMessage({type:'progress',state,message});
+    try{
+      if(!modelLoading){
+        tell('download','인물 인식 AI 모델 로드 시작 · 최초 약 176MB 다운로드가 필요합니다.');
+        modelLoading=(async()=>{
+          const hf=await import(m.libUrl);
+          hf.env.allowLocalModels=false;
+          // Keeping FP32 matches the only ONNX model published for this repo.
+          return hf.pipeline('image-segmentation',m.modelName,{
+            device:'wasm',dtype:'fp32',
+            progress_callback:(p)=>{
+              if(p?.status==='progress'){
+                const n=Number(p.progress||0);
+                tell('download','AI 모델 다운로드 중 '+Math.round(n)+'% · 최초 약 176MB');
+              }else if(p?.status==='initiate')tell('download','AI 모델 파일 확인 중…');
+              else if(p?.status==='done')tell('loading','AI 모델 로딩 중…');
+            }
+          });
+        })();
+      }
+      segmenter=await modelLoading;
+      tell('inference','AI가 인물 윤곽을 분석 중…');
+      const output=await segmenter(m.image);
+      const items=Array.isArray(output)?output:[output];
+      let winner=null,chosenCount=0;
+      for(const item of items){
+        const raw=item?.mask||item?.image||item;
+        const w=Number(raw?.width),h=Number(raw?.height);
+        const d=raw?.data;
+        if(!w||!h||!d||d.length<w*h)continue;
+        const channels=Number(raw.channels)||Math.max(1,Math.floor(d.length/(w*h)));
+        const rgba=new Uint8Array(w*h);
+        let active=0;
+        for(let i=0;i<rgba.length;i++){
+          const k=i*channels;
+          let v=channels===1?d[k]:Math.max(d[k],d[k+1],d[k+2]);
+          if(channels===4&&d[k+3]===0)v=0;
+          v=Math.max(0,Math.min(255,Math.round(v)));
+          rgba[i]=v;
+          if(v>=100)active++;
+        }
+        // No meaningful foreground? The model has failed to isolate a figure.
+        if(active<Math.max(80,rgba.length*.005)||active>rgba.length*.985)continue;
+        if(active>chosenCount){winner={w,h,rgba};chosenCount=active;}
+      }
+      if(!winner)throw Error('AI가 인물의 윤곽을 확정하지 못했습니다. 선택 범위를 조절해 다시 시도해 주세요.');
+      self.postMessage({type:'result',ok:true,w:winner.w,h:winner.h,mask:winner.rgba.buffer},[winner.rgba.buffer]);
+    }catch(e){self.postMessage({type:'result',ok:false,error:String(e?.message||e)});}
+  };
+  `;
+  function stopAnalysisV2507(s){
+    const a=s?.analysis;
+    if(!a)return;
+    s.analysis=null;
+    clearTimeout(a.timer);
+    try{a.worker.terminate();}catch(_){}
+    try{URL.revokeObjectURL(a.url);}catch(_){}
+  }
+  async function refineInWorkerV2507(s,rect){
+    stopAnalysisV2507(s);
+    if(typeof Worker==='undefined'||typeof Blob==='undefined'||typeof URL.createObjectURL!=='function'){
+      statusText(s,'AI 분석을 실행할 수 없는 브라우저입니다. 자동 추출이 적용되지 않았습니다.');
+      return;
+    }
+    let worker=null,url=null;
+    const revision=s.maskRevisionV2507,selection=s.selectionV2507;
+    try{
+      // Analyze only the selected character neighbourhood, not an entire comic.
+      const padX=Math.max(8,Math.round(rect.width*.1));
+      const padY=Math.max(8,Math.round(rect.height*.1));
+      const crop={
+        x:Math.max(0,rect.x-padX),y:Math.max(0,rect.y-padY),
+        width:0,height:0
+      };
+      crop.width=Math.min(s.w-crop.x,rect.x+rect.width+padX-crop.x);
+      crop.height=Math.min(s.h-crop.y,rect.y+rect.height+padY-crop.y);
+      const scale=Math.min(1,AI_MAX_SIDE_V2508/Math.max(crop.width,crop.height));
+      const w=Math.max(32,Math.round(crop.width*scale)),h=Math.max(32,Math.round(crop.height*scale));
+      const temp=document.createElement('canvas');temp.width=w;temp.height=h;
+      temp.getContext('2d',{willReadFrequently:true}).drawImage(s.source.canvas,
+        crop.x,crop.y,crop.width,crop.height,0,0,w,h);
+      const dataUrl=temp.toDataURL('image/png');
+      const blob=new Blob([WORKER_SOURCE_V2508],{type:'text/javascript'});
+      url=URL.createObjectURL(blob);
+      worker=new Worker(url,{type:'module'});
+      const job={worker,url,timer:null,lastProgress:Date.now(),step:'loading'};
+      s.analysis=job;
+      const finish=(message)=>{
+        if(s.analysis!==job)return;
+        stopAnalysisV2507(s);
+        if(editor===s&&s.selectionV2507===selection&&!s.confirmed)
+          statusText(s,message);
+      };
+      job.timer=setTimeout(()=>finish('AI 모델 다운로드/분석이 3분을 초과해 중단됐습니다. 자동 추출은 적용되지 않았습니다. 인터넷 연결을 확인한 뒤 재시도해 주세요.'),AI_TOTAL_TIMEOUT_V2508);
+      worker.onerror=e=>{e.preventDefault?.();finish('AI 모델 실행 오류 · 자동 추출이 적용되지 않았습니다. 인터넷 연결과 개발자 도구 오류를 확인해 주세요.');};
+      worker.onmessage=ev=>{
+        const r=ev.data||{};
+        if(s.analysis!==job)return;
+        if(r.type==='progress'){
+          job.step=r.state;
+          statusText(s,r.message+' · 취소하려면 창 닫기');
+          return;
+        }
+        if(r.type!=='result')return;
+        if(!r.ok){finish('AI 자동 추출 실패: '+String(r.error||'알 수 없는 오류')+' · 보정된 것으로 표시하지 않았습니다.');return;}
+        stopAnalysisV2507(s);
+        if(editor!==s||s.selectionV2507!==selection||s.maskRevisionV2507!==revision||s.confirmed)return;
+        const sw=Number(r.w),sh=Number(r.h),arr=r.mask?new Uint8Array(r.mask):null;
+        if(!arr||!sw||!sh||arr.length!==sw*sh){statusText(s,'AI 응답 형식 오류 · 다시 선택해 주세요.');return;}
+        const newMask=new Uint8Array(s.w*s.h);
+        for(let yy=0;yy<crop.height;yy++){
+          const sy=Math.min(sh-1,Math.floor((yy+.5)*sh/crop.height));
+          for(let xx=0;xx<crop.width;xx++){
+            const sx=Math.min(sw-1,Math.floor((xx+.5)*sw/crop.width));
+            // The selected box limits unrelated surrounding figures.
+            const px=crop.x+xx,py=crop.y+yy;
+            if(px<rect.x||px>=rect.x+rect.width||py<rect.y||py>=rect.y+rect.height)continue;
+            const a=arr[sy*sw+sx];
+            newMask[py*s.w+px]=a<75?0:a;
+          }
+        }
+        const amount=newMask.reduce((a,b)=>a+(b>=100),0);
+        if(amount<50){statusText(s,'AI가 선택 영역에서 인물을 찾지 못했습니다. 다른 범위로 시도해 주세요.');return;}
+        s.mask=newMask;s.undo=[];s.confirmButton.disabled=false;
+        statusText(s,'AI 인물 자동 추출 완료 · 필요한 부분만 추가·제거보정한 뒤 확정하세요.');
+        queuePaint(s);
+      };
+      worker.postMessage({type:'analyze',image:dataUrl,libUrl:AI_LIB_V2508,modelName:AI_MODEL_V2508});
+      statusText(s,'임시 윤곽만 표시 중 · AI 인물 모델을 불러오고 있습니다. 최초 약 176MB 다운로드가 필요합니다.');
+    }catch(e){
+      try{worker?.terminate();}catch(_){}
+      try{if(url)URL.revokeObjectURL(url);}catch(_){}
+      s.analysis=null;
+      statusText(s,'AI 분석 실행 실패: '+String(e.message||e)+' · 자동 추출이 적용되지 않았습니다.');
+    }
+  }
+  function resizeCharacterStageV2509(s){
+    if(!s?.scroller)return;
+    const fw=Math.max(100,s.scroller.clientWidth-24),fh=Math.max(100,s.scroller.clientHeight-24);
+    s.fitScaleV2509=Math.min(1,fw/s.w,fh/s.h);
+    const factor=s.zoomV2509==='fit'?s.fitScaleV2509:s.zoomV2509;
+    const width=Math.max(1,Math.round(s.w*factor)),height=Math.max(1,Math.round(s.h*factor));
+    s.stage.style.width=width+'px';s.stage.style.height=height+'px';
+    if(s.zoomTextV2509)s.zoomTextV2509.textContent=Math.round(factor*100)+'%';
+  }
+  function createButton(label,action,title){
+    const b=document.createElement('button');b.type='button';b.textContent=label;
+    b.dataset.action=action;b.title=title||label;return b;
+  }
+  function cleanup(){
+    const s=editor;
+    if(!s)return;
+    editor=null;
+    stopAnalysisV2507(s);
+    document.removeEventListener('keydown',s.keyGuard,true);
+    document.removeEventListener('keyup',s.keyGuard,true);
+    s.resizeObserverV2509?.disconnect();
+    s.root.remove();
+    if(s.oldBodyOverflow!==null)document.body.style.overflow=s.oldBodyOverflow;
+  }
+  function readImageSafely(s,img,whole=false){
+    const nw=img.naturalWidth,nh=img.naturalHeight;
+    if(!(nw&&nh))throw Error('이미지가 아직 준비되지 않았습니다.');
+    // Very long scroll images are cropped to the CURRENT visible neighbourhood.
+    // Otherwise, downsizing 15000 px would make brush correction unusable.
+    let sx=0,sy=0,sw=nw,sh=nh;
+    if(!whole&&nh>nw*3.2 && nh>2700){
+      const rect=img.getBoundingClientRect();
+      const viewportY=window.innerHeight*.5;
+      const ratio=rect.height>0?clamp((viewportY-rect.top)/rect.height,0,1):.5;
+      sh=Math.min(nh,Math.max(nw*2.1,1500));
+      sy=Math.floor(clamp(ratio*nh-sh/2,0,nh-sh));
+    }
+    const factor=Math.min(1,1300/Math.max(sw,sh),Math.sqrt(1600000/(sw*sh)));
+    const w=Math.max(1,Math.round(sw*factor)),h=Math.max(1,Math.round(sh*factor));
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+    const data=ctx.getImageData(0,0,w,h); // raises on cross-origin tainted input
+    return {canvas,data,w,h,sx,sy,sw,sh,nw,nh};
+  }
+  function drawBaseV2506(s,masked){
+    const ctx=s.preview.getContext('2d');
+    ctx.clearRect(0,0,s.w,s.h);
+    if(!masked||!s.mask){ctx.drawImage(s.source.canvas,0,0);return;}
+    const data=new ImageData(new Uint8ClampedArray(s.source.data.data),s.w,s.h);
+    for(let i=0;i<s.mask.length;i++)data.data[i*4+3]=s.mask[i];
+    ctx.putImageData(data,0,0);
+  }
+  function putOverlay(s){
+    if(editor!==s)return;
+    const {w,h,mask,overlay,rectStart,rectEnd,mode,confirmed}=s;
+    const ctx=overlay.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    if(mask&&!confirmed){
+      const frame=ctx.createImageData(w,h),p=frame.data;
+      for(let i=0;i<mask.length;i++){
+        const at=i*4,selected=mask[i]>127;
+        // Translucent vivid fuchsia fill; bright yellow-green silhouette edge.
+        // Background stays unchanged, so artwork remains legible.
+        const x=i%w,y=(i/w)|0;
+        const edge=selected&&(x===0||x===w-1||y===0||y===h-1||
+          !mask[i-1]||!mask[i+1]||!mask[i-w]||!mask[i+w]);
+        p[at]=edge?184:255;
+        p[at+1]=edge?255:0;
+        p[at+2]=edge?0:172;
+        p[at+3]=selected?(edge?236:48):0;
+      }
+      ctx.putImageData(frame,0,0);
+    }
+    if(mode==='select'&&rectStart&&rectEnd){
+      ctx.lineWidth=Math.max(2,w/450);ctx.strokeStyle='#ffdf75';
+      ctx.setLineDash([8,6]);
+      const x=Math.min(rectStart.x,rectEnd.x),y=Math.min(rectStart.y,rectEnd.y);
+      ctx.strokeRect(x,y,Math.abs(rectStart.x-rectEnd.x),Math.abs(rectStart.y-rectEnd.y));
+      ctx.setLineDash([]);
+    }
+    if(s.cursor&&mode!=='select'&&!confirmed){
+      ctx.beginPath();ctx.lineWidth=Math.max(1,w/650);ctx.strokeStyle=mode==='add'?'#50ff7d':'#ff6f77';
+      ctx.arc(s.cursor.x,s.cursor.y,Math.max(1,s.brushSize),0,Math.PI*2);ctx.stroke();
+    }
+  }
+  function queuePaint(s){
+    if(s.pendingPaint)return;
+    s.pendingPaint=true;
+    requestAnimationFrame(()=>{s.pendingPaint=false;putOverlay(s);});
+  }
+  function selectMode(s,mode){
+    if(mode!=='select')stopAnalysisV2507(s);
+    if(s.confirmed){s.confirmed=false;drawBaseV2506(s,false);}
+    if(mode!=='select'&&!s.mask){statusText(s,'먼저 캐릭터 모드에서 인물 전체를 드래그해 선택하세요.');return;}
+    s.mode=mode;s.confirmed=false;
+    for(const b of s.modeButtons)b.setAttribute('aria-pressed',String(b.dataset.action===mode));
+    s.confirmButton.disabled=!s.mask;s.saveButton.disabled=true;
+    statusText(s,mode==='select'?'인물 전체를 사각형으로 둘러 드래그하세요. 클릭만 하면 대략적인 범위를 잡습니다.':(mode==='add'?'빠진 머리카락·의상·손발을 브러시로 직접 추가하세요.':'배경·말풍선을 브러시로 직접 제거하세요.'));
+    queuePaint(s);
+  }
+  function recordUndo(s){
+    if(!s.mask)return;
+    s.undo.push(s.mask.slice());
+    if(s.undo.length>8)s.undo.shift();
+  }
+  function paintAt(s,p){
+    if(!s.mask)return;
+    if(s.analysis)stopAnalysisV2507(s);
+    s.maskRevisionV2507++;
+    const r=Math.max(1,s.brushSize),r2=r*r;
+    const x0=clamp(Math.floor(p.x-r),0,s.w-1),x1=clamp(Math.ceil(p.x+r),0,s.w-1);
+    const y0=clamp(Math.floor(p.y-r),0,s.h-1),y1=clamp(Math.ceil(p.y+r),0,s.h-1);
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+      if((x-p.x)**2+(y-p.y)**2<=r2)s.mask[y*s.w+x]=s.mode==='add'?255:0;
+    }
+    s.confirmed=false;s.saveButton.disabled=true;
+    queuePaint(s);
+  }
+  function stroke(s,a,b){
+    const steps=Math.max(1,Math.ceil(Math.hypot(a.x-b.x,a.y-b.y)/Math.max(2,s.brushSize*.6)));
+    for(let i=1;i<=steps;i++)paintAt(s,{x:a.x+(b.x-a.x)*i/steps,y:a.y+(b.y-a.y)*i/steps});
+  }
+  function coords(s,evt){
+    const r=s.overlay.getBoundingClientRect();
+    return {x:clamp(Math.round((evt.clientX-r.left)*s.w/Math.max(1,r.width)),0,s.w-1),
+      y:clamp(Math.round((evt.clientY-r.top)*s.h/Math.max(1,r.height)),0,s.h-1)};
+  }
+  function fallbackRegion(s,rect){
+    // Offline fallback: sample background colours just outside the selected
+    // rectangle and flood-fill only the connected background. It is a colour-
+    // based approximation, NOT semantic human recognition.
+    const {w,h}=s,bytes=s.source.data.data;
+    const counts=new Map();
+    const sample=(x,y)=>{
+      if(x<0||x>=w||y<0||y>=h)return;
+      const k=(y*w+x)*4,r=bytes[k],g=bytes[k+1],b=bytes[k+2];
+      const key=`${r>>4},${g>>4},${b>>4}`;
+      let slot=counts.get(key);
+      if(!slot){slot={n:0,r:0,g:0,b:0};counts.set(key,slot);}
+      slot.n++;slot.r+=r;slot.g+=g;slot.b+=b;
+    };
+    for(let x=rect.x;x<rect.x+rect.width;x+=3){
+      for(const y of [rect.y-3,rect.y-2,rect.y+rect.height+1,rect.y+rect.height+2])sample(x,y);
+    }
+    for(let y=rect.y;y<rect.y+rect.height;y+=3){
+      for(const x of [rect.x-3,rect.x-2,rect.x+rect.width+1,rect.x+rect.width+2])sample(x,y);
+    }
+    // If the rectangle touches the image border, use its own outermost pixels.
+    if(!counts.size){
+      for(let x=rect.x;x<rect.x+rect.width;x+=3){sample(x,rect.y);sample(x,rect.y+rect.height-1);}
+    }
+    const ranked=[...counts.values()].sort((a,b)=>b.n-a.n),top=ranked[0]?.n||0;
+    const palette=ranked.filter(v=>v.n>=Math.max(2,top*.09)).slice(0,9)
+      .map(v=>[v.r/v.n,v.g/v.n,v.b/v.n]);
+    const threshold2=49*49;
+    const looksBackground=(x,y)=>{
+      const at=(y*w+x)*4;
+      const rr=bytes[at],gg=bytes[at+1],bb=bytes[at+2];
+      return palette.some(c=>(rr-c[0])**2+(gg-c[1])**2+(bb-c[2])**2<=threshold2);
+    };
+    const rw=rect.width,rh=rect.height,seen=new Uint8Array(rw*rh),queue=new Int32Array(rw*rh);
+    let head=0,tail=0;
+    const add=(x,y)=>{
+      if(x<0||x>=rw||y<0||y>=rh)return;
+      const index=y*rw+x;
+      if(seen[index]||!looksBackground(rect.x+x,rect.y+y))return;
+      seen[index]=1;queue[tail++]=index;
+    };
+    for(let x=0;x<rw;x++){add(x,0);add(x,rh-1);}
+    for(let y=1;y<rh-1;y++){add(0,y);add(rw-1,y);}
+    while(head<tail){
+      const pos=queue[head++],x=pos%rw,y=(pos/rw)|0;
+      add(x-1,y);add(x+1,y);add(x,y-1);add(x,y+1);
+    }
+    const mask=new Uint8Array(w*h);
+    for(let y=1;y<rh-1;y++)for(let x=1;x<rw-1;x++){
+      if(!seen[y*rw+x])mask[(rect.y+y)*w+rect.x+x]=255;
+    }
+    // No recognisable background? Permit manual silhouette correction.
+    if(!mask.some(v=>v))for(let y=rect.y+1;y<rect.y+rh-1;y++)
+      mask.fill(255,y*w+rect.x+1,y*w+rect.x+rw-1);
+    return mask;
+  }
+  async function beginCut(s,a,b){
+    if(s.busy||s!==editor)return;
+    stopAnalysisV2507(s);
+    s.busy=true;s.confirmButton.disabled=true;s.saveButton.disabled=true;
+    try{
+      let x=Math.floor(Math.min(a.x,b.x)),y=Math.floor(Math.min(a.y,b.y));
+      let w=Math.ceil(Math.abs(a.x-b.x)),h=Math.ceil(Math.abs(a.y-b.y));
+      if(w<10||h<10){
+        w=Math.round(s.w*.45);h=Math.round(s.h*.65);
+        x=Math.round(a.x-w/2);y=Math.round(a.y-h*.35);
+      }
+      x=clamp(x,1,s.w-8);y=clamp(y,1,s.h-8);
+      w=clamp(w,6,s.w-x-2);h=clamp(h,6,s.h-y-2);
+      if(w<6||h<6)throw Error('선택 범위가 너무 작습니다.');
+      const rect={x,y,width:w,height:h};
+      s.selectionV2507++;s.maskRevisionV2507++;
+      statusText(s,'빠른 임시 마스크 계산 중 · AI가 인물을 별도로 분석합니다…');
+      // Let the browser repaint. Never block the UI waiting for OpenCV.
+      await new Promise(r=>setTimeout(r,0));
+      if(editor!==s)return;
+      const mask=fallbackRegion(s,rect);
+      if(editor!==s)return;
+      s.mask=mask;s.undo=[];s.confirmed=false;s.mode='select';
+      s.confirmButton.disabled=!mask.some(x=>x>0);
+      for(const btn of s.modeButtons)btn.disabled=false;
+      s.busy=false;
+      queuePaint(s);
+      if(s.confirmButton.disabled){
+        statusText(s,'선택된 인물 후보가 없습니다. 조금 넓게 다시 드래그해 주세요.');
+      }else{
+        refineInWorkerV2507(s,rect);
+      }
+    }catch(e){statusText(s,'캐릭터 추출 실패: '+String(e.message||e));}
+    finally{s.busy=false;s.rectStart=null;s.rectEnd=null;queuePaint(s);}
+  }
+  function alphaBounding(s){
+    let x0=s.w,y0=s.h,x1=-1,y1=-1,count=0;
+    for(let y=0;y<s.h;y++)for(let x=0;x<s.w;x++)if(s.mask[y*s.w+x]){
+      x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);count++;
+    }
+    return {x0,y0,x1,y1,count};
+  }
+  function confirm(s){
+    if(!s.mask||s.busy)return;
+    stopAnalysisV2507(s);
+    const bounds=alphaBounding(s);
+    if(bounds.count<25){statusText(s,'추출 영역이 없습니다. 보정 후 다시 확정해 주세요.');return;}
+    s.confirmed=true;s.saveButton.disabled=false;drawBaseV2506(s,true);
+    for(const btn of s.modeButtons)btn.setAttribute('aria-pressed','false');
+    statusText(s,'확정 완료 · 체크무늬는 투명 영역입니다. 저장을 누르면 인물 영역만 PNG로 추출합니다.');
+    queuePaint(s);
+  }
+  async function save(s){
+    if(!s.confirmed||s.busy)return;
+    s.busy=true;s.saveButton.disabled=true;
+    try{
+      const box=alphaBounding(s);
+      if(box.count<25)throw Error('저장할 인물 영역이 없습니다.');
+      const x1=clamp(Math.floor(box.x0/s.w*s.source.sw)+s.source.sx,0,s.source.nw-1);
+      const y1=clamp(Math.floor(box.y0/s.h*s.source.sh)+s.source.sy,0,s.source.nh-1);
+      const x2=clamp(Math.ceil((box.x1+1)/s.w*s.source.sw)+s.source.sx,x1+1,s.source.nw);
+      const y2=clamp(Math.ceil((box.y1+1)/s.h*s.source.sh)+s.source.sy,y1+1,s.source.nh);
+      const ww=x2-x1,hh=y2-y1;
+      if(ww*hh>45e6)throw Error('추출 영역이 너무 큽니다. 더 좁게 선택해 주세요.');
+      statusText(s,'원본 해상도에서 투명 PNG를 만드는 중…');
+      await new Promise(r=>requestAnimationFrame(r));
+      const result=document.createElement('canvas');result.width=ww;result.height=hh;
+      const ctx=result.getContext('2d');
+      ctx.drawImage(s.sourceImage,x1,y1,ww,hh,0,0,ww,hh);
+      // Build 1:1 editable mask, then upscale to the original image's geometry.
+      const maskCanvas=document.createElement('canvas');maskCanvas.width=s.w;maskCanvas.height=s.h;
+      const mctx=maskCanvas.getContext('2d'),rgba=mctx.createImageData(s.w,s.h);
+      for(let i=0;i<s.mask.length;i++){
+        const at=i*4;rgba.data[at]=255;rgba.data[at+1]=255;rgba.data[at+2]=255;
+        rgba.data[at+3]=s.mask[i];
+      }
+      mctx.putImageData(rgba,0,0);
+      // Map the editable low-resolution mask back to the original source
+      // coordinates; output is cropped tightly around the selected figure.
+      const dx=s.source.sx-x1,dy=s.source.sy-y1;
+      const properlyMapped=document.createElement('canvas');properlyMapped.width=ww;properlyMapped.height=hh;
+      const pm=properlyMapped.getContext('2d');
+      pm.imageSmoothingEnabled=true;pm.imageSmoothingQuality='high';
+      pm.drawImage(maskCanvas,0,0,s.w,s.h,dx,dy,s.source.sw,s.source.sh);
+      ctx.globalCompositeOperation='destination-in';
+      ctx.drawImage(properlyMapped,0,0);
+      ctx.globalCompositeOperation='source-over';
+      const blob=await new Promise((resolve,reject)=>result.toBlob(b=>b?resolve(b):reject(Error('PNG 변환 실패')),'image/png'));
+      const title=String(s.title||'만화').replace(/\.(zip|cbz|png|webp|jpg|jpeg)$/i,'').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').slice(0,80)||'만화';
+      const filename=title+'_'+String(s.page).padStart(4,'0')+'_캐릭터.png';
+      const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;
+      document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
+      statusText(s,'저장 요청 완료: '+filename+' ('+ww+'×'+hh+'px · 배경 투명 PNG)');
+    }catch(e){statusText(s,'PNG 저장 실패: '+String(e.message||e));}
+    finally{s.busy=false;s.saveButton.disabled=!s.confirmed;}
+  }
+  function reloadImageV2509(s,whole){
+    if(editor!==s)return;
+    stopAnalysisV2507(s);
+    let source;
+    try{source=readImageSafely(s,s.sourceImage,whole);}catch(e){statusText(s,'이미지 전환 실패: '+String(e.message||e));return;}
+    s.wholeImageV2509=whole;s.source=source;s.w=source.w;s.h=source.h;
+    s.preview.width=s.overlay.width=s.w;s.preview.height=s.overlay.height=s.h;
+    s.mask=null;s.undo=[];s.confirmed=false;
+    s.rectStart=s.rectEnd=null;s.confirmButton.disabled=true;s.saveButton.disabled=true;
+    s.mode='select';for(const b of s.modeButtons)b.setAttribute('aria-pressed',String(b.dataset.action==='select'));
+    s.zoomV2509='fit';drawBaseV2506(s,false);resizeCharacterStageV2509(s);queuePaint(s);
+    if(s.wholeButtonV2509)s.wholeButtonV2509.textContent=whole?'현재 주변':'전체 이미지';
+    statusText(s,whole?'원본 전체를 축소해 불러왔습니다. 인물 위치를 고른 후 ＋로 확대할 수 있습니다. 아주 긴 웹툰은 정밀도가 낮아질 수 있습니다.':'현재 화면 주변만 불러왔습니다. 캐릭터를 드래그해 선택하세요.');
+  }
+  function open({image,title,page=1}={}){
+    if(!image?.naturalWidth||!image?.naturalHeight){alert('이미지가 로딩된 후 캐릭터 모드를 열어 주세요.');return false;}
+    cleanup();
+    const root=document.createElement('div');root.id='comicCharacterEditorV2506';root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
+    root.setAttribute('aria-label','웹뷰어 캐릭터 추출 편집');
+    const panel=document.createElement('section');panel.className='charPanelV2506';
+    const header=document.createElement('header');header.className='charHeaderV2506';
+    const head=document.createElement('strong');head.textContent='캐릭터 오리기 · '+page+'페이지';
+    const close=createButton('✕','close','캐릭터 편집 닫기');close.className='charCloseV2506';
+    header.append(head,close);
+    const tools=document.createElement('div');tools.className='charToolsV2506';
+    const select=createButton('캐릭터 모드','select','인물 주변을 드래그해 사각형 선택 · 클릭은 대략 선택');
+    const add=createButton('＋ 추가보정','add','누락된 인물 부분을 브러시로 칠해 추가');
+    const remove=createButton('－ 제거보정','remove','배경/말풍선 부분을 브러시로 지우기');
+    const confirmButton=createButton('확정','confirm','선택한 인물의 윤곽 확정');
+    const saveButton=createButton('저장 PNG','save','투명 배경 PNG 저장');
+    for(const b of [select,add,remove])b.className='charModeV2506';
+    select.setAttribute('aria-pressed','true');confirmButton.disabled=true;saveButton.disabled=true;
+    const brushWrap=document.createElement('label');brushWrap.className='charBrushWrapV2506';
+    brushWrap.textContent='보정 크기 ';
+    const brush=document.createElement('input');brush.type='range';brush.min='2';brush.max='64';brush.value='16';
+    const brushText=document.createElement('span');brushText.textContent='16px';brushWrap.append(brush,brushText);
+    const undo=createButton('↶ 되돌리기','undo','마지막 보정 취소 (Ctrl+Z)');undo.className='charUndoV2506';
+    const wholeBtn=createButton('전체 이미지','whole-image','긴 만화의 현재 주변/원본 전체 전환');
+    const fitBtn=createButton('맞춤','fit','전체 이미지가 편집창 안에 보이게 축소');
+    const zoomOut=createButton('－','zoom-out','축소');
+    const zoomIn=createButton('＋','zoom-in','확대');
+    const zoomText=document.createElement('span');zoomText.className='charZoomTextV2509';zoomText.textContent='맞춤';
+    tools.append(select,add,remove,brushWrap,undo,wholeBtn,fitBtn,zoomOut,zoomText,zoomIn,confirmButton,saveButton);
+    const scroller=document.createElement('div');scroller.className='charScrollerV2506';
+    const stage=document.createElement('div');stage.className='charStageV2506';
+    const preview=document.createElement('canvas');const overlay=document.createElement('canvas');
+    preview.className='charBaseV2506';overlay.className='charMaskV2506';
+    stage.append(preview,overlay);scroller.append(stage);
+    const footer=document.createElement('div');footer.className='charFooterV2506';
+    const label=document.createElement('p');label.textContent='IS-Net 캐릭터 자동 추출 · 추가·제거보정은 브러시로 직접 수정합니다. 맞춤/＋/－로 확대·축소하거나 전체 이미지로 전환할 수 있습니다. 최초 AI 실행은 모델 다운로드가 필요합니다.';
+    const status=document.createElement('div');status.className='charStatusV2506';status.setAttribute('role','status');
+    footer.append(label,status);
+    panel.append(header,tools,scroller,footer);root.append(panel);
+    const oldBodyOverflow=document.body.style.overflow;
+    const s={root,panel,overlay,preview,sourceImage:image,modeButtons:[select,add,remove],confirmButton,saveButton,
+      status,stage,scroller,brush,wholeButtonV2509:wholeBtn,wholeImageV2509:false,zoomTextV2509:zoomText,zoomV2509:'fit',oldBodyOverflow,mode:'select',mask:null,undo:[],confirmed:false,busy:false,
+      w:0,h:0,brushSize:16,pendingPaint:false,cursor:null,dragging:false,rectStart:null,rectEnd:null,
+      analysis:null,selectionV2507:0,maskRevisionV2507:0,
+      title:String(title||'만화'),page:Number(page)||1,keyGuard:null};
+    try{
+      s.source=readImageSafely(s,image);s.w=s.source.w;s.h=s.source.h;
+    }catch(e){alert('현재 이미지를 분석할 수 없습니다: '+String(e.message||e)+'\n로컬 이미지 또는 CORS가 허용된 이미지에서 사용해 주세요.');return false;}
+    preview.width=overlay.width=s.w;preview.height=overlay.height=s.h;
+    preview.getContext('2d').drawImage(s.source.canvas,0,0);
+    editor=s;document.body.append(root);document.body.style.overflow='hidden';
+    resizeCharacterStageV2509(s);
+    requestAnimationFrame(()=>{if(editor===s)resizeCharacterStageV2509(s);});
+    statusText(s,s.source.sh<s.source.nh?'긴 이미지의 현재 화면 주변 영역만 불러왔습니다. 인물을 드래그해 지정하세요.':'이미지는 화면에 맞춰 축소되었습니다. 인물 전체를 드래그해 선택하세요. ＋/－로 확대·축소할 수 있습니다.');
+    close.addEventListener('click',cleanup);
+    root.addEventListener('pointerdown',ev=>{if(ev.target===root)cleanup();});
+    brush.addEventListener('input',()=>{s.brushSize=Number(brush.value);brushText.textContent=brush.value+'px';queuePaint(s);});
+    wholeBtn.addEventListener('click',()=>reloadImageV2509(s,!s.wholeImageV2509));
+    fitBtn.addEventListener('click',()=>{s.zoomV2509='fit';resizeCharacterStageV2509(s);});
+    zoomOut.addEventListener('click',()=>{const z=s.zoomV2509==='fit'?s.fitScaleV2509:s.zoomV2509;s.zoomV2509=clamp(z/1.25,.08,3);resizeCharacterStageV2509(s);});
+    zoomIn.addEventListener('click',()=>{const z=s.zoomV2509==='fit'?s.fitScaleV2509:s.zoomV2509;s.zoomV2509=clamp(z*1.25,.08,3);resizeCharacterStageV2509(s);});
+    const resizeObserver=typeof ResizeObserver!=='undefined'?new ResizeObserver(()=>{if(editor===s&&s.zoomV2509==='fit')resizeCharacterStageV2509(s);}):null;
+    resizeObserver?.observe(scroller);s.resizeObserverV2509=resizeObserver;
+    undo.addEventListener('click',()=>{if(s.undo.length){s.mask=s.undo.pop();s.confirmed=false;s.saveButton.disabled=true;statusText(s,'마지막 보정을 취소했습니다.');queuePaint(s);}});
+    for(const btn of s.modeButtons)btn.addEventListener('click',()=>selectMode(s,btn.dataset.action));
+    confirmButton.addEventListener('click',()=>confirm(s));saveButton.addEventListener('click',()=>void save(s));
+    const begin=ev=>{
+      if(s.busy||s.confirmed||ev.button!==0)return;
+      ev.preventDefault();ev.stopPropagation();overlay.setPointerCapture?.(ev.pointerId);
+      s.dragging=true;s.last=coords(s,ev);s.cursor=s.last;
+      if(s.mode==='select'){s.rectStart=s.last;s.rectEnd=s.last;}
+      else{recordUndo(s);paintAt(s,s.last);}
+      queuePaint(s);
+    };
+    const move=ev=>{
+      if(editor!==s)return;
+      const point=coords(s,ev);s.cursor=point;
+      if(s.dragging){
+        if(s.mode==='select')s.rectEnd=point;
+        else{stroke(s,s.last||point,point);s.last=point;}
+      }
+      queuePaint(s);
+    };
+    const finish=ev=>{
+      if(!s.dragging)return;
+      const point=coords(s,ev);s.dragging=false;
+      if(s.mode==='select')void beginCut(s,s.rectStart||point,point);
+      else{s.cursor=point;queuePaint(s);}
+    };
+    overlay.addEventListener('pointerdown',begin);overlay.addEventListener('pointermove',move);
+    overlay.addEventListener('pointerup',finish);overlay.addEventListener('pointercancel',()=>{s.dragging=false;s.rectStart=null;s.rectEnd=null;queuePaint(s);});
+    overlay.addEventListener('pointerleave',()=>{if(!s.dragging)s.cursor=null;queuePaint(s);});
+    s.keyGuard=ev=>{
+      if(editor!==s)return;
+      if(ev.key==='Escape'){ev.preventDefault();ev.stopImmediatePropagation();cleanup();return;}
+      if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'){
+        ev.preventDefault();ev.stopImmediatePropagation();undo.click();return;
+      }
+      // Prevent the viewer's page navigation/Alt shortcuts while editing.
+      if(!ev.ctrlKey&&!ev.metaKey){ev.stopImmediatePropagation();}
+    };
+    document.addEventListener('keydown',s.keyGuard,true);
+    document.addEventListener('keyup',s.keyGuard,true);
+    select.focus();return true;
+  }
+  window.ComicCharacterCutoutV2506={open,close:cleanup};
+})();
+
+</script>
