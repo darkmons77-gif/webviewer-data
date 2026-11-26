@@ -29536,6 +29536,7 @@ body.hide-dels #wtList .videoCard > .videoCardDel{display:none!important}
 </select>
 
 
+      <label title="로컬 가로/펼침보기 선행 디코딩 · 가로 1장=펼침 1묶음 · 다음 뷰어부터 적용 권장" style="white-space:nowrap;">디코딩 <select class="zoomBtn" id="comicAheadDecodeV2518" aria-label="가로 및 펼침보기 선행 디코딩"><option value="0">OFF</option><option value="1" selected>1장</option><option value="2">2장</option></select></label>
       <button class="zoomBtn" id="wtViewThumb" type="button" aria-pressed="true" title="그림 보기 ON/OFF · 끄면 글자 목록">그림</button>
       <button class="zoomBtn" id="wtViewText"  title="구버전 보기모드 호환용 (화면 표시 없음)" aria-hidden="true" tabindex="-1" hidden>글자</button>
       <button class="zoomBtn" id="wtClearBtn" title="만화 목록만 비우기 (설정·표지 캐시·폴더 연결은 유지)">리셋</button>
@@ -30292,6 +30293,10 @@ body.hide-dels #wtList .videoCard > .videoCardDel{display:none!important}
     이미 시작한 전송은 중단되지 않으며, 별도 파일 권한 승인 없이 접근할 수 있을 때만 동작합니다.
   </div>
 </div>
+<div style="margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.08);">
+  <label>가로/펼침 선행 디코딩 (로컬 · 장/묶음) <select id="wvReaderPerfAheadDecodeV2512"><option value="0">OFF</option><option value="1" selected>1장 (기본)</option><option value="2">2장</option></select></label>
+  <div style="color:#aaa;font-size:11px;">로컬 가로보기 첫 1장 표시 후 최대 16장 (현재 포함) · 선행 디코딩은 별도 설정 · 다음 뷰어 열기부터 설정 적용 권장.</div>
+</div>
 <div id="videoDeveloperAccessBox" style="margin-top:5px; padding-top:5px; border-top:1px solid rgba(255,255,255,.08);">
   <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
     <span>개발자 권한:</span>
@@ -30316,6 +30321,22 @@ body.hide-dels #wtList .videoCard > .videoCardDel{display:none!important}
   </div>
   <div style="margin-top:3px;font-size:10px;line-height:1.35;color:#888;">
     켜면 상세 로그(log/info/debug)를 출력합니다. 꺼도 경고·오류는 항상 표시됩니다. 설정은 다음 실행에도 유지됩니다.
+  </div>
+  <div id="wvReaderPerfPanelV2512" class="wvDeveloperOnlyV1745" style="margin-top:8px;padding-top:7px;border-top:1px solid #ffffff22;font-size:11px;line-height:1.5;">
+    <strong style="color:#cfe3fa">만화 뷰어 성능 진단</strong>
+    <label style="display:block;margin:5px 0;color:#ffd89b"><input type="checkbox" id="wvReaderPerfIsolationV2512" checked> 뒤쪽 만화 목록 렌더링 격리 (기본 ON · 비교 실험)</label>
+    <div style="color:#95a4b6">평소에는 격리 ON. 진단 시작 전 체크 해제 시에만 기존 방식으로 비교합니다.</div>
+    <label style="display:block;margin:5px 0;color:#95a4b6"><input type="checkbox" id="wvReaderPerfDecodeV2512"> 표시 이미지 decode() 추가 계측 (진단 전용, 비교 시 OFF 권장)</label>
+    <div style="color:#95a4b6">비교 시 표시 이미지 decode() 추가 계측은 OFF 권장. 선행 디코딩은 위 일반 설정을 따릅니다.</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin:5px 0">
+      <button class="zoomBtn" type="button" id="wvReaderPerfStartV2512">진단 시작</button>
+      <button class="zoomBtn" type="button" id="wvReaderPerfStopV2512">진단 종료</button>
+      <button class="zoomBtn" type="button" id="wvReaderPerfViewV2512">결과 보기</button>
+      <button class="zoomBtn" type="button" id="wvReaderPerfCopyV2512">결과 복사</button>
+      <span id="wvReaderPerfStatusV2512">대기</span>
+    </div>
+    <div style="color:#95a4b6">시작 → 만화 열기 → 스크롤/페이지 전환 → 닫기 → 3초 후 종료. 최대 5분, 메모리 기록만 사용.</div>
+    <textarea id="wvReaderPerfOutputV2512" readonly spellcheck="false" rows="12" style="display:none;width:100%;box-sizing:border-box;resize:vertical;background:#151a22;color:#c9e7d7;font:11px/1.5 monospace"></textarea>
   </div>
   <div id="viewerCacheDiagnosticsBoxV1283" style="margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;line-height:1.5;">
     <strong style="color:#cfe3fa;">RAM 설정 캐시 진단 (1-4)</strong>
@@ -182133,7 +182154,7 @@ GitHub 온라인에서도 연결한 PC 이미지를 우선 사용합니다. 나�
 (function viewerLatestVersionV788(){
   'use strict';
 
-  const VIEWER_BUILD_V789 = 2511;
+  const VIEWER_BUILD_V789 = 2540;
   // Expose the actual HTML build to the separate localhost update checker.
   window.viewerCurrentHtmlBuildV789 = VIEWER_BUILD_V789;
 
@@ -189950,7 +189971,9 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
     if(hoverScopeV2466)hoverScopeV2466.classList.remove('comicPageToolsHoverV2466');
     hoverScopeV2466=null;
   };
+  const sceneCoveredV2525=()=>verticalMode&&!!window.ComicVerticalSceneTwoV2288?.getPlaybackStateV2396?.(verticalView)?.active;
   const pointerMoveV2466=e=>{
+    if(sceneCoveredV2525()){clearHoverV2466();return;}
     if(closed||e.pointerType==='touch')return;
     const wrapper=e.target.closest?.('.zipVerticalPageV986');
     const scope=verticalMode&&wrapper&&verticalView.contains(wrapper)?wrapper:cover;
@@ -189962,7 +189985,7 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
   cover.addEventListener('pointermove',pointerMoveV2466,{passive:true});
   cover.addEventListener('pointerleave',clearHoverV2466);
   function placeVertical(wrapper){
-    if(closed||!wrapper)return;
+    if(closed||!wrapper||sceneCoveredV2525())return;
     const b=wrapper.querySelector(':scope > .comicPageHeartV1148');
     if(b)comicHeartPlaceV1149(b,wrapper.querySelector(':scope > img'),wrapper);
     const coverButton=wrapper.querySelector(':scope > .comicPageCoverV1215');
@@ -189973,33 +189996,62 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
       wrapper.classList.remove('comicPageToolsBootV2466');
     else if(cover.classList.contains('comicPageToolsBootV2466'))wrapper.classList.add('comicPageToolsBootV2466');
   }
-  function relayout(){
-    if(closed)return;
-    if(!verticalMode){
-      comicHeartPlaceV1149(floating,image,cover);
+  // v2513: the fixed reader image box is stable across equal-sized pages.
+  // Reuse the measured image/cover-relative corner; never read layout on a cache hit.
+  // Read after all load handlers (including split-page style changes) have run.
+  let cornerV2513=null,frameV2513=0;
+  const cornerKeyV2513=()=>[image.naturalWidth,image.naturalHeight,image.hidden,
+    image.style.width,image.style.height,image.style.objectFit,image.style.objectPosition,
+    image.className,typeof getLightboxTopBarPos==='function'?getLightboxTopBarPos():'top-auto'].join('|');
+  function placeFloatingV2513(){
+    if(closed||verticalMode)return;
+    const perf=window.WebViewerReaderPerfV2512;
+    const key=cornerKeyV2513();
+    const hit=cornerV2513?.key===key;
+    const token=perf?.begin(hit?'page-tools-layout-cache-hit':'page-tools-layout-measure');
+    try{
+      if(!hit){
+        const visible=comicHeartPlaceV1149(floating,image,cover);
+        // Do not cache a hidden/unloaded image or a detached reader.
+        cornerV2513=visible?{key,left:floating.style.left,top:floating.style.top}:null;
+      }else{
+        floating.style.left=cornerV2513.left;floating.style.top=cornerV2513.top;
+        floating.style.right='auto';floating.style.bottom='auto';floating.hidden=false;
+      }
       if(floatingEditV2503){
         if(isEditAvailable?.())placeEditButtonV2503(floatingEditV2503,floating);
         else floatingEditV2503.hidden=true;
       }
       placeCoverButtonV1215(floatingCoverV1215,floating);
       placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);
-    }
+    }finally{perf?.end(token);}
+  }
+  function queueFloatingV2513(invalidate=false){
+    if(invalidate)cornerV2513=null;
+    if(closed||verticalMode||frameV2513)return;
+    frameV2513=requestAnimationFrame(()=>{frameV2513=0;placeFloatingV2513();});
+  }
+  // ResizeObserver does not force a synchronous layout read. Its notifications
+  // invalidate the cached corner when the actual image or reader box changes.
+  let resizeObserverV2513=null;
+  if(typeof ResizeObserver==='function'){
+    resizeObserverV2513=new ResizeObserver(()=>queueFloatingV2513(true));
+    resizeObserverV2513.observe(cover);resizeObserverV2513.observe(image);
+  }
+  function relayout(){
+    if(closed)return;
+    if(!verticalMode)queueFloatingV2513();
     for(const wrapper of verticalView.querySelectorAll('.zipVerticalPageV986.is-loaded'))placeVertical(wrapper);
   }
+  function invalidateLayoutV2513(){cornerV2513=null;relayout();}
   const onImageLoad=()=>{if(!verticalMode&&!closed){
-    comicHeartPlaceV1149(floating,image,cover);
-    if(floatingEditV2503){
-      if(isEditAvailable?.())placeEditButtonV2503(floatingEditV2503,floating);
-      else floatingEditV2503.hidden=true;
-    }
-    placeCoverButtonV1215(floatingCoverV1215,floating);
-    placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);
-    beginBootV2466();}};
+    queueFloatingV2513();beginBootV2466();
+  }};
   image.addEventListener('load',onImageLoad);
   if(image.complete&&image.naturalWidth>0)requestAnimationFrame(onImageLoad);
-  window.addEventListener('resize',relayout);
-  window.addEventListener('comic-guide-mode-v1148',relayout);
-  window.addEventListener('storage',relayout);
+  window.addEventListener('resize',invalidateLayoutV2513);
+  window.addEventListener('comic-guide-mode-v1148',invalidateLayoutV2513);
+  window.addEventListener('storage',invalidateLayoutV2513);
   function render(){
     if(closed)return;
     floating.disabled=!ready;paint(floating,marked.has(currentPage),currentPage);
@@ -190102,17 +190154,21 @@ function attachLocal({cover,verticalView,value,image,onFavoritesChange,onSetCove
     ready=true;render();
     try{onFavoritesChange?.([...marked].sort((a,b)=>a-b),'load');}catch(e){console.warn('[comic favorites panel v1150]',e);}
   }).catch(e=>{console.warn('[comic heart v1148] 복원 실패',e);if(!closed){floating.title='즐겨찾기 저장소 연결 실패';floating.disabled=true;}});
+  let floatingPageDirtyV2534=false;
+  function syncFloatingPageV2534(){
+    floatingPageDirtyV2534=false;const page=currentPage;
+    paint(floating,marked.has(page),page);floating.disabled=!ready;
+    floatingCoverV1215.dataset.page=String(page);floatingCoverV1215.title=page+'페이지를 이 작품의 표지로 저장';
+    if(floatingDeleteV2276){floatingDeleteV2276.dataset.page=String(page);floatingDeleteV2276.title=page+'페이지를 삭제 대상으로 선택 (삭제 편집창 열기)';}
+    if(floatingEditV2503)paintEditV2503(floatingEditV2503,!!isEditSelected?.(page),page,!!isEditReady?.());
+  }
   return {
-    syncPage(page){currentPage=page;paint(floating,marked.has(page),page);floating.disabled=!ready;floatingCoverV1215.dataset.page=String(page);floatingCoverV1215.title=page+'페이지를 이 작품의 표지로 저장';if(floatingDeleteV2276){floatingDeleteV2276.dataset.page=String(page);floatingDeleteV2276.title=page+'페이지를 삭제 대상으로 선택 (삭제 편집창 열기)';}if(floatingEditV2503)paintEditV2503(floatingEditV2503,!!isEditSelected?.(page),page,!!isEditReady?.());},
-    setVertical(on){verticalMode=!!on;floating.hidden=verticalMode;floatingCoverV1215.hidden=verticalMode;if(floatingDeleteV2276)floatingDeleteV2276.hidden=verticalMode;if(floatingEditV2503)floatingEditV2503.hidden=verticalMode||!isEditAvailable?.();if(!verticalMode){
-      comicHeartPlaceV1149(floating,image,cover);
-      if(floatingEditV2503&&isEditAvailable?.())placeEditButtonV2503(floatingEditV2503,floating);
-      placeCoverButtonV1215(floatingCoverV1215,floating);
-      placeDeleteButtonV2276(floatingDeleteV2276,floatingCoverV1215);
-    }},
+    syncPage(page,deferHiddenV2534=false){currentPage=page;if(deferHiddenV2534&&verticalMode){floatingPageDirtyV2534=true;return;}syncFloatingPageV2534();},
+    flushHiddenPageV2534(){if(floatingPageDirtyV2534&&!closed)syncFloatingPageV2534();},
+    setVertical(on){verticalMode=!!on;if(!verticalMode&&floatingPageDirtyV2534)syncFloatingPageV2534();floating.hidden=verticalMode;floatingCoverV1215.hidden=verticalMode;if(floatingDeleteV2276)floatingDeleteV2276.hidden=verticalMode;if(floatingEditV2503)floatingEditV2503.hidden=verticalMode||!isEditAvailable?.();cornerV2513=null;if(!verticalMode)queueFloatingV2513();},
     refreshEdit(){if(!closed){if(floatingEditV2503)paintEditV2503(floatingEditV2503,!!isEditSelected?.(currentPage),currentPage,!!isEditReady?.());relayout();}},
     addVertical,placeVertical,relayout,togglePage:toggle,
-    destroy(){closed=true;clearTimeout(bootTimerV2466);clearHoverV2466();cover.removeEventListener('pointermove',pointerMoveV2466);cover.removeEventListener('pointerleave',clearHoverV2466);image.removeEventListener('load',onImageLoad);window.removeEventListener('resize',relayout);window.removeEventListener('comic-guide-mode-v1148',relayout);window.removeEventListener('storage',relayout);},
+    destroy(){closed=true;cancelAnimationFrame(frameV2513);frameV2513=0;resizeObserverV2513?.disconnect();cornerV2513=null;clearTimeout(bootTimerV2466);clearHoverV2466();cover.removeEventListener('pointermove',pointerMoveV2466);cover.removeEventListener('pointerleave',clearHoverV2466);image.removeEventListener('load',onImageLoad);window.removeEventListener('resize',invalidateLayoutV2513);window.removeEventListener('comic-guide-mode-v1148',invalidateLayoutV2513);window.removeEventListener('storage',invalidateLayoutV2513);},
     loaded
   };
 }
@@ -190592,6 +190648,8 @@ async function findFile(value){const v=parse(value);if(!v)throw Error('유효하
 const validZipPagePathV2059=name=>!!name&&!name.startsWith('/')&&!name.includes('\\')&&
   !name.split('/').some(part=>!part||part==='.'||part==='..');
 async function central(file){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('zip-directory');try{
+
   const MAX_CENTRAL_V1652=64*1024*1024,MAX_ENTRIES_V1652=200000;
   const tailSize=Math.min(file.size,65557+128),begin=file.size-tailSize;
   if(file.size<22)throw Error('ZIP 파일이 아직 완성되지 않았습니다 (22바이트 미만).');
@@ -190674,8 +190732,12 @@ async function central(file){
     return ac-bc || collator.compare(a.name,b.name);
   });
   return out;
+
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
 }
 async function extract(file,entry){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('zip-extract-total');try{
+
   if(entry.size>120*1024*1024)throw Error('이미지 용량 제한 초과');
   const lh=new DataView(await file.slice(entry.local,entry.local+30).arrayBuffer());
   if(lh.byteLength!==30 || lh.getUint32(0,true)!==0x04034b50)throw Error('ZIP 이미지 헤더 손상');
@@ -190684,12 +190746,15 @@ async function extract(file,entry){
   let blob=file.slice(start,start+entry.compressed);
   if(entry.method===8){
     if(typeof DecompressionStream!=='function')throw Error('이 브라우저에 ZIP Deflate 해제 기능이 없습니다.');
-    blob=await new Response(blob.stream().pipeThrough(new DecompressionStream('deflate-raw'))).blob();
+    const dt=window.WebViewerReaderPerfV2512?.begin('zip-deflate');
+    try{blob=await new Response(blob.stream().pipeThrough(new DecompressionStream('deflate-raw'))).blob();}finally{window.WebViewerReaderPerfV2512?.end(dt);}
   }
   if(blob.size>120*1024*1024)throw Error('압축 해제 이미지 용량 제한 초과');
   const ext=entry.name.split('.').pop().toLowerCase();
   const mime=ext==='png'?'image/png':ext==='webp'?'image/webp':ext==='gif'?'image/gif':ext==='avif'?'image/avif':ext==='bmp'?'image/bmp':'image/jpeg';
   return new Blob([blob],{type:mime});
+
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
 }
 async function scanFromRoot(handle, progress, preEnumeratedArchivesV1004 = null){
   const root=await rootFor(handle);if(!root)return [];
@@ -191841,6 +191906,7 @@ function comicLocalNavNameV1170(v){
   const p=parse(v);return p?p.rel.split('/').pop():'';
 }
 async function openLightbox(value, fileJumpV1005=null){
+  const __wvOpenPerf2512=window.WebViewerReaderPerfV2512?.begin('reader-open');
   // v1651: A saved download is an explicitly supplied File / DirectoryHandle.
   // It is NOT a registered comic root or a new entry in the local catalog.
   const savedDownloadV1651=!!fileJumpV1005?.savedDownloadV1651;
@@ -191988,6 +192054,8 @@ async function openLightbox(value, fileJumpV1005=null){
     return promise;
   }
   const readImageRawV1709=async(entry)=>{
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin(isFolderV992?'folder-getFile':isRemoteV1466?'remote-image-read':'zip-image-read');try{
+
     if(isRemoteV1466){
       const idx=Number(entry?.remotePageV1466);
       if(!Number.isInteger(idx)||idx<0||idx>=pages.length)throw Error('잘못된 온라인 만화 페이지');
@@ -192043,8 +192111,11 @@ async function openLightbox(value, fileJumpV1005=null){
       if(blob.type.startsWith('text/')||blob.type.includes('json'))throw Error('이미지 형식이 아닌 응답입니다.');
       return blob;
     }
-    return isFolderV992 ? entry.localHandleV992.getFile() : extract(file,entry);
-  };
+    const read= isFolderV992 ? entry.localHandleV992.getFile() : extract(file,entry);
+    return __wvPerf2512 ? await read : read;
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+};
 
   // v1709: External chapters keep already fetched bytes for their entire reader session.
   // Sharing the Promise deduplicates overlapping horizontal/spread/vertical requests.
@@ -192091,14 +192162,87 @@ async function openLightbox(value, fileJumpV1005=null){
   // Thirty is forward lookahead, not an eviction cap on previously read pages.
   const isBlobOnlineV1757=isRemoteV1466;
   const INITIAL_WINDOW_V1757=2;
-  const AHEAD_WINDOW_V1573=isBlobOnlineV1757?30:8;
+  const AHEAD_WINDOW_V1573=isBlobOnlineV1757?30:(isRemoteV1466?8:16);
   const AHEAD_CONCURRENCY_V1573=isBlobOnlineV1757?4:2;
   let initialBlobWindowV1757=isBlobOnlineV1757;
+  let localFirstPaintV2518=!isRemoteV1466, localPromotionRafV2518=0, localPromotionTimerV2518=0;
+  function cancelLocalPromotionV2518(){
+    cancelAnimationFrame(localPromotionRafV2518);clearTimeout(localPromotionTimerV2518);
+    localPromotionRafV2518=localPromotionTimerV2518=0;
+  }
+  function promoteLocalAfterLoadV2518(){
+    if(!localFirstPaintV2518||destroyed||readDirectionV986!=='horizontal'||localPromotionRafV2518||localPromotionTimerV2518)return;
+    const mine=seq;
+    localPromotionRafV2518=requestAnimationFrame(()=>{
+      localPromotionRafV2518=0;
+      localPromotionTimerV2518=setTimeout(()=>{
+        localPromotionTimerV2518=0;
+        if(destroyed||readDirectionV986!=='horizontal'||mine!==seq||warmV2516.visiblePending||!image.complete||!image.naturalWidth)return;
+        localFirstPaintV2518=false;
+        window.WebViewerReaderPerfV2512?.mark('local-blob-window-promote',{window:16});
+        prepareHorizontalWindowV1573(idx);
+      },0);
+    });
+  }
   let initialBlobPromotionStartedV1757=false;
   const horizontalAheadV1573={
     blobs:new Map(), pending:new Map(), queue:[], active:0,
     first:0, generation:0
   };
+  // v2517: local ahead decode. Keep the SAME object URL for decoded and visible images.
+  // Never wait for an unfinished speculative decode on the visible path.
+  const warmV2516={items:new Map(),busy:null,timer:0,epoch:0,dir:1,attempted:new Set(),held:null,visiblePending:true};
+  const warmLimitV2516=()=>isRemoteV1466?0:(window.WebViewerReaderPerfV2512?.aheadDecodeCount?.()??1);
+  const warmStatV2516=(key)=>window.WebViewerReaderPerfV2512?.aheadDecodeStat?.(key);
+  function dropWarmV2516(item){if(!item)return;item.img.removeAttribute('src');releaseSrcV1580(item.url);}
+  function clearWarmV2516(){
+    ++warmV2516.epoch;clearTimeout(warmV2516.timer);warmV2516.timer=0;
+    for(const item of warmV2516.items.values())dropWarmV2516(item);
+    warmV2516.items.clear();warmV2516.attempted.clear();
+    // In-flight decode settles before another one starts. Its URL is released in finally.
+    if(warmV2516.busy)warmV2516.busy.img.removeAttribute('src');
+    if(warmV2516.held){warmV2516.held.removeAttribute('src');warmV2516.held=null;}
+  }
+  function warmTargetsV2516(){
+    const limit=warmLimitV2516();if(!limit||destroyed||readDirectionV986!=='horizontal')return [];
+    const filter=filteredPagesV2505();const out=[];
+    for(let p=idx+warmV2516.dir;p>=0&&p<pages.length&&out.length<limit;p+=warmV2516.dir){
+      if(!filter||filter.includes(p+1))out.push(p);
+    }return out;
+  }
+  function scheduleWarmV2516(delay=40){
+    if(!warmLimitV2516()||destroyed||readDirectionV986!=='horizontal'||warmV2516.timer||warmV2516.busy)return;
+    const epoch=warmV2516.epoch;
+    warmV2516.timer=setTimeout(()=>{warmV2516.timer=0;if(epoch===warmV2516.epoch)void pumpWarmV2516();},delay);
+  }
+  async function pumpWarmV2516(){
+    if(warmV2516.busy||!warmLimitV2516()||destroyed||readDirectionV986!=='horizontal'||warmV2516.visiblePending||!image.complete||!image.naturalWidth)return;
+    const targets=warmTargetsV2516();
+    for(const [p,item] of warmV2516.items)if(!targets.includes(p)){dropWarmV2516(item);warmV2516.items.delete(p);}
+    const p=targets.find(p=>!warmV2516.items.has(p)&&!warmV2516.attempted.has(p)&&horizontalAheadV1573.blobs.get(p) instanceof Blob);
+    if(p===undefined)return;
+    warmV2516.attempted.add(p);
+    const data=horizontalAheadV1573.blobs.get(p),img=new Image(),url=pageSrcV1580(data),epoch=warmV2516.epoch;
+    const item={img,url,data,bytes:0};warmV2516.busy=item;
+    const perf=window.WebViewerReaderPerfV2512,token=perf?.begin('ahead-decode-wait');warmStatV2516('started');
+    let retained=false;
+    try{
+      img.decoding='async';img.src=url;await img.decode();
+      item.bytes=img.naturalWidth*img.naturalHeight*4;
+      const used=[...warmV2516.items.values()].reduce((sum,x)=>sum+x.bytes,0);
+      if(epoch!==warmV2516.epoch||!warmTargetsV2516().includes(p)||horizontalAheadV1573.blobs.get(p)!==data){warmStatV2516('stale');return;}
+      if(!item.bytes||used+item.bytes>96*1048576){warmStatV2516('budgetSkipped');return;}
+      warmV2516.items.set(p,item);retained=true;warmStatV2516('ready');
+    }catch(_){warmStatV2516('rejected');}
+    finally{perf?.end(token);if(!retained)dropWarmV2516(item);warmV2516.busy=null;scheduleWarmV2516();}
+  }
+  function takeWarmV2516(p,data){
+    if(!warmLimitV2516())return null;
+    const item=warmV2516.items.get(p);warmV2516.items.delete(p);
+    if(item&&item.data===data){warmStatV2516('hit');return item;}
+    if(item)dropWarmV2516(item);warmStatV2516('miss');return null;
+  }
+  window.addEventListener('wv-ahead-decode-stop-v2516',clearWarmV2516);
   function pumpHorizontalAheadV1573(){
     const state=horizontalAheadV1573;
     while(!destroyed && state.active<AHEAD_CONCURRENCY_V1573 && state.queue.length){
@@ -192111,6 +192255,7 @@ async function openLightbox(value, fileJumpV1005=null){
           if(!destroyed && task.generation===state.generation &&
              (isRemoteV1466||(task.page>=state.first && task.page<state.first+AHEAD_WINDOW_V1573))){
             state.blobs.set(task.page,data);
+            if(warmV2516.timer===0&&warmV2516.busy===null)scheduleWarmV2516();
           }
           task.resolve(data);
         }catch(err){task.reject(err);}
@@ -192121,7 +192266,7 @@ async function openLightbox(value, fileJumpV1005=null){
       })();
     }
   }
-  function horizontalImageV1573(page){
+  function horizontalImageV1573(page,priority=false){
     const state=horizontalAheadV1573;
     if(readDirectionV986!=='horizontal')return readImageV992(pages[page]);
     if(state.blobs.has(page))return Promise.resolve(state.blobs.get(page));
@@ -192134,7 +192279,7 @@ async function openLightbox(value, fileJumpV1005=null){
     void promise.catch(()=>{});
     const task={page,resolve,reject,promise,generation:state.generation,cancelled:false};
     state.pending.set(page,task);
-    state.queue.push(task);
+    if(priority)state.queue.unshift(task);else state.queue.push(task);
     pumpHorizontalAheadV1573();
     return promise;
   }
@@ -192145,7 +192290,7 @@ async function openLightbox(value, fileJumpV1005=null){
     state.first=start;
     // During first paint, do not queue 30 images. Start with two confirmed
     // downloads, then expand asynchronously after the first page is shown.
-    const windowLength=initialBlobWindowV1757?INITIAL_WINDOW_V1757:AHEAD_WINDOW_V1573;
+    const windowLength=localFirstPaintV2518?1:(initialBlobWindowV1757?INITIAL_WINDOW_V1757:AHEAD_WINDOW_V1573);
     const end=Math.min(pages.length,start+windowLength);
     if(!isRemoteV1466){
       for(const page of state.blobs.keys()){
@@ -192159,7 +192304,15 @@ async function openLightbox(value, fileJumpV1005=null){
       task.resolve(null);
       return false;
     });
-    // Visible page has priority, then the remainder of the current lookahead.
+    // Give a queued visible read priority before enqueueing the lookahead.
+    if(!isRemoteV1466){
+      const queued=state.queue.findIndex(task=>task.page===start);
+      if(queued>0)state.queue.unshift(state.queue.splice(queued,1)[0]);
+      if(!state.pending.has(start)&&!state.blobs.has(start)){
+        // Existing background reads cannot be interrupted; new visible read goes first.
+        void horizontalImageV1573(start,true);
+      }
+    }
     for(let page=start;page<end;page++)void horizontalImageV1573(page);
   }
   function promoteBlobAheadV1757(){
@@ -192179,6 +192332,8 @@ async function openLightbox(value, fileJumpV1005=null){
     });
   }
   function clearHorizontalAheadV1573(){
+    cancelLocalPromotionV2518();if(!isRemoteV1466)localFirstPaintV2518=true;
+    clearWarmV2516();
     const state=horizontalAheadV1573;
     state.generation++;
     if(!isRemoteV1466||destroyed)state.blobs.clear();
@@ -192223,6 +192378,7 @@ async function openLightbox(value, fileJumpV1005=null){
   let mode='auto';
   try{const m=ViewerCacheManager.storage.getItem(MODE_KEY);if(['auto','always','off'].includes(m))mode=m;}catch(_){}
   const cover=document.createElement('div');cover.id='comicZipLightboxV984';
+  window.WebViewerReaderPerfV2512?.mark('reader-dom-created',{source:isRemoteV1466?'remote':isFolderV992?'folder':'zip',pages:pages.length});
   // v2405: Never infer portrait orientation from a saved cutscene preference.
   // Image aspect ratio is decided first; only a portrait opening may enter scene mode.
   let detectedOrientationV2405='unknown';
@@ -192284,11 +192440,12 @@ async function openLightbox(value, fileJumpV1005=null){
       },attempt===1?700:2000);
     },true);
   }
-  const image=document.createElement('img');image.className='zipLightboxImageV984';image.alt='만화 이미지';if(isIlilV1579||isToonkorV1588||isNewtokiV1724)image.referrerPolicy='no-referrer';
+  const image=document.createElement('img');image.addEventListener('load',()=>{warmV2516.visiblePending=false;promoteLocalAfterLoadV2518();scheduleWarmV2516();});image.className='zipLightboxImageV984';image.alt='만화 이미지';if(isIlilV1579||isToonkorV1588||isNewtokiV1724)image.referrerPolicy='no-referrer';
   image.draggable=false;
   const topZone=document.createElement('div');topZone.className='zipLightboxTopZoneV984';
   topZone.title='페이지 메뉴 표시';
   const head=document.createElement('div');head.className='zipLightboxHeaderV984';
+  let autoUiSessionV2534=false,hiddenHeaderDirtyV2534=false;
   // v1148: 절대경로와 ZIP·CBZ·이미지폴더는 같은 옵션 위치값을 사용한다.
   let headerPinnedV1086=false;
   try{headerPinnedV1086=['top','bottom'].includes(getLightboxTopBarPos());}catch(_){}
@@ -192444,16 +192601,17 @@ async function openLightbox(value, fileJumpV1005=null){
   const AUTO_SCROLL_RENDER_MODE_KEY_V2203='comic_local_auto_scroll_render_mode_v2203';
   const autoScrollRenderModeV2203=document.createElement('select');
   autoScrollRenderModeV2203.setAttribute('aria-label','세로 자동스크롤 표시 방식');
-  autoScrollRenderModeV2203.title='글자 선명: 정수 픽셀 이동 / 더 부드럽게: 소수 픽셀 이동 (작은 글자는 흐려질 수 있음)';
-  for(const [value,label] of [['sharp','글자 선명'],['smooth','더 부드럽게']]){
+  autoScrollRenderModeV2203.title='글자 선명: 정수 픽셀 / 더 부드럽게: 소수 픽셀 / 합성 스크롤(시험): 로컬 일반 세로뷰의 합성 애니메이션 (미지원 시 더 부드럽게)';
+  for(const [value,label] of [['sharp','글자 선명'],['smooth','더 부드럽게'],['composite','합성 스크롤(시험)']]){
     const option=document.createElement('option');option.value=value;option.textContent=label;
     autoScrollRenderModeV2203.appendChild(option);
   }
   try{
     const saved=ViewerCacheManager.storage.getItem(AUTO_SCROLL_RENDER_MODE_KEY_V2203);
-    autoScrollRenderModeV2203.value=saved==='smooth'?'smooth':'sharp';
+    autoScrollRenderModeV2203.value=['smooth','composite'].includes(saved)?saved:'sharp';
   }catch(_){autoScrollRenderModeV2203.value='sharp';}
   autoScrollRenderModeV2203.addEventListener('change',()=>{
+    interruptCompositeV2535('mode');compositeRetryV2535=0;
     autoScrollCarryV1193=0;
     try{ViewerCacheManager.storage.setItem(AUTO_SCROLL_RENDER_MODE_KEY_V2203,autoScrollRenderModeV2203.value);}catch(_){}
   });
@@ -192491,6 +192649,7 @@ async function openLightbox(value, fileJumpV1005=null){
   const fmtResolutionV1834=(entry)=>entry?.[0]>0&&entry?.[1]>0?entry[0]+'×'+entry[1]:null;
   function updateImageResolutionV1834(){
     if(destroyed||!cover.isConnected)return;
+    if(autoUiSessionV2534&&readDirectionV986==='vertical'&&normalLocalVerticalV2524()&&!head.classList.contains('is-visible')){hiddenHeaderDirtyV2534=true;return;}
     let label=null;
     if(readDirectionV986==='horizontal'){
       if(image.complete&&image.naturalWidth)label=image.naturalWidth+'×'+image.naturalHeight;
@@ -192511,6 +192670,10 @@ async function openLightbox(value, fileJumpV1005=null){
   // Capturing the load event also notices Ichigo replacing an already-visible image.
   cover.addEventListener('load',e=>{
     if(e.target instanceof HTMLImageElement){
+      if(readDirectionV986==='vertical'&&(!isRemoteV1466||scene2VerticalOnV2307())&&e.target.closest?.('.zipLightboxVerticalV986')){
+        if(e.target===verticalItemsV986[idx]?.querySelector('img'))updateImageResolutionV1834();
+        return;
+      }
       if(e.target===image||e.target===spreadLeftV1226||e.target===spreadRightV1226||e.target===spreadWideV1235||e.target.closest?.('.zipLightboxVerticalV986,.zipBookEngineV1226'))
         updateImageResolutionV1834();
     }
@@ -193629,7 +193792,9 @@ async function openLightbox(value, fileJumpV1005=null){
     }
     void go(Math.max(0,(groupLastV1183?.page||resumePageV1090)-1));
   });
-  cover.append(image,verticalViewV986,spreadViewV1226,topZone,badge,head,lastBoxV988);document.body.appendChild(cover);
+  cover.append(image,verticalViewV986,spreadViewV1226,topZone,badge,head,lastBoxV988);
+  window.WebViewerReaderPerfV2512?.isolate?.(cover);
+  try{document.body.appendChild(cover);}catch(e){window.WebViewerReaderPerfV2512?.restore?.(cover);throw e;}
   if(!isRemoteV1466)window.ComicStampV2370?.attach?.(cover);
   if(isToonkorV1588){
     toonkorTraceV1765?.mark('viewer-dom-ready');
@@ -193797,6 +193962,7 @@ async function openLightbox(value, fileJumpV1005=null){
   // v1460: 기존 첫 페이지 미리보기를 방향 판정에도 재사용해 첫 페이지를 두 번 해제하지 않는다.
   // 첫 미리보기 로딩 실패 시에는 두 번째 이미지 비율만 확인한다.
   const firstImageReadyV1460=(async()=>{
+    const __wvFirstPerf2512=window.WebViewerReaderPerfV2512?.begin('first-image-probe');
     try{
       // The initial orientation/cover probe shares the first page with the reader.
       const blob=await horizontalImageV1573(0);
@@ -193819,7 +193985,7 @@ async function openLightbox(value, fileJumpV1005=null){
         firstImageV1090.src=firstOwnedUrlV1090;
         if(firstImageV1090.complete)onLoad();
       });
-    }catch(e){firstLabelV1090.textContent='처음 1페이지';return [0,0];}
+    }catch(e){firstLabelV1090.textContent='처음 1페이지';return [0,0];}finally{window.WebViewerReaderPerfV2512?.end(__wvFirstPerf2512);}
   })();
   let saveTimerV1020=0,pendingPageV1020=null;
   // 화면 초기 표시(go(idx))는 실제 독서 이동이 아니다. 초기 렌더만으로 묶음기록을 덮어쓰지 않는다.
@@ -193840,7 +194006,7 @@ async function openLightbox(value, fileJumpV1005=null){
   }
   // v1090: 창을 다른 탭으로 잠시 숨겨도 이어보기 기록을 갱신하지 않는다.
   const onPageHiddenV1020=()=>{};
-  const onPageUnloadV1020=()=>{flushLastPageV1020();if(!isRemoteV1466&&!savedDownloadV1651){if(!isFolderV992)void window.ComicZipInnerChaptersV1202?.flush(value);else void window.ComicFsChaptersV1204?.flush(value);}};
+  const onPageUnloadV1020=()=>{if(compositeV2535)stopAutoScrollV1193();flushLastPageV1020();if(!isRemoteV1466&&!savedDownloadV1651){if(!isFolderV992)void window.ComicZipInnerChaptersV1202?.flush(value);else void window.ComicFsChaptersV1204?.flush(value);}};
   document.addEventListener('visibilitychange',onPageHiddenV1020);
   window.addEventListener('pagehide',onPageUnloadV1020);
   let lastPreviewTokenV988=0;
@@ -194123,19 +194289,19 @@ async function openLightbox(value, fileJumpV1005=null){
     topZone.style.display=pos==='hidden'?'none':'';
     headerPinnedV1086=pos==='top'||pos==='bottom';pinInputV1086.checked=headerPinnedV1086;
     if(pos==='hidden')head.classList.remove('is-visible');
-    else if(headerPinnedV1086)head.classList.add('is-visible');
+    else if(headerPinnedV1086){head.classList.add('is-visible');flushHiddenHeaderV2534();}
     else head.classList.remove('is-visible');
     clearTimeout(controlsTimer);
   }
   function showControls(){
     if(destroyed||guideModeV1148()==='hidden')return;
-    clearTimeout(controlsTimer);head.classList.add('is-visible');
+    clearTimeout(controlsTimer);head.classList.add('is-visible');flushHiddenHeaderV2534();
   }
   function hideControlsLater(ms=2000){
-    if(deleteEditV1835?.active){head.classList.add('is-visible');return;}
+    if(deleteEditV1835?.active){head.classList.add('is-visible');flushHiddenHeaderV2534();return;}
     clearTimeout(controlsTimer);
     if(guideModeV1148()==='hidden'){head.classList.remove('is-visible');return;}
-    if(headerPinnedV1086){head.classList.add('is-visible');return;}
+    if(headerPinnedV1086){head.classList.add('is-visible');flushHiddenHeaderV2534();return;}
     controlsTimer=setTimeout(()=>{
       if(!headerPinnedV1086&&!head.matches(':hover')&&!modeSelect.matches(':focus'))
         head.classList.remove('is-visible');
@@ -194200,15 +194366,196 @@ async function openLightbox(value, fileJumpV1005=null){
   // Default mode keeps image text pixel-aligned; optional smooth mode allows fractional offsets.
   // Pause when the page is hidden or user manually interacts; cancel the rAF on teardown.
   let autoScrollRunningV1193=false,autoScrollFrameV1193=0,autoScrollLastV1193=0,autoScrollCarryV1193=0;
+  // v2530: Only ordinary local vertical reading uses the pacing path.
+  // Keep a measured bound until the source layout changes; periodic refresh covers
+  // browser-driven changes. Never carry an old target across a layout correction.
+  let autoGeometryRevV2530=0,autoMotionV2530=null;
+  const verticalMeasuredV2530=new WeakMap();
+  function invalidateAutoGeometryV2530(){autoGeometryRevV2530++;}
+  function autoScrollLocalTickV2530(now){
+    const view=verticalViewV986;
+    const mode=autoScrollRenderModeV2203.value==='composite'?'smooth':autoScrollRenderModeV2203.value;
+    const speed=Number(autoScrollSpeedV1193.value)||150;
+    const old=view.scrollTop;
+    const perf=window.WebViewerReaderPerfV2512;
+    const record=(kind,a=0,b=0,c=0,m=mode)=>{perf?.autoScrollSampleV2530?.(m,kind,a,b,c);};
+    let state=autoMotionV2530;
+    if(!state){state=autoMotionV2530={rev:-1,max:0,measuredAt:-Infinity,ww:0,wh:0,mode,speed,pending:null,wrapper:null,img:null,ready:false,carry:0,frameMs:1000/60,frameSamples:0,slowFrames:0};}
+    const changed=state.rev!==autoGeometryRevV2530||state.ww!==window.innerWidth||state.wh!==window.innerHeight;
+    const settingsChanged=state.mode!==mode||state.speed!==speed;
+    let residual=0;
+    if(state.pending){
+      const prev=state.pending,delta=old-prev.from;
+      // Quantization (<=1 CSS px) is normal. Larger changes or a changed
+      // layout revision are navigation/anchoring, not movement jitter.
+      if(changed||settingsChanged||Math.abs(old-prev.target)>1.1){record('resync',0,old-prev.target,prev.dt,prev.mode);state.carry=0;}
+      else{
+        record('move',prev.ideal,delta,prev.dt,prev.mode);
+        if(mode==='smooth')residual=Math.max(-1,Math.min(1,prev.target-old));
+      }
+      state.pending=null;
+    }
+    if(changed||settingsChanged){state.carry=0;state.ready=false;}
+    state.mode=mode;state.speed=speed;
+    if(changed||now-state.measuredAt>=250||old>=state.max-2){
+      state.max=Math.max(0,view.scrollHeight-view.clientHeight);
+      state.rev=autoGeometryRevV2530;state.ww=window.innerWidth;state.wh=window.innerHeight;state.measuredAt=now;
+      record('geometry');
+    }
+    if(old>=state.max-1){stopAutoScrollV1193();return;}
+    const at=Math.max(0,Math.min(pages.length-1,idx));
+    const wrapper=verticalItemsV986[at];
+    if(wrapper!==state.wrapper||!state.img||state.img.parentNode!==wrapper){
+      state.wrapper=wrapper;state.img=wrapper?.querySelector('img');state.ready=false;
+    }
+    const img=state.img;
+    if(!state.ready)state.ready=!!(img&&!img.hidden&&img.complete&&img.naturalWidth>0);
+    if(!state.ready||img.hidden){
+      state.ready=false;state.carry=0;scheduleVerticalLoadV986(at);record('waiting');
+      autoScrollLastV1193=now;autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);return;
+    }
+    const elapsed=autoScrollLastV1193?Math.max(0,now-autoScrollLastV1193):0;
+    autoScrollLastV1193=now;
+    // v2531: prioritize even movement over catching up elapsed time after a stall.
+    // Learn normal frame cadence (including high refresh displays); isolated stalls
+    // must not inflate the cadence estimate. Sustained slower cadence can adapt.
+    if(elapsed>0){
+      const normal=state.frameMs;
+      if(elapsed>=3&&elapsed<=34&&((state.frameSamples===0&&elapsed<=25)||elapsed<=normal*1.35)){
+        state.frameMs=state.frameSamples===0?elapsed:normal*.85+elapsed*.15;
+        state.frameSamples++;state.slowFrames=0;
+      }else if(elapsed>normal*1.35&&elapsed<=34){
+        if(++state.slowFrames>=6){state.frameMs=normal*.75+elapsed*.25;state.slowFrames=0;}
+      }else state.slowFrames=0;
+      state.frameMs=Math.max(3,Math.min(1000/30,state.frameMs));
+    }
+    const appliedMs=Math.min(elapsed,state.frameMs*1.15);
+    const distance=speed*appliedMs/1000;
+    if(elapsed>0)record('cadence',elapsed,appliedMs,state.frameMs);
+    if(distance>0){
+      let move;
+      if(mode==='smooth')move=distance+residual;
+      else{state.carry+=distance;move=Math.floor(state.carry);state.carry-=move;}
+      const target=Math.min(state.max,old+move);
+      // Compare the actual position at the next frame, not immediately after writing.
+      state.pending={from:old,target,ideal:Math.min(distance,state.max-old),dt:elapsed,mode};
+      if(target>old)view.scrollTop=target;
+    }
+    autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);
+  }
+  // v2535: experimental bounded Web Animations transform segments. Keep the
+  // real scroller and virtual height tree intact; only ready, contiguous page
+  // wrappers intersecting the movement corridor are animated. All animations
+  // share a document-timeline start time. No per-frame JS movement is needed.
+  let compositeV2535=null,compositeRetryV2535=0;
+  const compositeStatV2535=(kind,data={})=>window.WebViewerReaderPerfV2512?.compositeStatV2535?.(kind,data);
+  function scheduleAutoFrameV2535(){
+    if(autoScrollRunningV1193&&!destroyed&&!autoScrollFrameV1193)
+      autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);
+  }
+  function commitCompositeV2535(reason,keepNative=false){
+    const state=compositeV2535;if(!state)return false;
+    compositeV2535=null;
+    const view=verticalViewV986;
+    const clock=Number(state.animations[0]?.currentTime);
+    const t=Number.isFinite(clock)?Math.max(0,Math.min(state.duration,clock)):0;
+    const distance=state.distance*t/state.duration;
+    // Cancel and commit in one JS task; never leave a transformed page behind.
+    for(const a of state.animations){try{a.cancel();}catch(_){}}
+    view.style.overflowAnchor=state.anchor;
+    if(!keepNative)view.scrollTop=state.base+distance;
+    autoScrollLastV1193=0;autoScrollCarryV1193=0;autoMotionV2530=null;
+    compositeStatV2535('commit',{reason,elapsedMs:t,distancePx:distance,commitErrorPx:keepNative?0:Math.abs(view.scrollTop-state.base-distance)});
+    return true;
+  }
+  function interruptCompositeV2535(reason,keepNative=false){
+    if(!commitCompositeV2535(reason,keepNative))return;
+    scheduleAutoFrameV2535();
+  }
+  function compositeFallbackV2535(now,reason){
+    compositeRetryV2535=now+300;
+    compositeStatV2535('fallback',{reason});
+    return false;
+  }
+  function tryCompositeV2535(now){
+    if(compositeV2535)return true;
+    if(now<compositeRetryV2535)return false;
+    const view=verticalViewV986,speed=Number(autoScrollSpeedV1193.value)||150;
+    if(typeof Element.prototype.animate!=='function'||!document.timeline||document.timeline.currentTime==null)
+      return compositeFallbackV2535(now,'unsupported');
+    const base=view.scrollTop,max=Math.max(0,view.scrollHeight-view.clientHeight);
+    if(base>=max-1){stopAutoScrollV1193();return true;}
+    // Work only on contiguous measured, loaded wrappers, not the huge spacers.
+    const vr=view.getBoundingClientRect(),top=vr.top+view.clientTop,bottom=top+view.clientHeight;
+    let distance=Math.min(max-base,speed*1.5);
+    const v=verticalVirtualV1191;
+    let first=v?v.find(Math.max(0,base-2)):Math.max(0,idx);
+    for(let count=0;first>0&&count<16;count++){
+      const node=verticalItemsV986[first];if(!node||node.getBoundingClientRect().top<=top+1)break;first--;
+    }
+    const nodes=[];let covered=top;
+    for(let i=first;i<pages.length&&i<first+16;i++){
+      const node=verticalItemsV986[i];if(!node||node.parentNode!==view)break;
+      const rect=node.getBoundingClientRect();
+      if(rect.bottom<=top)continue;
+      if(rect.top>covered+2)break;
+      const img=node.querySelector('img');
+      if(!img||img.hidden||!img.complete||!img.naturalWidth||node.dataset.zipMeasuredV1076!=='1'){
+        scheduleVerticalLoadV986(i);break;
+      }
+      nodes.push(node);covered=Math.max(covered,rect.bottom);
+      if(covered>=bottom+distance+1)break;
+    }
+    // At the bottom of the document a subpixel tolerance is enough. Else
+    // leave a two-pixel guard so an unanimated page cannot enter the viewport.
+    distance=Math.min(distance,Math.max(0,covered-bottom-(base+distance>=max-1?0:2)));
+    if(!nodes.length||distance<Math.min(speed*.12,max-base)||distance<1)
+      return compositeFallbackV2535(now,'coverage');
+    const duration=distance/speed*1000,animations=[];
+    const anchor=view.style.overflowAnchor;
+    try{
+      view.style.overflowAnchor='none';
+      for(const node of nodes){
+        const a=node.animate([{transform:'translate3d(0,0px,0)'},{transform:`translate3d(0,${-distance}px,0)`}],{duration,easing:'linear',fill:'both'});
+        animations.push(a);
+      }
+      const start=document.timeline.currentTime;
+      for(const a of animations)a.startTime=start;
+      const state=compositeV2535={base,distance,duration,animations,anchor};
+      autoMotionV2530=null;autoScrollLastV1193=0;autoScrollCarryV1193=0;
+      compositeStatV2535('start',{pages:nodes.length,durationMs:duration,distancePx:distance});
+      animations[0].finished.then(()=>{
+        if(compositeV2535!==state)return;
+        commitCompositeV2535('finished');
+        if(!destroyed&&readDirectionV986==='vertical')verticalProgressV986(false);
+        scheduleAutoFrameV2535();
+      },()=>{if(compositeV2535===state){interruptCompositeV2535('cancelled');}});
+      return true;
+    }catch(_){
+      compositeV2535=null;for(const a of animations){try{a.cancel();}catch(_){}}
+      view.style.overflowAnchor=anchor;
+      return compositeFallbackV2535(now,'animation-error');
+    }
+  }
+  const onCompositeResizeV2535=()=>interruptCompositeV2535('resize');
+  window.addEventListener('resize',onCompositeResizeV2535);
   function updateAutoScrollControlsV1193(){
     autoScrollToggleV1193.textContent=autoScrollRunningV1193?'⏸ 일시정지':'▶ 자동';
     autoScrollToggleV1193.setAttribute('aria-pressed',String(autoScrollRunningV1193));
     autoScrollToggleV1193.title=autoScrollRunningV1193?'자동스크롤 일시정지 (C)':'자동스크롤 시작 (C)';
   }
   function stopAutoScrollV1193(){
+    const committedV2535=commitCompositeV2535('stop');
+    if(committedV2535&&!destroyed&&readDirectionV986==='vertical'&&!verticalViewV986.hidden){
+      const n=currentVerticalPageV986();if(n!==idx)setPageLabelV986(n,true,autoUiSessionV2534);
+      queueVerticalProgressV2524(true);
+    }
+    compositeRetryV2535=0;
+    const wasAutoUiV2534=autoUiSessionV2534;autoUiSessionV2534=false;
     autoScrollRunningV1193=false;
     if(autoScrollFrameV1193)cancelAnimationFrame(autoScrollFrameV1193);
-    autoScrollFrameV1193=0;autoScrollLastV1193=0;autoScrollCarryV1193=0;
+    autoScrollFrameV1193=0;autoScrollLastV1193=0;autoScrollCarryV1193=0;autoMotionV2530=null;
+    if(wasAutoUiV2534){flushHiddenHeaderV2534();heartManagerV1148?.flushHiddenPageV2534?.();}
     updateAutoScrollControlsV1193();
   }
   function autoScrollTickV1193(now){
@@ -194217,6 +194564,11 @@ async function openLightbox(value, fileJumpV1005=null){
     if(destroyed||readDirectionV986!=='vertical'||verticalViewV986.hidden||document.visibilityState==='hidden'){
       stopAutoScrollV1193();return;
     }
+    if(normalLocalVerticalV2524()){
+      if(autoScrollRenderModeV2203.value==='composite'&&tryCompositeV2535(now))return;
+      autoScrollLocalTickV2530(now);return;
+    }
+    autoMotionV2530=null;
     const max=Math.max(0,verticalViewV986.scrollHeight-verticalViewV986.clientHeight);
     const old=verticalViewV986.scrollTop;
     if(old>=max-1){stopAutoScrollV1193();return;}
@@ -194235,7 +194587,7 @@ async function openLightbox(value, fileJumpV1005=null){
     // The sharp default preserves pixel alignment to avoid resampling small text.
     // The smooth option scrolls by fractional pixels; choose based on display readability.
     const distance=speed*dt;
-    if(autoScrollRenderModeV2203.value==='smooth'){
+    if(autoScrollRenderModeV2203.value!=='sharp'){
       autoScrollCarryV1193=0;
       if(distance>0)verticalViewV986.scrollTop=Math.min(max,old+distance);
     }else{
@@ -194249,7 +194601,9 @@ async function openLightbox(value, fileJumpV1005=null){
   function startAutoScrollV1193(){
     if(destroyed||readDirectionV986!=='vertical'||verticalViewV986.hidden||autoScrollRunningV1193)return;
     if(document.visibilityState==='hidden')return;
-    autoScrollRunningV1193=true;autoScrollLastV1193=0;autoScrollCarryV1193=0;
+    autoScrollRunningV1193=true;autoScrollLastV1193=0;autoScrollCarryV1193=0;autoMotionV2530=null;
+    autoUiSessionV2534=normalLocalVerticalV2524();
+    if(autoUiSessionV2534)window.WebViewerReaderPerfV2512?.mark('auto-scroll-start-v2534',{badgeMode:mode,renderMode:autoScrollRenderModeV2203.value,speed:Number(autoScrollSpeedV1193.value)||150,headerVisible:head.classList.contains('is-visible')});
     updateAutoScrollControlsV1193();
     autoScrollFrameV1193=requestAnimationFrame(autoScrollTickV1193);
   }
@@ -194257,6 +194611,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(autoScrollRunningV1193)stopAutoScrollV1193();else startAutoScrollV1193();
   });
   autoScrollSpeedV1193.addEventListener('change',()=>{
+    interruptCompositeV2535('speed');compositeRetryV2535=0;
     try{ViewerCacheManager.storage.setItem(AUTO_SCROLL_SPEED_KEY_V1193,autoScrollSpeedV1193.value);}catch(_){}
   });
   // v1195: 자동스크롤 실행 중에만 ↑/↓ 키로 속도 단계 조절.
@@ -194434,6 +194789,7 @@ async function openLightbox(value, fileJumpV1005=null){
   const sceneWheelMoveV2401=direction=>manualSceneMoveV2399(direction);
   verticalViewV986.__comicSceneWheelMoveV2401=sceneWheelMoveV2401;
   function preserveVerticalScrollClockV2399(){
+    interruptCompositeV2535('navigation');
     if(autoScrollRunningV1193){autoScrollLastV1193=0;autoScrollCarryV1193=0;}
   }
   function manualVerticalPageV2399(delta){
@@ -194570,27 +194926,46 @@ async function openLightbox(value, fileJumpV1005=null){
     const end=Math.min(n,start+VERTICAL_VIRTUAL_WINDOW_V1191);
     if(!force&&start===v.start&&end===v.end)return;
     const oldScroll=verticalViewV986.scrollTop;
-    verticalIOV986?.disconnect();verticalVisibleV986.clear();
+    const incrementalV2524=normalLocalVerticalV2524()&&v.start>=0&&v.top.parentNode===verticalViewV986&&v.bottom.parentNode===verticalViewV986;
+    const perfV2524=window.WebViewerReaderPerfV2512;
+    const tokenV2524=perfV2524?.begin('vertical-window-update');
+    if(!incrementalV2524){verticalIOV986?.disconnect();verticalVisibleV986.clear();}
     // 가상 창에서 벗어난 이미지는 URL과 요소를 해제해 사용 중 메모리가 쌓이지 않도록 한다.
     for(let i=Math.max(0,v.start);i<Math.max(0,v.end);i++){
       if(i>=start&&i<end)continue;
       const url=verticalUrlsV986.get(i);
       if(url){releaseSrcV1580(url);verticalUrlsV986.delete(i);}
-      const node=verticalItemsV986[i];if(node){const img=node.querySelector('img');if(img){img.removeAttribute('src');img.hidden=true;}}
+      const node=verticalItemsV986[i];if(node){const img=node.querySelector('img');if(img){img.removeAttribute('src');img.hidden=true;}
+        if(incrementalV2524){verticalIOV986?.unobserve(node);verticalVisibleV986.delete(i);node.remove();}}
       verticalItemsV986[i]=undefined;verticalPendingV986.delete(i);
     }
     v.start=start;v.end=end;
-    const frag=document.createDocumentFragment();
-    for(let i=start;i<end;i++){
-      let wrapper=verticalItemsV986[i];if(!wrapper){wrapper=createVerticalPageV1191(i);verticalItemsV986[i]=wrapper;}
-      // 이전 로딩으로 높이를 알게 된 페이지는 자리표시도 그 높이로 유지한다.
-      if(v.measured[i])wrapper.style.minHeight=Math.round(v.heights[i])+'px';
-      frag.appendChild(wrapper);
+    if(incrementalV2524){
+      // Walk backwards, inserting only new nodes ahead of the next retained node.
+      let next=v.bottom;
+      for(let i=end-1;i>=start;i--){
+        let wrapper=verticalItemsV986[i];
+        if(!wrapper){wrapper=createVerticalPageV1191(i);verticalItemsV986[i]=wrapper;
+          if(v.measured[i])wrapper.style.minHeight=Math.round(v.heights[i])+'px';
+          verticalViewV986.insertBefore(wrapper,next);verticalIOV986?.observe(wrapper);
+        }
+        next=wrapper;
+      }
+      updateVerticalSpacersV1191();
+    }else{
+      const frag=document.createDocumentFragment();
+      for(let i=start;i<end;i++){
+        let wrapper=verticalItemsV986[i];if(!wrapper){wrapper=createVerticalPageV1191(i);verticalItemsV986[i]=wrapper;}
+        if(v.measured[i])wrapper.style.minHeight=Math.round(v.heights[i])+'px';
+        frag.appendChild(wrapper);
+      }
+      updateVerticalSpacersV1191();
+      verticalViewV986.replaceChildren(v.top,frag,v.bottom);
+      if(verticalIOV986){for(let i=start;i<end;i++)verticalIOV986.observe(verticalItemsV986[i]);}
     }
-    updateVerticalSpacersV1191();
-    verticalViewV986.replaceChildren(v.top,frag,v.bottom);
     verticalViewV986.scrollTop=oldScroll;
-    if(verticalIOV986){for(let i=start;i<end;i++)verticalIOV986.observe(verticalItemsV986[i]);}
+    if(normalLocalVerticalV2524())invalidateAutoGeometryV2530();
+    if(tokenV2524)perfV2524?.end(tokenV2524);
   }
   // v2502: Show the original bitmap at native resolution; the viewport crops
   // either half with object-fit:cover (no canvas, re-encode, or new blob).
@@ -194633,6 +195008,7 @@ async function openLightbox(value, fileJumpV1005=null){
     try{ViewerCacheManager.storage.setItem(H_SPLIT_KEY_V2502,mode);}catch(_){}
     if(autoPageRunningV1194)stopAutoPageV1194();
     paintSplitV2502();
+    heartManagerV1148?.relayout();
   }
   splitRTLBtnV2502.onclick=()=>changeSplitModeV2502('rtl');
   splitLTRBtnV2502.onclick=()=>changeSplitModeV2502('ltr');
@@ -194693,20 +195069,44 @@ async function openLightbox(value, fileJumpV1005=null){
     'comic-scene1-margin-background-v2377','comic-scene-background-choice-v2389']){
     document.addEventListener(eventNameV2395,()=>{if(!destroyed)syncDirectionButtonsV986();});
   }
-  function setPageLabelV986(n,flash=false){
+  // v2534: Only skip writes to the hidden header during ordinary local auto-scroll.
+  // Badge, bottom progress, current index and persistence remain immediate.
+  function writeHeaderPageV2534(label){
+    counter.textContent=label;
+    counter.title=folderPagesV985[idx]?.imagePath || '';
+    pageInputV987.value=String(idx+1);
+    if(!folderSelectV987.hidden&&!remoteChapterMenuV1644)folderSelectV987.value=folderPagesV985[idx]?.folder || '';
+  }
+  function flushHiddenHeaderV2534(){
+    if(!hiddenHeaderDirtyV2534||destroyed)return;
+    hiddenHeaderDirtyV2534=false;
+    const perf=window.WebViewerReaderPerfV2512,t=perf?.begin('vertical-auto-header-flush');
+    try{writeHeaderPageV2534(editLabelV2503(idx));updateImageResolutionV1834();}
+    finally{if(t)perf?.end(t);}
+  }
+  function setPageLabelV986(n,flash=false,autoUiV2534=false){
     const nextIdxV1184=Math.min(pages.length-1,Math.max(0,n));
     if(nextIdxV1184!==idx)pageTouchedV1184=true;
     idx=nextIdxV1184;
-    deleteEditV1835?.refresh?.();
+    if(window.WebViewerReaderPerfV2512?.active())window.WebViewerReaderPerfV2512.page(idx+1,readDirectionV986,()=>({horizontalBlobs:horizontalAheadV1573.blobs.size,horizontalPending:horizontalAheadV1573.pending.size,horizontalQueue:horizontalAheadV1573.queue.length,horizontalActive:horizontalAheadV1573.active,verticalUrls:verticalUrlsV986.size,verticalPending:verticalPendingV986.size,spreadUrls:spreadUrlsV1226.size,spreadPending:spreadPendingV1574.size,spreadMountedGroups:spreadEngineGroupsV1232.length,spreadAheadDecoded:spreadWarmV2519.items.size,remoteReads:remotePageReadsV1709.size,remoteUrls:remoteBlobUrlsV1709.size}));
+    const perfV2534=autoUiV2534?window.WebViewerReaderPerfV2512:null;
+    const uiV2534=perfV2534?.begin('vertical-auto-page-ui');
+    if(!autoUiV2534||deleteEditV1835?.active)deleteEditV1835?.refresh?.();
     const label=editLabelV2503(idx);
-    counter.textContent=label;badge.textContent=label;
-    resolutionLabelV1834.textContent='해상도 · 확인 중';
-    requestAnimationFrame(updateImageResolutionV1834);
-    counter.title=folderPagesV985[idx]?.imagePath || '';
-    pageInputV987.value=String(idx+1);
+    badge.textContent=label;
+    if(autoUiV2534&&!head.classList.contains('is-visible')){
+      hiddenHeaderDirtyV2534=true;const t=perfV2534?.begin('vertical-auto-header-skipped');if(t)perfV2534.end(t);
+    }else{
+      hiddenHeaderDirtyV2534=false;writeHeaderPageV2534(label);
+      resolutionLabelV1834.textContent='해상도 · 확인 중';
+      requestAnimationFrame(updateImageResolutionV1834);
+    }
+    const bottomV2534=perfV2534?.begin('vertical-auto-page-bottom');
     syncBottomPagerV1455(idx);
-    if(!folderSelectV987.hidden && !remoteChapterMenuV1644)folderSelectV987.value=folderPagesV985[idx]?.folder || '';
+    if(bottomV2534)perfV2534.end(bottomV2534);
     if(flash)flashBadge();
+    if(uiV2534)perfV2534.end(uiV2534);
+    const storeV2534=perfV2534?.begin('vertical-auto-page-progress');
     rememberZipPageV988(idx+1);
     if(remoteProgressV1612?.workId)window.ComicExternalReadProgressV1612?.mark({...remoteProgressV1612,page:idx+1,pageCount:pages.length});
     if(!isRemoteV1466&&!savedDownloadV1651&&isFolderV992&&pageTouchedV1184)window.ComicFsChaptersV1204?.mark?.(value,idx);
@@ -194715,13 +195115,30 @@ async function openLightbox(value, fileJumpV1005=null){
       const page=folderPagesV985[idx];
       if(page?.folder)window.ComicZipInnerChaptersV1202?.mark(value,page.folder,page.inFolder,idx);
     }
-    heartManagerV1148?.syncPage(idx+1);
+    if(storeV2534)perfV2534.end(storeV2534);
+    const toolsV2534=perfV2534?.begin('vertical-auto-page-tools');
+    heartManagerV1148?.syncPage(idx+1,autoUiV2534);
+    if(toolsV2534)perfV2534.end(toolsV2534);
     if(readDirectionV986==='vertical'){
       const src=verticalItemsV986[idx]?.querySelector('img')?.src;
       // 마지막 저장 페이지의 미리보기는 현재 탐색 위치로 바꾸지 않는다.
     }
   }
+  // v2524: ordinary local vertical mode only; preserve the cutscene source pipeline.
+  const normalLocalVerticalV2524=()=>!isRemoteV1466&&!scene2VerticalOnV2307();
+  let verticalWarmKeyV2524='',verticalRefreshForceV2524=false;
+  function queueVerticalProgressV2524(force=false){
+    if(destroyed||readDirectionV986!=='vertical')return;
+    verticalRefreshForceV2524 ||= force;
+    if(verticalScrollFrameV986)return;
+    verticalScrollFrameV986=requestAnimationFrame(()=>{
+      verticalScrollFrameV986=0;
+      const refresh=verticalRefreshForceV2524;verticalRefreshForceV2524=false;
+      verticalProgressV986(refresh);
+    });
+  }
   function cleanVerticalV986(){
+    verticalWarmKeyV2524='';verticalRefreshForceV2524=false;invalidateAutoGeometryV2530();
     delete verticalViewV986.__scene2WarmSourcesV2308;
     stopAutoScrollV1193();
     ++verticalEpochV986;
@@ -194745,8 +195162,14 @@ async function openLightbox(value, fileJumpV1005=null){
     for(const [i,url] of verticalUrlsV986){
       if((i>=idx-before&&i<=idx+after)||verticalVisibleV986.has(i))continue;
       const wrapper=verticalItemsV986[i];if(wrapper){
-        const h=wrapper.getBoundingClientRect().height;
+        const saved=normalLocalVerticalV2524()?verticalMeasuredV2530.get(wrapper):null;
+        const reuse=!!(saved&&saved.width===verticalImageWidthV1076&&saved.ww===window.innerWidth&&saved.wh===window.innerHeight&&wrapper.style.minHeight===saved.h+'px');
+        const perf=window.WebViewerReaderPerfV2512;
+        const token=normalLocalVerticalV2524()?perf?.begin(reuse?'vertical-trim-height-hit':'vertical-trim-height-measure'):null;
+        const h=reuse?saved.h:wrapper.getBoundingClientRect().height;
+        if(token)perf?.end(token);
         if(h>0){wrapper.style.minHeight=Math.round(h)+'px';wrapper.dataset.zipMeasuredV1076='1';}
+        if(normalLocalVerticalV2524())invalidateAutoGeometryV2530();
         const img=wrapper.querySelector('img');if(img){img.removeAttribute('src');img.hidden=true;}
         wrapper.classList.remove('is-loaded');
       }
@@ -194777,6 +195200,7 @@ async function openLightbox(value, fileJumpV1005=null){
           url=pageSrcV1580(blob);
           const wrapper=verticalItemsV986[i],img=wrapper?.querySelector('img');
           if(!img){releaseSrcV1580(url);url=null;return;}
+          interruptCompositeV2535('source-assigned');
           verticalUrlsV986.set(i,url);img.hidden=false;
           // v2308: assigning src while loading='lazy' can defer decode until
           // the user scrolls down. Scene2 needs it decoded BEFORE inspecting.
@@ -194785,21 +195209,29 @@ async function openLightbox(value, fileJumpV1005=null){
           wrapper.classList.add('is-loaded');
           img.onload=()=>{if(epoch!==verticalEpochV986||(verticalVirtualV1191&&verticalItemsV986[i]!==wrapper))return;
             // 이미지가 준비되면 임시 80vh 자리표시를 실제 이미지 높이로 바꿔 페이지 사이 빈 공간을 없앤다.
-            wrapper.style.minHeight='0px';
+            interruptCompositeV2535('image-loaded');
+            const perfV2524=window.WebViewerReaderPerfV2512;
+            const tokenV2524=perfV2524?.begin('vertical-image-geometry');
+            // Local ordinary view: the image has width / height:auto, independent of wrapper min-height.
+            if(!normalLocalVerticalV2524())wrapper.style.minHeight='0px';
             const h=Math.max(1,Math.round(img.getBoundingClientRect().height));
-            wrapper.style.minHeight=h+'px';
+            if(wrapper.style.minHeight!==h+'px')wrapper.style.minHeight=h+'px';
             wrapper.dataset.zipMeasuredV1076='1';
+            if(normalLocalVerticalV2524()){verticalMeasuredV2530.set(wrapper,{h,width:verticalImageWidthV1076,ww:window.innerWidth,wh:window.innerHeight});invalidateAutoGeometryV2530();}
             if(verticalVirtualV1191&&verticalItemsV986[i]===wrapper)verticalVirtualV1191.setHeight(i,h);
             heartManagerV1148?.placeVertical(wrapper);
+            if(tokenV2524)perfV2524?.end(tokenV2524);
             // Notify the cut lookahead that real image geometry is now final.
             // No artwork, title or URL is included in this event.
             if(scene2VerticalOnV2307())document.dispatchEvent(new CustomEvent('comic-scene2-page-ready-v2307',
               {detail:{scroller:verticalViewV986}}));
           };
+          if(normalLocalVerticalV2524())invalidateAutoGeometryV2530();
           img.src=url;
           if(scene2VerticalOnV2307())eagerVerticalImageV2308(img);
         }catch(e){if(epoch===verticalEpochV986){
-          const wrapper=verticalItemsV986[i];if(wrapper){wrapper.classList.add('is-loaded');wrapper.textContent='페이지 읽기 실패 · '+errText(e);}
+          interruptCompositeV2535('image-error');
+          const wrapper=verticalItemsV986[i];if(wrapper){wrapper.classList.add('is-loaded');wrapper.textContent='페이지 읽기 실패 · '+errText(e);if(normalLocalVerticalV2524())invalidateAutoGeometryV2530();}
         }}finally{
           if(epoch===verticalEpochV986)verticalPendingV986.delete(i);
           verticalRunningV986--;pumpVerticalV986();
@@ -194817,7 +195249,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(img.hidden||!img.getAttribute('src')||img.complete&&img.naturalHeight)return false;
     if(typeof img.decode!=='function'||verticalDecodingV2308.has(img))return false;
     verticalDecodingV2308.add(img);
-    Promise.resolve().then(()=>img.decode()).catch(()=>{}).finally(()=>verticalDecodingV2308.delete(img));
+    Promise.resolve().then(()=>{const t=window.WebViewerReaderPerfV2512?.begin('vertical-image-decode');const p=img.decode();if(t)p.then(()=>window.WebViewerReaderPerfV2512?.end(t),()=>window.WebViewerReaderPerfV2512?.end(t));return p;}).catch(()=>{}).finally(()=>verticalDecodingV2308.delete(img));
     return true;
   }
   function warmVerticalSourcesV2308(cursor,ahead=12,behind=5,focus='forward'){
@@ -194887,23 +195319,38 @@ async function openLightbox(value, fileJumpV1005=null){
     }
     return best;
   }
-  function verticalProgressV986(){
-    if(destroyed||readDirectionV986!=='vertical')return;
+  function verticalProgressV986(force=true){
+    if(destroyed||readDirectionV986!=='vertical'||compositeV2535)return;
+    const perfV2524=window.WebViewerReaderPerfV2512;
+    const tokenV2524=perfV2524?.begin('vertical-progress');
+    try{
     const n=currentVerticalPageV986();
     if(verticalVirtualV1191)renderVerticalWindowV1191(n);
-    if(n!==idx){setPageLabelV986(n,true);trimVerticalV986();}
-    else updateImageResolutionV1834();
+    if(n!==idx){
+      const autoUiV2534=autoUiSessionV2534&&normalLocalVerticalV2524();
+      const labelV2534=autoUiV2534?perfV2524?.begin('vertical-auto-page-label'):null;
+      setPageLabelV986(n,true,autoUiV2534);
+      if(labelV2534)perfV2524.end(labelV2534);
+      const trimV2534=autoUiV2534?perfV2524?.begin('vertical-auto-page-trim'):null;
+      trimVerticalV986();if(trimV2534)perfV2524.end(trimV2534);
+    }
+    else if(!normalLocalVerticalV2524()&&!scene2VerticalOnV2307())updateImageResolutionV1834();
+    const keyV2524=[idx,verticalVirtualV1191?.start,verticalVirtualV1191?.end,verticalBehindCountV2403(),verticalAheadCountV2307()].join(':');
+    if(normalLocalVerticalV2524()&&!force&&keyV2524===verticalWarmKeyV2524)return;
+    verticalWarmKeyV2524=keyV2524;
     // 브라우저에서 관찰자 알림이 지연되어도 현재 페이지 주변을 미리 불러온다.
     // v2403: Advance the window on every source-page transition.
     for(let k=Math.max(0,idx-verticalBehindCountV2403());
         k<=Math.min(pages.length-1,idx+verticalAheadCountV2307());k++)
       scheduleVerticalLoadV986(k);
+    }finally{if(tokenV2524)perfV2524?.end(tokenV2524);}
   }
   // v1076: 크기를 바꿀 때 현재 읽는 이미지의 상대 위치를 보존한다.
   // 이미 읽은 페이지의 높이만 보정하고 압축파일 재해제/이미지 재로드는 하지 않는다.
   function setVerticalImageWidthV1076(requested){
     const nextWidth=clampVerticalWidthV1076(requested);
     if(nextWidth===verticalImageWidthV1076)return;
+    interruptCompositeV2535('width');
     const prevWidth=verticalImageWidthV1076;
     const active=readDirectionV986==='vertical'&&!verticalViewV986.hidden;
     let anchor=null;
@@ -194920,7 +195367,7 @@ async function openLightbox(value, fileJumpV1005=null){
       // CSS 너비 변경에 의한 브라우저 자동 스크롤 보정과 수동 보정이 중복되지 않게 한다.
       verticalViewV986.style.overflowAnchor='none';
     }
-    verticalImageWidthV1076=nextWidth;
+    verticalImageWidthV1076=nextWidth;invalidateAutoGeometryV2530();
     cover.style.setProperty('--zip-vertical-image-width-v1076',nextWidth+'px');
     refreshVerticalSizeControlsV1076();
     try{ViewerCacheManager.storage.setItem(VERTICAL_SIZE_KEY_V1076,String(nextWidth));}catch(_){}
@@ -194936,9 +195383,11 @@ async function openLightbox(value, fileJumpV1005=null){
         if(img&&!img.hidden&&img.naturalWidth){
           // 높이 제한이 기존 폭의 높이로 남아 축소를 막지 않도록 재측정.
           wrapper.style.minHeight='0px';
-          wrapper.style.minHeight=Math.max(1,Math.round(img.getBoundingClientRect().height))+'px';
+          const h=Math.max(1,Math.round(img.getBoundingClientRect().height));
+          wrapper.style.minHeight=h+'px';
           wrapper.dataset.zipMeasuredV1076='1';
-          if(verticalVirtualV1191)verticalVirtualV1191.setHeight(Number(wrapper.dataset.zipIndex),Math.round(img.getBoundingClientRect().height));
+          if(normalLocalVerticalV2524())verticalMeasuredV2530.set(wrapper,{h,width:verticalImageWidthV1076,ww:window.innerWidth,wh:window.innerHeight});
+          if(verticalVirtualV1191)verticalVirtualV1191.setHeight(Number(wrapper.dataset.zipIndex),normalLocalVerticalV2524()?h:Math.round(img.getBoundingClientRect().height));
         }else if(wrapper.dataset.zipMeasuredV1076==='1'&&oldEffective>0){
           // 화면 밖에서 URL이 해제된 페이지도 이전 높이 캐시만 비례 보정한다.
           const oldHeight=parseFloat(wrapper.style.minHeight);
@@ -194962,7 +195411,10 @@ async function openLightbox(value, fileJumpV1005=null){
   smallerV1076.addEventListener('click',()=>setVerticalImageWidthV1076(verticalImageWidthV1076-VERTICAL_SIZE_STEP_V1076));
   largerV1076.addEventListener('click',()=>setVerticalImageWidthV1076(verticalImageWidthV1076+VERTICAL_SIZE_STEP_V1076));
   verticalViewV986.addEventListener('scroll',()=>{
-    if(verticalScrollFrameV986||readDirectionV986!=='vertical')return;
+    if(readDirectionV986!=='vertical')return;
+    if(compositeV2535&&Math.abs(verticalViewV986.scrollTop-compositeV2535.base)>1)interruptCompositeV2535('native-scroll',true);
+    if(!isRemoteV1466||scene2VerticalOnV2307()){queueVerticalProgressV2524(scene2VerticalOnV2307());return;}
+    if(verticalScrollFrameV986)return;
     verticalScrollFrameV986=requestAnimationFrame(()=>{verticalScrollFrameV986=0;verticalProgressV986();});
   },{passive:true});
   function startVerticalV986(){
@@ -194983,7 +195435,8 @@ async function openLightbox(value, fileJumpV1005=null){
           if(e.isIntersecting){verticalVisibleV986.add(i);scheduleVerticalLoadV986(i);}
           else verticalVisibleV986.delete(i);
         }
-        verticalProgressV986();
+        if(!isRemoteV1466||scene2VerticalOnV2307())queueVerticalProgressV2524(true);
+        else verticalProgressV986();
       },{root:verticalViewV986,rootMargin:isRemoteV1466?'180% 0px':'120% 0px'});
     }
     if(isVirtualV1191){
@@ -195042,6 +195495,7 @@ async function openLightbox(value, fileJumpV1005=null){
   // the scene engine renders a real cut as soon as source pixels are ready.
   const onSidebarSceneActivateV2400=()=>{
     if(destroyed||!cover.isConnected)return;
+    if(compositeV2535)stopAutoScrollV1193();
     if(scene2VerticalOnV2307()&&readDirectionV986!=='vertical'){
       // v2405: Sidebar scene preference must not override a wide comic's
       // measured reading direction. The explicit header cutscene button can.
@@ -195054,7 +195508,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(scene2VerticalOnV2307()){
       verticalProgressV986();
       warmVerticalSourcesV2308(verticalViewV986.scrollTop+verticalViewV986.clientHeight,12);
-    }else trimVerticalV986();
+    }else {trimVerticalV986();heartManagerV1148?.relayout();}
     if(scene2VerticalOnV2307())
       window.ComicVerticalSceneTwoV2288?.activateCurrentV2400?.(verticalViewV986);
   };
@@ -195090,7 +195544,7 @@ async function openLightbox(value, fileJumpV1005=null){
         }catch(e){task.reject(e);}
         finally{
           if(spreadPendingV1574.get(task.i)===task)spreadPendingV1574.delete(task.i);
-          spreadRunningV1574--;pumpSpreadReadsV1574();
+          spreadRunningV1574--;pumpSpreadReadsV1574();if(!isRemoteV1466)scheduleSpreadWarmV2519();
         }
       })();
     }
@@ -195099,6 +195553,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(destroyed||readDirectionV986!=='spread')return;
     const start=Math.max(0,Math.min(pages.length-1,Number(first)||0));
     const selected=spreadGroupsV1232.findIndex(g=>g.start<=start&&start<g.end);
+    if(!isRemoteV1466)return; // local growth classifies one group at a time; no speculative bulk reads
     // v1575: initial entry requests *only* two potential page pairs.
     // As wide/portrait group boundaries become known, warm only up to 12
     // logical groups, rather than speculatively downloading 24 raw pages.
@@ -195164,6 +195619,7 @@ async function openLightbox(value, fileJumpV1005=null){
     return found?.start ?? i;
   }
   function clearSpreadV1226(){
+    clearSpreadWarmV2519();
     cancelStRebaseV1227();cancelSpreadStUpdateV1575();
     spreadGrowRequestedV1575=false;spreadGrowingV1575=false;spreadGrowthEpochV1575=-1;
     ++spreadEpochV1226;spreadBusyV1226=false;
@@ -195225,21 +195681,98 @@ async function openLightbox(value, fileJumpV1005=null){
     }catch(e){console.warn('[v1232] 가로 페이지 판별 실패 (일반 페이지로 처리)',i,e);}
     spreadOrientationV1232.set(i,result);return result;
   }
-  function trimSpreadV1226(base){
-    // v1709: do not evict loaded external spread pages during a chapter session.
-    if(isRemoteV1466)return;
-    // StPageFlip 내부 책 묶음에 사용 중인 페이지 URL은 남겨 두어 넘기는 중 이미지 소실을 방지한다.
-    const inEngine=new Set(spreadEngineGroupsV1232.flatMap(g=>g.wide||g.end===g.start+1?[g.start]:[g.start,g.start+1]));
-    for(const [i,u] of spreadUrlsV1226){
-      if(Math.abs(i-base)>32&&!inEngine.has(i)){releaseSrcV1580(u);spreadUrlsV1226.delete(i);}
-    }
+  // Local rolling window: up to 12 logical groups including up to two behind.
+  // Old mounted PageFlip sheets stay pinned until a safe update replaces them.
+  function spreadWindowV2519(groups,at){
+    const lo=Math.max(0,at-2);return groups.slice(lo,lo+12);
   }
+  function trimSpreadV1226(base){
+    if(isRemoteV1466)return;
+    const at=spreadGroupsV1232.findIndex(g=>g.start===base);
+    if(at<0)return;
+    const keep=new Set();
+    for(const g of [...spreadWindowV2519(spreadGroupsV1232,at),...spreadEngineGroupsV1232])for(let i=g.start;i<g.end;i++)keep.add(i);
+    // Preserve pending reads and one orientation lookahead while classifying.
+    for(const i of spreadPendingV1574.keys())keep.add(i);
+    if(spreadGrowingV1575)keep.add(spreadNextV1232);
+    for(const [i,u] of spreadUrlsV1226)if(!keep.has(i)){releaseSrcV1580(u);spreadUrlsV1226.delete(i);}
+  }
+  const spreadWarmV2519={items:new Map(),attempted:new Set(),busy:null,timer:0,epoch:0,dir:1,last:null};
+  function spreadStatV2519(k){window.WebViewerReaderPerfV2512?.spreadDecodeStat?.(k);}
+  function clearSpreadWarmV2519(){
+    spreadWarmV2519.epoch++;clearTimeout(spreadWarmV2519.timer);spreadWarmV2519.timer=0;
+    for(const x of spreadWarmV2519.items.values())x.img.removeAttribute('src');
+    spreadWarmV2519.items.clear();spreadWarmV2519.attempted.clear();spreadWarmV2519.last=null;
+    if(spreadWarmV2519.busy)spreadWarmV2519.busy.img.removeAttribute('src');
+  }
+  function spreadTargetsV2519(){
+    if(isRemoteV1466||destroyed||readDirectionV986!=='spread'||!spreadCurrentGroupV1232)return [];
+    const n=warmLimitV2516(),at=spreadGroupsV1232.findIndex(g=>g.start===spreadCurrentGroupV1232.start),out=[];
+    if(at<0)return out;
+    for(let j=1;j<=n;j++){const g=spreadGroupsV1232[at+j*spreadWarmV2519.dir];if(g)for(let p=g.start;p<g.end;p++)out.push(p);}
+    return out;
+  }
+  function scheduleSpreadWarmV2519(){
+    if(isRemoteV1466||destroyed||readDirectionV986!=='spread'||!warmLimitV2516()||spreadWarmV2519.timer||spreadWarmV2519.busy||!spreadCurrentGroupV1232)return;
+    spreadWarmV2519.timer=setTimeout(()=>{spreadWarmV2519.timer=0;void pumpSpreadWarmV2519();},45);
+  }
+  async function pumpSpreadWarmV2519(){
+    // v2520: Decode independently of PageFlip animation/drag. Only one decode in flight.
+    if(spreadWarmV2519.busy||destroyed||readDirectionV986!=='spread'||!warmLimitV2516())return;
+    const targets=spreadTargetsV2519();
+    for(const [p,x] of spreadWarmV2519.items)if(!targets.includes(p)||spreadUrlsV1226.get(p)!==x.url){x.img.removeAttribute('src');spreadWarmV2519.items.delete(p);}
+    const p=targets.find(p=>!spreadWarmV2519.items.has(p)&&!spreadWarmV2519.attempted.has(p)&&spreadUrlsV1226.has(p));
+    if(p===undefined)return;
+    const url=spreadUrlsV1226.get(p),img=new Image(),epoch=spreadWarmV2519.epoch;
+    const x={img,url,bytes:0};spreadWarmV2519.busy=x;spreadWarmV2519.attempted.add(p);
+    const perf=window.WebViewerReaderPerfV2512,token=perf?.begin('spread-ahead-decode-wait');spreadStatV2519('started');let retained=false;
+    const flipState=spreadEngineObjV1226?.getState?.()||'static';
+    spreadStatV2519(flipState==='read'||flipState==='static'?'startedIdle':'startedDuringAnimation');
+    const stateToken=perf?.begin(flipState==='read'||flipState==='static'?'spread-decode-idle':'spread-decode-animation');
+    try{img.decoding='async';img.src=url;await img.decode();x.bytes=img.naturalWidth*img.naturalHeight*4;
+      if(epoch!==spreadWarmV2519.epoch||!spreadTargetsV2519().includes(p)||spreadUrlsV1226.get(p)!==url){spreadStatV2519('stale');return;}
+      if(!x.bytes||x.bytes+[...spreadWarmV2519.items.values()].reduce((sum,y)=>sum+y.bytes,0)>96*1048576){spreadStatV2519('budgetSkipped');return;}
+      spreadWarmV2519.items.set(p,x);retained=true;spreadStatV2519('ready');
+    }catch(_){spreadStatV2519('rejected');}
+    finally{perf?.end(token);perf?.end(stateToken);if(!retained)img.removeAttribute('src');spreadWarmV2519.busy=null;scheduleSpreadWarmV2519();}
+  }
+  function spreadShownV2519(g){
+    if(isRemoteV1466)return;
+    const old=spreadWarmV2519.last;
+    if(old!==g.start){
+      if(old!==null)spreadWarmV2519.dir=g.start>old?1:-1;
+      spreadWarmV2519.last=g.start;spreadWarmV2519.attempted.clear();
+      for(let p=g.start;p<g.end;p++){
+        const x=spreadWarmV2519.items.get(p);spreadStatV2519(x&&x.url===spreadUrlsV1226.get(p)?'hit':'miss');
+      }
+      window.WebViewerReaderPerfV2512?.mark('spread-group-shown',{page:g.start+1,pages:g.end-g.start});
+    }
+    scheduleSpreadWarmV2519();
+  }
+  function afterSpreadDisplayV2519(epoch,imgs){
+    if(isRemoteV1466){requestSpreadGrowthV1575(epoch);return;}
+    // Wait only for current group load/error, never the background book.
+    const waits=imgs.filter(Boolean).map(img=>new Promise(resolve=>{
+      if(img.complete){resolve();return;}
+      let timer=0;const done=()=>{clearTimeout(timer);img.removeEventListener('load',done);img.removeEventListener('error',done);resolve();};
+      img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true});timer=setTimeout(done,2000);
+    }));
+    void Promise.all(waits).then(()=>requestAnimationFrame(()=>setTimeout(()=>{
+      if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226)return;
+      window.WebViewerReaderPerfV2512?.mark('spread-window-promote',{groups:12});
+      if(spreadCurrentGroupV1232)spreadShownV2519(spreadCurrentGroupV1232);
+      requestSpreadGrowthV1575(epoch);
+    },0)));
+  }
+  window.addEventListener('wv-ahead-decode-stop-v2516',clearSpreadWarmV2519);
   // v1233: 기존 0페이지 고정 짝짓기 대신, 펼침에 들어올 때 보고 있던
   // 정확한 페이지를 첫 면으로 사용한다. 읽기 방향에 따라 왼쪽 또는 오른쪽.
   // 주변 페이지는 앞/뒤로 점진적으로 연결해 큰 ZIP/이미지폴더를 전수 검사하지 않는다.
   async function ensureSpreadsV1232(index,forwardGroupsV1575=2){
     const requested=Math.max(0,Math.min(pages.length-1,Number(index)||0));
+    const readEpoch=spreadReadEpochV1574;
     const run=async()=>{
+      if(destroyed||readDirectionV986!=='spread'||readEpoch!==spreadReadEpochV1574)return {groups:[],at:0,group:null};
       // 처음 펼치거나 먼 곳으로 페이지를 직접 점프할 때만 시작점을 갱신한다.
       // 단순히 첫 1~2개 묶음 쪽으로 되돌아왔다고 기준 페이지를 바꾸지 않는다.
       if(!spreadGroupsV1232.length ||
@@ -195258,6 +195791,7 @@ async function openLightbox(value, fileJumpV1005=null){
         const nextWide=!wide&&end<pages.length&&await landscapePageV1232(end);
         const prevWide=!wide&&last>0&&await landscapePageV1232(last-1);
         const start=Math.max(0,end-(wide||nextWide||prevWide?1:2));
+        if(readEpoch!==spreadReadEpochV1574||destroyed||readDirectionV986!=='spread')return {groups:[],at:0,group:null};
         spreadGroupsV1232.unshift({start,end,wide});
       }
       let selected=spreadGroupsV1232.findIndex(g=>g.start<=requested&&requested<g.end);
@@ -195275,6 +195809,7 @@ async function openLightbox(value, fileJumpV1005=null){
         // 첫 세로 장을 단독 표시하고, 다음 펼침에서 가로 한 장만 보여준다.
         const nextWide=!wide&&start+1<pages.length&&await landscapePageV1232(start+1);
         const end=Math.min(pages.length,start+(wide||nextWide?1:2));
+        if(readEpoch!==spreadReadEpochV1574||destroyed||readDirectionV986!=='spread')return {groups:[],at:0,group:null};
         spreadGroupsV1232.push({start,end,wide});spreadNextV1232=end;
         if(selected<0&&start<=requested&&requested<end)selected=spreadGroupsV1232.length-1;
       }
@@ -195405,7 +195940,7 @@ async function openLightbox(value, fileJumpV1005=null){
     // Keep current + 11 forward groups registered (12 groups total),
     // while the rolling image queue continues reading beyond the visible group.
     const lo=Math.max(0,mapping.at-3),hi=Math.min(mapping.groups.length,mapping.at+12);
-    const logical=mapping.groups.slice(lo,hi);
+    const logical=isRemoteV1466?mapping.groups.slice(lo,hi):[mapping.group];
     const display=rtl?logical.slice().reverse():logical;
     let sources;
     try{
@@ -195424,7 +195959,7 @@ async function openLightbox(value, fileJumpV1005=null){
       const pageSlot=display.findIndex(g=>g.start===mapping.group.start)*2;
       const pf=new St.PageFlip(holder,{width:500,height:705,size:'stretch',minWidth:120,maxWidth:1400,minHeight:170,maxHeight:1974,
         showCover:false,usePortrait:false,startPage:pageSlot,drawShadow:true,flippingTime:Number(spreadSpeedV1270.value)||800,maxShadowOpacity:.65,
-        useMouseEvents:true,disableFlipByClick:spreadInputV1226.value==='drag',autoSize:false});
+        useMouseEvents:true,showPageCorners:false,disableFlipByClick:spreadInputV1226.value==='drag',autoSize:false});
       spreadEngineObjV1226=pf;spreadEngineGroupsV1232=display;
       let lastSlot=pageSlot,initialized=false;
       pf.__wvResetSlotV1575=(slot)=>{lastSlot=slot;initialized=true;};
@@ -195433,6 +195968,9 @@ async function openLightbox(value, fileJumpV1005=null){
         const current=Number(pf.getCurrentPageIndex?.());
         if(Number.isFinite(current))lastSlot=2*Math.floor(current/2);
         initialized=true;
+      });
+      pf.on('changeState',()=>{
+        if(spreadEngineObjV1226===pf&&!destroyed&&!isRemoteV1466)scheduleSpreadWarmV2519();
       });
       pf.on('flip',event=>{
         if(spreadStUpdatingV1575||spreadEngineObjV1226!==pf||readDirectionV986!=='spread'||destroyed)return;
@@ -195447,7 +195985,7 @@ async function openLightbox(value, fileJumpV1005=null){
         warmSpreadWindowV1574(g.start);
         requestSpreadGrowthV1575(spreadEpochV1226);
         cancelStRebaseV1227();setPageLabelV986(g.start,true);
-        trimSpreadV1226(g.start);
+        trimSpreadV1226(g.start);spreadShownV2519(g);
         spreadNoteV1226.textContent='StPageFlip · '+spreadPageTextV1235(g)+' / '+pages.length;
         const globalAt=spreadGroupsV1232.findIndex(x=>x.start===g.start);
         // Rewindow only close to the *edge* of the existing registered groups.
@@ -195477,6 +196015,7 @@ async function openLightbox(value, fileJumpV1005=null){
       pf.loadFromHTML(sheets);
       stabilizeStStationaryPageV1230(pf); // v1231의 선명도 및 1px 보정 유지
       trimSpreadV1226(mapping.group.start);
+      if(!isRemoteV1466)afterSpreadDisplayV2519(epoch,sheets.slice(pageSlot,pageSlot+2).map(x=>x.querySelector('img')));
       spreadWideV1235.hidden=true;spreadWideV1235.removeAttribute('src');
       spreadLeftV1226.style.visibility='hidden';spreadRightV1226.style.visibility='hidden';
       spreadNoteV1226.textContent='StPageFlip · '+spreadPageTextV1235(mapping.group)+' / '+pages.length;
@@ -195508,7 +196047,7 @@ async function openLightbox(value, fileJumpV1005=null){
     // Keep at most three older groups and current + 11 ahead (15 mounted).
     // Drop older DOM pages during a background idle-time update.
     const end=Math.min(spreadGroupsV1232.length,globalAt+12);
-    const logical=spreadGroupsV1232.slice(globalFirst,end);
+    const logical=isRemoteV1466?spreadGroupsV1232.slice(globalFirst,end):spreadWindowV2519(spreadGroupsV1232,globalAt);
     if(logical.length===spreadEngineGroupsV1232.length&&
        logical[0]?.start===spreadEngineGroupsV1232.find(g=>g.start===logical[0]?.start)?.start&&
        logical.at(-1)?.start===spreadEngineGroupsV1232.find(g=>g.start===logical.at(-1)?.start)?.start)return true;
@@ -195540,7 +196079,7 @@ async function openLightbox(value, fileJumpV1005=null){
       pf.turnToPage?.(slot);
       pf.__wvResetSlotV1575?.(slot);
       spreadEngineGroupsV1232=display;
-      trimSpreadV1226(active.start);
+      trimSpreadV1226(active.start);scheduleSpreadWarmV2519();
       return true;
     }catch(err){console.warn('[v1575] 책 미리 로딩 확장 실패',err);return false;}
     finally{spreadStUpdatingV1575=false;}
@@ -195582,21 +196121,30 @@ async function openLightbox(value, fileJumpV1005=null){
           const at=spreadGroupsV1232.findIndex(g=>g.start===current.start);
           if(at<0)break;
           const ahead=spreadGroupsV1232.length-at;
-          if(ahead>=12||spreadNextV1232>=pages.length){
+          const target=isRemoteV1466?12:12-Math.min(2,at);
+          if(ahead>=target||spreadNextV1232>=pages.length){
             scheduleSpreadBookExtendV1575(epoch);
             if(!spreadGrowRequestedV1575)break;
             continue;
           }
           // Append exactly one more spread, then continue without waiting for
           // a whole 12-spread batch. The 2-read queue is shared with display.
-          await ensureSpreadsV1232(current.start,Math.min(12,ahead+1));
+          await ensureSpreadsV1232(current.start,Math.min(target,ahead+1));
           if(epoch!==spreadEpochV1226)break;
-          scheduleSpreadBookExtendV1575(epoch);
+          if(!isRemoteV1466){
+            trimSpreadV1226(spreadCurrentGroupV1232?.start??current.start);scheduleSpreadWarmV2519();
+            if(ahead===1||ahead+1>=target||ahead%4===0)scheduleSpreadBookExtendV1575(epoch);
+          }else scheduleSpreadBookExtendV1575(epoch);
         }
       }catch(err){console.warn('[v1575] 펼침 선행 준비 실패',err);}
       finally{
         if(spreadGrowthEpochV1575===epoch){
           spreadGrowingV1575=false;
+          // v2521: release leftover orientation lookahead only after growth settles.
+          // Mounted sheets and pending reads remain protected by the existing trim.
+          if(!isRemoteV1466&&!destroyed&&epoch===spreadEpochV1226&&readDirectionV986==='spread'&&!spreadBusyV1226&&spreadCurrentGroupV1232&&!spreadGrowRequestedV1575){
+            trimSpreadV1226(spreadCurrentGroupV1232.start);
+          }
           if(spreadGrowRequestedV1575&&epoch===spreadEpochV1226)requestSpreadGrowthV1575(epoch);
         }
       }
@@ -195611,18 +196159,18 @@ async function openLightbox(value, fileJumpV1005=null){
     try{
       // Begin the queue immediately: orientation scans reuse these reads.
       warmSpreadWindowV1574(index);
-      const mapping=await ensureSpreadsV1232(index,2);
+      const mapping=await ensureSpreadsV1232(index,isRemoteV1466?2:1);
       if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226||!mapping.group)return false;
       const group=mapping.group;spreadCurrentGroupV1232=group;
       setPageLabelV986(group.start,true);updateImageResolutionV1834();
       const local=spreadEngineGroupsV1232.findIndex(g=>g.start===group.start);
       if(spreadEngineObjV1226&&!rebuild&&local>=0){
-        spreadEngineObjV1226.turnToPage(local*2);return true;
+        spreadEngineObjV1226.turnToPage(local*2);if(!isRemoteV1466){trimSpreadV1226(group.start);spreadShownV2519(group);requestSpreadGrowthV1575(epoch);}return true;
       }
       // 효과 없음: StPageFlip의 책장 생성·3D 애니메이션 없이 두 원본 이미지 표시.
       if(spreadEffectV1233.value==='flip' && !(ichigoAutoSaveV1825?.state?.pageMode==='spread') && await buildStBookV1232(mapping,epoch)){
         // Let the user read right now. All remaining groups load in background.
-        requestSpreadGrowthV1575(epoch);return true;
+        if(isRemoteV1466)requestSpreadGrowthV1575(epoch);return true;
       }
       if(destroyed||readDirectionV986!=='spread'||epoch!==spreadEpochV1226)return false;
       spreadNoteV1226.textContent=spreadEffectV1233.value==='none'?'넘김 효과 없음 · 두 장 보기':'StPageFlip 연결 없음 · 기본 두 장 보기';
@@ -195630,7 +196178,7 @@ async function openLightbox(value, fileJumpV1005=null){
       spreadEngineV1226.replaceChildren();spreadEngineV1226.hidden=true;spreadEngineGroupsV1232=[];
       spreadLeftV1226.style.visibility='';spreadRightV1226.style.visibility='';
       const shown=await paintSpreadV1226(group,epoch);
-      if(shown)requestSpreadGrowthV1575(epoch);
+      if(shown)afterSpreadDisplayV2519(epoch,group.wide?[spreadWideV1235]:[spreadLeftV1226,spreadRightV1226]);
       return shown;
     }finally{if(epoch===spreadEpochV1226)spreadBusyV1226=false;}
   }
@@ -195641,7 +196189,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(!current)return false;
     // The next spread after the true final group belongs to the next chapter.
     if(step>0&&!fromAutoV1256&&current.end>=pages.length&&nextChapterAtBoundaryV1761())return true;
-    const before=await ensureSpreadsV1232(step>0?Math.min(pages.length-1,current.end):Math.max(0,current.start-1),2);
+    const before=await ensureSpreadsV1232(step>0?Math.min(pages.length-1,current.end):Math.max(0,current.start-1),isRemoteV1466?2:1);
     if(destroyed||readDirectionV986!=='spread')return false;
     let at=before.groups.findIndex(g=>g.start===current.start);
     if(at<0){ // 먼 페이지 점프에 따른 재색인 직후
@@ -195696,10 +196244,11 @@ async function openLightbox(value, fileJumpV1005=null){
     const p=centerEdgeBookPosV1260(pf,event.clientX,event.clientY);
     if(!p)return;
     const rect=p.rect;
-    // 가운데 25~75% 높이만 가로채므로 기존 상·하단 모서리 조작은 건드리지 않는다.
+    // v2523: 세로 17~83%, 각 페이지의 바깥쪽 50%를 중앙 드래그로 처리한다.
     const yn=p.y/rect.height;
-    if(yn<.25||yn>.75)return;
-    const zone=Math.min(72,Math.max(27,rect.width*.055));
+    if(yn<.17||yn>.83)return;
+    const zone=rect.width*.25; // Half of each page in a two-page spread.
+    if(p.x<0||p.x>rect.width)return;
     const side=p.x<zone?'left':p.x>rect.width-zone?'right':null;
     if(!side)return;
     // 이전/다음 페이지가 실제로 존재할 때만 자체 드래그로 받는다.
@@ -195708,7 +196257,12 @@ async function openLightbox(value, fileJumpV1005=null){
     if(!Number.isFinite(pageIndex)||!Number.isFinite(last)||
        (side==='left'&&pageIndex<=0)||(side==='right'&&pageIndex>=last))return;
     const y=Math.max(4,Math.min(12,rect.height*.015));
-    const start={x:p.x,y};
+    // Preserve the existing edge grab behavior; map interior grabs to the edge.
+    const oldZone=Math.min(72,Math.max(27,rect.width*.07));
+    const edgeInset=Math.min(12,rect.width*.015);
+    const edgeDistance=side==='left'?p.x:rect.width-p.x;
+    const startX=edgeDistance<oldZone?p.x:(side==='left'?edgeInset:rect.width-edgeInset);
+    const start={x:startX,y};
     try{
       centerEdgeDragV1260={pf,side,originX:event.clientX,originY:event.clientY,
         start,last:start,moved:false,maxDistance:0};
@@ -195731,7 +196285,7 @@ async function openLightbox(value, fileJumpV1005=null){
     }
     // 끝을 위·아래 모서리 대신 상단 근처에 고정하면, 접히는 경계가
     // 대각선 삼각형이 아니라 거의 수직이 되는 원본 종이 계산을 활용한다.
-    const pos={x:p.x,y:st.start.y};st.last=pos;
+    const pos={x:st.start.x+dx,y:st.start.y};st.last=pos;
     try{st.pf.userMove(pos,false);}catch(e){console.warn('[v1260] 중앙 드래그 이동 실패',e);}
     spreadRebaseLastInputV1254=performance.now();
   },true);
@@ -195742,7 +196296,7 @@ async function openLightbox(value, fileJumpV1005=null){
     st.maxDistance=Math.max(st.maxDistance,Math.hypot(event.clientX-st.originX,event.clientY-st.originY));
     const p=centerEdgeBookPosV1260(st.pf,event.clientX,event.clientY);
     if(p&&st.moved){
-      st.last={x:p.x,y:st.start.y};
+      st.last={x:st.start.x+event.clientX-st.originX,y:st.start.y};
       try{st.pf.userMove(st.last,false);}catch(_){ }
     }
     resetCenterEdgeDragV1260(false);
@@ -195824,6 +196378,7 @@ async function openLightbox(value, fileJumpV1005=null){
       if(direction==='horizontal'&&!image.src)await go(idx);
       return;
     }
+    if(compositeV2535)stopAutoScrollV1193();
     stopAutoPageV1194();
     readDirectionV986=direction;if(direction!=='horizontal'){editActiveV2503=false;favActiveV2505=false;}syncDirectionButtonsV986();editRefreshV2503();
     if(direction!=='horizontal')clearHorizontalAheadV1573();
@@ -195951,6 +196506,8 @@ async function openLightbox(value, fileJumpV1005=null){
     return true;
   }
   async function go(n,fromAutoPageV1194=false,preserveAutoPageV1213=false,newHalfV2502=0){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('page-navigation');try{
+
     // v2399: Manual navigation in a vertical reader must preserve autoplay.
     // Horizontal/spread keep their established stop/resume rules.
     const keepVerticalAutoV2399=readDirectionV986==='vertical'&&
@@ -195984,21 +196541,35 @@ async function openLightbox(value, fileJumpV1005=null){
       return;
     }
     const changedPageV2502=to!==idx;
+    if(readDirectionV986==='horizontal'&&changedPageV2502){
+      warmV2516.dir=to>idx?1:-1;warmV2516.epoch++;warmV2516.attempted.clear();
+      clearTimeout(warmV2516.timer);warmV2516.timer=0;
+    }
     if(readDirectionV986==='horizontal'&&changedPageV2502)splitHalfV2502=newHalfV2502;
     setPageLabelV986(readDirectionV986==='spread'?spreadBaseV1226(to):to,true);
     if(readDirectionV986==='spread')return showSpreadV1226(to);
-    const mine=++seq;
+    const mine=++seq;warmV2516.visiblePending=true;
+    if(localFirstPaintV2518){cancelLocalPromotionV2518();window.WebViewerReaderPerfV2512?.mark('local-blob-initial-one',{window:1});}
     prepareHorizontalWindowV1573(idx);
-    try{const data=await horizontalImageV1573(idx);
+    try{const perf=window.WebViewerReaderPerfV2512;
+      if(perf?.active())perf.cacheLookup(horizontalAheadV1573.blobs.has(idx)?'ready':horizontalAheadV1573.pending.has(idx)?'pending':'miss');
+      const wait=perf?.begin('horizontal-visible-cache-wait');
+      let data;try{data=await horizontalImageV1573(idx);}finally{perf?.end(wait);}
       if(mine!==seq||destroyed||readDirectionV986!=='horizontal')return false;
-      const url=pageSrcV1580(data);
+      const warmed=takeWarmV2516(idx,data);
+      const url=warmed?warmed.url:pageSrcV1580(data);
       if(mine!==seq||destroyed||readDirectionV986!=='horizontal'){
-        releaseSrcV1580(url);return false;
+        if(warmed)dropWarmV2516(warmed);else releaseSrcV1580(url);return false;
       }
-        const previousUrl=u;
+        const previousUrl=u;const previousHeld=warmV2516.held;
+      warmV2516.held=warmed?warmed.img:null;
+      window.WebViewerReaderPerfV2512?.imageAssigned?.(image);
       image.src=url;
-      if(previousUrl)releaseSrcV1580(previousUrl);
+      window.WebViewerReaderPerfV2512?.decodeProbe?.(image);
+      if(previousHeld)previousHeld.removeAttribute('src');
+      if(previousUrl&&previousUrl!==url)releaseSrcV1580(previousUrl);
       u=url;
+      for(const [p,item] of warmV2516.items)if(!warmTargetsV2516().includes(p)){dropWarmV2516(item);warmV2516.items.delete(p);}
       // Initial two real Blob images are prepared first. Start the remaining
       // up-to-30-page rolling preload without delaying the visible first page.
       promoteBlobAheadV1757();
@@ -196008,7 +196579,9 @@ async function openLightbox(value, fileJumpV1005=null){
         counter.textContent=`${pageLabelV985(idx)} · ${errText(e)}`;flashBadge();}
       return false;
     }
-  }
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+}
   // v995: ZIP·CBZ 및 로컬 이미지 폴더에 공통 적용되는 가로 페이지 탐색.
   // 기존 일반 만화 뷰어와 같이 휠 아래/오른쪽=다음, 위/왼쪽=이전,
   // 터치는 왼쪽 스와이프=다음, 오른쪽 스와이프=이전.
@@ -196133,6 +196706,7 @@ async function openLightbox(value, fileJumpV1005=null){
   if(fileNextV1005)fileNextV1005.onclick=()=>void moveFileV1005(1);
   let edgePanelCleanupV2072=()=>{};
   function destroy(preserveGroupV1184=false){
+    const __wvClosePerf2512=window.WebViewerReaderPerfV2512?.begin('reader-close');
     if(deleteEditV1835?.busy)return;
     preserveGroupV1184=preserveGroupV1184===true;
     if(window.ComicMangaDexReaderCloseV1761===destroy)window.ComicMangaDexReaderCloseV1761=null;
@@ -196140,6 +196714,7 @@ async function openLightbox(value, fileJumpV1005=null){
     if(window.ComicLocalTranslateReaderCloseV1836===destroy)window.ComicLocalTranslateReaderCloseV1836=null;
     if(window.ComicIliltoonReaderCloseV1579===destroy)window.ComicIliltoonReaderCloseV1579=null;
     if(destroyed)return;
+    if(compositeV2535)stopAutoScrollV1193();
     if(pendingPageV1020===null)pendingPageV1020=idx+1;
     if(remoteProgressV1612?.workId){
       window.ComicExternalReadProgressV1612?.mark({...remoteProgressV1612,page:idx+1,pageCount:pages.length});
@@ -196164,7 +196739,9 @@ async function openLightbox(value, fileJumpV1005=null){
     destroyed=true;seq++;
     edgePanelCleanupV2072();
     clearHorizontalAheadV1573();
+    window.removeEventListener('wv-ahead-decode-stop-v2516',clearWarmV2516);window.removeEventListener('wv-ahead-decode-stop-v2516',clearSpreadWarmV2519);
     window.removeEventListener('resize',onSplitResizeV2502);
+    window.removeEventListener('resize',onCompositeResizeV2535);
     window.removeEventListener('comic-guide-mode-v1148',onGuideChangeV1148);
     window.removeEventListener('storage',onGuideChangeV1148);
     heartManagerV1148?.destroy();
@@ -196172,7 +196749,7 @@ async function openLightbox(value, fileJumpV1005=null){
     resetFavThumbsV1150();
     clearTimeout(controlsTimer);clearTimeout(badgeTimer);
     resetCenterEdgeDragV1260(true);
-    cleanVerticalV986();clearSpreadV1226();cover.remove();if(u)releaseSrcV1580(u);
+    cleanVerticalV986();clearSpreadV1226();cover.remove();window.WebViewerReaderPerfV2512?.restore?.(cover);if(u)releaseSrcV1580(u);
     const own=lastImageV988.dataset.ownedUrl;if(own)releaseSrcV1580(own);
     if(firstOwnedUrlV1090)releaseSrcV1580(firstOwnedUrlV1090);
     // v1709: release session-only external blobs when the chapter reader closes.
@@ -196187,6 +196764,8 @@ async function openLightbox(value, fileJumpV1005=null){
     window.removeEventListener('keydown',keyHandler,true);
     window.removeEventListener('keyup',editAltKeyUpV2503,true);
     window.removeEventListener('blur',editAltBlurV2503);
+    window.WebViewerReaderPerfV2512?.end(__wvClosePerf2512);
+    window.WebViewerReaderPerfV2512?.mark('reader-closed');
   }
   let editAltArmedV2503=false;
   const editAltBlurV2503=()=>{editAltArmedV2503=false;};
@@ -196432,6 +197011,7 @@ async function openLightbox(value, fileJumpV1005=null){
   };
   verticalViewV986.addEventListener('click',e=>{
     if(readDirectionV986!=='vertical')return;
+    if(scene2VerticalOnV2307()&&window.ComicVerticalSceneTwoV2288?.getPlaybackStateV2396?.(verticalViewV986)?.active)return;
     if(e.target===verticalViewV986){destroy();return;}
     const wrapper=e.target.closest?.('.zipVerticalPageV986');
     if(!wrapper)return;
@@ -196517,7 +197097,7 @@ async function openLightbox(value, fileJumpV1005=null){
   // Start the 3-second introduction only after the first reader page is ready.
   if(!destroyed&&cover.isConnected)
     edgePanelCleanupV2072=window.ComicEdgePanelsV2072?.attach?.(cover)||(()=>{});
-  } finally { balanceV1024?.endOpen(); }
+  } finally { balanceV1024?.endOpen(); window.WebViewerReaderPerfV2512?.end(__wvOpenPerf2512); }
 }
 // 이미 추출한 표지는 폴더 연결 후 ZIP을 다시 열지 않고 WebP 그대로 저장.
 async function saveTransientPostersV980(){
@@ -200965,6 +201545,55 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
     <p>최신 브라우저에서도 오류가 지속되면 브라우저 버전과 오류 증상을 건의하기로 알려주세요. 이번 웹뷰어 업데이트는 긴급공지 전달용입니다.</p>
   </div>
 </template>
+<!-- v2537: Known Chrome permission regression detection and external download environment guide. -->
+<template id="wv2537ExternalDownloadNotice">
+ <section class="wv2500ImageSection" aria-label="웹뷰어 앱 설치 방법">
+  <div class="wv2500ImageTitle">웹뷰어 앱 설치 방법</div>
+  <figure class="wv2500CutsceneFigure"><a href="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/InstallGuide.png" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/InstallGuide.png" alt="로컬호스트 설치방법, 설치 ZIP 다운로드, 압축 해제 및 실행, Chrome 앱 설치 안내" width="1448" height="1086" style="width:100%;height:auto;aspect-ratio:auto 1448 / 1086" decoding="async" onerror="this.style.display='none';this.parentElement.querySelector('.wv2500ImageError').hidden=false;"><span class="wv2500ImageError" hidden>설치 안내 이미지를 불러오지 못했습니다. 원본 링크를 확인해 주세요.</span></a><figcaption>이미지를 클릭하면 크게 볼 수 있습니다.</figcaption></figure>
+ </section>
+ <section class="wv2500ImageSection" aria-label="웹뷰어 재설치 방법">
+  <div class="wv2500ImageTitle">웹뷰어 재설치 방법 (잘못 설치했거나 이전 버전을 사용 중일 때)</div>
+  <figure class="wv2500CutsceneFigure"><a href="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/ReinstallGuide.png" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/ReinstallGuide.png" alt="컴퓨터 재부팅 후 웹뷰어를 실행하지 않고 Chrome 앱 목록에서 기존 웹뷰어 제거, 앱 데이터 삭제는 체크하지 않고 재설치하는 방법" width="1671" height="941" style="width:100%;height:auto;aspect-ratio:auto 1671 / 941" decoding="async" onerror="this.style.display='none';this.parentElement.querySelector('.wv2500ImageError').hidden=false;"><span class="wv2500ImageError" hidden>재설치 안내 이미지를 불러오지 못했습니다. 원본 링크를 확인해 주세요.</span></a><figcaption>이미지를 클릭하면 크게 볼 수 있습니다.</figcaption></figure>
+  <p>재설치 전 컴퓨터를 재부팅하고 웹뷰어를 실행하지 마세요. Chrome 주소창에 <code>chrome://apps/</code>를 입력하고 기존 웹뷰어를 제거하세요. <strong>‘Chrome에서 이 앱 데이터 삭제’는 체크하지 마세요.</strong> 이후 위 설치 방법에 따라 다시 설치하세요.</p>
+ </section>
+ <section class="wv2500ImageSection" aria-label="외부 다운로드 실행 환경 안내">
+  <div class="wv2500ImageTitle">외부 다운로드가 안 될 때 확인 방법</div>
+  <figure class="wv2500CutsceneFigure"><a href="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/ExternalDownloadGuide.png" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/darkmons77-gif/webviewer-data/main/ExternalDownloadGuide.png" alt="웹뷰어 런처 실행, 앱 정보 주소 확인, 서버 버전 확인 안내" width="1648" height="928" style="width:100%;height:auto;aspect-ratio:auto 1648 / 928" decoding="async" onerror="this.style.display='none';this.parentElement.querySelector('.wv2500ImageError').hidden=false;"><span class="wv2500ImageError" hidden>안내 이미지를 불러오지 못했습니다. 원본 링크를 확인해 주세요.</span></a><figcaption>이미지를 클릭하면 크게 볼 수 있습니다.</figcaption></figure>
+ </section>
+ <section class="wv1098Section"><h3>외부 다운로드 실행 환경 확인</h3><ol><li>바탕화면의 웹뷰어 런처를 실행합니다.</li><li>오른쪽 위 점 세 개(⋮)를 클릭합니다.</li><li>앱 정보에서 127.0.0.1:18765인지 확인합니다.</li><li>필요하면 일반 Chrome 주소창에 http://127.0.0.1:18765/ 를 직접 입력합니다.</li><li>웹뷰어 상단에 서버 버전이 표시되는지 확인한 뒤 외부 다운로드를 다시 시도합니다.</li></ol><p>다른 실행 환경에서는 일부 기능이 제한될 수 있습니다. 주소 문제만으로 재설치를 반복할 필요는 없습니다.</p></section>
+ <section class="wv1098Section"><h3>Chrome 권한 오류 자동 안내</h3><p>문제가 확인된 Chrome 158.0.8127.38을 감지하면 업데이트 안내가 표시됩니다. 158.0.8127.89에서 정상 작동을 확인했습니다. 최신 버전으로 업데이트한 뒤 다시 시작하세요.</p></section>
+</template>
+<script id="wv2537ChromeVersionCheck">
+(()=>{
+ 'use strict';
+ async function detect(){
+  const ua=navigator.userAgent||'';
+  if(/(?:Edg|OPR|SamsungBrowser|Vivaldi|YaBrowser)\//i.test(ua))return null;
+  try{const d=navigator.userAgentData;if(d?.getHighEntropyValues){
+   const r=await d.getHighEntropyValues(['fullVersionList']);
+   const list=r.fullVersionList||[];
+   const chrome=list.find(x=>x.brand==='Google Chrome');
+   if(chrome)return chrome.version;
+   if(list.length)return null;
+  }}catch(_){}
+  // A reduced UA (158.0.0.0) is not sufficient evidence.
+  const m=ua.match(/(?:^|\s)Chrome\/(\d+\.\d+\.\d+\.\d+)/);
+  return m&&m[1]!=='158.0.0.0'?m[1]:null;
+ }
+ async function check(){
+  if(await detect()!=='158.0.8127.38')return;
+  if(document.getElementById('wv2537ChromeWarning'))return;
+  const d=document.createElement('dialog');d.id='wv2537ChromeWarning';
+  d.style.cssText='background:#271a20;color:#fff;border:2px solid #e96c6c;border-radius:12px;padding:22px;max-width:min(580px,85vw);font:16px/1.65 sans-serif;z-index:2147483647';
+  d.innerHTML='<h2 style="margin:0 0 12px;color:#ffce89">Chrome 업데이트가 필요합니다</h2><p>현재 Chrome 버전: <strong>158.0.8127.38</strong></p><p>이 버전에서 로컬 폴더 접근 권한 문제가 확인되었습니다. 웹뷰어를 재설치하거나 초기화하기 전에 Chrome을 업데이트해 주세요.</p><p>일반 Chrome 창 주소창에 <code style="user-select:all">chrome://settings/help</code> 를 입력하거나 ⋮ → 도움말 → Chrome 정보를 선택하세요. 업데이트 후 다시 시작하세요.</p><p>정상 작동 확인 버전: 158.0.8127.89</p><button type="button" data-copy>업데이트 주소 복사</button> <button type="button" data-close>닫기</button>';
+  document.body.appendChild(d);
+  d.querySelector('[data-copy]').onclick=async e=>{try{await navigator.clipboard.writeText('chrome://settings/help');e.target.textContent='복사 완료';}catch(_){e.target.textContent='위 주소를 직접 복사해 주세요';}};
+  d.querySelector('[data-close]').onclick=()=>d.close();d.addEventListener('close',()=>d.remove(),{once:true});
+  try{d.showModal();}catch(_){d.setAttribute('open','');}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',check,{once:true});else check();
+})();
+</script>
 <script id="wv1098NoticeScript">
 (()=>{
   'use strict';
@@ -201189,6 +201818,12 @@ ZIP 내부 변경 시 해당 작품 열기로 갱신 · 등록 폴더 변경 시
       title:'⚠ 긴급공지 — 브라우저 권한 오류',
       subtitle:'2026년 11월 25일 · Chrome / Edge 업데이트 필수 확인',
       html:document.getElementById('wv2511BrowserEmergencyNotice')?.innerHTML||''
+    },
+    {
+      id:'release-v2540-install-reinstall-download-guide',build:'빌드 2540',
+      title:'웹뷰어 앱 설치 · 재설치 및 외부 다운로드 안내',
+      subtitle:'앱 설치 · 재설치 방법 · 실행 주소 확인 · 브라우저 문제 버전 자동 감지',
+      html:document.getElementById('wv2537ExternalDownloadNotice')?.innerHTML||''
     }
   ];
   let current=history.length-1;
@@ -218599,14 +219234,15 @@ function makeMenu(){
     ['로컬스토리지','lsOpenInWt'],
     ['단축키','videoPreviewShortcutBtnWt'],
     ['백업','viewerPersonalDataMenuBtnV2499'],
-    ,
     ['완전초기화','viewerFullResetBtnWt'],
     ['V 전체','toggleFullWt'],
     ['라이트뷰','wtOpenInWt'],
     ['썸동기화','videoSceneSyncBtnWt'],
     ['건의하기','viewerSuggestionOpenV1034']
   ];
-  for(const [label,id] of items){
+  for(const item of items){
+    if(!Array.isArray(item)||typeof item[0]!=='string'||!item[0])continue;
+    const [label,id]=item;
     const b=document.createElement('button');b.type='button';b.className='videoRailMenuActionV956';b.textContent=label;
     if(id)b.dataset.videoRightSourceV1374=id;
     if(id==='viewerFullResetBtnWt')b.classList.add('videoRailMenuDangerV957');
@@ -223939,7 +224575,7 @@ window.ComicExternalPageResumeV2106=(()=>{'use strict';
 window.WebViewerPublicQuotaV2146=(()=>{'use strict';
  const URL='http://127.0.0.1:18769/__webviewer_local/public_download_quota_v2146';
  let last=null;
- function notify(s){last=s;window.dispatchEvent(new CustomEvent('wv-public-chapter-quota-v2146',{detail:s}));return s;}
+ function notify(s){const p=window.WebViewerReaderPerfV2512,t=p?.begin('background-quota-notify');try{last=s;window.dispatchEvent(new CustomEvent('wv-public-chapter-quota-v2146',{detail:s}));return s;}finally{if(t)p?.end(t);}}
  async function request(action,body){
   const opts=action?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...body}),cache:'no-store'}:{cache:'no-store'};
   const r=await fetch(URL,opts);let result={};try{result=await r.json();}catch(_){}
@@ -226849,8 +227485,16 @@ window.ComicIliltoonDirectURLV2258=(()=>{'use strict';
  window.WebViewerPublicDownloadV2145=Object.freeze({attach,siteFor,enqueue:enqueueV2150,queue:()=>({active:activeV2150&&{...activeV2150},pending:pendingV2150.map(x=>({...x}))})});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
  // External tools are recreated as the user switches list/layout modes.
- setInterval(()=>{if(document.visibilityState!=='hidden')attach();},1600);
- setInterval(()=>{if(document.visibilityState!=='hidden')void window.WebViewerPublicQuotaV2146?.query?.().catch(()=>{});},20000);
+ setInterval(()=>{if(document.visibilityState!=='hidden'){
+   const p=window.WebViewerReaderPerfV2512,t=p?.begin('background-external-tools-attach');
+   try{attach();}finally{if(t)p?.end(t);}
+ }},1600);
+ setInterval(()=>{if(document.visibilityState!=='hidden'){
+   const p=window.WebViewerReaderPerfV2512,t=p?.begin('background-quota-poll');
+   if(t)p.mark('background-quota-poll-start');
+   const finish=()=>{if(t){p.end(t);p.mark('background-quota-poll-end',{ms:Math.round((performance.now()-t.at)*10)/10});}};
+   try{const job=window.WebViewerPublicQuotaV2146?.query?.();if(job)void Promise.resolve(job).catch(()=>{}).finally(finish);else finish();}catch(_){finish();}
+ }},20000);
 })();
 </script>
 <script id="comicMarumaruDirectURLV2184">
@@ -247110,6 +247754,8 @@ function drawSceneCannyPreviewV2429(shown){
   }
 
   function nextCut(scroller,previous,stats){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('cutscene-next-analysis');try{
+
     const started=performance.now();
     if(stats)Object.assign(stats,{reason:'미확인',imageElements:0,imagesNotReady:0,
       imagesExcluded:0,imagesBadLayout:0,imagesOutOfRange:0,imagesWithinScan:0,
@@ -247463,7 +248109,9 @@ function drawSceneCannyPreviewV2429(shown){
     if(stats?.tooShortCuts>0)return failed('경계 사이 컷 높이 부족');
     if(stats?.emptyCuts>0)return failed('경계 사이 이미지 조각 없음');
     return failed('현재 위치 이후 유효한 다음 컷 없음');
-  }
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+}
   // v2312: Locate the previous complete cut by scanning divider bands UPWARD.
   // PageDown's collected gaps are reused; scanning is in reverse order, and
   // the current scene's starting divider anchors the upper search boundary.
@@ -248123,6 +248771,8 @@ function drawSceneCannyPreviewV2429(shown){
   }
   let scenePlaybackRevisionV2396=0;
   function show(cut,direction='forward'){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('cutscene-render');try{
+
     const {scroller,frame,parts,startAbs,endAbs,sceneH}=cut;
     const host=scroller.closest('#comicZipLightboxV984,#imgLightboxOverlay,.mmReaderShadeV1673')||scroller.parentElement;
     if(!host)return false;
@@ -248282,7 +248932,9 @@ function drawSceneCannyPreviewV2429(shown){
       if(active?.layer===layer){active.internal=false;scheduleLookaheadV2307(90);}
     }));
     return true;
-  }
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+}
   // v2389: Re-render only the visible layer, preserving lookahead data and
   // source scroll position. Manual override affects Scene1 and Scene2.
   document.addEventListener('comic-scene-background-choice-v2389',()=>{
@@ -248837,8 +249489,9 @@ function drawSceneCannyPreviewV2429(shown){
   // the centred cut. The old dismiss listener treated every header click as a
   // tap on the artwork, producing a short non-cutscene flash on speed changes.
   const fromQuickBar=e=>!!e.target?.closest?.('.comicScene2QuickBarV2298, .wvStampOpenV2370, #comicStampPanelV2370, #comicStampSelectV2370, .zipLightboxHeaderV984, .zipLightboxTopZoneV984');
-  document.addEventListener('pointerdown',e=>{if(!fromQuickBar(e)&&(active||pendingRetry))clear();},true);
-  document.addEventListener('touchstart',e=>{if(!fromQuickBar(e)&&(active||pendingRetry))clear();},{capture:true,passive:true});
+  const onVisibleCutArtworkV2525=e=>!!active?.layer?.isConnected&&!!active.scroller?.closest('#comicZipLightboxV984')&&active.scroller.contains(e.target);
+  document.addEventListener('pointerdown',e=>{if(!fromQuickBar(e)&&!onVisibleCutArtworkV2525(e)&&(active||pendingRetry))clear();},true);
+  document.addEventListener('touchstart',e=>{if(!fromQuickBar(e)&&!onVisibleCutArtworkV2525(e)&&(active||pendingRetry))clear();},{capture:true,passive:true});
   document.addEventListener('scroll',e=>{
     // v2491: Background source image layout must not dismiss a retained cut.
     if(document.hidden&&active?.scroller===e.target)return;
@@ -250451,6 +251104,8 @@ body:not(.videoDeveloperShareVisibleV1381) #comicStampMarkerLayerV2470 {display:
     return {corr,support,miss:stroke?miss/stroke:1};
   }
   async function locate(img,stamp,map,traceV2470=null){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('stamp-match');try{
+
     const tpl=await loadTemplate(stamp);
     if(traceV2470){
       traceV2470.template={sd:diagRoundV2470(tpl.sd),strokes12:tpl.strokes12,strokes24:tpl.strokes24,
@@ -250628,7 +251283,9 @@ body:not(.videoDeveloperShareVisibleV1381) #comicStampMarkerLayerV2470 {display:
     }
     if(traceV2470)traceV2470.reason=unique.length?'matched':traceV2470.safetyV2471?.rejectedCandidateCount?'weak-candidates-safely-rejected':'all-stages-rejected-or-no-candidate';
     return unique;
-  }
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+}
   // v2479: Similar registered variants must not paint the same comic area
   // multiple times. This is deliberately a geometrical overlap test, not a
   // global template exclusion: a different watermark elsewhere still runs.
@@ -250665,6 +251322,8 @@ body:not(.videoDeveloperShareVisibleV1381) #comicStampMarkerLayerV2470 {display:
     return -1e4+(b.top-innerHeight);
   }
   function applyMatchedStampV2479(img,area,imageId){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('stamp-apply');try{
+
     const key=session?.key;
     if(!key)return {installed:false,duplicate:false};
     const conflicts=[];
@@ -250695,7 +251354,9 @@ body:not(.videoDeveloperShareVisibleV1381) #comicStampMarkerLayerV2470 {display:
         method:area.method,score:diagRoundV2470(area.score)});
     }
     return {installed:true,duplicate:false};
-  }
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+}
   function schedule(img){
     const activeScene=!!(sceneView?.layer?.isConnected&&
       scenePartRects(sceneView).some(part=>part.img===img));
@@ -251486,6 +252147,8 @@ aside h2{font-size:13px;margin:0 0 8px}#wvImageTestSummaryV2459{font-size:12px;w
     try{URL.revokeObjectURL(a.url);}catch(_){}
   }
   async function refineInWorkerV2507(s,rect){
+  const __wvPerf2512=window.WebViewerReaderPerfV2512?.begin('character-ai-request');try{
+
     stopAnalysisV2507(s);
     if(typeof Worker==='undefined'||typeof Blob==='undefined'||typeof URL.createObjectURL!=='function'){
       statusText(s,'AI 분석을 실행할 수 없는 브라우저입니다. 자동 추출이 적용되지 않았습니다.');
@@ -251562,7 +252225,9 @@ aside h2{font-size:13px;margin:0 0 8px}#wvImageTestSummaryV2459{font-size:12px;w
       s.analysis=null;
       statusText(s,'AI 분석 실행 실패: '+String(e.message||e)+' · 자동 추출이 적용되지 않았습니다.');
     }
-  }
+  
+  } finally {window.WebViewerReaderPerfV2512?.end(__wvPerf2512);}
+}
   function resizeCharacterStageV2509(s){
     if(!s?.scroller)return;
     const fw=Math.max(100,s.scroller.clientWidth-24),fh=Math.max(100,s.scroller.clientHeight-24);
@@ -251963,6 +252628,105 @@ aside h2{font-size:13px;margin:0 0 8px}#wvImageTestSummaryV2459{font-size:12px;w
     select.focus();return true;
   }
   window.ComicCharacterCutoutV2506={open,close:cleanup};
+})();
+
+</script>
+
+<style id="wvReaderIsolationStyleV2514">
+#wtList.wvReaderIsolateV2514 {content-visibility:hidden!important;box-sizing:border-box!important;width:var(--wv2514-list-w)!important;height:var(--wv2514-list-h)!important;min-height:var(--wv2514-list-h)!important;flex-shrink:0!important;overflow-anchor:none!important;}
+</style>
+<script id="wvReaderPerfScriptV2512">
+(()=>{'use strict';
+const $=id=>document.getElementById('wvReaderPerf'+id+'V2512');
+// v2515: default background isolation; diagnostic-only A/B override. Never remove list nodes or change stored settings.
+let isolated=null, isolationObserver=null;
+function isolate(cover){
+ if(run?.isolationRequested===false||!cover||isolated)return;
+ const list=document.getElementById('wtList');
+ if(!list||list.contains(cover)||!CSS.supports('content-visibility','hidden')){mark('isolation-unavailable');return;}
+ const token=begin('background-isolation-enter');
+ const measure=begin('isolation-read-geometry');
+ const h=list.offsetHeight,w=list.offsetWidth;
+ const top=list.scrollTop,left=list.scrollLeft;end(measure);
+ if(!h||!w){mark('isolation-list-not-visible');end(token);return;}
+ isolated={list,cover,top,left,props:['--wv2514-list-h','--wv2514-list-w'].map(k=>[k,list.style.getPropertyValue(k),list.style.getPropertyPriority(k)])};
+ const write=begin('isolation-write-style');
+ list.style.setProperty('--wv2514-list-h',h+'px');list.style.setProperty('--wv2514-list-w',w+'px');
+ list.classList.add('wvReaderIsolateV2514');
+ end(write);
+ isolationObserver?.disconnect();
+ isolationObserver=new MutationObserver(()=>{if(isolated&&!isolated.cover.isConnected)restore();});
+ isolationObserver.observe(document.body,{childList:true});
+ mark('isolation-enter',{width:w,height:h});end(token);
+}
+function restore(cover){
+ const x=isolated;if(!x||(cover&&cover!==x.cover))return;
+ isolated=null;isolationObserver?.disconnect();isolationObserver=null;const token=begin('background-isolation-exit');
+ const write=begin('isolation-restore-style');
+ x.list.classList.remove('wvReaderIsolateV2514');
+ for(const [k,v,p] of x.props){if(v)x.list.style.setProperty(k,v,p);else x.list.style.removeProperty(k);}
+ end(write);
+ const scroll=begin('isolation-restore-scroll');
+ x.list.scrollTop=x.top;x.list.scrollLeft=x.left;end(scroll);
+ end(token);
+ // Verify on the next frame rather than forcing another immediate layout.
+ const generationAtExit=run?.generation;
+ if(run)requestAnimationFrame(()=>{if(run?.generation===generationAtExit&&!isolated&&x.list.isConnected)mark('isolation-exit',{scrollRestored:Math.abs(x.list.scrollTop-x.top)<2&&Math.abs(x.list.scrollLeft-x.left)<2});});
+}
+function imageAssigned(img){if(!run)return;run.mainImage={img,at:now(),mode:run.mode};mark('main-image-src-set');}
+function cacheLookup(state){if(!run)return;run.cacheLookups[state]=(run.cacheLookups[state]||0)+1;}
+function decodeProbe(img){if(!run?.decodeRequested||typeof img.decode!=='function')return;const token=begin('visible-image-decode-wait');const g=run.generation;try{img.decode().then(()=>{end(token);if(run?.generation===g)run.decodeResolved++;},()=>{if(run?.generation===g)run.decodeRejected++;});}catch(_){if(run?.generation===g)run.decodeRejected++;}}
+function readerImageLoaded(e){const x=run?.mainImage;if(!x||e.target!==x.img)return;run.mainImage=null;add(run.spans['main-image-src-to-load / '+x.mode]??=stats(),now()-x.at);mark('main-image-load',{width:x.img.naturalWidth,height:x.img.naturalHeight});}
+
+let run=null,last=null,raf=0,timer=0,observers=[],generation=0;
+const now=()=>performance.now(),round=n=>Math.round(n*10)/10;
+const allowed=()=>window.WebViewerLegacyDevSitesV2030?.enabled?.()===true;
+const reader=()=>document.getElementById('comicZipLightboxV984');
+const phase=()=>reader()?'reader':'outside';
+function stats(){return {count:0,sum:0,max:0,over50:0,over100:0,samples:[]};}
+function add(s,n){if(!Number.isFinite(n)||n<0)return;s.count++;s.sum+=n;s.max=Math.max(s.max,n);if(n>=50)s.over50++;if(n>=100)s.over100++;if(s.samples.length<4096)s.samples.push(n);}
+function summarize(s){const a=s.samples.slice().sort((x,y)=>x-y);return {count:s.count,totalMs:round(s.sum),avgMs:s.count?round(s.sum/s.count):null,p95Ms:a.length?round(a[Math.ceil(a.length*.95)-1]):null,maxMs:round(s.max),over50:s.over50,over100:s.over100,sampled:a.length};}
+function mark(name,data={}){if(!run)return;if(name==='reader-closed'||name==='reader-dom-created'){run.cache=null;run.mainImage=null;run.mode='opening';}if(run.events.length<1200)run.events.push({atMs:round(now()-run.start),name,...data});}
+function begin(name){return run?{generation:run.generation,name,at:now(),mode:run.mode}:null;}
+function end(token){if(!run||!token||token.generation!==run.generation)return;const key=token.name+' / '+token.mode;add(run.spans[key]??=stats(),now()-token.at);}
+function page(n,mode,cache){if(!run)return;run.mode=mode==='vertical'&&['scene1','scene2'].includes(window.ComicVerticalPageDownModeV2287?.get?.())?'cutscene':mode;run.cache=cache;mark('page',{page:n,mode:run.mode});}
+function snapshot(){if(!run)return;const el=reader();let cache=null;try{if(el&&run.cache)cache=run.cache();}catch(_){}if(!el)run.cache=null;const m=performance.memory;const row={atMs:round(now()-run.start),phase:phase(),backgroundIsolated:!!isolated,mode:el?run.mode:'outside',images:el?el.querySelectorAll('img').length:0,canvases:el?el.querySelectorAll('canvas').length:0,readerNodes:el?el.querySelectorAll('*').length:0,jsHeapMB:m?round(m.usedJSHeapSize/1048576):null,cache};if(run.snapshots.length<310)run.snapshots.push(row);}
+function frame(t){if(!run)return;const r=run,visible=!document.hidden,p=phase(),mode=p==='reader'?r.mode:'outside';if(visible&&r.prev&&r.prevMode===mode&&r.prevVisible){const dt=t-r.prev;add(r.frames[mode]??=stats(),dt);}r.prev=t;r.prevMode=mode;r.prevVisible=visible;raf=requestAnimationFrame(frame);}
+function observe(type,fn){try{if(!PerformanceObserver.supportedEntryTypes?.includes(type))return;const o=new PerformanceObserver(list=>{if(run)for(const e of list.getEntries())fn(e);});o.observe({type,buffered:false});observers.push(o);run.supported.push(type);}catch(_){}}
+function report(){if(!run)return last;const r=run;return {version:2540,baseBuild:2525,optimizationBaseBuild:2534,verticalCompositeScrollV2535:true,compositeScroll:r.compositeScroll?{...r.compositeScroll,animatedMs:round(r.compositeScroll.animatedMs),committedPx:round(r.compositeScroll.committedPx),maxCommitErrorPx:round(r.compositeScroll.maxCommitErrorPx)}:null,verticalAutoScrollPacingV2530:true,verticalAutoScrollNoCatchupV2531:true,verticalAutoHiddenUiV2534:true,backgroundQuotaDiagnosticsV2534:true,autoScrollMotion:Object.fromEntries(Object.entries(r.autoScrollMotion||{}).map(([k,v])=>[k,{frames:v.frames,waitingFrames:v.waitingFrames,geometryReads:v.geometryReads,resyncs:v.resyncs,zeroMoveFrames:v.zeroMoveFrames,delayedFrames:v.delayedFrames,cappedFrames:v.cappedFrames,discardedMs:round(v.discardedMs),maxRawFrameMs:round(v.maxRawFrameMs),maxAppliedFrameMs:round(v.maxAppliedFrameMs),maxObservedMovePx:round(v.maxObservedMovePx),largeResyncs:v.largeResyncs,maxResyncShiftPx:round(v.maxResyncShiftPx),idealPx:round(v.idealPx),actualPx:round(v.actualPx),avgAbsErrorPx:v.frames?Math.round(v.error/v.frames*1000)/1000:null,maxAbsErrorPx:Math.round(v.maxError*1000)/1000}])),cutsceneSourceUiReduced:true,spreadDecodeDuringAnimation:true,localSpreadInitialGroups:1,localSpreadWindowGroups:12,spreadDecode:r.spreadDecode,localHorizontalInitialBlobWindow:1,localHorizontalBlobWindow:16,aheadDecodeCount:r.aheadDecodeCount,aheadDecode:r.aheadDecode,isolationRequested:r.isolationRequested,decodeRequested:r.decodeRequested,cacheLookups:r.cacheLookups,decodeResolved:r.decodeResolved,decodeRejected:r.decodeRejected,contentVisibilitySupported:CSS.supports("content-visibility","hidden"),durationMs:round(now()-r.start),supported:r.supported,spans:Object.fromEntries(Object.entries(r.spans).map(([k,v])=>[k,summarize(v)])),frames:Object.fromEntries(Object.entries(r.frames).map(([k,v])=>[k,{...summarize(v),approxFPS:v.sum?round(v.count*1000/v.sum):null}])),longTasks:r.longTasks,longAnimationFrames:r.loaf,events:r.events,snapshots:r.snapshots,notes:['Composite segments use document-timeline transforms. Segment counters do not measure actual compositor presentation; smooth motion samples include fallback.','Frame intervals are requestAnimationFrame estimates, not GPU FPS. Long tasks and LoAF are document-wide.','Auto scroll motion records next-frame scrollTop deltas in CSS pixels, excludes layout revision/navigation resyncs and loading waits, and groups by sharp/smooth. delayedFrames means preceding interval >=25ms, not a refresh-rate-independent dropped-frame count. Geometry reads count bound refreshes only. Motion is not proof of actual painted frames. v2531 caps isolated catch-up movement to 115% of learned normal frame duration; discarded time is not repaid. Resync shifts are measured relative to the prior commanded target, not the intended scrolling distance.','Spans are elapsed wall time, may overlap, and must not be added as CPU time. ZIP extraction includes header read and decompression; folder getFile does not prove all bytes were read.','JS heap is not total browser or GPU memory; cache counts are sampled, no forced GC. Image load events are not actual paint or pure decode.','No paths, titles, URLs, image bytes or persistent data collected. Samples and events capped.','Isolation defaults ON outside diagnostics; OFF is a diagnostic-only comparison. List box size and scroll are restored. Cache ready means bytes, not decoded pixels. Optional decode wait is not pure decoding CPU time and can affect the workload. Main image src-to-load is elapsed time, not pure decode. LoAF render/style-to-end values include subsequent work, not isolated layout CPU. Ahead decode is normally enabled, local ZIP/folder, ready Blob only; local initial Blob window 1, expands to 16 after image load and frame opportunity; remote unchanged; reverse may not have cached bytes. Hits mean a decoded Image and its same URL were handed to the visible image, not proof that browser retained pixels. Estimated retained ahead pixels capped at 96 MiB; in-flight and visible images excluded. Local spread targets 12 total groups including up to 2 behind; old mounted sheets and orientation lookahead may temporarily exceed 24 URLs. Spread decode stats count individual images; hits are reuse candidates, not proof of retained browser pixels.']};}
+function start(){if(!allowed()||run)return;run={generation:++generation,start:now(),mode:'opening',prev:0,events:[],snapshots:[],spans:{},frames:{},supported:[],longTasks:[],loaf:[],cache:null,isolationRequested:!!$('Isolation')?.checked,decodeRequested:!!$('Decode')?.checked,aheadDecodeCount:readAheadCountV2517(),aheadDecode:{started:0,ready:0,hit:0,miss:0,stale:0,rejected:0,budgetSkipped:0},spreadDecode:{started:0,ready:0,hit:0,miss:0,stale:0,rejected:0,budgetSkipped:0},cacheLookups:{ready:0,pending:0,miss:0},decodeResolved:0,decodeRejected:0,mainImage:null};$('Isolation').disabled=true;$('Decode').disabled=true;$('AheadDecode').disabled=true;const comicDecode=document.getElementById('comicAheadDecodeV2518');if(comicDecode)comicDecode.disabled=true;last=null;mark('start',{isolationRequested:run.isolationRequested});if(reader()){if(run.isolationRequested)isolate(reader());else restore();}snapshot();raf=requestAnimationFrame(frame);timer=setInterval(()=>{if(!allowed()||now()-run.start>=300000){stop();return;}if(isolated&&!isolated.cover.isConnected)restore();snapshot();},1000);observe('longtask',e=>{if(run.longTasks.length<1000)run.longTasks.push({atMs:round(e.startTime-run.start),durationMs:round(e.duration)});});observe('long-animation-frame',e=>{if(run.loaf.length<1000)run.loaf.push({atMs:round(e.startTime-run.start),durationMs:round(e.duration),blockingMs:round(e.blockingDuration||0),renderStartMs:e.renderStart?round(e.renderStart-run.start):null,styleLayoutStartMs:e.styleAndLayoutStart?round(e.styleAndLayoutStart-run.start):null,renderToEndMs:e.renderStart?round(e.startTime+e.duration-e.renderStart):null,styleLayoutToEndMs:e.styleAndLayoutStart?round(e.startTime+e.duration-e.styleAndLayoutStart):null,scripts:(e.scripts||[]).slice(0,5).map(x=>({functionName:String(x.sourceFunctionName||'').slice(0,100),invokerType:String(x.invokerType||'').slice(0,60),sourceCharPosition:Number.isFinite(x.sourceCharPosition)?x.sourceCharPosition:null,durationMs:round(x.duration),forcedLayoutMs:round(x.forcedStyleAndLayoutDuration||0)}))});});document.addEventListener('load',imageEvent,true);document.addEventListener('error',imageEvent,true);$('Status').textContent='측정 중';$('Output').style.display='none';}
+function imageEvent(e){if(!run||!(e.target instanceof HTMLImageElement)||!reader()?.contains(e.target))return;const key=e.type==='load'?'image-load-event':'image-error-event';run.imageCounts??={};run.imageCounts[key]=(run.imageCounts[key]||0)+1;if(e.type==='load')readerImageLoaded(e);if(run.imageCounts[key]<=150)mark(key,{width:e.target.naturalWidth,height:e.target.naturalHeight});}
+function stop(){if(!run)return;$('Isolation').disabled=false;$('Decode').disabled=false;$('AheadDecode').disabled=false;const comicDecode=document.getElementById('comicAheadDecodeV2518');if(comicDecode)comicDecode.disabled=false;mark('stop');snapshot();last=report();last.imageEvents=run.imageCounts||{};run=null;if(reader())isolate(reader());else restore();cancelAnimationFrame(raf);clearInterval(timer);for(const o of observers)o.disconnect();observers=[];document.removeEventListener('load',imageEvent,true);document.removeEventListener('error',imageEvent,true);$('Status').textContent='측정 완료';if(allowed())view();}
+function view(){if(!allowed())return;const data=report();const out=$('Output');out.value=data?'WebViewer 2540 / 만화 뷰어 성능 진단\n'+JSON.stringify(data,null,2):'진단 시작 후 만화를 열어주세요.';out.style.display='block';}
+async function copy(){if(!allowed())return;view();const out=$('Output');try{await navigator.clipboard.writeText(out.value);$('Status').textContent='결과 복사 완료';}catch(_){out.focus();out.select();$('Status').textContent='Ctrl+C로 복사하세요';}}
+function compositeStatV2535(kind,d){
+ if(!run)return;
+ const c=run.compositeScroll??={segments:0,commits:0,finished:0,interrupted:0,fallbacks:0,fallbackReasons:{},commitReasons:{},animatedMs:0,committedPx:0,maxAnimatedPages:0,maxCommitErrorPx:0};
+ if(kind==='start'){c.segments++;c.maxAnimatedPages=Math.max(c.maxAnimatedPages,d.pages);}
+ else if(kind==='commit'){c.commits++;if(d.reason==='finished')c.finished++;else c.interrupted++;c.commitReasons[d.reason]=(c.commitReasons[d.reason]||0)+1;c.animatedMs+=d.elapsedMs;c.committedPx+=d.distancePx;c.maxCommitErrorPx=Math.max(c.maxCommitErrorPx,d.commitErrorPx);}
+ else if(kind==='fallback'){c.fallbacks++;c.fallbackReasons[d.reason]=(c.fallbackReasons[d.reason]||0)+1;}
+}
+function autoScrollSampleV2530(mode,kind,ideal,actual,dt){
+ if(!run)return;
+ const v=(run.autoScrollMotion??={})[mode]??=((run.autoScrollMotion)[mode]={frames:0,waitingFrames:0,geometryReads:0,resyncs:0,zeroMoveFrames:0,delayedFrames:0,cappedFrames:0,discardedMs:0,maxRawFrameMs:0,maxAppliedFrameMs:0,maxObservedMovePx:0,largeResyncs:0,maxResyncShiftPx:0,idealPx:0,actualPx:0,error:0,maxError:0});
+ if(kind==='waiting'){v.waitingFrames++;return;}
+ if(kind==='geometry'){v.geometryReads++;return;}
+ if(kind==='resync'){v.resyncs++;const shift=Math.abs(actual);v.maxResyncShiftPx=Math.max(v.maxResyncShiftPx,shift);if(shift>2){v.largeResyncs++;if(v.largeResyncs<=50)mark('auto-scroll-position-resync',{mode,shiftPx:round(actual),frameMs:round(dt)});}return;}
+ if(kind==='cadence'){v.maxRawFrameMs=Math.max(v.maxRawFrameMs,ideal);v.maxAppliedFrameMs=Math.max(v.maxAppliedFrameMs,actual);if(ideal-actual>0.1){v.cappedFrames++;v.discardedMs+=ideal-actual;if(v.cappedFrames<=100)mark('auto-scroll-gap-capped',{mode,rawMs:round(ideal),appliedMs:round(actual),nominalMs:round(dt)});}return;}
+ if(kind!=='move')return;
+ const error=Math.abs(actual-ideal);v.frames++;v.idealPx+=ideal;v.actualPx+=actual;v.maxObservedMovePx=Math.max(v.maxObservedMovePx,Math.abs(actual));v.error+=error;v.maxError=Math.max(v.maxError,error);if(actual===0)v.zeroMoveFrames++;if(dt>=25)v.delayedFrames++;
+}
+window.WebViewerReaderPerfV2512={active:()=>!!run,autoScrollSampleV2530,compositeStatV2535,begin,end,mark,page,isolate,restore,imageAssigned,cacheLookup,decodeProbe,aheadDecodeCount:()=>run?.aheadDecodeCount??readAheadCountV2517(),aheadDecodeStat:key=>{if(run)run.aheadDecode[key]=(run.aheadDecode[key]||0)+1;},spreadDecodeStat:key=>{if(run)run.spreadDecode[key]=(run.spreadDecode[key]||0)+1;},report:()=>allowed()?report():null};
+function readAheadCountV2517(){const v=$('AheadDecode')?.value;return v==='0'?0:v==='2'?2:1;}
+function attach(){if(!$('Start'))return;
+ const sel=$('AheadDecode'),comicSel=document.getElementById('comicAheadDecodeV2518');
+ if(sel){try{const v=localStorage.getItem('wvReaderAheadDecodeCountV2517');if(['0','1','2'].includes(v))sel.value=v;}catch(_){}
+ if(comicSel)comicSel.value=sel.value;
+ const update=source=>{sel.value=source.value;if(comicSel)comicSel.value=sel.value;try{localStorage.setItem('wvReaderAheadDecodeCountV2517',String(readAheadCountV2517()));}catch(_){}window.dispatchEvent(new Event('wv-ahead-decode-stop-v2516'));};
+ sel.addEventListener('change',()=>update(sel));comicSel?.addEventListener('change',()=>update(comicSel));}
+$('Start').onclick=start;$('Stop').onclick=stop;$('View').onclick=view;$('Copy').onclick=copy;}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
+window.addEventListener('wv-legacy-sites-developer-changed-v2030',()=>{if(!allowed())stop();});
 })();
 
 </script>
